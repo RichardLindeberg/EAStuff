@@ -102,6 +102,45 @@ python scripts/generators/generate_puml.py --element app-comp-customer-portal-00
 python scripts/generators/generate_puml.py --list
 ```
 
+### Generating Static Website
+
+Create a browsable HTML website of your architecture elements organized by layer:
+
+```bash
+# Quick way: Generate website with bash script (auto-opens in browser)
+./generate-website.sh
+
+# Or run Python script directly
+python3 scripts/generate_website.py
+
+# Specify custom output directory
+python3 scripts/generate_website.py /path/to/output/dir
+```
+
+**Features:**
+- ✓ **Layer-based navigation** - Browse elements by ArchiMate layer
+- ✓ **Incoming & Outgoing relations** - See all relationships for each element
+- ✓ **Clickable links** - Navigate between related elements
+- ✓ **Responsive design** - Works on desktop and mobile
+- ✓ **Metadata display** - Shows all element properties and tags
+- ✓ **Markdown rendering** - Element content rendered as HTML
+
+**Output Structure:**
+```
+output/website/
+  ├── index.html              # Home page with layer overview
+  ├── strategy.html           # Strategy layer elements
+  ├── motivation.html         # Motivation layer elements
+  ├── business.html           # Business layer elements
+  ├── application.html        # Application layer elements
+  ├── technology.html         # Technology layer elements
+  └── elements/               # Individual element pages
+      ├── elem-id-001.html
+      └── ...
+```
+
+See [Website Generator Documentation](docs/website-generator.md) for more details.
+
 ### Generating Interactive Mermaid Diagrams
 
 Create **clickable** Mermaid diagrams with links to element markdown files:
