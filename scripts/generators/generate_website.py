@@ -18,6 +18,9 @@ def main():
     script_dir = Path(__file__).parent
     workspace_dir = script_dir.parent.parent
     generator_script = workspace_dir / 'scripts' / 'generators' / 'generate_mermaid.py'
+    puml_generator_script = workspace_dir / 'scripts' / 'generators' / 'generate_puml.py'
+    puml_render_script = workspace_dir / 'scripts' / 'generators' / 'render_puml_svg.py'
+    drawio_generator_script = workspace_dir / 'scripts' / 'generators' / 'generate_drawio.py'
     output_dir = workspace_dir / 'output'
     
     print("🏗️  Generating Complete Static Website")
@@ -73,6 +76,25 @@ def main():
     print(f"  • {output_dir / 'index.html'} - Main entry point")
     print(f"  • {output_dir / 'diagrams'}/*.html - Interactive Mermaid diagrams")
     print(f"  • {output_dir / 'elements'}/**/*.html - Element documentation pages")
+    
+    print("\n" + "=" * 60)
+    print("🧩 Generating PlantUML diagrams (ArchiMate) and SVGs")
+    print("=" * 60)
+
+    # Generate PlantUML files with clickable HTML links
+    subprocess.run([sys.executable, str(puml_generator_script), '--link-format', 'html', '--link-base', '..'])
+    for layer in layers:
+        subprocess.run([sys.executable, str(puml_generator_script), '--link-format', 'html', '--link-base', '..', '--layer', layer])
+
+    # Render PlantUML SVGs for embedding
+    subprocess.run([sys.executable, str(puml_render_script)])
+    
+    print("\n" + "=" * 60)
+    print("✏️  Generating draw.io diagrams for manual editing")
+    print("=" * 60)
+    
+    # Generate draw.io files for manual customization
+    subprocess.run([sys.executable, str(drawio_generator_script)])
     
     return 0
 

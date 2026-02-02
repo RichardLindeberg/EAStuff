@@ -190,9 +190,15 @@ class MermaidGenerator:
         # Generate relationships
         mmd.append("\n%% Relationships")
         missing_targets = set()
+        rel_styles = []
+        rel_index = 0
         for rel in self.relationships:
             if rel['source'] in self.elements and rel['target'] in self.elements:
                 mmd.append(self._relationship_to_mermaid_string(rel))
+                style = self._relationship_style(rel['type'])
+                if style:
+                    rel_styles.append(f"linkStyle {rel_index} {style}")
+                rel_index += 1
             elif rel['target'] not in self.elements:
                 missing_targets.add(rel['target'])
         
@@ -200,6 +206,11 @@ class MermaidGenerator:
         if missing_targets:
             print(f"⚠️  Warning: Some relationships reference missing elements: {', '.join(sorted(missing_targets))}")
         
+        # Add relationship styling
+        if rel_styles:
+            mmd.append("\n%% Relationship Styling")
+            mmd.extend(rel_styles)
+
         # Add styling
         mmd.append("\n%% Styling")
         for layer, color in self._get_layer_colors().items():
@@ -253,11 +264,22 @@ class MermaidGenerator:
         # Add relationships (only within this layer or to/from this layer)
         layer_elem_ids = set(layer_elements.keys())
         mmd.append("\n%% Relationships")
+        rel_styles = []
+        rel_index = 0
         for rel in self.relationships:
             if rel['source'] in layer_elem_ids or rel['target'] in layer_elem_ids:
                 if rel['source'] in self.elements and rel['target'] in self.elements:
                     mmd.append(self._relationship_to_mermaid_string(rel))
+                    style = self._relationship_style(rel['type'])
+                    if style:
+                        rel_styles.append(f"linkStyle {rel_index} {style}")
+                    rel_index += 1
         
+        # Add relationship styling
+        if rel_styles:
+            mmd.append("\n%% Relationship Styling")
+            mmd.extend(rel_styles)
+
         # Add styling
         mmd.append("\n%% Styling")
         color = self._get_layer_colors().get(layer, '#FFFFFF')
@@ -314,10 +336,21 @@ class MermaidGenerator:
         
         # Add relationships
         mmd.append("\n%% Relationships")
+        rel_styles = []
+        rel_index = 0
         for rel in self.relationships:
             if rel['source'] in connected and rel['target'] in connected:
                 mmd.append(self._relationship_to_mermaid_string(rel))
+                style = self._relationship_style(rel['type'])
+                if style:
+                    rel_styles.append(f"linkStyle {rel_index} {style}")
+                rel_index += 1
         
+        # Add relationship styling
+        if rel_styles:
+            mmd.append("\n%% Relationship Styling")
+            mmd.extend(rel_styles)
+
         # Add styling - highlight the main element
         mmd.append("\n%% Styling")
         main_elem_id = self._sanitize_id(element_id)
@@ -441,6 +474,23 @@ class MermaidGenerator:
             return f"    {source} {arrow}|{description}| {target}"
         else:
             return f"    {source} {arrow} {target}"
+
+    def _relationship_style(self, rel_type: str) -> str:
+        """Return Mermaid linkStyle string for ArchiMate-like styling"""
+        style_map = {
+            'composition': 'stroke:#333,stroke-width:2.5px',
+            'aggregation': 'stroke:#333,stroke-width:2px',
+            'assignment': 'stroke:#333,stroke-dasharray:4 4',
+            'realization': 'stroke:#333,stroke-width:2px,stroke-dasharray:6 4',
+            'serving': 'stroke:#333,stroke-width:2px',
+            'access': 'stroke:#333,stroke-width:2px',
+            'influence': 'stroke:#666,stroke-dasharray:2 2',
+            'association': 'stroke:#999,stroke-dasharray:5 5',
+            'triggering': 'stroke:#333,stroke-width:2px',
+            'flow': 'stroke:#333,stroke-width:2px',
+            'specialization': 'stroke:#333,stroke-width:2px',
+        }
+        return style_map.get(rel_type, 'stroke:#333,stroke-width:2px')
     
     def _sanitize_id(self, elem_id: str) -> str:
         """Sanitize element ID for Mermaid"""
@@ -485,9 +535,11 @@ class MermaidGenerator:
         mermaid.initialize({{ 
             startOnLoad: true,
             theme: 'default',
-            securityLevel: 'loose'
+            securityLevel: 'loose',
+            flowchart: {{ useMaxWidth: false, htmlLabels: true }}
         }});
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
     <style>
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -509,10 +561,35 @@ class MermaidGenerator:
             padding-bottom: 10px;
             margin-bottom: 30px;
         }}
-        .mermaid {{
+        .diagram-toolbar {{
             display: flex;
-            justify-content: center;
-            margin: 20px 0;
+            gap: 8px;
+            margin: 10px 0 20px;
+        }}
+        .diagram-toolbar button {{
+            background: #0066cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }}
+        .diagram-toolbar button:hover {{
+            background: #004c99;
+        }}
+        .diagram-wrapper {{
+            width: 100%;
+            height: 75vh;
+            min-height: 420px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+        }}
+        .mermaid {{
+            width: 100%;
+            height: 100%;
         }}
         .info {{
             background: #e8f4f8;
@@ -532,11 +609,64 @@ class MermaidGenerator:
         <h1>{title}</h1>
         <div class="info">
             <p><strong>💡 Tip:</strong> Click on any element in the diagram to view its detailed documentation.</p>
+            <p><strong>🧭 Navigation:</strong> Use the zoom controls below or scroll to zoom and drag to pan.</p>
         </div>
-        <div class="mermaid">
+        <div class="diagram-toolbar">
+            <button type="button" id="zoom-in">Zoom In</button>
+            <button type="button" id="zoom-out">Zoom Out</button>
+            <button type="button" id="zoom-reset">Reset</button>
+        </div>
+        <div class="diagram-wrapper">
+            <div class="mermaid">
 {mermaid_code}
+            </div>
         </div>
     </div>
+    <script>
+        let panZoomInstance = null;
+        const ensureViewBox = (svg) => {{
+            if (!svg.getAttribute('viewBox')) {{
+                const box = svg.getBBox();
+                if (box.width > 0 && box.height > 0) {{
+                    svg.setAttribute('viewBox', `${{box.x}} ${{box.y}} ${{box.width}} ${{box.height}}`);
+                }}
+            }}
+        }};
+
+        const initPanZoom = (attempt = 0) => {{
+            const svg = document.querySelector('.mermaid svg');
+            if (!svg || svg.__panzoom) return;
+            ensureViewBox(svg);
+            const box = svg.viewBox.baseVal;
+            if (!box || !isFinite(box.width) || !isFinite(box.height) || box.width === 0 || box.height === 0) {{
+                if (attempt < 10) {{
+                    requestAnimationFrame(() => initPanZoom(attempt + 1));
+                }}
+                return;
+            }}
+            panZoomInstance = svgPanZoom(svg, {{
+                zoomEnabled: true,
+                controlIconsEnabled: false,
+                fit: true,
+                center: true,
+                minZoom: 0.2,
+                maxZoom: 10
+            }});
+            svg.__panzoom = true;
+        }};
+
+        const observer = new MutationObserver(() => initPanZoom());
+        const mermaidRoot = document.querySelector('.mermaid');
+        if (mermaidRoot) {{
+            observer.observe(mermaidRoot, {{ childList: true, subtree: true }});
+        }}
+
+        window.addEventListener('load', () => initPanZoom());
+
+        document.getElementById('zoom-in').addEventListener('click', () => panZoomInstance && panZoomInstance.zoomIn());
+        document.getElementById('zoom-out').addEventListener('click', () => panZoomInstance && panZoomInstance.zoomOut());
+        document.getElementById('zoom-reset').addEventListener('click', () => panZoomInstance && panZoomInstance.resetZoom());
+    </script>
 </body>
 </html>
 """

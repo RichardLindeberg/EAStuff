@@ -20,11 +20,13 @@ if sys.platform == 'win32':
     sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
 
 class PlantUMLGenerator:
-    def __init__(self, elements_dir: str):
+    def __init__(self, elements_dir: str, link_format: str = 'md', link_base: str = '..'):
         """Initialize generator with elements directory"""
         self.elements_dir = Path(elements_dir)
         self.elements = {}
         self.relationships = []
+        self.link_format = link_format
+        self.link_base = link_base.rstrip('/') if link_base else ''
         
         # ArchiMate element to PlantUML mapping
         self.element_to_puml = {
@@ -124,6 +126,9 @@ class PlantUMLGenerator:
                     file_path = os.path.join(root, file)
                     element = self._parse_element(file_path)
                     if element:
+                        # Store the relative path to the markdown file
+                        rel_path = os.path.relpath(file_path, self.elements_dir.parent)
+                        element['_file_path'] = rel_path.replace('\\', '/')
                         self.elements[element['id']] = element
                         
                         # Extract relationships
@@ -166,7 +171,6 @@ class PlantUMLGenerator:
         puml.append(f"title {title}")
         puml.append("")
         puml.append("' Styling")
-        puml.append("skinparam componentStyle rectangle")
         puml.append("skinparam backgroundColor white")
         puml.append("skinparam shadowing false")
         puml.append("")
@@ -192,7 +196,8 @@ class PlantUMLGenerator:
                 puml.append(self._element_to_puml_string(elem))
         
         # Generate relationships
-        puml.append("\n' Relationships")
+        puml.append("")  # Blank line before relationships
+        puml.append("' Relationships")
         missing_targets = set()
         for rel in self.relationships:
             if rel['source'] in self.elements and rel['target'] in self.elements:
@@ -204,7 +209,7 @@ class PlantUMLGenerator:
         if missing_targets:
             print(f"⚠️  Warning: Some relationships reference missing elements: {', '.join(sorted(missing_targets))}")
         
-        puml.append("\n@enduml")
+        puml.append("@enduml")
         
         # Write to file
         with open(output_file, 'w', encoding='utf-8') as f:
@@ -229,7 +234,6 @@ class PlantUMLGenerator:
         puml.append(f"title {layer.title()} Layer Architecture")
         puml.append("")
         puml.append("' Styling")
-        puml.append("skinparam componentStyle rectangle")
         puml.append("skinparam backgroundColor white")
         puml.append("skinparam shadowing false")
         puml.append("")
@@ -238,15 +242,16 @@ class PlantUMLGenerator:
         for elem_id, elem in layer_elements.items():
             puml.append(self._element_to_puml_string(elem))
         
-        # Add relationships (only within this layer or to/from this layer)
+        # Add relationships (only within this layer)
         layer_elem_ids = set(layer_elements.keys())
-        puml.append("\n' Relationships")
+        puml.append("")  # Blank line before relationships
+        puml.append("' Relationships")
         for rel in self.relationships:
-            if rel['source'] in layer_elem_ids or rel['target'] in layer_elem_ids:
-                if rel['source'] in self.elements and rel['target'] in self.elements:
-                    puml.append(self._relationship_to_puml_string(rel))
+            # Only include if BOTH source and target are in this layer
+            if rel['source'] in layer_elem_ids and rel['target'] in layer_elem_ids:
+                puml.append(self._relationship_to_puml_string(rel))
         
-        puml.append("\n@enduml")
+        puml.append("@enduml")
         
         # Write to file
         with open(output_file, 'w', encoding='utf-8') as f:
@@ -274,7 +279,6 @@ class PlantUMLGenerator:
         puml.append(f"title Context: {elem.get('name', element_id)}")
         puml.append("")
         puml.append("' Styling")
-        puml.append("skinparam componentStyle rectangle")
         puml.append("skinparam backgroundColor white")
         puml.append("skinparam shadowing false")
         puml.append("")
@@ -286,19 +290,20 @@ class PlantUMLGenerator:
                 
                 # Highlight the main element
                 if eid == element_id:
-                    elem_id = self._sanitize_id(eid)
-                    elem_name = elem_data.get('name', eid)
-                    puml.append(f"component \"{elem_name}\" as {elem_id} #lightblue")
+                    puml.append(self._element_to_puml_string(elem_data, override_color="#lightblue"))
                 else:
                     puml.append(self._element_to_puml_string(elem_data))
         
         # Add relationships
-        puml.append("\n' Relationships")
+        puml.append("")  # Blank line before relationships
+        puml.append("' Relationships")
+        connected_ids = set(connected)
         for rel in self.relationships:
-            if rel['source'] in connected and rel['target'] in connected:
+            # Only include if BOTH source and target are in the connected set
+            if rel['source'] in connected_ids and rel['target'] in connected_ids:
                 puml.append(self._relationship_to_puml_string(rel))
         
-        puml.append("\n@enduml")
+        puml.append("@enduml")
         
         # Write to file
         with open(output_file, 'w', encoding='utf-8') as f:
@@ -326,13 +331,12 @@ class PlantUMLGenerator:
         
         return connected
     
-    def _element_to_puml_string(self, elem: Dict) -> str:
+    def _element_to_puml_string(self, elem: Dict, override_color: str = None) -> str:
         """Convert element to PlantUML string"""
-        elem_type = elem.get('type', 'component')
-        layer = elem.get('layer', 'other')
         elem_id = self._sanitize_id(elem['id'])
         elem_name = elem.get('name', elem['id'])
-        
+        layer = elem.get('layer', 'other')
+
         # Color coding by layer
         color_map = {
             'strategy': '#FFF4E6',
@@ -343,39 +347,37 @@ class PlantUMLGenerator:
             'motivation': '#FFE6F0',
             'implementation': '#F5E6FF',
         }
-        color = color_map.get(layer, '#FFFFFF')
-        
-        # Use standard PlantUML components with color
+        color = override_color or color_map.get(layer, '#FFFFFF')
+
+        # Use simple component syntax with color (no link for now)
         return f"component \"{elem_name}\" as {elem_id} {color}"
     
     def _relationship_to_puml_string(self, rel: Dict) -> str:
         """Convert relationship to PlantUML string"""
         source = self._sanitize_id(rel['source'])
         target = self._sanitize_id(rel['target'])
-        rel_type = rel['type']
         description = rel.get('description', '')
-        
-        # Map relationship types to PlantUML arrows
-        arrow_map = {
-            'composition': '++--',       # Strong aggregation
-            'aggregation': 'o--',        # Weak aggregation
-            'assignment': '..',          # Assignment/allocation
-            'realization': '.|>',        # Realizes/implements
-            'serving': '--',             # Provides service
-            'access': '-->',             # Accesses data
-            'influence': '..>',          # Influences
-            'association': '--',         # Generic association
-            'triggering': '->',          # Triggers
-            'flow': '-->',               # Data/control flow
-            'specialization': '--|>',    # Inheritance
-        }
-        
-        arrow = arrow_map.get(rel_type, '--')
-        
+
+        # Use simple arrow for all relationships
+        arrow = "-->"
+
         if description:
+            # Escape special characters in description
+            description = description.replace('"', '\\"')
             return f"{source} {arrow} {target} : {description}"
         else:
             return f"{source} {arrow} {target}"
+
+    def _get_element_link(self, elem: Dict) -> str:
+        """Get link to element markdown/html file - use short relative path"""
+        file_path = elem.get('_file_path', '')
+        if not file_path:
+            return ''
+        if self.link_format == 'html':
+            file_path = file_path.replace('.md', '.html')
+        # Just use filename for shorter links
+        filename = file_path.split('/')[-1]
+        return filename if filename else ''
     
     def _sanitize_id(self, elem_id: str) -> str:
         """Sanitize element ID for PlantUML"""
@@ -409,48 +411,67 @@ def main():
     # Create output directory
     output_dir.mkdir(exist_ok=True)
     
-    generator = PlantUMLGenerator(str(elements_dir))
+    args = sys.argv[1:]
+    link_format = 'md'
+    link_base = '..'
+
+    if '--link-format' in args:
+        idx = args.index('--link-format')
+        if idx + 1 < len(args):
+            link_format = args[idx + 1].lower()
+            del args[idx:idx + 2]
+
+    if '--link-base' in args:
+        idx = args.index('--link-base')
+        if idx + 1 < len(args):
+            link_base = args[idx + 1]
+            del args[idx:idx + 2]
+
+    generator = PlantUMLGenerator(str(elements_dir), link_format=link_format, link_base=link_base)
     
-    if len(sys.argv) == 1:
+    if len(args) == 0:
         # Generate full diagram
         output_file = output_dir / 'full-architecture.puml'
         generator.generate_full_diagram(str(output_file))
         print(f"\n💡 Tip: Use 'python generate_puml.py --help' for more options")
         
-    elif sys.argv[1] == '--list':
+    elif args[0] == '--list':
         generator.list_elements()
         
-    elif sys.argv[1] == '--layer':
-        if len(sys.argv) < 3:
+    elif args[0] == '--layer':
+        if len(args) < 2:
             print("Usage: python generate_puml.py --layer <layer_name>")
             return 1
-        layer = sys.argv[2]
+        layer = args[1]
         output_file = output_dir / f'{layer}-layer.puml'
         generator.generate_layer_diagram(layer, str(output_file))
         
-    elif sys.argv[1] == '--element':
-        if len(sys.argv) < 3:
+    elif args[0] == '--element':
+        if len(args) < 2:
             print("Usage: python generate_puml.py --element <element_id> [depth]")
             return 1
-        element_id = sys.argv[2]
-        depth = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+        element_id = args[1]
+        depth = int(args[2]) if len(args) > 2 else 1
         output_file = output_dir / f'{element_id}-context.puml'
         generator.generate_element_context_diagram(element_id, str(output_file), depth)
         
-    elif sys.argv[1] == '--help':
+    elif args[0] == '--help':
         print("""
 ArchiMate to PlantUML Generator
 
 Usage:
-  python generate_puml.py                          Generate full architecture diagram
-  python generate_puml.py --list                   List all elements
-  python generate_puml.py --layer <name>           Generate diagram for specific layer
-  python generate_puml.py --element <id> [depth]   Generate context diagram for element
-  python generate_puml.py --help                   Show this help
+  python generate_puml.py                                     Generate full architecture diagram
+  python generate_puml.py --list                              List all elements
+  python generate_puml.py --layer <name>                      Generate diagram for specific layer
+  python generate_puml.py --element <id> [depth]              Generate context diagram for element
+  python generate_puml.py --link-format <md|html> ...         Set link format in diagram
+  python generate_puml.py --link-base <path> ...              Set link base prefix (default: ..)
+  python generate_puml.py --help                              Show this help
 
 Examples:
-  python generate_puml.py --layer application
-  python generate_puml.py --element cust-portal-001 2
+    python generate_puml.py --layer application
+    python generate_puml.py --element cust-portal-001 2
+    python generate_puml.py --link-format html --link-base .. --layer application
 
 Output files are saved to: diagrams/
 
@@ -460,7 +481,7 @@ To render PlantUML files:
   - Use VS Code extension: "PlantUML" by jebbs
         """)
     else:
-        print(f"Unknown option: {sys.argv[1]}")
+        print(f"Unknown option: {args[0]}")
         print("Use --help for usage information")
         return 1
     
