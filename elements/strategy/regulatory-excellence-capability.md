@@ -1,0 +1,97 @@
+---
+id: str-capa-regulatory-excellence-001
+name: Regulatory Compliance and Risk Management Capability
+type: capability
+layer: strategy
+relationships:
+  - type: realization
+    target: mot-goal-001-strengthen-regulatory-compliance
+    description: Realizes regulatory compliance goal
+  - type: realization
+    target: mot-requirement-001-gdpr-compliance
+    description: Realizes GDPR compliance requirement
+  - type: realization
+    target: mot-requirement-002-mifid2-compliance
+    description: Realizes MiFID II compliance requirement
+  - type: realization
+    target: mot-requirement-011-dora-compliance
+    description: Realizes DORA compliance requirement
+properties:
+  owner: Chief Compliance Officer
+  status: mature
+  criticality: critical
+  maturity-level: "3 - Defined"
+  last-updated: "2026-02-02"
+tags:
+  - capability
+  - compliance
+  - risk
+  - governance
+  - strategic
+---
+
+# Regulatory Compliance and Risk Management Capability
+
+Strategic capability to maintain compliance with all applicable EU, Nordic, and local financial regulations while proactively managing regulatory risks.
+
+## Description
+
+This capability ensures the bank operates within all regulatory requirements, anticipates regulatory changes, and maintains transparent relationships with regulatory authorities. It encompasses GDPR, MiFID II, PSD2, DORA, Basel III, and local requirements.
+
+## Capability Components
+
+### People
+- Compliance specialists
+- Risk managers
+- Legal counsel
+- Internal auditors
+- Data protection officers
+- Anti-money laundering (AML) specialists
+
+### Process
+- Regulatory monitoring and intelligence
+- Compliance risk assessment
+- Policy development and updates
+- Internal audit and testing
+- Regulatory reporting
+- Incident and breach notification
+- Compliance training and certification
+
+### Technology
+- Compliance management system
+- AML/KYC screening tools
+- Policy management platform
+- Audit and testing tools
+- Regulatory reporting systems
+- Data protection tools
+
+### Information
+- Regulatory requirements database
+- Policy documentation
+- Compliance assessment results
+- Audit findings and remediation
+- Regulatory correspondence
+- Industry compliance benchmarks
+
+## Current State
+
+- Fragmented compliance systems
+- Reactive to regulatory changes
+- Multiple point solutions
+- Maturity: 3 - Defined
+
+## Target State
+
+- Integrated compliance platform
+- Proactive regulatory engagement
+- Zero material violations
+- Automated compliance monitoring
+- Maturity: 4 - Managed
+
+## Strategic Value
+
+- Operational license to operate
+- Customer trust and confidence
+- Avoidance of fines and sanctions
+- Competitive advantage through reputation
+- Risk mitigation across organization

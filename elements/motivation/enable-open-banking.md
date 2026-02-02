@@ -1,0 +1,53 @@
+---
+id: mot-goal-005-enable-open-banking
+name: Enable Open Banking Capabilities
+type: goal
+layer: motivation
+relationships:
+  - type: influence
+    target: mot-driver-001-eu-regulations
+    description: Driven by PSD2 and open banking regulations
+  - type: realization
+    target: mot-requirement-009-api-platform
+    description: Requires modern API platform
+  - type: influence
+    target: mot-requirement-010-ecosystem-partnerships
+    description: Enables ecosystem partnership opportunities
+properties:
+  owner: Chief Technology Officer
+  status: in-progress
+  criticality: high
+  last-updated: "2026-02-02"
+tags:
+  - open-banking
+  - ecosystem
+  - innovation
+---
+
+# Enable Open Banking Capabilities
+
+Develop a modern API platform and ecosystem partnerships to enable open banking services and create new revenue opportunities.
+
+## Description
+
+PSD2 regulations mandate open banking capabilities. This goal transforms this regulatory requirement into a strategic opportunity by building secure APIs and fostering partnerships with fintech and service providers.
+
+## Objectives
+
+1. **Secure API Platform**: Build production-ready APIs for account information and payment services
+2. **Developer Portal**: Establish self-service developer portal for partner integration
+3. **Fintech Partnerships**: Establish partnerships with complementary fintech providers
+4. **Embedded Finance**: Enable embedded banking services in third-party platforms
+5. **Revenue Generation**: Create new B2B revenue streams through API monetization
+
+## Success Metrics
+
+- API availability: >99.95% uptime
+- Number of active third-party integrations: >50 by 2027
+- API transaction volume: >10% of digital transactions
+- Developer community size: >1000 active developers
+- New API-based revenue: >5% of digital revenue
+
+## Strategic Alignment
+
+Open banking transforms the bank from a siloed institution into a platform participant, enabling growth through partnerships and ecosystem participation.
