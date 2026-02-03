@@ -36,7 +36,7 @@ class IDMigrator:
     """Migrates ArchiMate element IDs from old format to new format."""
     
     # Regex pattern to match old format: layer-type-name-###
-    OLD_FORMAT_PATTERN = r'^([a-z]{3})-([a-z_]{4})-(.+?)-(\d{3})$'
+    OLD_FORMAT_PATTERN = r'^([a-z]{3})-([a-z_]{4,5})-(.+?)-(\d{3})$'
     
     def __init__(self, root_dir: str, dry_run: bool = False, backup_dir: Optional[str] = None):
         """

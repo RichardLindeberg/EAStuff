@@ -207,6 +207,56 @@ type: goal
 layer: motivation
 ```
 
+## File Naming Standard
+
+Element definition files should follow the same naming convention as the element IDs themselves for consistency and improved organization.
+
+### File Name Format
+
+```
+[layer-code]-[type-code]-[###]-[descriptive-name].md
+```
+
+This matches the element ID format exactly, with the `.md` extension added.
+
+### Examples
+
+| Layer | File Name Example |
+|-------|-------------------|
+| Strategy | `str-capa-001-omnichannel.md` |
+| Business | `bus-proc-001-customer-service.md` |
+| Business | `bus-role-002-account-manager.md` |
+| Application | `app-comp-001-customer-portal.md` |
+| Technology | `tec-node-001-web-server.md` |
+| Motivation | `mot-goal-001-digital-transform.md` |
+
+### Benefits
+
+- **Self-documenting**: Element layer and type visible at directory level
+- **Natural sorting**: Files group by layer, then by type
+- **Quick identification**: No need to open files to understand what they contain
+- **Consistency**: File name matches the ID inside the file
+- **Unique**: Prevents accidental file name collisions
+- **Searchable**: Easy to find files using glob patterns or search
+
+### Web Display
+
+File names do NOT affect how elements are displayed on the generated website. The website uses the `name` field from within each element's YAML frontmatter for display purposes.
+
+```yaml
+---
+id: bus-proc-001-customer-service
+name: Customer Service Process    # ← This is used for web display
+type: business-process
+layer: business
+---
+```
+
+This separation allows:
+- Technical, organized file names for repository management
+- Clean, human-friendly names for user-facing documentation
+- Independence between storage format and presentation
+
 ## Benefits
 
 This standardized approach provides:
