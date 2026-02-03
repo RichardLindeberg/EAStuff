@@ -5,7 +5,7 @@ type: driver
 layer: motivation
 relationships:
   - type: influence
-    target: mot-goal-001-strengthen-regulatory-compliance
+    target: mot-goal-001-regulatory-compliance
     description: Drives regulatory compliance goal
   - type: influence
     target: mot-requirement-011-dora-compliance

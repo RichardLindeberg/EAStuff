@@ -11,7 +11,7 @@ relationships:
     target: str-capa-customer-trust-001
     description: Builds on customer trust capability
   - type: supports
-    target: mot-goal-002-enhance-digital-banking
+    target: mot-goal-002-digital-banking-excellence
     description: Supports digital banking goal
 properties:
   owner: Chief Customer Officer

@@ -5,7 +5,7 @@ type: requirement
 layer: motivation
 relationships:
   - type: realizationOf
-    target: mot-goal-001-strengthen-regulatory-compliance
+    target: mot-goal-001-regulatory-compliance
     description: Required by regulatory compliance goal
 properties:
   owner: Chief Compliance Officer

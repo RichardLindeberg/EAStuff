@@ -5,10 +5,10 @@ type: driver
 layer: motivation
 relationships:
   - type: influence
-    target: mot-goal-001-strengthen-regulatory-compliance
+    target: mot-goal-001-regulatory-compliance
     description: Drives regulatory compliance goal
   - type: influence
-    target: mot-goal-005-enable-open-banking
+    target: mot-goal-005-open-banking-capability
     description: Drives open banking requirements
 properties:
   source: External

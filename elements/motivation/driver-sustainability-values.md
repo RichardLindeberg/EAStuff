@@ -5,7 +5,7 @@ type: driver
 layer: motivation
 relationships:
   - type: influence
-    target: mot-goal-004-build-customer-trust
+    target: mot-goal-004-customer-trust
     description: Drives customer trust and responsibility
 properties:
   source: External

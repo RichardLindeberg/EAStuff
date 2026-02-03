@@ -5,7 +5,7 @@ type: driver
 layer: motivation
 relationships:
   - type: influence
-    target: mot-goal-002-enhance-digital-banking
+    target: mot-goal-002-digital-banking-excellence
     description: Drives digital banking enhancement
 properties:
   source: External

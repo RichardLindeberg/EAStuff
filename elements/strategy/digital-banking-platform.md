@@ -5,7 +5,7 @@ type: capability
 layer: strategy
 relationships:
   - type: realization
-    target: mot-goal-002-enhance-digital-banking
+    target: mot-goal-002-digital-banking-excellence
     description: Realizes digital banking enhancement goal
   - type: realization
     target: mot-requirement-003-mobile-first

@@ -5,7 +5,7 @@ type: requirement
 layer: motivation
 relationships:
   - type: realizationOf
-    target: mot-goal-002-enhance-digital-banking
+    target: mot-goal-002-digital-banking-excellence
     description: Required by digital banking goal
 properties:
   owner: Chief Digital Officer

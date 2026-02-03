@@ -14,10 +14,10 @@ relationships:
     target: str-capa-operational-resilience-001
     description: Guides resilience and security investments
   - type: supports
-    target: mot-goal-002-enhance-digital-banking
+    target: mot-goal-002-digital-banking-excellence
     description: Implements digital banking goal
   - type: supports
-    target: mot-goal-003-improve-operational-efficiency
+    target: mot-goal-003-operational-efficiency
     description: Implements operational efficiency goal
 properties:
   owner: Chief Digital Officer

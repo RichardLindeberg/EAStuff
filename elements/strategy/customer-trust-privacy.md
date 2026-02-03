@@ -5,7 +5,7 @@ type: capability
 layer: strategy
 relationships:
   - type: realization
-    target: mot-goal-004-build-customer-trust
+    target: mot-goal-004-customer-trust
     description: Realizes customer trust goal
   - type: realization
     target: mot-requirement-007-data-security

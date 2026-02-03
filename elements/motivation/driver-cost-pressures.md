@@ -5,7 +5,7 @@ type: driver
 layer: motivation
 relationships:
   - type: influence
-    target: mot-goal-003-improve-operational-efficiency
+    target: mot-goal-003-operational-efficiency
     description: Drives operational efficiency improvements
 properties:
   source: External

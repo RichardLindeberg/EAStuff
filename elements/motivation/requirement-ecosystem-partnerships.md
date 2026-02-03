@@ -5,7 +5,7 @@ type: requirement
 layer: motivation
 relationships:
   - type: realizationOf
-    target: mot-goal-005-enable-open-banking
+    target: mot-goal-005-open-banking-capability
     description: Required by open banking goal
 properties:
   owner: Chief Business Officer

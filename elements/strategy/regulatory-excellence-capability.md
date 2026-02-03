@@ -5,7 +5,7 @@ type: capability
 layer: strategy
 relationships:
   - type: realization
-    target: mot-goal-001-strengthen-regulatory-compliance
+    target: mot-goal-001-regulatory-compliance
     description: Realizes regulatory compliance goal
   - type: realization
     target: mot-requirement-001-gdpr-compliance

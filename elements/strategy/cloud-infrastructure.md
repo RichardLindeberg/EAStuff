@@ -5,7 +5,7 @@ type: capability
 layer: strategy
 relationships:
   - type: realization
-    target: mot-goal-003-improve-operational-efficiency
+    target: mot-goal-003-operational-efficiency
     description: Realizes operational efficiency goal
   - type: realization
     target: mot-requirement-006-cloud-migration

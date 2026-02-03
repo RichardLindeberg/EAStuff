@@ -5,10 +5,10 @@ type: requirement
 layer: motivation
 relationships:
   - type: realizationOf
-    target: mot-goal-001-strengthen-regulatory-compliance
+    target: mot-goal-001-regulatory-compliance
     description: Required by regulatory compliance goal
   - type: influence
-    target: mot-goal-003-improve-operational-efficiency
+    target: mot-goal-003-operational-efficiency
     description: Requires operational resilience and business continuity
   - type: influence
     target: mot-requirement-007-data-security

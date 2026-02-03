@@ -108,7 +108,7 @@ type: business-service
 layer: business
 relationships:
   - type: realization
-    target: mot-goal-002-enhance-digital-banking
+    target: mot-goal-002-digital-banking-excellence
     description: Realizes digital banking enhancement goal
   - type: realization
     target: str-capa-digital-banking-001

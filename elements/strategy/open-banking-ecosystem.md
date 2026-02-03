@@ -5,7 +5,7 @@ type: capability
 layer: strategy
 relationships:
   - type: realization
-    target: mot-goal-005-enable-open-banking
+    target: mot-goal-005-open-banking-capability
     description: Realizes open banking goal
   - type: realization
     target: mot-requirement-009-api-platform

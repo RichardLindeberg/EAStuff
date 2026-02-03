@@ -5,7 +5,7 @@ type: requirement
 layer: motivation
 relationships:
   - type: realizationOf
-    target: mot-goal-004-build-customer-trust
+    target: mot-goal-004-customer-trust
     description: Required by customer trust goal
   - type: influence
     target: mot-requirement-011-dora-compliance

@@ -5,7 +5,7 @@ type: requirement
 layer: motivation
 relationships:
   - type: realizationOf
-    target: mot-goal-003-improve-operational-efficiency
+    target: mot-goal-003-operational-efficiency
     description: Required by operational efficiency goal
 properties:
   owner: Chief Operating Officer

@@ -5,10 +5,10 @@ type: requirement
 layer: motivation
 relationships:
   - type: realizationOf
-    target: mot-goal-001-strengthen-regulatory-compliance
+    target: mot-goal-001-regulatory-compliance
     description: Required by regulatory compliance goal
   - type: influence
-    target: mot-goal-004-build-customer-trust
+    target: mot-goal-004-customer-trust
     description: Supports customer trust building
 properties:
   owner: Chief Data Officer

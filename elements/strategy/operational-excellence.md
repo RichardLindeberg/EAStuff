@@ -11,7 +11,7 @@ relationships:
     target: str-capa-cloud-infrastructure-001
     description: Realized through cloud infrastructure capability
   - type: supports
-    target: mot-goal-003-improve-operational-efficiency
+    target: mot-goal-003-operational-efficiency
     description: Supports operational efficiency goal
 properties:
   owner: Chief Operating Officer

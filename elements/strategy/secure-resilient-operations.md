@@ -11,10 +11,10 @@ relationships:
     target: str-capa-customer-trust-001
     description: Builds on customer trust capability
   - type: supports
-    target: mot-goal-001-strengthen-regulatory-compliance
+    target: mot-goal-001-regulatory-compliance
     description: Supports regulatory compliance goal
   - type: supports
-    target: mot-goal-004-build-customer-trust
+    target: mot-goal-004-customer-trust
     description: Supports customer trust goal
 properties:
   owner: Chief Information Security Officer
