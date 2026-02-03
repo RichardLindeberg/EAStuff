@@ -19,6 +19,7 @@ from pathlib import Path
 from collections import defaultdict
 import frontmatter
 import markdown
+import re
 
 
 # Layer order for display
@@ -61,6 +62,12 @@ class ElementRegistry:
             
         layer = element_data.get('layer', 'unknown')
         
+        tags = element_data.get('tags', [])
+        if isinstance(tags, str):
+            tags = [t.strip() for t in tags.split(',') if t.strip()]
+        elif tags is None:
+            tags = []
+
         self.elements[elem_id] = {
             'id': elem_id,
             'name': element_data.get('name', 'Unnamed'),
@@ -68,7 +75,7 @@ class ElementRegistry:
             'layer': layer,
             'content': element_data.get('content', ''),
             'properties': element_data.get('properties', {}),
-            'tags': element_data.get('tags', []),
+            'tags': tags,
             'relationships': element_data.get('relationships', []),
             'file_path': file_path
         }
@@ -116,13 +123,32 @@ def read_elements(elements_dir):
     return registry
 
 
-def generate_html_header(title, current_page=''):
+def slugify_tag(tag):
+    """Create a URL-safe slug for tag pages."""
+    slug = re.sub(r'[^a-zA-Z0-9]+', '-', tag.strip().lower())
+    return slug.strip('-') or 'tag'
+
+
+def build_tag_index(registry):
+    """Build mapping of tag -> list of element IDs."""
+    tags_index = defaultdict(list)
+    for elem_id, element in registry.elements.items():
+        for tag in element.get('tags', []):
+            if tag:
+                tags_index[tag].append(elem_id)
+    return tags_index
+
+
+def generate_html_header(title, current_page='', base_path=''):
     """Generate HTML header with navigation."""
     nav_items = []
     for layer in LAYER_ORDER:
         layer_name = LAYER_NAMES.get(layer, layer.title())
         active = 'active' if current_page == layer else ''
-        nav_items.append(f'<a href="{layer}.html" class="{active}">{layer_name}</a>')
+        nav_items.append(f'<a href="{base_path}{layer}.html" class="{active}">{layer_name}</a>')
+
+    tags_active = 'active' if current_page == 'tags' else ''
+    nav_items.append(f'<a href="{base_path}tags.html" class="{tags_active}">Tags</a>')
     
     nav_html = '\n        '.join(nav_items)
     
@@ -164,7 +190,7 @@ def generate_html_header(title, current_page=''):
             margin-bottom: 0.5rem;
         }}
         
-        nav {{
+        .tag {{
             margin-top: 1rem;
             display: flex;
             flex-wrap: wrap;
@@ -174,6 +200,11 @@ def generate_html_header(title, current_page=''):
         nav a {{
             color: white;
             text-decoration: none;
+            text-decoration: none;
+
+        .tag:hover {{
+            background: #e0e7ff;
+        }}
             padding: 0.5rem 1rem;
             background: rgba(255,255,255,0.1);
             border-radius: 4px;
@@ -427,7 +458,7 @@ def generate_html_header(title, current_page=''):
         <div class="header-content">
             <h1>ArchiMate Architecture Repository</h1>
             <nav>
-                <a href="index.html" class="{'active' if current_page == 'index' else ''}">Home</a>
+                <a href="{base_path}index.html" class="{'active' if current_page == 'index' else ''}">Home</a>
                 {nav_html}
             </nav>
         </div>
@@ -558,6 +589,116 @@ def generate_layer_page(layer, registry, output_dir):
     print(f"Generated: {output_path}")
 
 
+def generate_tags_index_page(registry, output_dir):
+    """Generate the tags overview page."""
+    tags_index = build_tag_index(registry)
+    if not tags_index:
+        return
+
+    html = generate_html_header("Tags", "tags")
+
+    html += """
+    <div class="container">
+        <h2 class="layer-title">Tags</h2>
+        <p class="layer-description">
+            Browse elements grouped by tag.
+        </p>
+        <div class="element-grid">
+"""
+
+    for tag in sorted(tags_index.keys(), key=lambda t: t.lower()):
+        count = len(tags_index[tag])
+        tag_slug = slugify_tag(tag)
+        html += f"""
+            <div class="element-card">
+                <span class="element-type">Tag</span>
+                <h3><a href="tags/{tag_slug}.html">{tag}</a></h3>
+                <p class="element-count">{count} element{'s' if count != 1 else ''}</p>
+                <p class="element-description">View elements with the <strong>{tag}</strong> tag.</p>
+            </div>
+"""
+
+    html += """
+        </div>
+    </div>
+"""
+
+    html += generate_html_footer()
+
+    output_path = os.path.join(output_dir, 'tags.html')
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html)
+
+    print(f"Generated: {output_path}")
+
+
+def generate_tag_page(tag, elem_ids, registry, output_dir):
+    """Generate a page for a specific tag."""
+    base_path = '../'
+    html = generate_html_header(f"Tag: {tag}", "tags", base_path)
+
+    html += f"""
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{base_path}index.html">Home</a> /
+            <a href="{base_path}tags.html">Tags</a> /
+            {tag}
+        </div>
+
+        <h2 class="layer-title">Tag: {tag}</h2>
+        <p class="element-count">{len(elem_ids)} element{'s' if len(elem_ids) != 1 else ''}</p>
+
+        <div class="element-grid">
+"""
+
+    sorted_elements = sorted(
+        [registry.get_element(elem_id) for elem_id in elem_ids],
+        key=lambda e: e['name'].lower()
+    )
+
+    for element in sorted_elements:
+        elem_id = element['id']
+        name = element['name']
+        elem_type = element['type']
+
+        content = element.get('content', '')
+        description = ''
+        if content:
+            lines = [line.strip() for line in content.split('\n') if line.strip() and not line.strip().startswith('#')]
+            if lines:
+                description = lines[0][:150]
+                if len(lines[0]) > 150:
+                    description += '...'
+
+        outgoing = len(element.get('relationships', []))
+        incoming = len(registry.get_incoming_relations(elem_id))
+
+        html += f"""
+            <div class="element-card">
+                <span class="element-type">{elem_type}</span>
+                <h3><a href="{base_path}elements/{elem_id}.html">{name}</a></h3>
+                <p class="element-description">{description}</p>
+                <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #888;">
+                    {outgoing} outgoing, {incoming} incoming relation{'s' if incoming != 1 else ''}
+                </p>
+            </div>
+"""
+
+    html += """
+        </div>
+    </div>
+"""
+    html += generate_html_footer()
+
+    tags_dir = os.path.join(output_dir, 'tags')
+    os.makedirs(tags_dir, exist_ok=True)
+    output_path = os.path.join(tags_dir, f'{slugify_tag(tag)}.html')
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html)
+
+    print(f"Generated: {output_path}")
+
+
 def generate_element_page(elem_id, registry, output_dir):
     """Generate a page for a specific element."""
     element = registry.get_element(elem_id)
@@ -574,13 +715,14 @@ def generate_element_page(elem_id, registry, output_dir):
     relationships = element.get('relationships', [])
     incoming_relations = registry.get_incoming_relations(elem_id)
     
-    html = generate_html_header(name, '')
+    base_path = '../'
+    html = generate_html_header(name, '', base_path)
     
     html += f"""
     <div class="container">
         <div class="breadcrumb">
-            <a href="index.html">Home</a> / 
-            <a href="{layer}.html">{layer_name}</a> / 
+            <a href="{base_path}index.html">Home</a> / 
+            <a href="{base_path}{layer}.html">{layer_name}</a> / 
             {name}
         </div>
         
@@ -599,7 +741,7 @@ def generate_element_page(elem_id, registry, output_dir):
                 </div>
                 <div class="metadata-item">
                     <span class="metadata-label">Layer</span>
-                    <span class="metadata-value"><a href="{layer}.html">{layer_name}</a></span>
+                    <span class="metadata-value"><a href="{base_path}{layer}.html">{layer_name}</a></span>
                 </div>
 """
     
@@ -618,7 +760,8 @@ def generate_element_page(elem_id, registry, output_dir):
     if tags:
         html += '            <div class="tags">\n'
         for tag in tags:
-            html += f'                <span class="tag">{tag}</span>\n'
+            tag_slug = slugify_tag(tag)
+            html += f'                <a class="tag" href="{base_path}tags/{tag_slug}.html">{tag}</a>\n'
         html += '            </div>\n'
     
     # Add outgoing relationships
@@ -768,6 +911,13 @@ def main():
     for layer in LAYER_ORDER:
         if registry.elements_by_layer.get(layer):
             generate_layer_page(layer, registry, output_dir)
+
+    # Generate tag pages
+    tags_index = build_tag_index(registry)
+    if tags_index:
+        generate_tags_index_page(registry, output_dir)
+        for tag, elem_ids in sorted(tags_index.items(), key=lambda item: item[0].lower()):
+            generate_tag_page(tag, elem_ids, registry, output_dir)
     
     # Generate individual element pages
     print(f"\nGenerating {total_elements} element pages...")
