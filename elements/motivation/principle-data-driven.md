@@ -3,11 +3,24 @@ id: mot-principle-005-data-driven
 name: Data-Driven Decision Making
 type: principle
 layer: motivation
+relationships:
+  - type: influence
+    target: mot-goal-003-operational-efficiency
+    description: Supports efficiency through data insights
+  - type: influence
+    target: mot-goal-004-customer-trust
+    description: Supports trust through data privacy
+  - type: realization
+    target: mot-requirement-001-gdpr-compliance
+    description: Realized through data governance
+  - type: realization
+    target: mot-requirement-007-data-security
+    description: Realized through data security practices
 properties:
   owner: Chief Data Officer
   status: in-progress
   criticality: high
-  last-updated: "2026-02-02"
+  last-updated: "2026-02-03"
 tags:
   - principle
   - data

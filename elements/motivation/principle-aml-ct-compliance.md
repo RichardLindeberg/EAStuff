@@ -3,6 +3,25 @@ id: mot-principle-006-aml-ct-compliance
 name: AML/CT Compliance Excellence
 type: principle
 layer: motivation
+relationships:
+  - type: influence
+    target: mot-driver-006-aml-ct-regulations
+    description: Influenced by AML/CT regulatory requirements
+  - type: influence
+    target: mot-goal-001-regulatory-compliance
+    description: Supports regulatory compliance goal
+  - type: realization
+    target: mot-requirement-013-kyc-compliance
+    description: Realized through KYC compliance
+  - type: realization
+    target: mot-requirement-014-transaction-monitoring
+    description: Realized through transaction monitoring
+  - type: realization
+    target: mot-requirement-015-sar-reporting
+    description: Realized through SAR reporting
+  - type: realization
+    target: mot-requirement-016-enhanced-due-diligence
+    description: Realized through enhanced due diligence
 properties:
   owner: Chief Compliance Officer
   status: active

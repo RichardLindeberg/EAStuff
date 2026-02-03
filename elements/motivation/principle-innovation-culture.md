@@ -3,11 +3,33 @@ id: mot-principle-003-innovation-culture
 name: Innovation and Continuous Improvement
 type: principle
 layer: motivation
+relationships:
+  - type: influence
+    target: mot-driver-002-digital-transformation
+    description: Influenced by digital transformation trends
+  - type: influence
+    target: mot-driver-003-cost-pressures
+    description: Influenced by need for efficiency innovation
+  - type: influence
+    target: mot-goal-002-digital-banking-excellence
+    description: Supports digital banking excellence
+  - type: influence
+    target: mot-goal-003-operational-efficiency
+    description: Supports operational efficiency
+  - type: realization
+    target: mot-requirement-005-automation
+    description: Realized through process automation
+  - type: realization
+    target: mot-requirement-006-cloud-migration
+    description: Realized through cloud technology adoption
+  - type: realization
+    target: mot-requirement-009-api-platform
+    description: Realized through API platform development
 properties:
   owner: Chief Digital Officer
   status: active
   criticality: high
-  last-updated: "2026-02-02"
+  last-updated: "2026-02-03"
 tags:
   - principle
   - innovation

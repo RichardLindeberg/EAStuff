@@ -3,11 +3,30 @@ id: mot-principle-001-customer-centricity
 name: Customer-Centric Banking
 type: principle
 layer: motivation
+relationships:
+  - type: influence
+    target: mot-driver-002-digital-transformation
+    description: Influenced by customer digital expectations
+  - type: influence
+    target: mot-goal-002-digital-banking-excellence
+    description: Supports digital banking excellence goal
+  - type: influence
+    target: mot-goal-004-customer-trust
+    description: Supports customer trust goal
+  - type: realization
+    target: mot-requirement-003-mobile-first-design
+    description: Realized through mobile-first design
+  - type: realization
+    target: mot-requirement-004-seamless-ux
+    description: Realized through seamless user experience
+  - type: realization
+    target: mot-requirement-008-transparent-communication
+    description: Realized through transparent communication
 properties:
   owner: Chief Customer Officer
   status: active
   criticality: high
-  last-updated: "2026-02-02"
+  last-updated: "2026-02-03"
 tags:
   - principle
   - customer-focus

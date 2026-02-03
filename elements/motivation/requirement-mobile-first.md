@@ -7,6 +7,9 @@ relationships:
   - type: realizationOf
     target: mot-goal-002-digital-banking-excellence
     description: Required by digital banking goal
+  - type: realizationOf
+    target: mot-principle-001-customer-centricity
+    description: Realizes customer-centric principle
 properties:
   owner: Chief Digital Officer
   status: in-progress

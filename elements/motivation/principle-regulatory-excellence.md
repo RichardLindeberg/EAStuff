@@ -3,11 +3,30 @@ id: mot-principle-002-regulatory-excellence
 name: Regulatory Excellence and Compliance
 type: principle
 layer: motivation
+relationships:
+  - type: influence
+    target: mot-driver-001-eu-regulations
+    description: Influenced by EU regulatory requirements
+  - type: influence
+    target: mot-driver-005-dora-regulations
+    description: Influenced by DORA regulations
+  - type: influence
+    target: mot-goal-001-regulatory-compliance
+    description: Supports regulatory compliance goal
+  - type: realization
+    target: mot-requirement-001-gdpr-compliance
+    description: Realized through GDPR compliance
+  - type: realization
+    target: mot-requirement-002-mifid2-compliance
+    description: Realized through MiFID II compliance
+  - type: realization
+    target: mot-requirement-011-dora-compliance
+    description: Realized through DORA compliance
 properties:
   owner: Chief Compliance Officer
   status: active
   criticality: critical
-  last-updated: "2026-02-02"
+  last-updated: "2026-02-03"
 tags:
   - principle
   - compliance

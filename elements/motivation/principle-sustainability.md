@@ -3,11 +3,21 @@ id: mot-principle-004-sustainability
 name: Sustainability and Social Responsibility
 type: principle
 layer: motivation
+relationships:
+  - type: influence
+    target: mot-driver-004-sustainability-values
+    description: Influenced by Nordic sustainability values
+  - type: influence
+    target: mot-goal-004-customer-trust
+    description: Supports customer trust through responsible practices
+  - type: realization
+    target: mot-requirement-008-transparent-communication
+    description: Realized through transparent reporting
 properties:
   owner: Chief Sustainability Officer
   status: active
   criticality: high
-  last-updated: "2026-02-02"
+  last-updated: "2026-02-03"
 tags:
   - principle
   - sustainability

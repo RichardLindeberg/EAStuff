@@ -7,6 +7,12 @@ relationships:
   - type: realizationOf
     target: mot-goal-004-customer-trust
     description: Required by customer trust goal
+  - type: realizationOf
+    target: mot-principle-001-customer-centricity
+    description: Realizes customer-centric principle
+  - type: realizationOf
+    target: mot-principle-004-sustainability
+    description: Realizes sustainability principle through transparency
 properties:
   owner: Chief Customer Officer
   status: ongoing

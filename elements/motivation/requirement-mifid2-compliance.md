@@ -7,6 +7,9 @@ relationships:
   - type: realizationOf
     target: mot-goal-001-regulatory-compliance
     description: Required by regulatory compliance goal
+  - type: realizationOf
+    target: mot-principle-002-regulatory-excellence
+    description: Realizes regulatory excellence principle
 properties:
   owner: Chief Compliance Officer
   status: compliant

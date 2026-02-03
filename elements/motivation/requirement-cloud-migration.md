@@ -7,6 +7,9 @@ relationships:
   - type: realizationOf
     target: mot-goal-003-operational-efficiency
     description: Required by operational efficiency goal
+  - type: realizationOf
+    target: mot-principle-003-innovation-culture
+    description: Realizes innovation through modern infrastructure
 properties:
   owner: Chief Technology Officer
   status: planning

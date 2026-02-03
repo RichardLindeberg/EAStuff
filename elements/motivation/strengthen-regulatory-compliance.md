@@ -10,6 +10,9 @@ relationships:
   - type: influence
     target: mot-driver-005-dora-regulations
     description: Driven by DORA operational resilience requirements
+  - type: influence
+    target: mot-driver-006-aml-ct-regulations
+    description: Driven by AML/CT regulatory requirements
   - type: realization
     target: mot-requirement-001-gdpr-compliance
     description: Realizes GDPR compliance requirement
@@ -19,6 +22,18 @@ relationships:
   - type: realization
     target: mot-requirement-011-dora-compliance
     description: Realizes DORA compliance requirement
+  - type: realization
+    target: mot-requirement-013-kyc-compliance
+    description: Realizes KYC and customer identification requirements
+  - type: realization
+    target: mot-requirement-014-transaction-monitoring
+    description: Realizes transaction monitoring and screening requirements
+  - type: realization
+    target: mot-requirement-015-sar-reporting
+    description: Realizes suspicious activity reporting requirements
+  - type: realization
+    target: mot-requirement-016-enhanced-due-diligence
+    description: Realizes enhanced due diligence requirements
 properties:
   owner: Chief Compliance Officer
   status: in-progress

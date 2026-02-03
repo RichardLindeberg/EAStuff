@@ -7,6 +7,9 @@ relationships:
   - type: realizationOf
     target: mot-goal-003-operational-efficiency
     description: Required by operational efficiency goal
+  - type: realizationOf
+    target: mot-principle-003-innovation-culture
+    description: Realizes innovation principle
 properties:
   owner: Chief Operating Officer
   status: in-progress

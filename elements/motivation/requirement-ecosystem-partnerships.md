@@ -7,6 +7,9 @@ relationships:
   - type: realizationOf
     target: mot-goal-005-open-banking-capability
     description: Required by open banking goal
+  - type: realizationOf
+    target: mot-principle-003-innovation-culture
+    description: Realizes innovation through partnerships
 properties:
   owner: Chief Business Officer
   status: planning

@@ -7,6 +7,9 @@ relationships:
   - type: realizationOf
     target: mot-goal-001-regulatory-compliance
     description: Required by regulatory compliance and financial crime prevention
+  - type: realizationOf
+    target: mot-principle-006-aml-ct-compliance
+    description: Realizes AML/CT compliance principle
 properties:
   owner: Chief Compliance Officer
   status: active

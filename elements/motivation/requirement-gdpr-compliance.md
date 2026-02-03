@@ -7,6 +7,12 @@ relationships:
   - type: realizationOf
     target: mot-goal-001-regulatory-compliance
     description: Required by regulatory compliance goal
+  - type: realizationOf
+    target: mot-principle-002-regulatory-excellence
+    description: Realizes regulatory excellence principle
+  - type: realizationOf
+    target: mot-principle-005-data-driven
+    description: Realizes data-driven principle through governance
   - type: influence
     target: mot-goal-004-customer-trust
     description: Supports customer trust building

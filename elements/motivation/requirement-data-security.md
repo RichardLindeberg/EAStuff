@@ -7,6 +7,9 @@ relationships:
   - type: realizationOf
     target: mot-goal-004-customer-trust
     description: Required by customer trust goal
+  - type: realizationOf
+    target: mot-principle-005-data-driven
+    description: Realizes data-driven principle through security
   - type: influence
     target: mot-requirement-011-dora-compliance
     description: Core element of DORA compliance
