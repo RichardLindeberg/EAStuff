@@ -666,8 +666,8 @@ module Handlers =
                             'text-valign': 'center',
                             'text-halign': 'center',
                             'text-wrap': 'wrap',
-                            'text-max-width': '110px',
-                            'font-size': '11px',
+                            'text-max-width': '90px',
+                            'font-size': '10px',
                             'font-weight': 'normal',
                             'font-family': "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
                             'background-color': 'data(color)',
@@ -675,9 +675,9 @@ module Handlers =
                             'border-width': 2,
                             'border-color': '#333',
                             'shape': 'data(shape)',
-                            'width': 140,
-                            'height': 110,
-                            'padding': '6px',
+                            'width': 110,
+                            'height': 80,
+                            'padding': '4px',
                             'text-margin-y': 0,
                             'text-margin-x': 0
                         }
@@ -700,12 +700,12 @@ module Handlers =
                             'target-arrow-shape': 'data(arrowType)',
                             'curve-style': 'bezier',
                             'label': 'data(label)',
-                            'font-size': '10px',
+                            'font-size': '9px',
                             'text-rotation': 'autorotate',
                             'text-margin-y': -10,
                             'line-style': 'data(lineStyle)',
                             'line-dash-pattern': [5, 5],
-                            'arrow-scale': 1.2
+                            'arrow-scale': 1.0
                         }
                     },
                     {
@@ -728,8 +728,8 @@ module Handlers =
                 layout: {
                     name: 'dagre',
                     rankDir: 'TB',
-                    nodeSep: 80,
-                    rankSep: 100,
+                    nodeSep: 40,
+                    rankSep: 60,
                     animate: true,
                     animationDuration: 500
                 },
