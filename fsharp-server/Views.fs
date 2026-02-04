@@ -1,10 +1,22 @@
 namespace EAArchive
 
+open System
+open System.Net
 open Giraffe.ViewEngine
+open Markdig
 
 module Views =
     
     let baseUrl = Config.baseUrl
+    
+    /// Convert markdown to HTML
+    let markdownToHtml (markdown: string) : string =
+        try
+            let pipeline = MarkdownPipelineBuilder().UseAdvancedExtensions().Build()
+            Markdown.ToHtml(markdown, pipeline)
+        with
+        | ex ->
+            sprintf "<p>Error rendering markdown: %s</p>" (WebUtility.HtmlEncode ex.Message)
     
     /// Helper to pluralize words
     let pluralize (count: int) (singular: string) (plural: string) : string =
@@ -555,8 +567,9 @@ module Views =
                     ]
                     
                     if elem.content <> "" then
+                        let htmlContent = markdownToHtml elem.content
                         div [_class "content-section"] [
-                            rawText elem.content
+                            rawText htmlContent
                         ]
                     
                     yield! incomingSection
