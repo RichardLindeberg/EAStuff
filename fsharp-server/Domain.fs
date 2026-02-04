@@ -48,4 +48,4 @@ module Config =
     ]
     
     let elementsPath = "../elements"
-    let baseUrl = ""
+    let baseUrl = "/"

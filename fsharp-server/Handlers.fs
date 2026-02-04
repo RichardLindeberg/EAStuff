@@ -34,7 +34,7 @@ module Handlers =
     /// Layer page handler
     let layerHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /{layer}.html - Layer page requested")
+            logger.LogInformation($"GET /{layer} - Layer page requested")
             match Config.layerOrder |> List.tryFind (fun l -> l.key = layer) with
             | Some layerInfo ->
                 let elements = ElementRegistry.getLayerElements layer registry
@@ -51,7 +51,7 @@ module Handlers =
     /// Element detail page handler
     let elementHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /elements/{elemId}.html - Element detail requested")
+            logger.LogInformation($"GET /elements/{elemId} - Element detail requested")
             match ElementRegistry.getElement elemId registry with
             | Some elem ->
                 logger.LogInformation($"Found element: {elemId} ({elem.name}) in layer {elem.layer}")
@@ -77,7 +77,7 @@ module Handlers =
     /// Tags index handler
     let tagsIndexHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation("GET /tags.html - Tags index page requested")
+            logger.LogInformation("GET /tags - Tags index page requested")
             let tagIndex = buildTagIndex registry
             logger.LogInformation($"Found {Map.count tagIndex} tags")
             let html = Views.tagsIndexPage tagIndex registry
@@ -86,7 +86,7 @@ module Handlers =
     /// Individual tag page handler
     let tagHandler (tag: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /tags/{tag}.html - Tag page requested")
+            logger.LogInformation($"GET /tags/{tag} - Tag page requested")
             let tagIndex = buildTagIndex registry
             match Map.tryFind tag tagIndex with
             | Some elemIds ->
@@ -111,8 +111,8 @@ module Handlers =
         choose [
             route "/" >=> indexHandler registry logger
             route "/index.html" >=> indexHandler registry logger
-            routef "/elements/%s.html" (fun elemId -> elementHandler elemId registry logger)
-            route "/tags.html" >=> tagsIndexHandler registry logger
-            routef "/tags/%s.html" (fun tag -> tagHandler (Uri.UnescapeDataString tag) registry logger)
-            routef "/%s.html" (fun layer -> layerHandler layer registry logger)
+            routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)
+            route "/tags" >=> tagsIndexHandler registry logger
+            routef "/tags/%s" (fun tag -> tagHandler (Uri.UnescapeDataString tag) registry logger)
+            routef "/%s" (fun layer -> layerHandler layer registry logger)
         ]

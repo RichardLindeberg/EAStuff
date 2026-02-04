@@ -29,7 +29,7 @@ module Views =
             |> List.map (fun layer ->
                 let isActive = currentPage = layer.key
                 let activeClass = if isActive then "active" else ""
-                a [_href $"{baseUrl}{layer.key}.html"; _class $"nav-link {activeClass}"] [
+                a [_href $"{baseUrl}{layer.key}"; _class $"nav-link {activeClass}"] [
                     encodedText layer.displayName
                 ]
             )
@@ -37,7 +37,7 @@ module Views =
         let tagsActive = if currentPage = "tags" then "active" else ""
         let navLinks = 
             navItems @ [
-                a [_href $"{baseUrl}tags.html"; _class $"nav-link {tagsActive}"] [
+                a [_href $"{baseUrl}tags"; _class $"nav-link {tagsActive}"] [
                     encodedText "Tags"
                 ]
             ]
@@ -398,7 +398,7 @@ module Views =
                     Some (
                         div [_class "element-card"] [
                             h3 [] [
-                                a [_href $"{baseUrl}{layer.key}.html"] [
+                                a [_href $"{baseUrl}{layer.key}"] [
                                     encodedText layer.displayName
                                 ]
                             ]
@@ -448,7 +448,7 @@ module Views =
                 div [_class "element-card"] [
                     span [_class "element-type"] [encodedText elem.elementType]
                     h3 [] [
-                        a [_href $"{baseUrl}elements/{elem.id}.html"] [
+                        a [_href $"{baseUrl}elements/{elem.id}"] [
                             encodedText elem.name
                         ]
                     ]
@@ -463,7 +463,7 @@ module Views =
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
-                    a [_href $"{baseUrl}index.html"] [encodedText "Home"]
+                    a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / "
                     encodedText layer.displayName
                 ]
@@ -486,7 +486,7 @@ module Views =
             let relClass = if isIncoming then "incoming" else ""
             li [_class $"relation-item {relClass}"] [
                 span [_class "relation-type"] [encodedText rel.relationType]
-                a [_href $"{baseUrl}elements/{related.id}.html"] [
+                a [_href $"{baseUrl}elements/{related.id}"] [
                     encodedText related.name
                 ]
                 if rel.description <> "" then
@@ -526,7 +526,7 @@ module Views =
                         h3 [] [encodedText "Tags"]
                         div [_class "tags"] [
                             for tag in elem.tags do
-                                a [_href $"{baseUrl}tags/{tag}.html"; _class "tag"] [
+                                a [_href $"{baseUrl}tags/{tag}"; _class "tag"] [
                                     encodedText tag
                                 ]
                         ]
@@ -537,9 +537,9 @@ module Views =
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
-                    a [_href $"{baseUrl}index.html"] [encodedText "Home"]
+                    a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / "
-                    a [_href $"{baseUrl}{elem.layer}.html"] [encodedText (
+                    a [_href $"{baseUrl}{elem.layer}"] [encodedText (
                         Config.layerOrder
                         |> List.tryFind (fun l -> l.key = elem.layer)
                         |> Option.map (fun l -> l.displayName)
@@ -591,7 +591,7 @@ module Views =
                 let count = List.length elemIds
                 div [_class "element-card"] [
                     h3 [] [
-                        a [_href $"{baseUrl}tags/{tag}.html"] [
+                        a [_href $"{baseUrl}tags/{tag}"] [
                             encodedText tag
                         ]
                     ]
@@ -605,7 +605,7 @@ module Views =
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
-                    a [_href $"{baseUrl}index.html"] [encodedText "Home"]
+                    a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / Tags"
                 ]
                 h2 [_class "layer-title"] [encodedText "Tags"]
@@ -640,7 +640,7 @@ module Views =
                 div [_class "element-card"] [
                     span [_class "element-type"] [encodedText elem.elementType]
                     h3 [] [
-                        a [_href $"{baseUrl}elements/{elem.id}.html"] [
+                        a [_href $"{baseUrl}elements/{elem.id}"] [
                             encodedText elem.name
                         ]
                     ]
@@ -651,9 +651,9 @@ module Views =
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
-                    a [_href $"{baseUrl}index.html"] [encodedText "Home"]
+                    a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / "
-                    a [_href $"{baseUrl}tags.html"] [encodedText "Tags"]
+                    a [_href $"{baseUrl}tags"] [encodedText "Tags"]
                     encodedText " / "
                     encodedText tag
                 ]
