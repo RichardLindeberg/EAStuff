@@ -2,6 +2,9 @@ namespace EAArchive
 
 open System
 open System.Collections.Generic
+open System.Globalization
+open System.IO
+open System.Net
 open Microsoft.Extensions.Logging
 open Giraffe
 open Giraffe.ViewEngine
@@ -17,6 +20,69 @@ module Handlers =
 
     let private escapeMermaidLabel (value: string) =
         value.Replace("\"", "\\\"")
+    
+    let private symbolsBaseUrl = "/assets/archimate-symbols/"
+    let private symbolsRoot =
+        let cwdRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets", "archimate-symbols")
+        if Directory.Exists(cwdRoot) then cwdRoot
+        else
+            let baseRoot = Path.Combine(AppContext.BaseDirectory, "wwwroot", "assets", "archimate-symbols")
+            if Directory.Exists(baseRoot) then baseRoot else ""
+    
+    let private symbolsEnabled = symbolsRoot <> ""
+    
+    let private toTitleCase (value: string) =
+        let normalized = value.Replace("-", " ").Replace("_", " ").ToLowerInvariant()
+        CultureInfo.InvariantCulture.TextInfo.ToTitleCase(normalized)
+    
+    let private tryGetSymbolFileName (elementType: string) : string option =
+        if not symbolsEnabled then None
+        else
+            let fileName = toTitleCase elementType + ".svg"
+            let fullPath = Path.Combine(symbolsRoot, fileName)
+            if File.Exists(fullPath) then Some fileName else None
+    
+    let private buildMermaidLabel (elem: Element) : string =
+        match tryGetSymbolFileName elem.elementType with
+        | Some fileName ->
+            let safeName = WebUtility.HtmlEncode elem.name
+            let icon = sprintf "<img class='archimate-icon' src='%s%s' alt='%s' />" symbolsBaseUrl fileName safeName
+            sprintf "<div class='archimate-node'>%s<div class='archimate-label'>%s</div></div>" icon safeName
+        | None -> escapeMermaidLabel elem.name
+    
+    /// ArchiMate 3.2 Standard Color Scheme
+    let private getArchimateColor (elementType: string) : string =
+        match elementType.ToLower() with
+        // Strategy Layer - Light Orange
+        | "resource" | "capability" | "value-stream" | "course-of-action" -> "#f5deaa"
+        // Business Layer - Light Yellow
+        | "business-actor" | "business-role" | "business-collaboration" 
+        | "business-interface" | "business-process" | "business-function" 
+        | "business-interaction" | "business-event" | "business-service" 
+        | "product" | "contract" | "representation" -> "#ffffb5"
+        | "business-object" -> "#ffffb5"
+        // Application Layer - Light Blue
+        | "application-component" | "application-collaboration" 
+        | "application-interface" | "application-function" 
+        | "application-interaction" | "application-process" 
+        | "application-event" | "application-service" -> "#b5ffff"
+        | "data-object" -> "#b5ffff"
+        // Technology Layer - Light Green
+        | "node" | "device" | "system-software" | "technology-collaboration" 
+        | "technology-interface" | "path" | "communication-network" 
+        | "technology-function" | "technology-process" 
+        | "technology-interaction" | "technology-event" 
+        | "technology-service" | "artifact" | "equipment" 
+        | "facility" | "distribution-network" | "material" -> "#c9e7b7"
+        // Motivation Layer - Light Purple/Blue
+        | "stakeholder" | "driver" | "assessment" | "goal" 
+        | "outcome" | "principle" | "requirement" 
+        | "constraint" | "meaning" | "value" -> "#ccccff"
+        // Implementation Layer - Light Pink
+        | "work-package" | "deliverable" | "implementation-event" 
+        | "plateau" | "gap" -> "#ffe0e0"
+        // Default
+        | _ -> "#ffffff"
 
     let private buildLayerMermaid (layer: string) (registry: ElementRegistry) =
         let elements = ElementRegistry.getLayerElements layer registry
@@ -47,7 +113,7 @@ module Handlers =
             match Map.tryFind nodeId elementMap with
             | Some elem ->
                 let sanitizedId = sanitizeMermaidId nodeId
-                let label = escapeMermaidLabel elem.name
+                let label = buildMermaidLabel elem
                 lines.Add($"{sanitizedId}[\"{label}\"]")
             | None -> ()
 
@@ -70,6 +136,22 @@ module Handlers =
         for nodeId in allNodeIds do
             let sanitizedId = sanitizeMermaidId nodeId
             lines.Add($"click {sanitizedId} \"/elements/{nodeId}\" \"View details\"")
+        
+        // Add ArchiMate color styling
+        lines.Add("")
+        lines.Add("%% ArchiMate 3.2 Standard Colors")
+        let elementsByType = 
+            allNodeIds 
+            |> Seq.choose (fun nodeId -> Map.tryFind nodeId elementMap)
+            |> Seq.groupBy (fun elem -> elem.elementType)
+            |> Seq.toList
+        
+        for (elemType, elems) in elementsByType do
+            let color = getArchimateColor elemType
+            let className = (sanitizeMermaidId elemType) + "Style"
+            let ids = elems |> Seq.map (fun e -> sanitizeMermaidId e.id) |> String.concat ","
+            lines.Add($"classDef {className} fill:{color},stroke:#333,stroke-width:2px")
+            lines.Add($"class {ids} {className}")
 
         System.String.Join("\n", lines)
 
@@ -110,8 +192,7 @@ module Handlers =
             match Map.tryFind nodeId elementMap with
             | Some elem ->
                 let sanitizedId = sanitizeMermaidId nodeId
-                let label = escapeMermaidLabel elem.name
-                let isCenter = nodeId = elementId
+                let label = buildMermaidLabel elem
                 lines.Add($"{sanitizedId}[\"{label}\"]")
             | None -> ()
         
@@ -131,9 +212,25 @@ module Handlers =
                 | _ -> ()
         
         lines.Add("")
-        lines.Add("%% Styling - highlight the central element")
+        lines.Add("%% ArchiMate 3.2 Standard Colors")
+        let elementsByType = 
+            allNodeIds 
+            |> Seq.choose (fun nodeId -> 
+                if nodeId <> elementId then Map.tryFind nodeId elementMap else None)
+            |> Seq.groupBy (fun elem -> elem.elementType)
+            |> Seq.toList
+        
+        for (elemType, elems) in elementsByType do
+            let color = getArchimateColor elemType
+            let className = (sanitizeMermaidId elemType) + "Style"
+            let ids = elems |> Seq.map (fun e -> sanitizeMermaidId e.id) |> String.concat ","
+            lines.Add($"classDef {className} fill:{color},stroke:#333,stroke-width:2px")
+            lines.Add($"class {ids} {className}")
+        
+        lines.Add("")
+        lines.Add("%% Highlight the central element")
         let centralId = sanitizeMermaidId elementId
-        lines.Add($"classDef centerStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:3px")
+        lines.Add($"classDef centerStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:4px")
         lines.Add($"class {centralId} centerStyle")
         
         lines.Add("")
@@ -222,6 +319,33 @@ module Handlers =
             height: 100%% !important;
             max-width: none;
         }
+        .archimate-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 4px;
+            min-height: 60px;
+        }
+        .archimate-icon {
+            width: 32px;
+            height: 32px;
+            display: block;
+            flex-shrink: 0;
+        }
+        .archimate-label {
+            font-size: 11px;
+            line-height: 1.3;
+            color: #222;
+            font-weight: 500;
+            text-align: center;
+            word-wrap: break-word;
+            word-break: break-word;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         .info {
             background: #eef2ff;
             padding: 15px;
@@ -237,7 +361,12 @@ module Handlers =
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (window.mermaid) {
-                window.mermaid.initialize({ startOnLoad: true, theme: 'default' });
+                window.mermaid.initialize({ 
+                    startOnLoad: true, 
+                    theme: 'default',
+                    securityLevel: 'loose',
+                    flowchart: { htmlLabels: true }
+                });
                 window.mermaid.init(undefined, document.querySelectorAll('.mermaid'));
             }
         });

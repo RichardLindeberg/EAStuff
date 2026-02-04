@@ -45,6 +45,7 @@ let main args =
             webHostBuilder
                 .Configure(fun app ->
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
+                    app.UseStaticFiles() |> ignore
                     app.UseGiraffe(webApp registry loggerFactory)
                 ) |> ignore
         )
