@@ -5,6 +5,7 @@ open System.IO
 open System.Collections.Generic
 open System.Text.RegularExpressions
 open YamlDotNet.Serialization
+open Microsoft.Extensions.Logging
 
 /// Registry for all elements and relationships
 type ElementRegistry = {
@@ -101,30 +102,40 @@ module ElementRegistry =
         |> Option.defaultValue []
     
     /// Load and parse a single markdown element file
-    let loadElement (filePath: string) : Element option =
+    let loadElement (filePath: string) (logger: ILogger) : Element option =
         try
             let content = File.ReadAllText(filePath)
             let (metadata, mdContent) = parseFrontmatter content
             
             let id = getString "id" metadata |> Option.defaultValue ""
-            if id = "" then None
+            if id = "" then 
+                logger.LogWarning($"Element in {filePath} has no ID, skipping")
+                None
             else
+                let name = getString "name" metadata |> Option.defaultValue "Unnamed"
+                let layer = getString "layer" metadata |> Option.defaultValue "unknown"
+                logger.LogDebug($"Loaded element: {id} ({name}) in layer {layer} from {filePath}")
                 let element = {
                     id = id
-                    name = getString "name" metadata |> Option.defaultValue "Unnamed"
+                    name = name
                     elementType = getString "type" metadata |> Option.defaultValue "unknown"
-                    layer = getString "layer" metadata |> Option.defaultValue "unknown"
+                    layer = layer
                     content = mdContent.Trim()
                     properties = metadata
                     tags = getStringList "tags" metadata
                     relationships = parseRelationships metadata
                 }
                 Some element
-        with
-        | _ -> None
+        with ex ->
+            logger.LogError($"Error loading element from {filePath}: {ex.Message}")
+            None
     
     /// Build the element registry from all markdown files
     let create (elementsPath: string) : ElementRegistry =
+        let logger = LoggerFactory.Create(fun builder -> builder.AddConsole() |> ignore).CreateLogger("ElementRegistry")
+        
+        logger.LogInformation($"Creating element registry from: {elementsPath}")
+        
         let mutable elements = Map.empty
         let mutable elementsByLayer = Map.empty
         let mutable incomingRelations = Map.empty
@@ -134,9 +145,11 @@ module ElementRegistry =
                 Directory.EnumerateFiles(elementsPath, "*.md", SearchOption.AllDirectories)
                 |> Seq.toList
             
+            logger.LogInformation($"Found {mdFiles.Length} markdown files")
+            
             // Load all elements
             mdFiles
-            |> List.choose loadElement
+            |> List.choose (fun filePath -> loadElement filePath logger)
             |> List.iter (fun elem ->
                 elements <- elements |> Map.add elem.id elem
                 
@@ -159,6 +172,10 @@ module ElementRegistry =
                         |> Map.add rel.target ((elem.id, rel.relationType, rel.description) :: existing)
                 )
             )
+            
+            logger.LogInformation($"Successfully loaded {Map.count elements} elements into registry")
+        else
+            logger.LogError($"Elements directory does not exist: {elementsPath}")
         
         {
             elements = elements

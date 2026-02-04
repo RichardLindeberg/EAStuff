@@ -1,0 +1,65 @@
+# Build results
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+.idea_modules/
+*.sln.iml
+
+# Visual Studio Code
+*.code-workspace
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# NuGet
+.nuget/
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+
+# Paket dependency manager
+.paket/paket.exe
+paket-files/
+
+# FAKE - F# Make
+.fake/
+.fsx
+
+# Test results
+TestResults/
+*.trx
+
+# User-specific files
+.DS_Store
+Thumbs.db
+
+# Local environment files
+.env
+.env.local
+
+# F# specific
+*.fs.bak
+*.fsx.bak
+
+# IL files
+*.il
+
+# Misc
+*.orig
+*.rej
+.gitkeep
