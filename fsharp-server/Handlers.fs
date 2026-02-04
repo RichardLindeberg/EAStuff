@@ -57,8 +57,17 @@ module Handlers =
                 logger.LogInformation($"Found element: {elemId} ({elem.name}) in layer {elem.layer}")
                 let incoming = ElementRegistry.getIncomingRelations elemId registry
                 let outgoing = elem.relationships
-                logger.LogDebug($"  Incoming relations: {List.length incoming}, Outgoing relations: {List.length outgoing}")
+                logger.LogInformation($"  Incoming relations: {List.length incoming}, Outgoing relations: {List.length outgoing}")
+                
+                if List.length outgoing > 0 then
+                    logger.LogInformation($"  Outgoing targets:")
+                    outgoing |> List.iter (fun rel ->
+                        logger.LogInformation($"    - {rel.target}")
+                    )
+                
                 let elemWithRels = ElementRegistry.withRelations elem registry
+                logger.LogInformation($"  After withRelations: incoming={List.length elemWithRels.incomingRelations}, outgoing={List.length elemWithRels.outgoingRelations}")
+                
                 let html = Views.elementPage elemWithRels
                 htmlView html next ctx
             | None ->

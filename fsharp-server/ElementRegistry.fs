@@ -85,13 +85,17 @@ module ElementRegistry =
                     list
                     |> Seq.map (fun item ->
                         match item with
-                        | :? Dictionary<string, obj> as dict ->
+                        | :? System.Collections.IDictionary as dict ->
                             {
-                                target = dict.TryGetValue("target") |> fun (ok, v) -> if ok then v.ToString() else ""
-                                relationType = dict.TryGetValue("type") |> fun (ok, v) -> if ok then v.ToString() else ""
-                                description = dict.TryGetValue("description") |> fun (ok, v) -> if ok then v.ToString() else ""
+                                target = 
+                                    if dict.Contains("target") then dict.["target"].ToString() else ""
+                                relationType = 
+                                    if dict.Contains("type") then dict.["type"].ToString() else ""
+                                description = 
+                                    if dict.Contains("description") then dict.["description"].ToString() else ""
                             }
-                        | _ -> { target = ""; relationType = ""; description = "" }
+                        | _ -> 
+                            { target = ""; relationType = ""; description = "" }
                     )
                     |> Seq.filter (fun r -> r.target <> "")
                     |> Seq.toList
@@ -115,6 +119,7 @@ module ElementRegistry =
                 let name = getString "name" metadata |> Option.defaultValue "Unnamed"
                 let layer = getString "layer" metadata |> Option.defaultValue "unknown"
                 logger.LogDebug($"Loaded element: {id} ({name}) in layer {layer} from {filePath}")
+                
                 let element = {
                     id = id
                     name = name
@@ -182,6 +187,7 @@ module ElementRegistry =
             elementsByLayer = elementsByLayer
             incomingRelations = incomingRelations
         }
+
     
     /// Get an element by ID
     let getElement (id: string) (registry: ElementRegistry) : Element option =
@@ -200,23 +206,13 @@ module ElementRegistry =
         registry.incomingRelations
         |> Map.tryFind elemId
         |> Option.defaultValue []
-        |> List.map (fun (sourceId, relType, desc) ->
+        |> List.choose (fun (sourceId, relType, desc) ->
             match Map.tryFind sourceId registry.elements with
             | Some elem ->
                 let rel = { target = elemId; relationType = relType; description = desc }
-                (elem, rel)
+                Some (elem, rel)
             | None -> 
-                let dummy = { 
-                    id = sourceId
-                    name = sourceId
-                    elementType = "unknown"
-                    layer = "unknown"
-                    content = ""
-                    properties = Map.empty
-                    tags = []
-                    relationships = []
-                }
-                (dummy, { target = elemId; relationType = relType; description = desc })
+                None  // Skip relations to elements that don't exist
         )
     
     /// Build element with its relationships
