@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="EAArchive">
+    <resource name="FSharpSignatureData.EAArchive" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedData.EAArchive" action="remove"></resource>
+    <resource name="FSharpSignatureDataB.EAArchive" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedDataB.EAArchive" action="remove"></resource>
+    <resource name="FSharpOptimizationData.EAArchive" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedData.EAArchive" action="remove"></resource>
+    <resource name="FSharpOptimizationDataB.EAArchive" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedDataB.EAArchive" action="remove"></resource>
+    <resource name="FSharpOptimizationInfo.EAArchive" action="remove"></resource>
+    <resource name="FSharpSignatureInfo.EAArchive" action="remove"></resource>
+  </assembly>
+</linker>
