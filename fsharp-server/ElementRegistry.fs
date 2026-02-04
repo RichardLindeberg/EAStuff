@@ -11,7 +11,7 @@ open Microsoft.Extensions.Logging
 type ElementRegistry = {
     elements: Map<string, Element>
     elementsByLayer: Map<string, string list>
-    incomingRelations: Map<string, (string * string * string) list> // target -> [(source, relType, desc)]
+    incomingRelations: Map<string, (string * RelationType * string) list> // target -> [(source, relType, desc)]
     validationErrors: ValidationError list ref  // Using ref for mutability
     elementsPath: string
 }
@@ -92,12 +92,15 @@ module ElementRegistry =
                                 target = 
                                     if dict.Contains("target") then dict.["target"].ToString() else ""
                                 relationType = 
-                                    if dict.Contains("type") then dict.["type"].ToString() else ""
+                                    if dict.Contains("type") then 
+                                        ElementType.parseRelationType (dict.["type"].ToString())
+                                    else 
+                                        RelationType.Unknown ""
                                 description = 
                                     if dict.Contains("description") then dict.["description"].ToString() else ""
                             }
                         | _ -> 
-                            { target = ""; relationType = ""; description = "" }
+                            { target = ""; relationType = RelationType.Unknown ""; description = "" }
                     )
                     |> Seq.filter (fun r -> r.target <> "")
                     |> Seq.toList
@@ -148,36 +151,36 @@ module ElementRegistry =
             errors.Add({
                 filePath = filePath
                 elementId = None
-                errorType = "missing-id"
+                errorType = ErrorType.MissingId
                 message = "Element must have an 'id' field"
-                severity = "error"
+                severity = Severity.Error
             })
         
         if Option.isNone (getString "name" metadata) then
             errors.Add({
                 filePath = filePath
                 elementId = id
-                errorType = "missing-required-field"
+                errorType = ErrorType.MissingRequiredField
                 message = "Element must have a 'name' field"
-                severity = "error"
+                severity = Severity.Error
             })
         
         if Option.isNone (getString "type" metadata) then
             errors.Add({
                 filePath = filePath
                 elementId = id
-                errorType = "missing-required-field"
+                errorType = ErrorType.MissingRequiredField
                 message = "Element must have a 'type' field"
-                severity = "error"
+                severity = Severity.Error
             })
         
         if Option.isNone (getString "layer" metadata) then
             errors.Add({
                 filePath = filePath
                 elementId = id
-                errorType = "missing-required-field"
+                errorType = ErrorType.MissingRequiredField
                 message = "Element must have a 'layer' field"
-                severity = "error"
+                severity = Severity.Error
             })
         
         // Validate layer value
@@ -187,9 +190,9 @@ module ElementRegistry =
             errors.Add({
                 filePath = filePath
                 elementId = id
-                errorType = "invalid-layer"
+                errorType = ErrorType.InvalidLayer
                 message = sprintf "Invalid layer '%s'. Must be one of: %s" layer (String.concat ", " validLayers)
-                severity = "error"
+                severity = Severity.Error
             })
         | _ -> ()
         
@@ -201,9 +204,9 @@ module ElementRegistry =
                 errors.Add({
                     filePath = filePath
                     elementId = id
-                    errorType = "invalid-id-format"
+                    errorType = ErrorType.Unknown "invalid-id-format"
                     message = sprintf "ID '%s' should match pattern: [layer-code]-[type-code]-[###]-[descriptive-name]" idVal
-                    severity = "error"
+                    severity = Severity.Error
                 })
             else
                 let parts = idVal.Split('-')
@@ -215,17 +218,17 @@ module ElementRegistry =
                         errors.Add({
                             filePath = filePath
                             elementId = id
-                            errorType = "invalid-id-format"
+                            errorType = ErrorType.Unknown "invalid-id-format"
                             message = sprintf "Layer code '%s' must be exactly 3 characters" layerCode
-                            severity = "error"
+                            severity = Severity.Error
                         })
                     elif not (Map.containsKey layerCode layerCodes) then
                         errors.Add({
                             filePath = filePath
                             elementId = id
-                            errorType = "invalid-id-format"
+                            errorType = ErrorType.Unknown "invalid-id-format"
                             message = sprintf "Layer code '%s' is not valid. Must be: str, bus, app, tec, phy, mot, imp" layerCode
-                            severity = "error"
+                            severity = Severity.Error
                         })
                     
                     // Validate type code (must be exactly 4 chars and valid for this layer)
@@ -235,9 +238,9 @@ module ElementRegistry =
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
-                                errorType = "invalid-id-format"
+                                errorType = ErrorType.Unknown "invalid-id-format"
                                 message = sprintf "Type code '%s' must be exactly 4 characters" typeCode
-                                severity = "error"
+                                severity = Severity.Error
                             })
                         elif Map.containsKey layerCode typeCodes then
                             let validTypes = Map.find layerCode typeCodes
@@ -245,9 +248,9 @@ module ElementRegistry =
                                 errors.Add({
                                     filePath = filePath
                                     elementId = id
-                                    errorType = "invalid-id-format"
+                                    errorType = ErrorType.Unknown "invalid-id-format"
                                     message = sprintf "Type code '%s' is not valid for layer '%s'" typeCode layerCode
-                                    severity = "error"
+                                    severity = Severity.Error
                                 })
                     
                     // Validate sequential number (must be exactly 3 digits: 001-999)
@@ -257,17 +260,17 @@ module ElementRegistry =
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
-                                errorType = "invalid-id-format"
+                                errorType = ErrorType.Unknown "invalid-id-format"
                                 message = sprintf "Sequential number '%s' must be exactly 3 digits (001-999)" seqNum
-                                severity = "error"
+                                severity = Severity.Error
                             })
                         elif seqNum = "000" then
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
-                                errorType = "invalid-id-format"
+                                errorType = ErrorType.Unknown "invalid-id-format"
                                 message = "Sequential number must start at 001, not 000"
-                                severity = "error"
+                                severity = Severity.Error
                             })
                     
                     // Validate descriptive name (1-4 words, lowercase, hyphens only)
@@ -279,17 +282,17 @@ module ElementRegistry =
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
-                                errorType = "invalid-id-format"
+                                errorType = ErrorType.Unknown "invalid-id-format"
                                 message = "Descriptive name must have at least 1 word"
-                                severity = "error"
+                                severity = Severity.Error
                             })
                         elif wordCount > 4 then
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
-                                errorType = "invalid-id-format"
+                                errorType = ErrorType.Unknown "invalid-id-format"
                                 message = sprintf "Descriptive name has %d words, maximum is 4" wordCount
-                                severity = "error"
+                                severity = Severity.Error
                             })
                         
                         // Check for invalid characters (only lowercase letters, numbers, hyphens)
@@ -297,9 +300,9 @@ module ElementRegistry =
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
-                                errorType = "invalid-id-format"
+                                errorType = ErrorType.Unknown "invalid-id-format"
                                 message = "Descriptive name must contain only lowercase letters, numbers, and hyphens"
-                                severity = "error"
+                                severity = Severity.Error
                             })
                         
                         // Check for invalid patterns (leading/trailing hyphens, double hyphens)
@@ -307,9 +310,9 @@ module ElementRegistry =
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
-                                errorType = "invalid-id-format"
+                                errorType = ErrorType.Unknown "invalid-id-format"
                                 message = "Descriptive name cannot have leading/trailing hyphens or consecutive hyphens"
-                                severity = "error"
+                                severity = Severity.Error
                             })
         | _ -> ()
         
@@ -334,14 +337,16 @@ module ElementRegistry =
                 (None, validationErrors)
             else
                 let name = getString "name" metadata |> Option.defaultValue "Unnamed"
-                let layer = getString "layer" metadata |> Option.defaultValue "unknown"
-                logger.LogDebug($"Loaded element: {id} ({name}) in layer {layer} from {filePath}")
+                let layerStr = getString "layer" metadata |> Option.defaultValue "unknown"
+                let typeStr = getString "type" metadata |> Option.defaultValue "unknown"
+                let elementType = ElementType.parseElementType layerStr typeStr
+                
+                logger.LogDebug($"Loaded element: {id} ({name}) in layer {layerStr} from {filePath}")
                 
                 let element = {
                     id = id
                     name = name
-                    elementType = getString "type" metadata |> Option.defaultValue "unknown"
-                    layer = layer
+                    elementType = elementType
                     content = mdContent.Trim()
                     properties = metadata
                     tags = getStringList "tags" metadata
@@ -353,9 +358,9 @@ module ElementRegistry =
             ({
                 filePath = filePath
                 elementId = None
-                errorType = "parse-error"
+                errorType = ErrorType.Unknown "parse-error"
                 message = $"Failed to parse file: {ex.Message}"
-                severity = "error"
+                severity = Severity.Error
             })
             |> List.singleton
             |> (fun errs -> (None, errs))
@@ -393,11 +398,12 @@ module ElementRegistry =
                     elements <- elements |> Map.add elem.id elem
                     
                     // Index by layer
+                    let layer = ElementType.getLayer elem.elementType
                     let layerElems = 
                         elementsByLayer 
-                        |> Map.tryFind elem.layer 
+                        |> Map.tryFind layer 
                         |> Option.defaultValue []
-                    elementsByLayer <- elementsByLayer |> Map.add elem.layer (elem.id :: layerElems)
+                    elementsByLayer <- elementsByLayer |> Map.add layer (elem.id :: layerElems)
                     
                     // Index incoming relationships
                     elem.relationships
@@ -438,7 +444,7 @@ module ElementRegistry =
         |> List.filter (fun err -> err.filePath = filePath)
     
     /// Get validation errors by severity
-    let getErrorsBySeverity (severity: string) (registry: ElementRegistry) : ValidationError list =
+    let getErrorsBySeverity (severity: Severity) (registry: ElementRegistry) : ValidationError list =
         !registry.validationErrors
         |> List.filter (fun err -> err.severity = severity)
     

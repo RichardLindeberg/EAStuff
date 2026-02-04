@@ -43,6 +43,100 @@ module Handlers =
         let normalized = value.Replace("-", " ").Replace("_", " ").ToLowerInvariant()
         CultureInfo.InvariantCulture.TextInfo.ToTitleCase(normalized)
 
+    let private elementTypeToKey (elementType: ElementType) : string =
+        match elementType with
+        | ElementType.Strategy st ->
+            match st with
+            | StrategyElement.Stakeholder -> "stakeholder"
+            | StrategyElement.Driver -> "driver"
+            | StrategyElement.Assessment -> "assessment"
+            | StrategyElement.Goal -> "goal"
+            | StrategyElement.Outcome -> "outcome"
+            | StrategyElement.Principle -> "principle"
+            | StrategyElement.Requirement -> "requirement"
+            | StrategyElement.Constraint -> "constraint"
+        | ElementType.Motivation mt ->
+            match mt with
+            | MotivationElement.Stakeholder -> "stakeholder"
+            | MotivationElement.Driver -> "driver"
+            | MotivationElement.Assessment -> "assessment"
+            | MotivationElement.Goal -> "goal"
+            | MotivationElement.Outcome -> "outcome"
+            | MotivationElement.Principle -> "principle"
+            | MotivationElement.Requirement -> "requirement"
+            | MotivationElement.Constraint -> "constraint"
+            | MotivationElement.Meaning -> "meaning"
+            | MotivationElement.Value -> "value"
+        | ElementType.Business bt ->
+            match bt with
+            | BusinessElement.Actor -> "business-actor"
+            | BusinessElement.Role -> "business-role"
+            | BusinessElement.Process -> "business-process"
+            | BusinessElement.Function -> "business-function"
+            | BusinessElement.Service -> "business-service"
+            | BusinessElement.Object -> "business-object"
+            | BusinessElement.Event -> "business-event"
+            | BusinessElement.Product -> "product"
+        | ElementType.Application at ->
+            match at with
+            | ApplicationElement.Component -> "application-component"
+            | ApplicationElement.Function -> "application-function"
+            | ApplicationElement.Service -> "application-service"
+            | ApplicationElement.Interface -> "application-interface"
+            | ApplicationElement.DataObject -> "data-object"
+        | ElementType.Technology tt ->
+            match tt with
+            | TechnologyElement.Technology -> "technology"
+            | TechnologyElement.Device -> "device"
+            | TechnologyElement.SystemSoftware -> "system-software"
+            | TechnologyElement.Service -> "technology-service"
+            | TechnologyElement.Interface -> "technology-interface"
+            | TechnologyElement.Artifact -> "artifact"
+            | TechnologyElement.Node -> "node"
+            | TechnologyElement.CommunicationNetwork -> "communication-network"
+        | ElementType.Physical pt ->
+            match pt with
+            | PhysicalElement.Equipment -> "equipment"
+            | PhysicalElement.Facility -> "facility"
+            | PhysicalElement.DistributionNetwork -> "distribution-network"
+        | ElementType.Implementation it ->
+            match it with
+            | ImplementationElement.WorkPackage -> "work-package"
+            | ImplementationElement.Deliverable -> "deliverable"
+            | ImplementationElement.ImplementationEvent -> "implementation-event"
+            | ImplementationElement.Plateau -> "plateau"
+            | ImplementationElement.Gap -> "gap"
+        | ElementType.Unknown (_, elementTypeName) ->
+            if String.IsNullOrWhiteSpace elementTypeName then "unknown" else elementTypeName.ToLowerInvariant()
+
+    let private relationTypeToKey (relationType: RelationType) : string =
+        match relationType with
+        | RelationType.Composition -> "composition"
+        | RelationType.Aggregation -> "aggregation"
+        | RelationType.Assignment -> "assignment"
+        | RelationType.Realization -> "realization"
+        | RelationType.Specialization -> "specialization"
+        | RelationType.Association -> "association"
+        | RelationType.Access -> "access"
+        | RelationType.Influence -> "influence"
+        | RelationType.Serving -> "serving"
+        | RelationType.Triggering -> "triggering"
+        | RelationType.Flow -> "flow"
+        | RelationType.Unknown value -> value
+
+    let private severityToString (severity: Severity) : string =
+        match severity with
+        | Severity.Error -> "error"
+        | Severity.Warning -> "warning"
+
+    let private errorTypeToString (errorType: ErrorType) : string =
+        match errorType with
+        | ErrorType.MissingId -> "missing-id"
+        | ErrorType.InvalidType -> "invalid-type"
+        | ErrorType.InvalidLayer -> "invalid-layer"
+        | ErrorType.MissingRequiredField -> "missing-required-field"
+        | ErrorType.Unknown value -> value
+
     let private getElementTypeLabel (elementType: string) : string =
         let formatted = toTitleCase elementType
         // Abbreviate long type names for badge display
@@ -242,7 +336,7 @@ module Handlers =
                 | Some _, Some _ ->
                     let fromId = sanitizeMermaidId sourceId
                     let toId = sanitizeMermaidId rel.target
-                    let relLabel = escapeMermaidLabel rel.relationType
+                    let relLabel = escapeMermaidLabel (relationTypeToKey rel.relationType)
                     lines.Add($"{fromId} -->|{relLabel}| {toId}")
                 | _ -> ()
 
@@ -258,7 +352,7 @@ module Handlers =
         let elementsByType = 
             allNodeIds 
             |> Seq.choose (fun nodeId -> Map.tryFind nodeId elementMap)
-            |> Seq.groupBy (fun elem -> elem.elementType)
+            |> Seq.groupBy (fun elem -> elementTypeToKey elem.elementType)
             |> Seq.toList
         
         for (elemType, elems) in elementsByType do
@@ -322,7 +416,7 @@ module Handlers =
                 | Some _, Some _ ->
                     let fromId = sanitizeMermaidId sourceId
                     let toId = sanitizeMermaidId rel.target
-                    let relLabel = escapeMermaidLabel rel.relationType
+                    let relLabel = escapeMermaidLabel (relationTypeToKey rel.relationType)
                     lines.Add($"{fromId} -->|{relLabel}| {toId}")
                 | _ -> ()
         
@@ -332,7 +426,7 @@ module Handlers =
             allNodeIds 
             |> Seq.choose (fun nodeId -> 
                 if nodeId <> elementId then Map.tryFind nodeId elementMap else None)
-            |> Seq.groupBy (fun elem -> elem.elementType)
+            |> Seq.groupBy (fun elem -> elementTypeToKey elem.elementType)
             |> Seq.toList
         
         for (elemType, elems) in elementsByType do
@@ -364,19 +458,20 @@ module Handlers =
         let nodes = 
             elements 
             |> List.map (fun elem ->
-                let color = getArchimateColor elem.elementType
-                let shape = getNodeShape elem.elementType
+                let elementTypeKey = elementTypeToKey elem.elementType
+                let color = getArchimateColor elementTypeKey
+                let shape = getNodeShape elementTypeKey
                 let icon = 
-                    match tryGetIconFileName elem.elementType with
+                    match tryGetIconFileName elementTypeKey with
                     | Some fileName -> sprintf "%s%s" iconsBaseUrl fileName
                     | None ->
-                        match tryGetSymbolFileName elem.elementType with
+                        match tryGetSymbolFileName elementTypeKey with
                         | Some fileName -> sprintf "%s%s" symbolsBaseUrl fileName
                         | None -> ""
                 
-                let typeLabel = getElementTypeLabel elem.elementType
+                let typeLabel = getElementTypeLabel elementTypeKey
                 let labelText = sprintf "[%s]\\n%s" typeLabel (escapeMermaidLabel elem.name)
-                let classes = (sanitizeMermaidId elem.elementType) + " badge-label"
+                let classes = (sanitizeMermaidId elementTypeKey) + " badge-label"
                 sprintf """{
                 data: { 
                     id: "%s", 
@@ -390,7 +485,7 @@ module Handlers =
             }""" 
                     elem.id 
                     labelText
-                    elem.elementType
+                    elementTypeKey
                     color
                     icon
                     shape
@@ -400,10 +495,11 @@ module Handlers =
         let edges = 
             allRelationships
             |> List.map (fun (sourceId, rel) ->
-                let color = getRelationshipColor rel.relationType
-                let arrowType = getRelationshipArrowType rel.relationType
-                let lineStyle = getRelationshipLineStyle rel.relationType
-                let lineWidth = getRelationshipLineWidth rel.relationType
+                let relationTypeKey = relationTypeToKey rel.relationType
+                let color = getRelationshipColor relationTypeKey
+                let arrowType = getRelationshipArrowType relationTypeKey
+                let lineStyle = getRelationshipLineStyle relationTypeKey
+                let lineWidth = getRelationshipLineWidth relationTypeKey
                 
                 sprintf """{
                 data: { 
@@ -422,8 +518,8 @@ module Handlers =
                     rel.target
                     sourceId
                     rel.target
-                    rel.relationType
-                    rel.relationType
+                    relationTypeKey
+                    relationTypeKey
                     color
                     arrowType
                     lineStyle
@@ -1041,7 +1137,7 @@ module Handlers =
     let layerHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation($"GET /{layer} - Layer page requested")
-            match Config.layerOrder |> List.tryFind (fun l -> l.key = layer) with
+            match Map.tryFind layer Config.layerOrder with
             | Some layerInfo ->
                 let elements = ElementRegistry.getLayerElements layer registry
                 logger.LogInformation($"Found {List.length elements} elements in layer {layer}")
@@ -1060,7 +1156,7 @@ module Handlers =
             logger.LogInformation($"GET /elements/{elemId} - Element detail requested")
             match ElementRegistry.getElement elemId registry with
             | Some elem ->
-                logger.LogInformation($"Found element: {elemId} ({elem.name}) in layer {elem.layer}")
+                logger.LogInformation($"Found element: {elemId} ({elem.name})")
                 let incoming = ElementRegistry.getIncomingRelations elemId registry
                 let outgoing = elem.relationships
                 logger.LogInformation($"  Incoming relations: {List.length incoming}, Outgoing relations: {List.length outgoing}")
@@ -1093,7 +1189,7 @@ module Handlers =
     let layerDiagramHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation($"GET /diagrams/layers/{layer} - Layer diagram requested")
-            match Config.layerOrder |> List.tryFind (fun l -> l.key = layer) with
+            match Map.tryFind layer Config.layerOrder with
             | Some layerInfo ->
                 let diagram = buildLayerMermaid layer registry
                 let html = wrapMermaidHtml ($"{layerInfo.displayName} Diagram") diagram
@@ -1129,7 +1225,7 @@ module Handlers =
     let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation($"GET /diagrams/layer/{layer} - Cytoscape layer diagram requested")
-            match Config.layerOrder |> List.tryFind (fun l -> l.key = layer) with
+            match Map.tryFind layer Config.layerOrder with
             | Some layerInfo ->
                 let data = buildLayerCytoscape layer registry
                 let html = wrapCytoscapeHtml (sprintf "%s Layer" layerInfo.displayName) data true
@@ -1209,8 +1305,8 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/stats - Validation statistics requested")
             let errors = ElementRegistry.getValidationErrors registry
-            let errors_list = ElementRegistry.getErrorsBySeverity "error" registry
-            let warnings_list = ElementRegistry.getErrorsBySeverity "warning" registry
+            let errors_list = ElementRegistry.getErrorsBySeverity Severity.Error registry
+            let warnings_list = ElementRegistry.getErrorsBySeverity Severity.Warning registry
             
             let stats = dict [
                 ("totalFiles", box (errors |> List.map (fun e -> e.filePath) |> List.distinct |> List.length))

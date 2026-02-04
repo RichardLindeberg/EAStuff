@@ -22,15 +22,44 @@ module Views =
     let pluralize (count: int) (singular: string) (plural: string) : string =
         if count <> 1 then plural else singular
     
+    /// Convert ElementType to string for display
+    let elementTypeToString (elementType: ElementType) : string =
+        match elementType with
+        | ElementType.Strategy st -> sprintf "Strategy %A" st
+        | ElementType.Motivation mt -> sprintf "Motivation %A" mt
+        | ElementType.Business bt -> sprintf "Business %A" bt
+        | ElementType.Application at -> sprintf "Application %A" at
+        | ElementType.Technology tt -> sprintf "Technology %A" tt
+        | ElementType.Physical pt -> sprintf "Physical %A" pt
+        | ElementType.Implementation it -> sprintf "Implementation %A" it
+        | ElementType.Unknown (layer, typeName) -> sprintf "%s %s" layer typeName
+    
+    /// Convert RelationType to string for display
+    let relationTypeToString (relationType: RelationType) : string =
+        match relationType with
+        | RelationType.Composition -> "Composition"
+        | RelationType.Aggregation -> "Aggregation"
+        | RelationType.Assignment -> "Assignment"
+        | RelationType.Realization -> "Realization"
+        | RelationType.Specialization -> "Specialization"
+        | RelationType.Association -> "Association"
+        | RelationType.Access -> "Access"
+        | RelationType.Influence -> "Influence"
+        | RelationType.Serving -> "Serving"
+        | RelationType.Triggering -> "Triggering"
+        | RelationType.Flow -> "Flow"
+        | RelationType.Unknown s -> s
+    
     /// HTML header with navigation
     let htmlHeader (title: string) (currentPage: string) =
         let navItems =
             Config.layerOrder
-            |> List.map (fun layer ->
-                let isActive = currentPage = layer.key
+            |> Map.toList
+            |> List.map (fun (layerKey, layerInfo) ->
+                let isActive = currentPage = layerKey
                 let activeClass = if isActive then "active" else ""
-                a [_href $"{baseUrl}{layer.key}"; _class $"nav-link {activeClass}"] [
-                    encodedText layer.displayName
+                a [_href $"{baseUrl}{layerKey.ToLowerInvariant()}"; _class $"nav-link {activeClass}"] [
+                    encodedText layerInfo.displayName
                 ]
             )
         
@@ -645,15 +674,17 @@ module Views =
     let indexPage (registry: ElementRegistry) =
         let layerCards =
             Config.layerOrder
-            |> List.choose (fun layer ->
-                let elements = ElementRegistry.getLayerElements layer.key registry
+            |> Map.toList
+            |> List.choose (fun (layerKey, layerInfo) ->
+                let layerKeyLower = layerKey.ToLowerInvariant()
+                let elements = ElementRegistry.getLayerElements layerKeyLower registry
                 if List.isEmpty elements then None
                 else
                     Some (
                         div [_class "element-card"] [
                             h3 [] [
-                                a [_href $"{baseUrl}{layer.key}"] [
-                                    encodedText layer.displayName
+                                a [_href $"{baseUrl}{layerKeyLower}"] [
+                                    encodedText layerInfo.displayName
                                 ]
                             ]
                             let elemCountStr = let count = List.length elements in sprintf "%d element%s" count (pluralize count "" "s")
@@ -661,7 +692,7 @@ module Views =
                                 encodedText elemCountStr
                             ]
                             p [_class "element-description"] [
-                                encodedText $"View all {layer.key} layer elements and their relationships."
+                                encodedText $"View all {layerKeyLower} layer elements and their relationships."
                             ]
                         ]
                     )
@@ -700,7 +731,7 @@ module Views =
                 let outgoing = List.length elem.relationships
                 
                 div [_class "element-card"] [
-                    span [_class "element-type"] [encodedText elem.elementType]
+                    span [_class "element-type"] [encodedText (elementTypeToString elem.elementType)]
                     h3 [] [
                         a [_href $"{baseUrl}elements/{elem.id}"] [
                             encodedText elem.name
@@ -727,14 +758,14 @@ module Views =
                     encodedText layerElemCountStr
                 ]
                 div [_class "diagram-section"] [
-                       a [_class "diagram-link"; _href $"{baseUrl}diagrams/layers/{layer.key}"; _target "_blank"; _rel "noopener"] [
+                       a [_class "diagram-link"; _href $"{baseUrl}diagrams/layers/{layer.displayName}"; _target "_blank"; _rel "noopener"] [
                             encodedText "Open diagram ↗"
                         ]                ]
                 div [_class "element-grid"] elementCards
             ]
         ]
         
-        htmlPage layer.displayName layer.key content
+        htmlPage layer.displayName layer.displayName content
     
     /// Element detail page
     let elementPage (elemWithRels: ElementWithRelations) =
@@ -743,7 +774,7 @@ module Views =
         let relationItem (related: Element) (rel: Relationship) (isIncoming: bool) =
             let relClass = if isIncoming then "incoming" else ""
             li [_class $"relation-item {relClass}"] [
-                span [_class "relation-type"] [encodedText rel.relationType]
+                span [_class "relation-type"] [encodedText (relationTypeToString rel.relationType)]
                 a [_href $"{baseUrl}elements/{related.id}"] [
                     encodedText related.name
                 ]
@@ -779,14 +810,16 @@ module Views =
         
         let content = [
             div [_class "container"] [
+                let layerName = ElementType.getLayer elem.elementType
+                let layerNameLower = layerName.ToLowerInvariant()
                 div [_class "breadcrumb"] [
                     a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / "
-                    a [_href $"{baseUrl}{elem.layer}"] [encodedText (
+                    a [_href $"{baseUrl}{layerNameLower}"] [encodedText (
                         Config.layerOrder
-                        |> List.tryFind (fun l -> l.key = elem.layer)
+                        |> Map.tryFind layerName
                         |> Option.map (fun l -> l.displayName)
-                        |> Option.defaultValue elem.layer
+                        |> Option.defaultValue layerName
                     )]
                     encodedText " / "
                     encodedText elem.name
@@ -794,6 +827,17 @@ module Views =
                 
                 div [_class "element-detail"] [
                     h2 [] [encodedText elem.name]
+                    let elementTypeStr = 
+                        match elem.elementType with
+                        | ElementType.Strategy st -> sprintf "Strategy - %A" st
+                        | ElementType.Motivation mt -> sprintf "Motivation - %A" mt
+                        | ElementType.Business bt -> sprintf "Business - %A" bt
+                        | ElementType.Application at -> sprintf "Application - %A" at
+                        | ElementType.Technology tt -> sprintf "Technology - %A" tt
+                        | ElementType.Physical pt -> sprintf "Physical - %A" pt
+                        | ElementType.Implementation it -> sprintf "Implementation - %A" it
+                        | ElementType.Unknown (layer, typeName) -> sprintf "%s - %s" layer typeName
+                    
                     div [_class "metadata"] [
                         div [_class "metadata-item"] [
                             div [_class "metadata-label"] [encodedText "ID"]
@@ -801,11 +845,11 @@ module Views =
                         ]
                         div [_class "metadata-item"] [
                             div [_class "metadata-label"] [encodedText "Type"]
-                            div [_class "metadata-value"] [encodedText elem.elementType]
+                            div [_class "metadata-value"] [encodedText elementTypeStr]
                         ]
                         div [_class "metadata-item"] [
                             div [_class "metadata-label"] [encodedText "Layer"]
-                            div [_class "metadata-value"] [encodedText elem.layer]
+                            div [_class "metadata-value"] [encodedText layerName]
                         ]
                     ]
                     
@@ -906,7 +950,7 @@ module Views =
                     |> Option.defaultValue ""
                 
                 div [_class "element-card"] [
-                    span [_class "element-type"] [encodedText elem.elementType]
+                    span [_class "element-type"] [encodedText (elementTypeToString elem.elementType)]
                     h3 [] [
                         a [_href $"{baseUrl}elements/{elem.id}"] [
                             encodedText elem.name
@@ -947,15 +991,16 @@ module Views =
             errorsByFile
             |> List.map (fun (filePath, fileErrors) ->
                 let errorCount = List.length fileErrors
-                let hasErrors = fileErrors |> List.exists (fun e -> e.severity = "error")
+                let hasErrors = fileErrors |> List.exists (fun e -> e.severity = Severity.Error)
                 let errorClass = if hasErrors then "has-errors" else "has-warnings"
                 let severityBadges =
                     fileErrors
                     |> List.groupBy (fun e -> e.severity)
                     |> List.map (fun (severity, errs) ->
-                        let badgeClass = if severity = "error" then "badge-error" else "badge-warning"
+                        let badgeClass = if severity = Severity.Error then "badge-error" else "badge-warning"
+                        let sevStr = match severity with Severity.Error -> "Error" | Severity.Warning -> "Warning"
                         span [_class $"badge {badgeClass}"] [
-                            encodedText (sprintf "%s: %d" (severity.ToUpper()) errs.Length)
+                            encodedText (sprintf "%s: %d" sevStr errs.Length)
                         ]
                     )
                 
@@ -963,10 +1008,18 @@ module Views =
                     fileErrors
                     |> List.map (fun err ->
                         let elemId = err.elementId |> Option.defaultValue "N/A"
-                        let severityClass = $"severity-{err.severity}"
+                        let severityStr = match err.severity with Severity.Error -> "error" | Severity.Warning -> "warning"
+                        let severityClass = $"severity-{severityStr}"
+                        let errorTypeStr =
+                            match err.errorType with
+                            | ErrorType.MissingId -> "Missing ID"
+                            | ErrorType.InvalidType -> "Invalid Type"
+                            | ErrorType.InvalidLayer -> "Invalid Layer"
+                            | ErrorType.MissingRequiredField -> "Missing Required Field"
+                            | ErrorType.Unknown s -> s
                         div [_class $"error-detail {severityClass}"] [
                             div [_class "error-header"] [
-                                span [_class "error-type"] [encodedText err.errorType]
+                                span [_class "error-type"] [encodedText errorTypeStr]
                                 span [_class "element-ref"] [encodedText $"ID: {elemId}"]
                             ]
                             p [_class "error-message"] [encodedText err.message]
@@ -998,8 +1051,8 @@ module Views =
         
         let stats =
             let totalFiles = List.length errorsByFile
-            let totalErrors = errors |> List.filter (fun e -> e.severity = "error") |> List.length
-            let totalWarnings = errors |> List.filter (fun e -> e.severity = "warning") |> List.length
+            let totalErrors = errors |> List.filter (fun e -> e.severity = Severity.Error) |> List.length
+            let totalWarnings = errors |> List.filter (fun e -> e.severity = Severity.Warning) |> List.length
             let errorClass = if totalErrors > 0 then "error" else ""
             let warningClass = if totalWarnings > 0 then "warning" else ""
             
