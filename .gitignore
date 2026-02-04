@@ -1,2 +1,13 @@
 output/
 diagrams/
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.log
+*.DS_Store
+*.env
+*.pdb
+*.cache
+*.fsproj.user

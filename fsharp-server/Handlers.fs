@@ -1161,6 +1161,106 @@ module Handlers =
                 logger.LogWarning($"Element not found for Cytoscape context diagram: {elemId}")
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
     
+    /// Validation errors API handler - list all errors
+    let validationErrorsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /api/validation/errors - Validation errors requested")
+            let errors = ElementRegistry.getValidationErrors registry
+            logger.LogInformation($"Returning {List.length errors} validation errors")
+            
+            let errorsList =
+                errors
+                |> List.map (fun err ->
+                    dict [
+                        ("filePath", box err.filePath)
+                        ("elementId", box (err.elementId |> Option.defaultValue ""))
+                        ("errorType", box err.errorType)
+                        ("message", box err.message)
+                        ("severity", box err.severity)
+                    ]
+                )
+            
+            json errorsList next ctx
+    
+    /// Validation errors by file handler
+    let fileValidationErrorsHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation($"GET /api/validation/file - Validation errors for file: {filePath}")
+            let decodedPath = Uri.UnescapeDataString(filePath)
+            let errors = ElementRegistry.getFileValidationErrors decodedPath registry
+            logger.LogInformation($"File '{decodedPath}' has {List.length errors} validation errors")
+            
+            let errorsList =
+                errors
+                |> List.map (fun err ->
+                    dict [
+                        ("filePath", box err.filePath)
+                        ("elementId", box (err.elementId |> Option.defaultValue ""))
+                        ("errorType", box err.errorType)
+                        ("message", box err.message)
+                        ("severity", box err.severity)
+                    ]
+                )
+            
+            json errorsList next ctx
+    
+    /// Validation statistics handler
+    let validationStatsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /api/validation/stats - Validation statistics requested")
+            let errors = ElementRegistry.getValidationErrors registry
+            let errors_list = ElementRegistry.getErrorsBySeverity "error" registry
+            let warnings_list = ElementRegistry.getErrorsBySeverity "warning" registry
+            
+            let stats = dict [
+                ("totalFiles", box (errors |> List.map (fun e -> e.filePath) |> List.distinct |> List.length))
+                ("totalErrors", box errors_list.Length)
+                ("totalWarnings", box warnings_list.Length)
+                ("errorsByType", box (
+                    errors
+                    |> List.groupBy (fun e -> e.errorType)
+                    |> List.map (fun (eType, errs) -> dict [("type", box eType); ("count", box errs.Length)])
+                ))
+            ]
+            
+            json stats next ctx
+    
+    /// Validation page handler
+    let validationPageHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /validation - Validation page requested")
+            let errors = ElementRegistry.getValidationErrors registry
+            logger.LogInformation($"Displaying {List.length errors} validation errors")
+            let html = Views.validationPage errors
+            htmlView html next ctx
+    
+    /// Revalidate file handler
+    let revalidateFileHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation($"POST /api/validation/revalidate - Revalidating file: {filePath}")
+            let decodedPath = Uri.UnescapeDataString(filePath)
+            
+            ElementRegistry.revalidateFile decodedPath registry logger
+            let errors = ElementRegistry.getFileValidationErrors decodedPath registry
+            
+            let result = dict [
+                ("filePath", box decodedPath)
+                ("revalidated", box true)
+                ("errorCount", box errors.Length)
+                ("errors", box (
+                    errors
+                    |> List.map (fun err ->
+                        dict [
+                            ("errorType", box err.errorType)
+                            ("message", box err.message)
+                            ("severity", box err.severity)
+                        ]
+                    )
+                ))
+            ]
+            
+            json result next ctx
+    
     /// Individual tag page handler
     let tagHandler (tag: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
@@ -1199,6 +1299,13 @@ module Handlers =
             routef "/diagrams/layers/%s" (fun layer -> layerDiagramHandler layer registry logger)
             routef "/diagrams/layers/%s/mermaid" (fun layer -> layerDiagramHandler layer registry logger)
             routef "/diagrams/context/%s/mermaid" (fun elemId -> contextDiagramHandler elemId registry logger)
+            
+            // Validation page and API endpoints
+            route "/validation" >=> validationPageHandler registry logger
+            route "/api/validation/errors" >=> validationErrorsHandler registry logger
+            routef "/api/validation/file/%s" (fun filePath -> fileValidationErrorsHandler filePath registry logger)
+            route "/api/validation/stats" >=> validationStatsHandler registry logger
+            routef "/api/validation/revalidate/%s" (fun filePath -> revalidateFileHandler filePath registry logger)
             
             route "/tags" >=> tagsIndexHandler registry logger
             routef "/tags/%s" (fun tag -> tagHandler (Uri.UnescapeDataString tag) registry logger)

@@ -2,6 +2,15 @@ namespace EAArchive
 
 open System
 
+/// Validation error for element files
+type ValidationError = {
+    filePath: string
+    elementId: string option
+    errorType: string  // "missing-id", "invalid-type", "invalid-layer", "missing-required-field", etc.
+    message: string
+    severity: string  // "error", "warning"
+}
+
 /// Element relationship information
 type Relationship = {
     target: string

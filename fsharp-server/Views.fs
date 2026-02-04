@@ -35,10 +35,14 @@ module Views =
             )
         
         let tagsActive = if currentPage = "tags" then "active" else ""
+        let validationActive = if currentPage = "validation" then "active" else ""
         let navLinks = 
             navItems @ [
                 a [_href $"{baseUrl}tags"; _class $"nav-link {tagsActive}"] [
                     encodedText "Tags"
+                ]
+                a [_href $"{baseUrl}validation"; _class $"nav-link {validationActive}"] [
+                    encodedText "⚠ Validation"
                 ]
             ]
         
@@ -417,6 +421,192 @@ module Views =
             background: #f8fafc;
         }
         
+        /* Validation page styles */
+        .validation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .stat-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-value.error {
+            color: #f56565;
+        }
+        
+        .stat-value.warning {
+            color: #ed8936;
+        }
+        
+        .file-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .file-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #ed8936;
+        }
+        
+        .file-card.has-errors {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+        
+        .file-card.has-warnings {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+        
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .file-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #2d3748;
+            flex: 1;
+            word-break: break-all;
+        }
+        
+        .badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .badge-error {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        
+        .badge-warning {
+            background: #feebc8;
+            color: #c05621;
+        }
+        
+        .error-list {
+            margin: 1rem 0;
+        }
+        
+        .error-detail {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: white;
+            border-left: 3px solid #ed8936;
+            border-radius: 4px;
+        }
+        
+        .error-detail.severity-error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+        
+        .error-detail.severity-warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+        
+        .error-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .error-type {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: #edf2f7;
+            color: #2d3748;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .element-ref {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .error-message {
+            margin: 0;
+            color: #2d3748;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .btn-reload {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+        
+        .btn-reload:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        
         footer {
             text-align: center;
             padding: 2rem;
@@ -745,6 +935,112 @@ module Views =
         ]
         
         htmlPage tag "tags" content
+
+    /// Validation errors page
+    let validationPage (errors: ValidationError list) =
+        let errorsByFile =
+            errors
+            |> List.groupBy (fun e -> e.filePath)
+            |> List.sortBy fst
+        
+        let fileCards =
+            errorsByFile
+            |> List.map (fun (filePath, fileErrors) ->
+                let errorCount = List.length fileErrors
+                let hasErrors = fileErrors |> List.exists (fun e -> e.severity = "error")
+                let errorClass = if hasErrors then "has-errors" else "has-warnings"
+                let severityBadges =
+                    fileErrors
+                    |> List.groupBy (fun e -> e.severity)
+                    |> List.map (fun (severity, errs) ->
+                        let badgeClass = if severity = "error" then "badge-error" else "badge-warning"
+                        span [_class $"badge {badgeClass}"] [
+                            encodedText (sprintf "%s: %d" (severity.ToUpper()) errs.Length)
+                        ]
+                    )
+                
+                let errorDetails =
+                    fileErrors
+                    |> List.map (fun err ->
+                        let elemId = err.elementId |> Option.defaultValue "N/A"
+                        let severityClass = $"severity-{err.severity}"
+                        div [_class $"error-detail {severityClass}"] [
+                            div [_class "error-header"] [
+                                span [_class "error-type"] [encodedText err.errorType]
+                                span [_class "element-ref"] [encodedText $"ID: {elemId}"]
+                            ]
+                            p [_class "error-message"] [encodedText err.message]
+                        ]
+                    )
+                
+                let relativeFilePath =
+                    if filePath.Contains("\\elements\\") then
+                        let idx = filePath.LastIndexOf("\\elements\\")
+                        filePath.Substring(idx + 1)
+                    else
+                        filePath
+                
+                div [_class $"file-card {errorClass}"] [
+                    div [_class "file-header"] [
+                        h3 [] [encodedText relativeFilePath]
+                        div [_class "badges"] severityBadges
+                    ]
+                    div [_class "error-list"] errorDetails
+                    button [
+                        _type "button"
+                        _class "btn-reload"
+                        _onclick $"reloadFile('{relativeFilePath}')"
+                    ] [
+                        encodedText "Reload File"
+                    ]
+                ]
+            )
+        
+        let stats =
+            let totalFiles = List.length errorsByFile
+            let totalErrors = errors |> List.filter (fun e -> e.severity = "error") |> List.length
+            let totalWarnings = errors |> List.filter (fun e -> e.severity = "warning") |> List.length
+            let errorClass = if totalErrors > 0 then "error" else ""
+            let warningClass = if totalWarnings > 0 then "warning" else ""
+            
+            div [_class "validation-stats"] [
+                div [_class "stat-item"] [
+                    span [_class "stat-label"] [encodedText "Files with Issues:"]
+                    span [_class "stat-value"] [encodedText (string totalFiles)]
+                ]
+                div [_class "stat-item"] [
+                    span [_class "stat-label"] [encodedText "Errors:"]
+                    span [_class $"stat-value {errorClass}"] [encodedText (string totalErrors)]
+                ]
+                div [_class "stat-item"] [
+                    span [_class "stat-label"] [encodedText "Warnings:"]
+                    span [_class $"stat-value {warningClass}"] [encodedText (string totalWarnings)]
+                ]
+            ]
+        
+        let content = [
+            div [_class "container"] [
+                h1 [_class "page-title"] [encodedText "Validation Errors Report"]
+                stats
+                div [_class "file-list"] fileCards
+                script [] [
+                    rawText """
+                    function reloadFile(filePath) {
+                        const encodedPath = encodeURIComponent(filePath);
+                        fetch(`/api/validation/revalidate/${encodedPath}`, { method: 'POST' })
+                            .then(r => r.json())
+                            .then(data => {
+                                alert(`File reloaded: ${data.errorCount} errors found`);
+                                location.reload();
+                            })
+                            .catch(err => alert(`Error: ${err.message}`));
+                    }
+                    """
+                ]
+            ]
+        ]
+        
+        htmlPage "Validation Report" "validation" content
 
 module HtmlEncode =
     let htmlEncode (text: string) : string =

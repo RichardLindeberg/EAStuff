@@ -12,6 +12,8 @@ type ElementRegistry = {
     elements: Map<string, Element>
     elementsByLayer: Map<string, string list>
     incomingRelations: Map<string, (string * string * string) list> // target -> [(source, relType, desc)]
+    validationErrors: ValidationError list ref  // Using ref for mutability
+    elementsPath: string
 }
 
 module ElementRegistry =
@@ -105,16 +107,92 @@ module ElementRegistry =
         )
         |> Option.defaultValue []
     
-    /// Load and parse a single markdown element file
-    let loadElement (filePath: string) (logger: ILogger) : Element option =
+    /// Validate element metadata
+    let validateElement (filePath: string) (metadata: Map<string, obj>) : ValidationError list =
+        let errors = System.Collections.Generic.List<ValidationError>()
+        let id = getString "id" metadata
+        
+        // Required fields
+        if Option.isNone id || (Option.isSome id && (id |> Option.defaultValue "").Trim() = "") then
+            errors.Add({
+                filePath = filePath
+                elementId = None
+                errorType = "missing-id"
+                message = "Element must have an 'id' field"
+                severity = "error"
+            })
+        
+        if Option.isNone (getString "name" metadata) then
+            errors.Add({
+                filePath = filePath
+                elementId = id
+                errorType = "missing-required-field"
+                message = "Element must have a 'name' field"
+                severity = "error"
+            })
+        
+        if Option.isNone (getString "type" metadata) then
+            errors.Add({
+                filePath = filePath
+                elementId = id
+                errorType = "missing-required-field"
+                message = "Element must have a 'type' field"
+                severity = "error"
+            })
+        
+        if Option.isNone (getString "layer" metadata) then
+            errors.Add({
+                filePath = filePath
+                elementId = id
+                errorType = "missing-required-field"
+                message = "Element must have a 'layer' field"
+                severity = "error"
+            })
+        
+        // Validate layer value
+        let validLayers = ["strategy"; "motivation"; "business"; "application"; "technology"; "physical"; "implementation"]
+        match getString "layer" metadata with
+        | Some layer when not (List.contains (layer.ToLower()) validLayers) ->
+            errors.Add({
+                filePath = filePath
+                elementId = id
+                errorType = "invalid-layer"
+                message = sprintf "Invalid layer '%s'. Must be one of: %s" layer (String.concat ", " validLayers)
+                severity = "error"
+            })
+        | _ -> ()
+        
+        // Validate ID format (should be like "bus-proc-001") - only for non-empty IDs
+        match id with
+        | Some idVal when idVal.Trim() <> "" && not (System.Text.RegularExpressions.Regex.IsMatch(idVal, @"^[a-z]+-[a-z]+-\d{3}$")) ->
+            errors.Add({
+                filePath = filePath
+                elementId = id
+                errorType = "invalid-id-format"
+                message = sprintf "ID '%s' should match pattern: prefix-type-###" idVal
+                severity = "warning"
+            })
+        | _ -> ()
+        
+        List.ofSeq errors
+    
+    /// Load and parse a single markdown element file with validation
+    let loadElementWithValidation (filePath: string) (logger: ILogger) : (Element option * ValidationError list) =
         try
             let content = File.ReadAllText(filePath)
-            let (metadata, mdContent) = parseFrontmatter content
+            let (metadata, mdContent) = 
+                try 
+                    parseFrontmatter content
+                with ex ->
+                    logger.LogError($"Error parsing frontmatter from {filePath}: {ex.Message}")
+                    raise (System.FormatException($"Failed to parse YAML frontmatter: {ex.Message}", ex))
+            
+            let validationErrors = validateElement filePath metadata
             
             let id = getString "id" metadata |> Option.defaultValue ""
             if id = "" then 
                 logger.LogWarning($"Element in {filePath} has no ID, skipping")
-                None
+                (None, validationErrors)
             else
                 let name = getString "name" metadata |> Option.defaultValue "Unnamed"
                 let layer = getString "layer" metadata |> Option.defaultValue "unknown"
@@ -130,10 +208,22 @@ module ElementRegistry =
                     tags = getStringList "tags" metadata
                     relationships = parseRelationships metadata
                 }
-                Some element
+                (Some element, validationErrors)
         with ex ->
             logger.LogError($"Error loading element from {filePath}: {ex.Message}")
-            None
+            ({
+                filePath = filePath
+                elementId = None
+                errorType = "parse-error"
+                message = $"Failed to parse file: {ex.Message}"
+                severity = "error"
+            })
+            |> List.singleton
+            |> (fun errs -> (None, errs))
+    
+    /// Load and parse a single markdown element file (legacy)
+    let loadElement (filePath: string) (logger: ILogger) : Element option =
+        loadElementWithValidation filePath logger |> fst
     
     /// Build the element registry from all markdown files
     let create (elementsPath: string) : ElementRegistry =
@@ -144,6 +234,7 @@ module ElementRegistry =
         let mutable elements = Map.empty
         let mutable elementsByLayer = Map.empty
         let mutable incomingRelations = Map.empty
+        let mutable allValidationErrors = []
         
         if Directory.Exists(elementsPath) then
             let mdFiles = 
@@ -152,33 +243,40 @@ module ElementRegistry =
             
             logger.LogInformation($"Found {mdFiles.Length} markdown files")
             
-            // Load all elements
+            // Load all elements with validation
             mdFiles
-            |> List.choose (fun filePath -> loadElement filePath logger)
-            |> List.iter (fun elem ->
-                elements <- elements |> Map.add elem.id elem
+            |> List.iter (fun filePath ->
+                let (elemOpt, errors) = loadElementWithValidation filePath logger
+                allValidationErrors <- allValidationErrors @ errors
                 
-                // Index by layer
-                let layerElems = 
-                    elementsByLayer 
-                    |> Map.tryFind elem.layer 
-                    |> Option.defaultValue []
-                elementsByLayer <- elementsByLayer |> Map.add elem.layer (elem.id :: layerElems)
-                
-                // Index incoming relationships
-                elem.relationships
-                |> List.iter (fun rel ->
-                    let existing = 
-                        incomingRelations 
-                        |> Map.tryFind rel.target 
+                match elemOpt with
+                | Some elem ->
+                    elements <- elements |> Map.add elem.id elem
+                    
+                    // Index by layer
+                    let layerElems = 
+                        elementsByLayer 
+                        |> Map.tryFind elem.layer 
                         |> Option.defaultValue []
-                    incomingRelations <- 
-                        incomingRelations 
-                        |> Map.add rel.target ((elem.id, rel.relationType, rel.description) :: existing)
-                )
+                    elementsByLayer <- elementsByLayer |> Map.add elem.layer (elem.id :: layerElems)
+                    
+                    // Index incoming relationships
+                    elem.relationships
+                    |> List.iter (fun rel ->
+                        let existing = 
+                            incomingRelations 
+                            |> Map.tryFind rel.target 
+                            |> Option.defaultValue []
+                        incomingRelations <- 
+                            incomingRelations 
+                            |> Map.add rel.target ((elem.id, rel.relationType, rel.description) :: existing)
+                    )
+                | None -> ()
             )
             
             logger.LogInformation($"Successfully loaded {Map.count elements} elements into registry")
+            if allValidationErrors.Length > 0 then
+                logger.LogWarning($"Found {allValidationErrors.Length} validation errors/warnings during load")
         else
             logger.LogError($"Elements directory does not exist: {elementsPath}")
         
@@ -186,8 +284,42 @@ module ElementRegistry =
             elements = elements
             elementsByLayer = elementsByLayer
             incomingRelations = incomingRelations
+            validationErrors = ref allValidationErrors
+            elementsPath = elementsPath
         }
 
+    
+    /// Get all validation errors
+    let getValidationErrors (registry: ElementRegistry) : ValidationError list =
+        !registry.validationErrors
+    
+    /// Get validation errors for a specific file
+    let getFileValidationErrors (filePath: string) (registry: ElementRegistry) : ValidationError list =
+        !registry.validationErrors
+        |> List.filter (fun err -> err.filePath = filePath)
+    
+    /// Get validation errors by severity
+    let getErrorsBySeverity (severity: string) (registry: ElementRegistry) : ValidationError list =
+        !registry.validationErrors
+        |> List.filter (fun err -> err.severity = severity)
+    
+    /// Reload validation for a single file and update registry
+    let revalidateFile (filePath: string) (registry: ElementRegistry) (logger: ILogger) : unit =
+        if File.Exists(filePath) then
+            let (elemOpt, newErrors) = loadElementWithValidation filePath logger
+            
+            // Remove old validation errors for this file
+            let updatedErrors = 
+                !registry.validationErrors
+                |> List.filter (fun err -> err.filePath <> filePath)
+                |> (@) newErrors
+            
+            // Update the ref with new errors
+            registry.validationErrors := updatedErrors
+            
+            logger.LogInformation($"Revalidated file {filePath}: {newErrors.Length} errors found")
+        else
+            logger.LogWarning($"File not found for revalidation: {filePath}")
     
     /// Get an element by ID
     let getElement (id: string) (registry: ElementRegistry) : Element option =
