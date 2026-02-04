@@ -662,8 +662,13 @@ module Views =
                 meta [_charset "UTF-8"]
                 meta [_name "viewport"; _content "width=device-width, initial-scale=1.0"]
                 title [] [encodedText $"{pageTitle} - ArchiMate Architecture"]
-                style [] [rawText stylesheet]
+                link [_rel "stylesheet"; _href "/css/site.css"]
+                link [_rel "stylesheet"; _href "/css/cytoscape-diagram.css"]
+                link [_rel "stylesheet"; _href "/css/mermaid-diagram.css"]
                 script [_src "https://unpkg.com/htmx.org@1.9.10"] []
+                script [_src "/js/validation.js"] []
+                script [_src "/js/cytoscape-diagram.js"] []
+                script [_src "/js/mermaid-diagram.js"] []
             ]
             body [] (
                 [htmlHeader pageTitle currentPage] @ content @ [htmlFooter ()]
@@ -1076,20 +1081,6 @@ module Views =
                 h1 [_class "page-title"] [encodedText "Validation Errors Report"]
                 stats
                 div [_class "file-list"] fileCards
-                script [] [
-                    rawText """
-                    function reloadFile(filePath) {
-                        const encodedPath = encodeURIComponent(filePath);
-                        fetch(`/api/validation/revalidate/${encodedPath}`, { method: 'POST' })
-                            .then(r => r.json())
-                            .then(data => {
-                                alert(`File reloaded: ${data.errorCount} errors found`);
-                                location.reload();
-                            })
-                            .catch(err => alert(`Error: ${err.message}`));
-                    }
-                    """
-                ]
             ]
         ]
         

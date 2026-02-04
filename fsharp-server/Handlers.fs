@@ -604,112 +604,19 @@ module Handlers =
     
     /// Wrap Cytoscape diagram in HTML with interactive controls
     let private wrapCytoscapeHtml (title: string) (data: string) (enableSave: bool) : string =
-        let saveScript = 
-            if enableSave then
-                """
-            // Save positions to localStorage
-            let savePositions = () => {
-                const positions = {};
-                cy.nodes().forEach(node => {
-                    positions[node.id()] = node.position();
-                });
-                localStorage.setItem('cytoscape_positions_' + document.title, JSON.stringify(positions));
-            };
-            
-            // Load positions from localStorage
-            const savedPositions = localStorage.getItem('cytoscape_positions_' + document.title);
-            if (savedPositions) {
-                const positions = JSON.parse(savedPositions);
-                cy.nodes().forEach(node => {
-                    if (positions[node.id()]) {
-                        node.position(positions[node.id()]);
-                    }
-                });
-            }
-            
-            // Save on position change
-            cy.on('position', 'node', _.debounce(savePositions, 500));
-            
-            // Reset button
-            document.getElementById('resetLayout').addEventListener('click', () => {
-                localStorage.removeItem('cytoscape_positions_' + document.title);
-                cy.layout({ name: 'dagre', rankDir: 'TB', nodeSep: 80, rankSep: 100 }).run();
-            });
-            """
-            else ""
-        
-        sprintf """<!DOCTYPE html>
+        // Note: enableSave parameter kept for API compatibility
+        let _enableSave = enableSave
+        sprintf """<!DOCTYPE html
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>%s</title>
+    <link rel="stylesheet" href="/css/cytoscape-diagram.css" />
     <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        #cy {
-            width: 100%%;
-            height: 100vh;
-            background-color: #fafafa;
-        }
-        .controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .controls button {
-            display: block;
-            width: 100%%;
-            margin: 5px 0;
-            padding: 8px 15px;
-            border: none;
-            background: #0066cc;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .controls button:hover {
-            background: #0052a3;
-        }
-        .legend {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            font-size: 12px;
-        }
-        .legend h4 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
-        }
-        .legend-line {
-            width: 30px;
-            height: 2px;
-            margin-right: 10px;
-        }
-    </style>
 </head>
 <body>
     <div id="cy"></div>
@@ -744,285 +651,22 @@ module Handlers =
     
     <script>
         const graphData = %s;
-        
-        const initCytoscape = () => {
-            const cy = cytoscape({
-                container: document.getElementById('cy'),
-                
-                elements: {
-                    nodes: graphData.nodes,
-                    edges: graphData.edges
-                },
-                
-                style: [
-                    {
-                        selector: 'node',
-                        style: {
-                            'label': 'data(label)',
-                            'text-valign': 'center',
-                            'text-halign': 'center',
-                            'text-wrap': 'wrap',
-                            'text-max-width': '90px',
-                            'font-size': '10px',
-                            'font-weight': 'normal',
-                            'font-family': "Segoe UI, Tahoma, Geneva, Verdana, sans-serif",
-                            'background-color': 'data(color)',
-                            'background-image': 'none',
-                            'border-width': 2,
-                            'border-color': '#333',
-                            'shape': 'data(shape)',
-                            'width': 110,
-                            'height': 80,
-                            'padding': '4px',
-                            'text-margin-y': 0,
-                            'text-margin-x': 0
-                        }
-                    },
-                    {
-                        selector: 'node:selected',
-                        style: {
-                            'border-width': 3,
-                            'border-color': '#0066cc',
-                            'overlay-opacity': 0.2,
-                            'overlay-color': '#0066cc'
-                        }
-                    },
-                    {
-                        selector: 'edge',
-                        style: {
-                            'width': 'data(lineWidth)',
-                            'line-color': 'data(color)',
-                            'target-arrow-color': 'data(color)',
-                            'target-arrow-shape': 'data(arrowType)',
-                            'curve-style': 'bezier',
-                            'label': 'data(label)',
-                            'font-size': '9px',
-                            'text-rotation': 'autorotate',
-                            'text-margin-y': -10,
-                            'line-style': 'data(lineStyle)',
-                            'line-dash-pattern': [5, 5],
-                            'arrow-scale': 1.0
-                        }
-                    },
-                    {
-                        selector: 'edge:selected',
-                        style: {
-                            'line-color': '#0066cc',
-                            'target-arrow-color': '#0066cc',
-                            'width': 3
-                        }
-                    },
-                    {
-                        selector: 'node.badge-label',
-                        style: {
-                            'font-size': '11px',
-                            'line-height': 1.3
-                        }
-                    }
-                ],
-                
-                layout: {
-                    name: 'dagre',
-                    rankDir: 'TB',
-                    nodeSep: 40,
-                    rankSep: 60,
-                    animate: true,
-                    animationDuration: 500
-                },
-                
-                minZoom: 0.2,
-                maxZoom: 3,
-                wheelSensitivity: 0.2
-            });
-            
-            // Click handler for navigation
-            cy.on('tap', 'node', function(evt) {
-                const nodeId = evt.target.id();
-                window.location.href = '/elements/' + nodeId;
-            });
-            
-            // Control buttons
-            document.getElementById('fitView').addEventListener('click', () => {
-                cy.fit(null, 50);
-            });
-            
-            document.getElementById('zoomIn').addEventListener('click', () => {
-                cy.zoom(cy.zoom() * 1.2);
-            });
-            
-            document.getElementById('zoomOut').addEventListener('click', () => {
-                cy.zoom(cy.zoom() * 0.8);
-            });
-            
-            document.getElementById('exportPNG').addEventListener('click', () => {
-                const png = cy.png({ full: true, scale: 2 });
-                const link = document.createElement('a');
-                link.download = 'diagram.png';
-                link.href = png;
-                link.click();
-            });
-            
-            %s
-            
-            // Highlight connected nodes on hover
-            cy.on('mouseover', 'node', function(evt) {
-                const node = evt.target;
-                const connectedEdges = node.connectedEdges();
-                const connectedNodes = connectedEdges.connectedNodes();
-                
-                cy.elements().style('opacity', 0.3);
-                node.style('opacity', 1);
-                connectedNodes.style('opacity', 1);
-                connectedEdges.style('opacity', 1);
-            });
-            
-            cy.on('mouseout', 'node', function() {
-                cy.elements().style('opacity', 1);
-            });
-        };
-
-        initCytoscape();
     </script>
+    <script src="/js/cytoscape-diagram.js"></script>
 </body>
-</html>""" title data saveScript
+</html>""" title data
     
     /// Wrap mermaid diagram in HTML with zoom controls
     let private wrapMermaidHtml (title: string) (diagram: string) : string =
-        sprintf """<!DOCTYPE html>
+        sprintf """<!DOCTYPE html
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>%s</title>
-    <link rel="stylesheet" href="/assets/css/Glyphter.css" />
+    <link rel="stylesheet" href="/css/mermaid-diagram.css" />
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-            margin-top: 0;
-        }
-        .diagram-toolbar {
-            display: flex;
-            gap: 8px;
-            margin: 10px 0 20px;
-        }
-        .diagram-toolbar button {
-            background: #667eea;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-        .diagram-toolbar button:hover {
-            background: #5568d3;
-        }
-        .diagram-wrapper {
-            position: relative;
-            width: 100%%;
-            height: 75vh;
-            min-height: 500px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            overflow: hidden;
-            background: #fff;
-        }
-        #diagram-container {
-            width: 100%%;
-            height: 100%%;
-            overflow: hidden;
-        }
-        .mermaid {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%%;
-            height: 100%%;
-        }
-        .mermaid svg {
-            width: 100%% !important;
-            height: 100%% !important;
-            max-width: none;
-        }
-        .archimate-node {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4px;
-            min-height: 40px;
-        }
-        .archimate-icon {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            display: block;
-            flex-shrink: 0;
-            font-family: 'Glyphter';
-            font-size: 12px;
-            line-height: 12px;
-        }
-        .archimate-label {
-            font-size: 10px;
-            line-height: 1.3;
-            color: #222;
-            font-weight: 500;
-            text-align: center;
-            word-wrap: break-word;
-            word-break: break-word;
-            max-width: 130px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .info {
-            background: #eef2ff;
-            padding: 15px;
-            border-left: 4px solid #667eea;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .info p {
-            margin: 5px 0;
-            color: #333;
-        }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (window.mermaid) {
-                window.mermaid.initialize({ 
-                    startOnLoad: true, 
-                    theme: 'default',
-                    securityLevel: 'loose',
-                    flowchart: { htmlLabels: true }
-                });
-                window.mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-            }
-        });
-    </script>
 </head>
 <body>
     <div class="container">
@@ -1042,71 +686,7 @@ module Handlers =
             </div>
         </div>
     </div>
-    <script>
-        let panZoomInstance = null;
-
-        function initPanZoom() {
-            const svg = document.querySelector('.mermaid svg');
-            if (!svg) {
-                setTimeout(initPanZoom, 100);
-                return;
-            }
-
-            if (panZoomInstance) {
-                panZoomInstance.destroy();
-                panZoomInstance = null;
-            }
-
-            // Ensure SVG has viewBox
-            if (!svg.getAttribute('viewBox')) {
-                try {
-                    const bbox = svg.getBBox();
-                    svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
-                } catch (e) {
-                    console.warn('Could not set viewBox:', e);
-                }
-            }
-
-            // Remove any size constraints that might cause issues
-            svg.removeAttribute('height');
-            svg.removeAttribute('width');
-            svg.style.width = '100%%';
-            svg.style.height = '100%%';
-
-            try {
-                panZoomInstance = svgPanZoom(svg, {
-                    zoomEnabled: true,
-                    controlIconsEnabled: false,
-                    fit: true,
-                    center: true,
-                    minZoom: 0.1,
-                    maxZoom: 20,
-                    zoomScaleSensitivity: 0.3
-                });
-            } catch (e) {
-                console.error('Error initializing pan-zoom:', e);
-            }
-        }
-
-        // Wait for Mermaid to render
-        setTimeout(initPanZoom, 500);
-
-        document.getElementById('zoom-in').addEventListener('click', () => {
-            if (panZoomInstance) panZoomInstance.zoomIn();
-        });
-
-        document.getElementById('zoom-out').addEventListener('click', () => {
-            if (panZoomInstance) panZoomInstance.zoomOut();
-        });
-
-        document.getElementById('zoom-reset').addEventListener('click', () => {
-            if (panZoomInstance) {
-                panZoomInstance.reset();
-                panZoomInstance.fit();
-                panZoomInstance.center();
-            }
-        });
-    </script>
+    <script src="/js/mermaid-diagram.js"></script>
 </body>
 </html>""" title title diagram
     
