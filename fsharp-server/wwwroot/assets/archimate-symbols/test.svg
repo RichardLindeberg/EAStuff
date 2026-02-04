@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="151px" height="76px" viewBox="-0.5 -0.5 151 76" style="background-color: rgb(255, 255, 255);">
- 
-<defs/>
-<g><rect x="0" y="0" width="150" height="75" fill="#99ffff" stroke="rgb(0, 0, 0)" pointer-events="all"/><ellipse cx="134.5" cy="12.5" rx="4.5" ry="4.5" fill="#99ffff" stroke="rgb(0, 0, 0)" pointer-events="all"/><ellipse cx="140.5" cy="12.5" rx="4.5" ry="4.5" fill="#99ffff" stroke="rgb(0, 0, 0)" pointer-events="all"/></g>
-<text x="5" y="30" fill="red">I love SVG! what happens if there is a shit load of text in this stuff? I want the box to grow, but I guess that is not possible... for whatever reason i don't like the svg..</text>
-</svg>
