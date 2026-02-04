@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="120 0 30 30">
+  <g>
+    <ellipse cx="137.5" cy="12.5" rx="6" ry="6" fill="none" stroke="rgb(0, 0, 0)" pointer-events="all" />
+    <path d="M 130 12.5 L 145 12.5 M 137.5 5 L 137.5 20 M 132.18 7.17 L 142.82 17.82 M 132.18 17.82 L 142.82 7.17" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all" />
+    <ellipse cx="137.5" cy="12.5" rx="2.25" ry="2.25" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" pointer-events="all" />
+  </g>
+</svg>
