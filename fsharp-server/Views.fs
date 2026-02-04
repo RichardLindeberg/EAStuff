@@ -355,10 +355,11 @@ module Views =
 
         .diagram-section {
             margin: 1.5rem 0 2rem;
-            background: #fff;
+            background: linear-gradient(135deg, #f5f7fa 0%, #f9fbfc 100%);
             border-radius: 12px;
-            padding: 1rem;
+            padding: 1.5rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
         }
 
         .diagram-header {
@@ -366,23 +367,46 @@ module Views =
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
         }
 
         .diagram-header h3 {
             margin: 0;
             font-size: 1.1rem;
             color: #2d3748;
+            font-weight: 600;
+        }
+        
+        .diagram-section > p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+        
+        .diagram-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
         .diagram-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             color: #667eea;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .diagram-link:hover {
-            text-decoration: underline;
+            background: #f8f9fa;
+            border-color: #667eea;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
         }
 
         .diagram-frame {
@@ -513,14 +537,9 @@ module Views =
                     encodedText layerElemCountStr
                 ]
                 div [_class "diagram-section"] [
-                    div [_class "diagram-header"] [
-                        h3 [] [encodedText $"{layer.displayName} Diagram"]
-                        a [_class "diagram-link"; _href $"{baseUrl}diagrams/layers/{layer.key}"; _target "_blank"; _rel "noopener"] [
+                       a [_class "diagram-link"; _href $"{baseUrl}diagrams/layers/{layer.key}"; _target "_blank"; _rel "noopener"] [
                             encodedText "Open diagram ↗"
-                        ]
-                    ]
-                    iframe [_class "diagram-frame"; _src $"{baseUrl}diagrams/layers/{layer.key}"; attr "loading" "lazy"; attr "title" $"{layer.displayName} diagram"] []
-                ]
+                        ]                ]
                 div [_class "element-grid"] elementCards
             ]
         ]
@@ -607,6 +626,24 @@ module Views =
                                     encodedText tag
                                 ]
                         ]
+                    
+                    div [_class "diagram-section"] [
+                        div [_class "diagram-header"] [
+                            h3 [] [encodedText "Context Diagram"]
+                        ]
+                        div [_class "diagram-links"] [
+                            p [] [encodedText "View this element's relationships in different depths:"]
+                            a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=1"; _class "diagram-link"] [
+                                encodedText "Direct relationships (1 level)"
+                            ]
+                            a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=2"; _class "diagram-link"] [
+                                encodedText "Extended relationships (2 levels)"
+                            ]
+                            a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=3"; _class "diagram-link"] [
+                                encodedText "Full relationships (3 levels)"
+                            ]
+                        ]
+                    ]
                     
                     if elem.content <> "" then
                         let htmlContent = markdownToHtml elem.content

@@ -451,6 +451,46 @@ def generate_html_header(title, current_page='', base_path=''):
             color: #666;
             font-size: 1rem;
         }}
+
+        .diagram-section {
+            margin: 1.5rem 0 2rem;
+            background: #fff;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .diagram-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .diagram-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #2d3748;
+        }
+
+        .diagram-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .diagram-link:hover {
+            text-decoration: underline;
+        }
+
+        .diagram-frame {
+            width: 100%;
+            height: 520px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
     </style>
 </head>
 <body>
@@ -538,6 +578,14 @@ def generate_layer_page(layer, registry, output_dir):
         
         <h2 class="layer-title">{layer_name}</h2>
         <p class="element-count">{len(elements)} element{'s' if len(elements) != 1 else ''}</p>
+
+        <div class="diagram-section">
+            <div class="diagram-header">
+                <h3>{layer_name} Diagram</h3>
+                <a class="diagram-link" href="../diagrams/{layer}-layer-mermaid.html" target="_blank" rel="noopener">Open diagram ↗</a>
+            </div>
+            <iframe class="diagram-frame" src="../diagrams/{layer}-layer-mermaid.html" loading="lazy" title="{layer_name} diagram"></iframe>
+        </div>
         
         <div class="element-grid">
 """

@@ -73,7 +73,79 @@ module Handlers =
 
         System.String.Join("\n", lines)
 
-    let private wrapMermaidHtml (title: string) (diagram: string) =
+    let private buildContextDiagram (elementId: string) (depth: int) (registry: ElementRegistry) =
+        let elementMap = registry.elements
+        
+        // Find all connected elements up to specified depth
+        let mutable allNodeIds = Set.empty<string>
+        let mutable currentLevel = Set.singleton elementId
+        allNodeIds <- Set.add elementId allNodeIds
+        
+        for _ in 1..depth do
+            let mutable nextLevel = Set.empty<string>
+            for elemId in currentLevel do
+                match Map.tryFind elemId elementMap with
+                | Some elem ->
+                    // Add outgoing relationships
+                    for rel in elem.relationships do
+                        if Map.containsKey rel.target elementMap then
+                            allNodeIds <- Set.add rel.target allNodeIds
+                            nextLevel <- Set.add rel.target nextLevel
+                | None -> ()
+            
+            // Also check incoming relationships
+            for rel in elementMap |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
+                let sourceId, rel = rel
+                if Set.contains rel.target currentLevel && Map.containsKey sourceId elementMap then
+                    allNodeIds <- Set.add sourceId allNodeIds
+                    nextLevel <- Set.add sourceId nextLevel
+            
+            currentLevel <- nextLevel
+        
+        let lines = System.Collections.Generic.List<string>()
+        lines.Add("graph TD")
+        
+        // Create nodes for all collected elements
+        for nodeId in allNodeIds do
+            match Map.tryFind nodeId elementMap with
+            | Some elem ->
+                let sanitizedId = sanitizeMermaidId nodeId
+                let label = escapeMermaidLabel elem.name
+                let isCenter = nodeId = elementId
+                lines.Add($"{sanitizedId}[\"{label}\"]")
+            | None -> ()
+        
+        lines.Add("")
+        lines.Add("%% Relationships")
+        
+        // Add relationships between collected elements
+        for rel in elementMap |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
+            let sourceId, rel = rel
+            if Set.contains sourceId allNodeIds && Set.contains rel.target allNodeIds then
+                match Map.tryFind sourceId elementMap, Map.tryFind rel.target elementMap with
+                | Some _, Some _ ->
+                    let fromId = sanitizeMermaidId sourceId
+                    let toId = sanitizeMermaidId rel.target
+                    let relLabel = escapeMermaidLabel rel.relationType
+                    lines.Add($"{fromId} -->|{relLabel}| {toId}")
+                | _ -> ()
+        
+        lines.Add("")
+        lines.Add("%% Styling - highlight the central element")
+        let centralId = sanitizeMermaidId elementId
+        lines.Add($"classDef centerStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:3px")
+        lines.Add($"class {centralId} centerStyle")
+        
+        lines.Add("")
+        lines.Add("%% Clickable links")
+        for nodeId in allNodeIds do
+            let sanitizedId = sanitizeMermaidId nodeId
+            lines.Add($"click {sanitizedId} \"/elements/{nodeId}\" \"View details\"")
+        
+        System.String.Join("\n", lines)
+    
+    /// Wrap mermaid diagram in HTML with zoom controls
+    let private wrapMermaidHtml (title: string) (diagram: string) : string =
         sprintf """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -345,6 +417,29 @@ module Handlers =
                 logger.LogWarning($"Layer not found for diagram: {layer}")
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
+    /// Element context diagram handler
+    let contextDiagramHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation($"GET /diagrams/context/{elemId} - Context diagram requested")
+            match ElementRegistry.getElement elemId registry with
+            | Some elem ->
+                let depth = 
+                    match ctx.GetQueryStringValue "depth" with
+                    | Ok value -> 
+                        match System.Int32.TryParse(value) with
+                        | (true, d) when d > 0 && d <= 3 -> d
+                        | _ -> 1
+                    | Error _ -> 1
+                
+                logger.LogInformation($"Found element: {elemId} ({elem.name}), generating context diagram with depth={depth}")
+                let diagram = buildContextDiagram elemId depth registry
+                let title = sprintf "Context: %s (Depth %d)" elem.name depth
+                let html = wrapMermaidHtml title diagram
+                htmlString html next ctx
+            | None ->
+                logger.LogWarning($"Element not found for context diagram: {elemId}")
+                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+    
     /// Individual tag page handler
     let tagHandler (tag: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
@@ -375,6 +470,7 @@ module Handlers =
             route "/index.html" >=> indexHandler registry logger
             routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)
             routef "/diagrams/layers/%s" (fun layer -> layerDiagramHandler layer registry logger)
+            routef "/diagrams/context/%s" (fun elemId -> contextDiagramHandler elemId registry logger)
             route "/tags" >=> tagsIndexHandler registry logger
             routef "/tags/%s" (fun tag -> tagHandler (Uri.UnescapeDataString tag) registry logger)
             routef "/%s" (fun layer -> layerHandler layer registry logger)

@@ -257,12 +257,22 @@ class MermaidGenerator:
         mmd.append("graph TD")
         mmd.append("")
         
-        # Add elements
-        for elem_id, elem in layer_elements.items():
-            mmd.append(self._element_to_mermaid_string(elem))
+        layer_elem_ids = set(layer_elements.keys())
+        
+        # Collect all element IDs that need nodes (layer elements + relationship targets)
+        all_node_ids = set(layer_elem_ids)
+        for rel in self.relationships:
+            if rel['source'] in layer_elem_ids and rel['target'] in self.elements:
+                all_node_ids.add(rel['target'])
+            if rel['target'] in layer_elem_ids and rel['source'] in self.elements:
+                all_node_ids.add(rel['source'])
+        
+        # Add all referenced elements as nodes
+        for elem_id in all_node_ids:
+            if elem_id in self.elements:
+                mmd.append(self._element_to_mermaid_string(self.elements[elem_id]))
         
         # Add relationships (only within this layer or to/from this layer)
-        layer_elem_ids = set(layer_elements.keys())
         mmd.append("\n%% Relationships")
         rel_styles = []
         rel_index = 0
@@ -287,12 +297,14 @@ class MermaidGenerator:
         mmd.append(f"classDef {layer}Style fill:{color},stroke:#333,stroke-width:2px")
         mmd.append(f"class {','.join(layer_elems)} {layer}Style")
         
-        # Add clickable links
+        # Add clickable links for all nodes in the diagram
         mmd.append("\n%% Clickable links")
-        for elem_id, elem in layer_elements.items():
-            link = self._get_element_link(elem)
-            sanitized_id = self._sanitize_id(elem_id)
-            mmd.append(f"click {sanitized_id} \"{link}\" \"View details\"")
+        for elem_id in all_node_ids:
+            if elem_id in self.elements:
+                elem = self.elements[elem_id]
+                link = self._get_element_link(elem)
+                sanitized_id = self._sanitize_id(elem_id)
+                mmd.append(f"click {sanitized_id} \"{link}\" \"View details\"")
         
         if self.output_format == 'md':
             mmd.append("```")
