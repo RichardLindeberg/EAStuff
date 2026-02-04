@@ -352,6 +352,46 @@ module Views =
             color: #666;
             font-size: 1rem;
         }
+
+        .diagram-section {
+            margin: 1.5rem 0 2rem;
+            background: #fff;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .diagram-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .diagram-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #2d3748;
+        }
+
+        .diagram-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .diagram-link:hover {
+            text-decoration: underline;
+        }
+
+        .diagram-frame {
+            width: 100%;
+            height: 520px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
         
         footer {
             text-align: center;
@@ -472,6 +512,15 @@ module Views =
                 p [_class "element-count"] [
                     encodedText layerElemCountStr
                 ]
+                div [_class "diagram-section"] [
+                    div [_class "diagram-header"] [
+                        h3 [] [encodedText $"{layer.displayName} Diagram"]
+                        a [_class "diagram-link"; _href $"{baseUrl}diagrams/layers/{layer.key}"; _target "_blank"; _rel "noopener"] [
+                            encodedText "Open diagram ↗"
+                        ]
+                    ]
+                    iframe [_class "diagram-frame"; _src $"{baseUrl}diagrams/layers/{layer.key}"; attr "loading" "lazy"; attr "title" $"{layer.displayName} diagram"] []
+                ]
                 div [_class "element-grid"] elementCards
             ]
         ]
@@ -519,21 +568,6 @@ module Views =
                 ]
             else []
         
-        let tagsHtml =
-            if not (List.isEmpty elem.tags) then
-                [
-                    div [_class "relations-section"] [
-                        h3 [] [encodedText "Tags"]
-                        div [_class "tags"] [
-                            for tag in elem.tags do
-                                a [_href $"{baseUrl}tags/{tag}"; _class "tag"] [
-                                    encodedText tag
-                                ]
-                        ]
-                    ]
-                ]
-            else []
-        
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
@@ -566,6 +600,14 @@ module Views =
                         ]
                     ]
                     
+                    if not (List.isEmpty elem.tags) then
+                        div [_class "tags"] [
+                            for tag in elem.tags do
+                                a [_href $"{baseUrl}tags/{tag}"; _class "tag"] [
+                                    encodedText tag
+                                ]
+                        ]
+                    
                     if elem.content <> "" then
                         let htmlContent = markdownToHtml elem.content
                         div [_class "content-section"] [
@@ -574,7 +616,6 @@ module Views =
                     
                     yield! incomingSection
                     yield! outgoingSection
-                    yield! tagsHtml
                 ]
             ]
         ]

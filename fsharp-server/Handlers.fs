@@ -7,6 +7,105 @@ open Giraffe
 open Giraffe.ViewEngine
 
 module Handlers =
+
+    let private sanitizeMermaidId (value: string) =
+        value
+            .Replace("-", "_")
+            .Replace(" ", "_")
+            .Replace("/", "_")
+            .Replace(".", "_")
+
+    let private escapeMermaidLabel (value: string) =
+        value.Replace("\"", "\\\"")
+
+    let private buildLayerMermaid (layer: string) (registry: ElementRegistry) =
+        let elements = ElementRegistry.getLayerElements layer registry
+        let elementMap = registry.elements
+
+        let lines = System.Collections.Generic.List<string>()
+        lines.Add("graph TD")
+
+        let layerIds = elements |> List.map (fun e -> e.id) |> Set.ofList
+
+        // Collect all element IDs that need nodes (layer elements + relationship targets)
+        let mutable allNodeIds = Set.empty<string>
+        for elem in elements do
+            allNodeIds <- Set.add elem.id allNodeIds
+            for rel in elem.relationships do
+                if Map.containsKey rel.target elementMap then
+                    allNodeIds <- Set.add rel.target allNodeIds
+
+        // Also check incoming relationships
+        for rel in registry.elements |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
+            let sourceId, rel = rel
+            if Set.contains rel.target layerIds then
+                if Map.containsKey sourceId elementMap then
+                    allNodeIds <- Set.add sourceId allNodeIds
+
+        // Create nodes for all referenced elements
+        for nodeId in allNodeIds do
+            match Map.tryFind nodeId elementMap with
+            | Some elem ->
+                let sanitizedId = sanitizeMermaidId nodeId
+                let label = escapeMermaidLabel elem.name
+                lines.Add($"{sanitizedId}[\"{label}\"]")
+            | None -> ()
+
+        lines.Add("")
+        lines.Add("%% Relationships")
+
+        for rel in registry.elements |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
+            let sourceId, rel = rel
+            if Set.contains sourceId layerIds || Set.contains rel.target layerIds then
+                match Map.tryFind sourceId elementMap, Map.tryFind rel.target elementMap with
+                | Some _, Some _ ->
+                    let fromId = sanitizeMermaidId sourceId
+                    let toId = sanitizeMermaidId rel.target
+                    let relLabel = escapeMermaidLabel rel.relationType
+                    lines.Add($"{fromId} -->|{relLabel}| {toId}")
+                | _ -> ()
+
+        lines.Add("")
+        lines.Add("%% Clickable links")
+        for nodeId in allNodeIds do
+            let sanitizedId = sanitizeMermaidId nodeId
+            lines.Add($"click {sanitizedId} \"/elements/{nodeId}\" \"View details\"")
+
+        System.String.Join("\n", lines)
+
+    let private wrapMermaidHtml (title: string) (diagram: string) =
+        $"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <style>
+        body {{
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+        }}
+        .diagram-container {{
+            padding: 1rem;
+        }}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {{
+            if (window.mermaid) {{
+                window.mermaid.initialize({{ startOnLoad: true, theme: 'default' }});
+                window.mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+            }}
+        }});
+    </script>
+</head>
+<body>
+    <div class="diagram-container">
+        <pre class="mermaid">{diagram}</pre>
+    </div>
+</body>
+</html>"""
     
     /// Build tag index from registry
     let buildTagIndex (registry: ElementRegistry) : Map<string, string list> =
@@ -82,6 +181,19 @@ module Handlers =
             logger.LogInformation($"Found {Map.count tagIndex} tags")
             let html = Views.tagsIndexPage tagIndex registry
             htmlView html next ctx
+
+    /// Layer mermaid diagram handler
+    let layerDiagramHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation($"GET /diagrams/layers/{layer} - Layer diagram requested")
+            match Config.layerOrder |> List.tryFind (fun l -> l.key = layer) with
+            | Some layerInfo ->
+                let diagram = buildLayerMermaid layer registry
+                let html = wrapMermaidHtml ($"{layerInfo.displayName} Diagram") diagram
+                htmlString html next ctx
+            | None ->
+                logger.LogWarning($"Layer not found for diagram: {layer}")
+                setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Individual tag page handler
     let tagHandler (tag: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
@@ -112,6 +224,7 @@ module Handlers =
             route "/" >=> indexHandler registry logger
             route "/index.html" >=> indexHandler registry logger
             routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)
+            routef "/diagrams/layers/%s" (fun layer -> layerDiagramHandler layer registry logger)
             route "/tags" >=> tagsIndexHandler registry logger
             routef "/tags/%s" (fun tag -> tagHandler (Uri.UnescapeDataString tag) registry logger)
             routef "/%s" (fun layer -> layerHandler layer registry logger)
