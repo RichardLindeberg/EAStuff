@@ -74,38 +74,188 @@ module Handlers =
         System.String.Join("\n", lines)
 
     let private wrapMermaidHtml (title: string) (diagram: string) =
-        $"""<!DOCTYPE html>
+        sprintf """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <style>
-        body {{
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f8fafc;
-        }}
-        .diagram-container {{
-            padding: 1rem;
-        }}
-    </style>
+    <title>%s</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            margin-top: 0;
+        }
+        .diagram-toolbar {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0 20px;
+        }
+        .diagram-toolbar button {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .diagram-toolbar button:hover {
+            background: #5568d3;
+        }
+        .diagram-wrapper {
+            position: relative;
+            width: 100%%;
+            height: 75vh;
+            min-height: 500px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+        }
+        #diagram-container {
+            width: 100%%;
+            height: 100%%;
+            overflow: hidden;
+        }
+        .mermaid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%%;
+            height: 100%%;
+        }
+        .mermaid svg {
+            width: 100%% !important;
+            height: 100%% !important;
+            max-width: none;
+        }
+        .info {
+            background: #eef2ff;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info p {
+            margin: 5px 0;
+            color: #333;
+        }
+    </style>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {{
-            if (window.mermaid) {{
-                window.mermaid.initialize({{ startOnLoad: true, theme: 'default' }});
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.mermaid) {
+                window.mermaid.initialize({ startOnLoad: true, theme: 'default' });
                 window.mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-            }}
-        }});
+            }
+        });
     </script>
 </head>
 <body>
-    <div class="diagram-container">
-        <pre class="mermaid">{diagram}</pre>
+    <div class="container">
+        <h1>%s</h1>
+        <div class="info">
+            <p><strong>💡 Tip:</strong> Click on any element in the diagram to view its detailed documentation.</p>
+            <p><strong>🧭 Navigation:</strong> Use the zoom controls below or scroll to zoom and drag to pan.</p>
+        </div>
+        <div class="diagram-toolbar">
+            <button type="button" id="zoom-in">Zoom In</button>
+            <button type="button" id="zoom-out">Zoom Out</button>
+            <button type="button" id="zoom-reset">Reset</button>
+        </div>
+        <div class="diagram-wrapper">
+            <div id="diagram-container">
+                <div class="mermaid">%s</div>
+            </div>
+        </div>
     </div>
+    <script>
+        let panZoomInstance = null;
+
+        function initPanZoom() {
+            const svg = document.querySelector('.mermaid svg');
+            if (!svg) {
+                setTimeout(initPanZoom, 100);
+                return;
+            }
+
+            if (panZoomInstance) {
+                panZoomInstance.destroy();
+                panZoomInstance = null;
+            }
+
+            // Ensure SVG has viewBox
+            if (!svg.getAttribute('viewBox')) {
+                try {
+                    const bbox = svg.getBBox();
+                    svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+                } catch (e) {
+                    console.warn('Could not set viewBox:', e);
+                }
+            }
+
+            // Remove any size constraints that might cause issues
+            svg.removeAttribute('height');
+            svg.removeAttribute('width');
+            svg.style.width = '100%%';
+            svg.style.height = '100%%';
+
+            try {
+                panZoomInstance = svgPanZoom(svg, {
+                    zoomEnabled: true,
+                    controlIconsEnabled: false,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.1,
+                    maxZoom: 20,
+                    zoomScaleSensitivity: 0.3
+                });
+            } catch (e) {
+                console.error('Error initializing pan-zoom:', e);
+            }
+        }
+
+        // Wait for Mermaid to render
+        setTimeout(initPanZoom, 500);
+
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            if (panZoomInstance) panZoomInstance.zoomIn();
+        });
+
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            if (panZoomInstance) panZoomInstance.zoomOut();
+        });
+
+        document.getElementById('zoom-reset').addEventListener('click', () => {
+            if (panZoomInstance) {
+                panZoomInstance.reset();
+                panZoomInstance.fit();
+                panZoomInstance.center();
+            }
+        });
+    </script>
 </body>
-</html>"""
+</html>""" title title diagram
     
     /// Build tag index from registry
     let buildTagIndex (registry: ElementRegistry) : Map<string, string list> =
