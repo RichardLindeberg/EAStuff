@@ -22,7 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="ValidationTests.fs" />
+    <Compile Include="TestHelpers.fs" />
+    <Compile Include="ElementRequiredFieldsTests.fs" />
+    <Compile Include="ElementIdFormatTests.fs" />
+    <Compile Include="ElementLoadTests.fs" />
+    <Compile Include="RegistryTests.fs" />
   </ItemGroup>
 
 </Project>

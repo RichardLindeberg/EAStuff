@@ -112,6 +112,37 @@ module ElementRegistry =
         let errors = System.Collections.Generic.List<ValidationError>()
         let id = getString "id" metadata
         
+        // Valid layer codes from the standard
+        let layerCodes = 
+            Map.ofList [
+                ("str", "strategy")
+                ("bus", "business")
+                ("app", "application")
+                ("tec", "technology")
+                ("phy", "physical")
+                ("mot", "motivation")
+                ("imp", "implementation")
+            ]
+        
+        // Valid type codes for each layer
+        let typeCodes =
+            Map.ofList [
+                // Strategy Layer
+                ("str", ["rsrc"; "capa"; "vstr"; "cact"])
+                // Business Layer
+                ("bus", ["actr"; "role"; "colab"; "intf"; "proc"; "func"; "intr"; "evnt"; "srvc"; "objt"; "cntr"; "repr"; "prod"])
+                // Application Layer
+                ("app", ["comp"; "colab"; "intf"; "func"; "intr"; "proc"; "evnt"; "srvc"; "data"])
+                // Technology Layer
+                ("tec", ["node"; "devc"; "sysw"; "colab"; "intf"; "path"; "netw"; "func"; "proc"; "intr"; "evnt"; "srvc"; "artf"])
+                // Physical Layer
+                ("phy", ["equi"; "faci"; "dist"; "matr"])
+                // Motivation Layer
+                ("mot", ["stkh"; "drvr"; "asmt"; "goal"; "outc"; "prin"; "reqt"; "cnst"; "mean"; "valu"])
+                // Implementation Layer
+                ("imp", ["work"; "delv"; "evnt"; "plat"; "gap_"])
+            ]
+        
         // Required fields
         if Option.isNone id || (Option.isSome id && (id |> Option.defaultValue "").Trim() = "") then
             errors.Add({
@@ -162,16 +193,124 @@ module ElementRegistry =
             })
         | _ -> ()
         
-        // Validate ID format (should be like "bus-proc-001") - only for non-empty IDs
+        // Validate ID format comprehensively
         match id with
-        | Some idVal when idVal.Trim() <> "" && not (System.Text.RegularExpressions.Regex.IsMatch(idVal, @"^[a-z]+-[a-z]+-\d{3}$")) ->
-            errors.Add({
-                filePath = filePath
-                elementId = id
-                errorType = "invalid-id-format"
-                message = sprintf "ID '%s' should match pattern: prefix-type-###" idVal
-                severity = "warning"
-            })
+        | Some idVal when idVal.Trim() <> "" ->
+            // Check overall pattern first
+            if not (System.Text.RegularExpressions.Regex.IsMatch(idVal, @"^[a-z0-9]+-[a-z0-9]+-\d{3}-[a-z0-9]+(-[a-z0-9]+)*$")) then
+                errors.Add({
+                    filePath = filePath
+                    elementId = id
+                    errorType = "invalid-id-format"
+                    message = sprintf "ID '%s' should match pattern: [layer-code]-[type-code]-[###]-[descriptive-name]" idVal
+                    severity = "error"
+                })
+            else
+                let parts = idVal.Split('-')
+                
+                // Validate layer code (must be exactly 3 chars and valid)
+                if parts.Length >= 1 then
+                    let layerCode = parts.[0]
+                    if layerCode.Length <> 3 then
+                        errors.Add({
+                            filePath = filePath
+                            elementId = id
+                            errorType = "invalid-id-format"
+                            message = sprintf "Layer code '%s' must be exactly 3 characters" layerCode
+                            severity = "error"
+                        })
+                    elif not (Map.containsKey layerCode layerCodes) then
+                        errors.Add({
+                            filePath = filePath
+                            elementId = id
+                            errorType = "invalid-id-format"
+                            message = sprintf "Layer code '%s' is not valid. Must be: str, bus, app, tec, phy, mot, imp" layerCode
+                            severity = "error"
+                        })
+                    
+                    // Validate type code (must be exactly 4 chars and valid for this layer)
+                    if parts.Length >= 2 then
+                        let typeCode = parts.[1]
+                        if typeCode.Length <> 4 then
+                            errors.Add({
+                                filePath = filePath
+                                elementId = id
+                                errorType = "invalid-id-format"
+                                message = sprintf "Type code '%s' must be exactly 4 characters" typeCode
+                                severity = "error"
+                            })
+                        elif Map.containsKey layerCode typeCodes then
+                            let validTypes = Map.find layerCode typeCodes
+                            if not (List.contains typeCode validTypes) then
+                                errors.Add({
+                                    filePath = filePath
+                                    elementId = id
+                                    errorType = "invalid-id-format"
+                                    message = sprintf "Type code '%s' is not valid for layer '%s'" typeCode layerCode
+                                    severity = "error"
+                                })
+                    
+                    // Validate sequential number (must be exactly 3 digits: 001-999)
+                    if parts.Length >= 3 then
+                        let seqNum = parts.[2]
+                        if seqNum.Length <> 3 || not (System.Char.IsDigit(seqNum.[0]) && System.Char.IsDigit(seqNum.[1]) && System.Char.IsDigit(seqNum.[2])) then
+                            errors.Add({
+                                filePath = filePath
+                                elementId = id
+                                errorType = "invalid-id-format"
+                                message = sprintf "Sequential number '%s' must be exactly 3 digits (001-999)" seqNum
+                                severity = "error"
+                            })
+                        elif seqNum = "000" then
+                            errors.Add({
+                                filePath = filePath
+                                elementId = id
+                                errorType = "invalid-id-format"
+                                message = "Sequential number must start at 001, not 000"
+                                severity = "error"
+                            })
+                    
+                    // Validate descriptive name (1-4 words, lowercase, hyphens only)
+                    if parts.Length >= 4 then
+                        let descriptiveName = String.concat "-" (parts.[3..])
+                        let wordCount = (parts.Length - 3)
+                        
+                        if wordCount < 1 then
+                            errors.Add({
+                                filePath = filePath
+                                elementId = id
+                                errorType = "invalid-id-format"
+                                message = "Descriptive name must have at least 1 word"
+                                severity = "error"
+                            })
+                        elif wordCount > 4 then
+                            errors.Add({
+                                filePath = filePath
+                                elementId = id
+                                errorType = "invalid-id-format"
+                                message = sprintf "Descriptive name has %d words, maximum is 4" wordCount
+                                severity = "error"
+                            })
+                        
+                        // Check for invalid characters (only lowercase letters, numbers, hyphens)
+                        if not (System.Text.RegularExpressions.Regex.IsMatch(descriptiveName, @"^[a-z0-9]+(-[a-z0-9]+)*$")) then
+                            errors.Add({
+                                filePath = filePath
+                                elementId = id
+                                errorType = "invalid-id-format"
+                                message = "Descriptive name must contain only lowercase letters, numbers, and hyphens"
+                                severity = "error"
+                            })
+                        
+                        // Check for invalid patterns (leading/trailing hyphens, double hyphens)
+                        if descriptiveName.StartsWith("-") || descriptiveName.EndsWith("-") || descriptiveName.Contains("--") then
+                            errors.Add({
+                                filePath = filePath
+                                elementId = id
+                                errorType = "invalid-id-format"
+                                message = "Descriptive name cannot have leading/trailing hyphens or consecutive hyphens"
+                                severity = "error"
+                            })
         | _ -> ()
         
         List.ofSeq errors

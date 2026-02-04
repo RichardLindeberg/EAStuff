@@ -23,7 +23,7 @@ module ValidationTests =
     [<Fact>]
     let ``Valid element with all required fields should have no errors`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001")
+            ("id", box "bus-proc-001-customer-onboarding")
             ("name", box "Customer Onboarding")
             ("type", box "Business Process")
             ("layer", box "business")
@@ -73,7 +73,7 @@ module ValidationTests =
     [<Fact>]
     let ``Element missing name should produce error`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001")
+            ("id", box "bus-proc-001-order-processing")
             ("type", box "Business Process")
             ("layer", box "business")
         ]
@@ -90,7 +90,7 @@ module ValidationTests =
     [<Fact>]
     let ``Element missing type should produce error`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001")
+            ("id", box "bus-proc-001-order-processing")
             ("name", box "Customer Onboarding")
             ("layer", box "business")
         ]
@@ -107,7 +107,7 @@ module ValidationTests =
     [<Fact>]
     let ``Element missing layer should produce error`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001")
+            ("id", box "bus-proc-001-order-processing")
             ("name", box "Customer Onboarding")
             ("type", box "Business Process")
         ]
@@ -124,7 +124,7 @@ module ValidationTests =
     [<Fact>]
     let ``Element with invalid layer should produce error`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001")
+            ("id", box "bus-proc-001-order-processing")
             ("name", box "Customer Onboarding")
             ("type", box "Business Process")
             ("layer", box "invalid-layer")
@@ -141,13 +141,21 @@ module ValidationTests =
     
     [<Fact>]
     let ``Valid layers should not produce errors`` () =
-        let validLayers = ["strategy"; "motivation"; "business"; "application"; "technology"; "physical"; "implementation"]
+        let validCombos = [
+            ("str", "capa", "strategy", "str-capa-001-omnichannel")
+            ("bus", "proc", "business", "bus-proc-001-order-processing")
+            ("app", "comp", "application", "app-comp-001-customer-portal")
+            ("tec", "node", "technology", "tec-node-001-web-server")
+            ("phy", "equi", "physical", "phy-equi-001-data-center")
+            ("mot", "goal", "motivation", "mot-goal-001-revenue")
+            ("imp", "work", "implementation", "imp-work-001-cloud-migration")
+        ]
         let tempFile = createTempFile "test"
         
         try
-            for layer in validLayers do
+            for (_, _, layer, id) in validCombos do
                 let metadata = createMetadata [
-                    ("id", box $"elem-{layer}-001")
+                    ("id", box id)
                     ("name", box "Test Element")
                     ("type", box "Test Type")
                     ("layer", box layer)
@@ -158,9 +166,9 @@ module ValidationTests =
             cleanupTempFile tempFile
     
     [<Fact>]
-    let ``Element with invalid ID format should produce warning`` () =
+    let ``Element with invalid ID format (missing descriptive-name) should produce error`` () =
         let metadata = createMetadata [
-            ("id", box "invalid")
+            ("id", box "bus-proc-001")
             ("name", box "Customer Onboarding")
             ("type", box "Business Process")
             ("layer", box "business")
@@ -171,14 +179,259 @@ module ValidationTests =
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
             Assert.Equal("invalid-id-format", errors.[0].errorType)
-            Assert.Equal("warning", errors.[0].severity)
+            Assert.Equal("error", errors.[0].severity)
         finally
             cleanupTempFile tempFile
     
     [<Fact>]
-    let ``Element with correct ID format should not produce warning`` () =
+    let ``ID with single word in descriptive name should be valid`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001")
+            ("id", box "str-capa-001-omnichannel")
+            ("name", box "Omnichannel")
+            ("type", box "Capability")
+            ("layer", box "strategy")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.Empty(errors)
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with multi-word descriptive-name should be valid`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-proc-001-order-fulfillment-process")
+            ("name", box "Order Fulfillment Process")
+            ("type", box "Business Process")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.Empty(errors)
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with numeric in descriptive-name should be valid`` () =
+        let metadata = createMetadata [
+            ("id", box "app-comp-001-crm-system-v2")
+            ("name", box "CRM System V2")
+            ("type", box "Application Component")
+            ("layer", box "application")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.Empty(errors)
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID completely wrong format should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "completely-invalid")
+            ("name", box "Invalid")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> e.errorType = "invalid-id-format"))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with wrong layer code length should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-proc-001-order-processing")
+            ("name", box "Test")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            // This should pass with correct bus code (3 chars)
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.Empty(errors)
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with 2-char layer code should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "bu-proc-001-order-processing")
+            ("name", box "Test")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> e.message.Contains("Layer code")))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with invalid layer code should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "xyz-proc-001-order-processing")
+            ("name", box "Test")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> e.message.Contains("not valid")))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with wrong type code length should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-pro-001-order-processing")
+            ("name", box "Test")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> e.message.Contains("Type code")))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with invalid type code for layer should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-node-001-order-processing")
+            ("name", box "Test")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> e.message.Contains("not valid for layer")))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with sequential number 000 should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-proc-000-order-processing")
+            ("name", box "Test")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> e.message.Contains("must start at 001")))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with only 1 word in descriptive name is valid`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-proc-001-processing")
+            ("name", box "Processing")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.Empty(errors)
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with 5 words in descriptive name should produce error`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-proc-001-order-processing-system-management-feature")
+            ("name", box "Test")
+            ("type", box "Test")
+            ("layer", box "business")
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            let errors = ElementRegistry.validateElement tempFile metadata
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> e.message.Contains("maximum is 4")))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with invalid special characters should fail basic pattern`` () =
+        // IDs with uppercase, underscores, or double hyphens fail the initial pattern check
+        let invalidIds = [
+            "bus-proc-001-Order-Processing"    // Uppercase
+            "bus-proc-001-order_processing"    // Underscore
+            "bus-proc-001--order-processing"   // Double hyphen
+        ]
+        let tempFile = createTempFile "test"
+        
+        try
+            for invalidId in invalidIds do
+                let metadata = createMetadata [
+                    ("id", box invalidId)
+                    ("name", box "Test")
+                    ("type", box "Test")
+                    ("layer", box "business")
+                ]
+                let errors = ElementRegistry.validateElement tempFile metadata
+                Assert.NotEmpty(errors)
+                Assert.True(errors |> List.exists (fun e -> e.errorType = "invalid-id-format"))
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``ID with all valid layer codes should pass`` () =
+        let layerCodes = ["str"; "bus"; "app"; "tec"; "phy"; "mot"; "imp"]
+        let typeCodes = ["capa"; "proc"; "comp"; "node"; "equi"; "goal"; "work"]
+        let tempFile = createTempFile "test"
+        
+        try
+            for (layer, typeCode) in List.zip layerCodes typeCodes do
+                let metadata = createMetadata [
+                    ("id", box $"{layer}-{typeCode}-001-test-element")
+                    ("name", box "Test")
+                    ("type", box "Test")
+                    ("layer", box (match layer with "str" -> "strategy" | "bus" -> "business" | "app" -> "application" | "tec" -> "technology" | "phy" -> "physical" | "mot" -> "motivation" | _ -> "implementation"))
+                ]
+                let errors = ElementRegistry.validateElement tempFile metadata
+                // Should only have no format errors for these valid combinations
+                let formatErrors = errors |> List.filter (fun e -> e.errorType = "invalid-id-format")
+                Assert.Empty(formatErrors)
+        finally
+            cleanupTempFile tempFile
+    
+    [<Fact>]
+    let ``Element with correct ID format should have no errors`` () =
+        let metadata = createMetadata [
+            ("id", box "bus-proc-001-customer-onboarding")
             ("name", box "Customer Onboarding")
             ("type", box "Business Process")
             ("layer", box "business")
@@ -187,15 +440,14 @@ module ValidationTests =
         
         try
             let errors = ElementRegistry.validateElement tempFile metadata
-            let warnings = errors |> List.filter (fun e -> e.severity = "warning")
-            Assert.Empty(warnings)
+            Assert.Empty(errors)
         finally
             cleanupTempFile tempFile
     
     [<Fact>]
     let ``Multiple missing fields should produce multiple errors`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001")
+            ("id", box "bus-proc-001-order-processing")
         ]
         let tempFile = createTempFile "test"
         
@@ -264,7 +516,7 @@ module ValidationTests =
     [<Fact>]
     let ``Valid element should load successfully`` () =
         let content = """---
-id: bus-proc-001
+id: bus-proc-001-customer-onboarding
 name: Customer Onboarding
 type: Business Process
 layer: business
@@ -284,7 +536,7 @@ This is test content.
             Assert.Empty(errors)
             
             let elem = elemOpt.Value
-            Assert.Equal("bus-proc-001", elem.id)
+            Assert.Equal("bus-proc-001-customer-onboarding", elem.id)
             Assert.Equal("Customer Onboarding", elem.name)
             Assert.Equal("Business Process", elem.elementType)
             Assert.Equal("business", elem.layer)
@@ -383,10 +635,12 @@ Content.
         Directory.CreateDirectory(tempDir) |> ignore
         
         try
+            // Create a file with missing name (error) - ID format is correct
             let file1 = Path.Combine(tempDir, "file1.md")
             let content1 = """---
-id: invalid
+id: bus-proc-001-order-processing
 type: Test
+layer: business
 ---
 
 Content.
@@ -395,9 +649,9 @@ Content.
             
             let registry = ElementRegistry.create tempDir
             let errors = ElementRegistry.getErrorsBySeverity "error" registry
-            let warnings = ElementRegistry.getErrorsBySeverity "warning" registry
             
+            // Should have at least one error for missing name
+            Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> e.severity = "error"))
-            Assert.True(warnings |> List.exists (fun e -> e.severity = "warning"))
         finally
             Directory.Delete(tempDir, true)

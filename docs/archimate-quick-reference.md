@@ -43,6 +43,27 @@ python scripts/validate_archimate_exchange.py
 | **Association** | 12 | Generic connection |
 | **Assignment** | 1 | Allocates responsibility |
 
+## relations.xml Relationship Codes
+
+In [schemas/relations.xml](schemas/relations.xml), each `relations` attribute is a compact set of allowed relationship types between the source and target concepts. Each letter maps to a relationship type:
+
+| Code | Relationship Type |
+|------|-------------------|
+| **a** | Access |
+| **c** | Composition |
+| **f** | Flow |
+| **g** | Aggregation |
+| **i** | Assignment |
+| **n** | Influence |
+| **o** | Association |
+| **r** | Realization |
+| **s** | Specialization |
+| **t** | Triggering |
+| **v** | Serving |
+
+**How to read a cell:**
+If a cell shows `relations="cgnos"`, it means the source element can connect to the target using Composition (c), Aggregation (g), Influence (n), Association (o), and Specialization (s).
+
 ## Key Concepts Mapped
 
 **Strategic Vision:**
