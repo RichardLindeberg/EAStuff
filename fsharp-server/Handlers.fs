@@ -717,9 +717,10 @@ module Handlers =
     let layerHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation($"GET /{layer} - Layer page requested")
-            match Map.tryFind layer Config.layerOrder with
+            let normalizedLayer = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(layer)
+            match Map.tryFind normalizedLayer Config.layerOrder with
             | Some layerInfo ->
-                let elements = ElementRegistry.getLayerElements layer registry
+                let elements = ElementRegistry.getLayerElements normalizedLayer registry
                 logger.LogInformation($"Found {List.length elements} elements in layer {layer}")
                 elements |> List.iter (fun elem ->
                     logger.LogDebug($"  - {elem.id}: {elem.name}")
@@ -727,7 +728,7 @@ module Handlers =
                 let html = Views.layerPage layerInfo elements registry
                 htmlView html next ctx
             | None -> 
-                logger.LogWarning($"Layer not found: {layer}")
+                logger.LogWarning($"Layer not found: {layer} (normalized: {normalizedLayer})")
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element detail page handler
@@ -769,13 +770,14 @@ module Handlers =
     let layerDiagramHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation($"GET /diagrams/layers/{layer} - Layer diagram requested")
-            match Map.tryFind layer Config.layerOrder with
+            let normalizedLayer = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(layer)
+            match Map.tryFind normalizedLayer Config.layerOrder with
             | Some layerInfo ->
-                let diagram = buildLayerMermaid layer registry
+                let diagram = buildLayerMermaid normalizedLayer registry
                 let html = wrapMermaidHtml ($"{layerInfo.displayName} Diagram") diagram
                 htmlString html next ctx
             | None ->
-                logger.LogWarning($"Layer not found for diagram: {layer}")
+                logger.LogWarning($"Layer not found for diagram: {layer} (normalized: {normalizedLayer})")
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context diagram handler
@@ -805,13 +807,14 @@ module Handlers =
     let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation($"GET /diagrams/layer/{layer} - Cytoscape layer diagram requested")
-            match Map.tryFind layer Config.layerOrder with
+            let normalizedLayer = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(layer)
+            match Map.tryFind normalizedLayer Config.layerOrder with
             | Some layerInfo ->
-                let data = buildLayerCytoscape layer registry
+                let data = buildLayerCytoscape normalizedLayer registry
                 let html = wrapCytoscapeHtml (sprintf "%s Layer" layerInfo.displayName) data true
                 htmlString html next ctx
             | None ->
-                logger.LogWarning($"Layer not found for Cytoscape diagram: {layer}")
+                logger.LogWarning($"Layer not found for Cytoscape diagram: {layer} (normalized: {normalizedLayer})")
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context Cytoscape diagram handler
