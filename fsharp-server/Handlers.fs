@@ -578,27 +578,45 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("POST /api/validation/revalidate - Revalidating file: {filePath}", filePath)
             let decodedPath = Uri.UnescapeDataString(filePath)
-            
-            ElementRegistry.revalidateFile decodedPath registry logger
-            let errors = ElementRegistry.getFileValidationErrors decodedPath registry
-            
-            let result = dict [
-                ("filePath", box decodedPath)
-                ("revalidated", box true)
-                ("errorCount", box errors.Length)
-                ("errors", box (
-                    errors
-                    |> List.map (fun err ->
-                        dict [
-                            ("errorType", box (ElementType.errorTypeToString err.errorType))
-                            ("message", box err.message)
-                            ("severity", box (ElementType.severityToString err.severity))
-                        ]
-                    )
-                ))
-            ]
-            
-            json result next ctx
+            let basePath =
+                registry.elementsPath
+                |> Path.GetFullPath
+                |> fun path -> path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+
+            let requestedPath =
+                if Path.IsPathRooted decodedPath then
+                    Path.GetFullPath decodedPath
+                else
+                    Path.GetFullPath(Path.Combine(basePath, decodedPath))
+
+            let isWithinBase =
+                requestedPath.StartsWith(basePath + string Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                || requestedPath.Equals(basePath, StringComparison.OrdinalIgnoreCase)
+
+            if not isWithinBase then
+                logger.LogWarning("Rejected revalidate path outside elements root: {requestedPath}", requestedPath)
+                (setStatusCode 400 >=> text "Invalid file path") next ctx
+            else
+                ElementRegistry.revalidateFile requestedPath registry logger
+                let errors = ElementRegistry.getFileValidationErrors requestedPath registry
+
+                let result = dict [
+                    ("filePath", box requestedPath)
+                    ("revalidated", box true)
+                    ("errorCount", box errors.Length)
+                    ("errors", box (
+                        errors
+                        |> List.map (fun err ->
+                            dict [
+                                ("errorType", box (ElementType.errorTypeToString err.errorType))
+                                ("message", box err.message)
+                                ("severity", box (ElementType.severityToString err.severity))
+                            ]
+                        )
+                    ))
+                ]
+
+                json result next ctx
     
     /// Individual tag page handler
     let tagHandler (tag: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =

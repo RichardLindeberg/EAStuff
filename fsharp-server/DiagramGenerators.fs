@@ -5,6 +5,8 @@ open System.Collections.Generic
 open System.Globalization
 open System.IO
 open System.Net
+open System.Text.Encodings.Web
+open System.Text.Json
 open System.Xml.Linq
 
 module DiagramGenerators =
@@ -35,14 +37,10 @@ module DiagramGenerators =
         match elementType with
         | ElementType.Strategy st ->
             match st with
-            | StrategyElement.Stakeholder -> "stakeholder"
-            | StrategyElement.Driver -> "driver"
-            | StrategyElement.Assessment -> "assessment"
-            | StrategyElement.Goal -> "goal"
-            | StrategyElement.Outcome -> "outcome"
-            | StrategyElement.Principle -> "principle"
-            | StrategyElement.Requirement -> "requirement"
-            | StrategyElement.Constraint -> "constraint"
+            | StrategyElement.Resource -> "resource"
+            | StrategyElement.Capability -> "capability"
+            | StrategyElement.ValueStream -> "value-stream"
+            | StrategyElement.CourseOfAction -> "course-of-action"
         | ElementType.Motivation mt ->
             match mt with
             | MotivationElement.Stakeholder -> "stakeholder"
@@ -284,26 +282,17 @@ module DiagramGenerators =
                         | None -> ""
 
                 let typeLabel = getElementTypeLabel elementTypeKey
-                let labelText = sprintf "[%s]\\n%s" typeLabel (elem.name.Replace("\"", "\\\""))
+                let labelText = sprintf "[%s]\n%s" typeLabel elem.name
                 let classes = elementTypeKey.Replace("-", "_") + " badge-label"
-                sprintf """{
-                data: { 
-                    id: "%s", 
-                    label: "%s", 
-                    type: "%s",
-                    color: "%s",
-                    icon: "%s",
-                    shape: "%s"
-                },
-                classes: "%s"
-            }"""
-                    elem.id
-                    labelText
-                    elementTypeKey
-                    color
-                    icon
-                    shape
-                    classes
+
+                {| data =
+                       {| id = elem.id
+                          label = labelText
+                          ``type`` = elementTypeKey
+                          color = color
+                          icon = icon
+                          shape = shape |}
+                   classes = classes |}
             )
 
         let edges =
@@ -315,34 +304,21 @@ module DiagramGenerators =
                 let lineStyle = getRelationshipLineStyle relationTypeKey
                 let lineWidth = getRelationshipLineWidth relationTypeKey
 
-                sprintf """{
-                data: { 
-                    id: "%s_%s",
-                    source: "%s", 
-                    target: "%s", 
-                    label: "%s",
-                    relType: "%s",
-                    color: "%s",
-                    arrowType: "%s",
-                    lineStyle: "%s",
-                    lineWidth: %f
-                }
-            }"""
-                    sourceId
-                    rel.target
-                    sourceId
-                    rel.target
-                    relationTypeKey
-                    relationTypeKey
-                    color
-                    arrowType
-                    lineStyle
-                    lineWidth
+                {| data =
+                       {| id = sprintf "%s_%s" sourceId rel.target
+                          source = sourceId
+                          target = rel.target
+                          label = relationTypeKey
+                          relType = relationTypeKey
+                          color = color
+                          arrowType = arrowType
+                          lineStyle = lineStyle
+                          lineWidth = lineWidth |} |}
             )
 
-        sprintf """{ "nodes": [%s], "edges": [%s] }"""
-            (String.concat "," nodes)
-            (String.concat "," edges)
+        let graph = {| nodes = nodes; edges = edges |}
+        let options = JsonSerializerOptions(Encoder = JavaScriptEncoder.Default)
+        JsonSerializer.Serialize(graph, options)
 
     let buildLayerCytoscape (layer: Layer) (registry: ElementRegistry) : string =
         let layerElements = ElementRegistry.getLayerElements layer registry

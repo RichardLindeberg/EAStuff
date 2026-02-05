@@ -8,14 +8,10 @@ open Microsoft.Extensions.Logging.Abstractions
 /// Strategy layer element types
 [<RequireQualifiedAccess>]
 type StrategyElement =
-    | Stakeholder
-    | Driver
-    | Assessment
-    | Goal
-    | Outcome
-    | Principle
-    | Requirement
-    | Constraint
+    | Resource
+    | Capability
+    | ValueStream
+    | CourseOfAction
 
 /// Motivation layer element types
 [<RequireQualifiedAccess>]
@@ -409,14 +405,10 @@ module ElementType =
         match layer with
         | "strategy" ->
             match normalized with
-            | "stakeholder" -> ElementType.Strategy StrategyElement.Stakeholder
-            | "driver" -> ElementType.Strategy StrategyElement.Driver
-            | "assessment" -> ElementType.Strategy StrategyElement.Assessment
-            | "goal" -> ElementType.Strategy StrategyElement.Goal
-            | "outcome" -> ElementType.Strategy StrategyElement.Outcome
-            | "principle" -> ElementType.Strategy StrategyElement.Principle
-            | "requirement" -> ElementType.Strategy StrategyElement.Requirement
-            | "constraint" -> ElementType.Strategy StrategyElement.Constraint
+            | "resource" -> ElementType.Strategy StrategyElement.Resource
+            | "capability" -> ElementType.Strategy StrategyElement.Capability
+            | "valuestream" -> ElementType.Strategy StrategyElement.ValueStream
+            | "courseofaction" -> ElementType.Strategy StrategyElement.CourseOfAction
             | s -> ElementType.Unknown ("Strategy", s)
 
         | "motivation" ->
@@ -504,14 +496,10 @@ module ElementType =
     let elementTypeToConceptName (elemType: ElementType) : string =
         match elemType with
         // Strategy Layer
-        | ElementType.Strategy StrategyElement.Stakeholder -> "Stakeholder"
-        | ElementType.Strategy StrategyElement.Driver -> "Driver"
-        | ElementType.Strategy StrategyElement.Assessment -> "Assessment"
-        | ElementType.Strategy StrategyElement.Goal -> "Goal"
-        | ElementType.Strategy StrategyElement.Outcome -> "Outcome"
-        | ElementType.Strategy StrategyElement.Principle -> "Principle"
-        | ElementType.Strategy StrategyElement.Requirement -> "Requirement"
-        | ElementType.Strategy StrategyElement.Constraint -> "Constraint"
+        | ElementType.Strategy StrategyElement.Resource -> "Resource"
+        | ElementType.Strategy StrategyElement.Capability -> "Capability"
+        | ElementType.Strategy StrategyElement.ValueStream -> "ValueStream"
+        | ElementType.Strategy StrategyElement.CourseOfAction -> "CourseOfAction"
         
         // Motivation Layer
         | ElementType.Motivation MotivationElement.Stakeholder -> "Stakeholder"
