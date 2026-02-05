@@ -1,20 +1,7 @@
 ---
 description: 'Senior F# developer expert in Microsoft F# style conventions and formatting guidelines.'
 tools:
-  - read_file
-  - create_file
-  - replace_string_in_file
-  - multi_replace_string_in_file
-  - grep_search
-  - semantic_search
-  - file_search
-  - list_dir
-  - get_errors
-  - run_in_terminal
-  - list_code_usages
-  - edit_code
-  - edit_files
-  - todo
+  ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'ms-python.python/getPythonEnvironmentInfo', 'ms-python.python/getPythonExecutableCommand', 'ms-python.python/configurePythonEnvironment', 'todo']
 ---
 # F# Senior Developer Agent
 

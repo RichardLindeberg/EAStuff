@@ -403,3 +403,52 @@ Content.
             Assert.True(errors |> List.exists (fun e -> e.errorType = ErrorType.InvalidRelationshipType "weird"))
             Assert.True(errors |> List.forall (fun e -> e.severity = Severity.Warning))
         )
+
+    [<Fact>]
+    let ``ElementRegistry should warn on invalid motivation relationship combinations`` () =
+        let rulesXml = """<?xml version="1.0" encoding="UTF-8"?>
+<relations>
+    <source concept="Requirement">
+        <target concept="Principle" relations="n"/>
+    </source>
+</relations>"""
+
+        let requirementElement = """---
+id: mot-reqt-003-mobile-first-banking-design
+name: Mobile-First Banking Design
+type: requirement
+layer: motivation
+relationships:
+- type: triggering
+  target: mot-prin-001-customer-centric-banking
+  description: Realizes customer-centric principle
+---
+
+Content.
+"""
+
+        let principleElement = """---
+id: mot-prin-001-customer-centric-banking
+name: Customer-Centric Banking
+type: principle
+layer: motivation
+---
+
+Content.
+"""
+
+        let elements =
+            [
+                ("requirement.md", requirementElement)
+                ("principle.md", principleElement)
+            ]
+
+        withTempRegistry elements rulesXml (fun registry ->
+            let errors = ElementRegistry.getValidationErrors registry
+            Assert.True(errors |> List.exists (fun e ->
+                match e.errorType with
+                | ErrorType.InvalidRelationshipCombination ("Requirement", "Principle", "triggering") -> true
+                | _ -> false
+            ))
+            Assert.True(errors |> List.forall (fun e -> e.severity = Severity.Warning))
+        )

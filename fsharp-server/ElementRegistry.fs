@@ -365,9 +365,7 @@ module ElementRegistry =
             |> List.singleton
             |> (fun errs -> (None, errs))
     
-    /// Load and parse a single markdown element file (legacy)
-    let loadElement (filePath: string) (logger: ILogger) : Element option =
-        loadElementWithValidation filePath logger |> fst
+   
     
     /// Validate relationships for a single element against ArchiMate rules
     let validateRelationships (rules: RelationshipRules) (registry: ElementRegistry) (elem: Element) : ValidationError list =
@@ -488,7 +486,25 @@ module ElementRegistry =
         logger.LogInformation($"Creating element registry from: {elementsPath}")
         
         // Load relationship rules from relations.xml
-        let relationsXmlPath = Path.Combine(elementsPath, "..", "schemas", "relations.xml")
+        let relationsXmlPathCandidates =
+            [
+                Path.Combine(elementsPath, "relations.xml")
+                Path.Combine(elementsPath, "schemas", "relations.xml")
+                Path.Combine(elementsPath, "..", "schemas", "relations.xml")
+            ]
+
+        let relationsXmlPathOpt =
+            relationsXmlPathCandidates
+            |> List.tryFind File.Exists
+
+        let relationsXmlPath =
+            relationsXmlPathOpt
+            |> Option.defaultValue relationsXmlPathCandidates.Head
+
+        if relationsXmlPathOpt.IsNone then
+            let triedPaths = String.concat "; " relationsXmlPathCandidates
+            logger.LogWarning($"Relationship rules file not found. Tried: {triedPaths}")
+
         let relationshipRules = ElementType.parseRelationshipRules relationsXmlPath
         logger.LogInformation($"Loaded {Map.count relationshipRules} relationship rules from {relationsXmlPath}")
         

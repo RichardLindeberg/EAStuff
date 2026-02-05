@@ -21,26 +21,32 @@ let main args =
             // Elements are copied directly to the application directory with their layer structure preserved
             AppContext.BaseDirectory
     
-    printfn "Starting EA Archive Server..."
-    printfn "Loading elements from: %s" elementsPath
-    printfn "Elements path exists: %b" (Directory.Exists elementsPath)
+    let configureLogging (logging: ILoggingBuilder) : unit =
+        logging
+            .ClearProviders()
+            .AddConsole()
+            .SetMinimumLevel(LogLevel.Information)
+        |> ignore
+
+    let loggerFactory = LoggerFactory.Create(configureLogging)
+
+    let logger = loggerFactory.CreateLogger("Startup")
+
+    logger.LogInformation("Starting EA Archive Server...")
+    logger.LogInformation("Loading elements from: {elementsPath}", elementsPath)
+    logger.LogInformation("Elements path exists: {pathExists}", Directory.Exists(elementsPath))
     
     let registry = ElementRegistry.create elementsPath
-    printfn "Successfully loaded %d elements" (Map.count registry.elements)
-    printfn "Elements by layer:"
+    logger.LogInformation("Successfully loaded {elementCount} elements", Map.count registry.elements)
+    logger.LogInformation("Elements by layer:")
     registry.elementsByLayer
     |> Map.iter (fun layer ids ->
-        printfn "  %s: %d elements" layer (List.length ids)
+        logger.LogInformation("  {layer}: {count} elements", layer, List.length ids)
     )
     
     Host
         .CreateDefaultBuilder(args)
-        .ConfigureLogging(fun logging ->
-            logging
-                .ClearProviders()
-                .AddConsole()
-                .SetMinimumLevel(LogLevel.Information) |> ignore
-        )
+        .ConfigureLogging(configureLogging)
         .ConfigureWebHostDefaults(fun webHostBuilder ->
             webHostBuilder
                 .ConfigureServices(fun services ->
