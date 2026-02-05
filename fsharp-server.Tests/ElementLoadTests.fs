@@ -19,7 +19,7 @@ module ElementLoadTests =
         
         Assert.False(elemOpt.IsSome)
         Assert.NotEmpty(errors)
-        Assert.True(errors |> List.exists (fun e -> e.errorType = "parse-error"))
+        Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "parse-error"))
     
     [<Fact>]
     let ``Valid element should load successfully`` () =
@@ -46,8 +46,10 @@ This is test content.
             let elem = elemOpt.Value
             Assert.Equal("bus-proc-001-customer-onboarding", elem.id)
             Assert.Equal("Customer Onboarding", elem.name)
-            Assert.Equal("Business Process", elem.elementType)
-            Assert.Equal("business", elem.layer)
+            let elemTypeStr = Views.elementTypeToString elem.elementType
+            Assert.Equal("Business Process", elemTypeStr)
+            let layer = ElementType.getLayer elem.elementType
+            Assert.Equal("Business", layer)
         finally
             cleanupTempFile tempFile
     
@@ -72,6 +74,6 @@ Content here.
             
             Assert.NotNull(elemOpt)
             Assert.NotEmpty(errors)
-            Assert.True(errors |> List.exists (fun e -> e.errorType = "invalid-layer"))
+            Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "invalid-layer"))
         finally
             cleanupTempFile tempFile

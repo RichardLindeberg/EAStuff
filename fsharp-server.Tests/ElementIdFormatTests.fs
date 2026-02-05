@@ -20,8 +20,8 @@ module ElementIdFormatTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
-            Assert.Equal("invalid-id-format", errors.[0].errorType)
-            Assert.Equal("error", errors.[0].severity)
+            Assert.Equal("invalid-id-format", ElementType.errorTypeToString errors.[0].errorType)
+            Assert.Equal("error", ElementType.severityToString errors.[0].severity)
         finally
             cleanupTempFile tempFile
     
@@ -86,7 +86,7 @@ module ElementIdFormatTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.NotEmpty(errors)
-            Assert.True(errors |> List.exists (fun e -> e.errorType = "invalid-id-format"))
+            Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "invalid-id-format"))
         finally
             cleanupTempFile tempFile
     
@@ -245,7 +245,7 @@ module ElementIdFormatTests =
                 ]
                 let errors = ElementRegistry.validateElement tempFile metadata
                 Assert.NotEmpty(errors)
-                Assert.True(errors |> List.exists (fun e -> e.errorType = "invalid-id-format"))
+                Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "invalid-id-format"))
         finally
             cleanupTempFile tempFile
     
@@ -265,7 +265,7 @@ module ElementIdFormatTests =
                 ]
                 let errors = ElementRegistry.validateElement tempFile metadata
                 // Should only have no format errors for these valid combinations
-                let formatErrors = errors |> List.filter (fun e -> e.errorType = "invalid-id-format")
+                let formatErrors = errors |> List.filter (fun e -> ElementType.errorTypeToString e.errorType = "invalid-id-format")
                 Assert.Empty(formatErrors)
         finally
             cleanupTempFile tempFile

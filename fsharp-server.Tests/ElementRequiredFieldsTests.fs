@@ -35,8 +35,8 @@ module ElementRequiredFieldsTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
-            Assert.Equal("missing-id", errors.[0].errorType)
-            Assert.Equal("error", errors.[0].severity)
+            Assert.Equal("missing-id", ElementType.errorTypeToString errors.[0].errorType)
+            Assert.Equal("error", ElementType.severityToString errors.[0].severity)
         finally
             cleanupTempFile tempFile
     
@@ -53,7 +53,7 @@ module ElementRequiredFieldsTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
-            Assert.Equal("missing-id", errors.[0].errorType)
+            Assert.Equal("missing-id", ElementType.errorTypeToString errors.[0].errorType)
         finally
             cleanupTempFile tempFile
     
@@ -69,7 +69,7 @@ module ElementRequiredFieldsTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
-            Assert.Equal("missing-required-field", errors.[0].errorType)
+            Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Contains("name", errors.[0].message)
         finally
             cleanupTempFile tempFile
@@ -86,7 +86,7 @@ module ElementRequiredFieldsTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
-            Assert.Equal("missing-required-field", errors.[0].errorType)
+            Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Contains("type", errors.[0].message)
         finally
             cleanupTempFile tempFile
@@ -103,7 +103,7 @@ module ElementRequiredFieldsTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
-            Assert.Equal("missing-required-field", errors.[0].errorType)
+            Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Contains("layer", errors.[0].message)
         finally
             cleanupTempFile tempFile
@@ -121,8 +121,8 @@ module ElementRequiredFieldsTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Single(errors) |> ignore
-            Assert.Equal("invalid-layer", errors.[0].errorType)
-            Assert.Equal("error", errors.[0].severity)
+            Assert.Equal("invalid-layer", ElementType.errorTypeToString errors.[0].errorType)
+            Assert.Equal("error", ElementType.severityToString errors.[0].severity)
         finally
             cleanupTempFile tempFile
     
@@ -162,7 +162,7 @@ module ElementRequiredFieldsTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.Equal(3, List.length errors)
-            let errorTypes = errors |> List.map (fun e -> e.errorType)
+            let errorTypes = errors |> List.map (fun e -> ElementType.errorTypeToString e.errorType)
             Assert.Contains("missing-required-field", errorTypes)
         finally
             cleanupTempFile tempFile

@@ -88,10 +88,10 @@ Content.
             File.WriteAllText(file1, content1)
             
             let registry = ElementRegistry.create tempDir
-            let errors = ElementRegistry.getErrorsBySeverity "error" registry
+            let errors = ElementRegistry.getErrorsBySeverity Severity.Error registry
             
             // Should have at least one error for missing name
             Assert.NotEmpty(errors)
-            Assert.True(errors |> List.exists (fun e -> e.severity = "error"))
+            Assert.True(errors |> List.exists (fun e -> ElementType.severityToString e.severity = "error"))
         finally
             Directory.Delete(tempDir, true)

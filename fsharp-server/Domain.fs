@@ -223,7 +223,24 @@ module ElementType =
         | "invalid-type" | "invalidtype" -> ErrorType.InvalidType
         | "invalid-layer" | "invalidlayer" -> ErrorType.InvalidLayer
         | "missing-required-field" | "missingrequiredfield" -> ErrorType.MissingRequiredField
+        | "invalid-id-format" | "invalididformat" -> ErrorType.Unknown "invalid-id-format"
+        | "parse-error" | "parseerror" -> ErrorType.Unknown "parse-error"
         | s -> ErrorType.Unknown s
+    
+    /// Convert error type to string
+    let errorTypeToString (errType: ErrorType) : string =
+        match errType with
+        | ErrorType.MissingId -> "missing-id"
+        | ErrorType.InvalidType -> "invalid-type"
+        | ErrorType.InvalidLayer -> "invalid-layer"
+        | ErrorType.MissingRequiredField -> "missing-required-field"
+        | ErrorType.Unknown s -> s
+    
+    /// Convert severity to string
+    let severityToString (sev: Severity) : string =
+        match sev with
+        | Severity.Error -> "error"
+        | Severity.Warning -> "warning"
     
     /// Parse element type from layer and type name strings
     let parseElementType (layerStr: string) (typeStr: string) : ElementType =

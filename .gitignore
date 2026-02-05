@@ -11,3 +11,5 @@ obj/
 *.pdb
 *.cache
 *.fsproj.user
+
+.fake
