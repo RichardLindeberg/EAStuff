@@ -164,8 +164,8 @@ type LayerInfo = {
 module Config =
     let layerOrder = 
         [
-            ("Strategy", { displayName = "Strategy Layer"; order = 0 })
-            ("Motivation", { displayName = "Motivation Layer"; order = 1 })
+            ("Motivation", { displayName = "Motivation Layer"; order = 0 })
+            ("Strategy", { displayName = "Strategy Layer"; order = 1 })
             ("Business", { displayName = "Business Layer"; order = 2 })
             ("Application", { displayName = "Application Layer"; order = 3 })
             ("Technology", { displayName = "Technology Layer"; order = 4 })

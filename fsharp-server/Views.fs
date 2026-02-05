@@ -55,6 +55,7 @@ module Views =
         let navItems =
             Config.layerOrder
             |> Map.toList
+            |> List.sortBy (fun (_, layerInfo) -> layerInfo.order)
             |> List.map (fun (layerKey, layerInfo) ->
                 let isActive = currentPage = layerKey
                 let activeClass = if isActive then "active" else ""
@@ -111,6 +112,7 @@ module Views =
         let layerCards =
             Config.layerOrder
             |> Map.toList
+            |> List.sortBy (fun (_, layerInfo) -> layerInfo.order)
             |> List.choose (fun (layerKey, layerInfo) ->
                 let layerKeyLower = layerKey.ToLowerInvariant()
                 let elements = ElementRegistry.getLayerElements layerKeyLower registry
