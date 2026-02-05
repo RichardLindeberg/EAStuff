@@ -235,11 +235,21 @@ module Views =
                             ]
                             input filterAttrs
                         ]
+                        button [
+                            _type "button"
+                            _class "diagram-link"
+                            _hxGet $"{baseUrl}elements/new?layer={layerKey}"
+                            _hxTarget "#new-element-panel"
+                            _hxSwap "innerHTML"
+                        ] [
+                            encodedText "New"
+                        ]
                         a [_class "diagram-link"; _href $"{baseUrl}diagrams/layer/{layerKey}"; _target "_blank"; _rel "noopener"] [
                             encodedText "Open diagram"
                         ]
                     ]
                 ]
+                div [_id "new-element-panel"] []
                 layerElementsPartial elements registry
             ]
         ]
@@ -499,7 +509,7 @@ module Views =
                     _hxTarget $"#rel-type-{index}"
                     _hxSwap "outerHTML"
                     _hxInclude "this"
-                    _hxVals $"js:{{sourceId: '{sourceId}', index: {index}, current: '{relationValue}'}}"
+                    _hxVals $"js:{{sourceId: '{sourceId}', sourceType: document.getElementById('type') ? document.getElementById('type').value : '', index: {index}, current: '{relationValue}'}}"
                 ]
             ]
             div [_class "form-row"] [
@@ -733,6 +743,173 @@ module Views =
                         _type "button"
                         _class "secondary-button"
                         attr "hx-on:click" "this.closest('.element-detail').classList.remove('is-editing');document.getElementById('edit-panel').innerHTML='';"
+                    ] [
+                        encodedText "Cancel"
+                    ]
+                ]
+            ]
+        ]
+
+    let elementNewFormPartial (layerValue: string) (registry: ElementRegistry) : XmlNode =
+        let emptyValue = ""
+        let tagValue = ""
+
+        let selectOptions (currentValue: string) (options: string list) : XmlNode list =
+            let normalized = currentValue.Trim()
+            let baseOptions =
+                options
+                |> List.distinct
+                |> List.map (fun value ->
+                    optionNode value (value = normalized)
+                )
+
+            if normalized <> "" && not (options |> List.exists (fun v -> v = normalized)) then
+                optionNode normalized true
+                :: baseOptions
+            else
+                baseOptions
+
+        let selectOptionsWithPlaceholder (placeholder: string) (currentValue: string) (options: string list) : XmlNode list =
+            let normalized = currentValue.Trim()
+            let placeholderOption = placeholderOptionNode placeholder (normalized = "")
+            placeholderOption :: selectOptions currentValue options
+
+        let layerOptions = ["strategy"; "business"; "application"; "technology"; "physical"; "motivation"; "implementation"]
+
+        let typeOptionsByLayer =
+            Map.ofList [
+                ("strategy", ["resource"; "capability"; "value-stream"; "course-of-action"])
+                ("business", [
+                    "business-actor"; "business-role"; "business-collaboration"; "business-interface"
+                    "business-process"; "business-function"; "business-interaction"; "business-event"
+                    "business-service"; "business-object"; "contract"; "representation"; "product"
+                ])
+                ("application", [
+                    "application-component"; "application-collaboration"; "application-interface"
+                    "application-function"; "application-interaction"; "application-process"
+                    "application-event"; "application-service"; "data-object"
+                ])
+                ("technology", [
+                    "node"; "device"; "system-software"; "technology-collaboration"
+                    "technology-interface"; "path"; "communication-network"; "technology-function"
+                    "technology-process"; "technology-interaction"; "technology-event"
+                    "technology-service"; "artifact"
+                ])
+                ("physical", ["equipment"; "facility"; "distribution-network"; "material"])
+                ("motivation", [
+                    "stakeholder"; "driver"; "assessment"; "goal"; "outcome"; "principle"
+                    "requirement"; "constraint"; "meaning"; "value"
+                ])
+                ("implementation", ["work-package"; "deliverable"; "implementation-event"; "plateau"; "gap"])
+            ]
+
+        let allTypeOptions =
+            typeOptionsByLayer
+            |> Map.toList
+            |> List.collect snd
+            |> List.distinct
+
+        let typeOptions =
+            let normalizedLayer = layerValue.Trim().ToLowerInvariant()
+            typeOptionsByLayer
+            |> Map.tryFind normalizedLayer
+            |> Option.defaultValue allTypeOptions
+
+        let statusOptions = ["draft"; "proposed"; "active"; "production"; "deprecated"; "retired"]
+        let criticalityOptions = ["low"; "medium"; "high"; "critical"]
+        let lifecycleOptions = ["plan"; "design"; "build"; "operate"; "retire"]
+
+        div [_class "new-element-panel"] [
+            h3 [] [encodedText "New Element"]
+            form [
+                _method "post"
+                _action $"{baseUrl}elements/new/download"
+                _class "edit-form"
+            ] [
+                input [_type "hidden"; _id "id"; _name "id"; _value emptyValue]
+                div [_class "form-stack"] [
+                    div [_class "form-row"] [
+                        label [_for "name"] [encodedText "Name"]
+                        input [_type "text"; _id "name"; _name "name"; _value emptyValue; _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "layer"] [encodedText "Layer"]
+                        select [
+                            _id "layer"
+                            _name "layer"
+                            _class "edit-input"
+                            attr "hx-get" $"{baseUrl}elements/types"
+                            attr "hx-trigger" "change"
+                            attr "hx-target" "#type"
+                            attr "hx-swap" "outerHTML"
+                            attr "hx-include" "#type"
+                        ] (selectOptions layerValue layerOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "type"] [encodedText "Type"]
+                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" emptyValue typeOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "tags"] [encodedText "Tags (comma-separated)"]
+                        input [_type "text"; _id "tags"; _name "tags"; _value tagValue; _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "owner"] [encodedText "Owner"]
+                        input [_type "text"; _id "owner"; _name "owner"; _value emptyValue; _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "status"] [encodedText "Status"]
+                        select [_id "status"; _name "status"; _class "edit-input"] (selectOptions emptyValue statusOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "criticality"] [encodedText "Criticality"]
+                        select [_id "criticality"; _name "criticality"; _class "edit-input"] (selectOptions emptyValue criticalityOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "version"] [encodedText "Version"]
+                        input [_type "text"; _id "version"; _name "version"; _value emptyValue; _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "lifecycle-phase"] [encodedText "Lifecycle phase"]
+                        select [_id "lifecycle-phase"; _name "lifecycle-phase"; _class "edit-input"] (selectOptions emptyValue lifecycleOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "last-updated"] [encodedText "Last updated"]
+                        input [_type "text"; _id "last-updated"; _name "last-updated"; _value emptyValue; _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [] [encodedText "Outgoing relations"]
+                        div [_id "relations-container"] [
+                            relationRowPartial emptyValue 0 "" "" ""
+                        ]
+                        datalist [_id "element-id-list"] [
+                            for (_, elemValue) in registry.elements |> Map.toList |> List.sortBy (fun (_, e) -> e.name) do
+                                rawText $"<option value=\"{WebUtility.HtmlEncode elemValue.id}\">{WebUtility.HtmlEncode elemValue.name}</option>"
+                        ]
+                        button [
+                            _type "button"
+                            _class "secondary-button"
+                            _hxGet $"{baseUrl}elements/relations/row"
+                            _hxTarget "#relations-container"
+                            _hxSwap "beforeend"
+                            attr "hx-vals" "js:{index: document.querySelectorAll('.relation-row').length, sourceId: ''}"
+                        ] [
+                            encodedText "Add relation"
+                        ]
+                    ]
+                ]
+                div [_class "form-row"] [
+                    label [_for "content"] [encodedText "Content (Markdown)"]
+                    textarea [_id "content"; _name "content"; _rows "18"; _class "edit-textarea"] [
+                        encodedText emptyValue
+                    ]
+                ]
+                div [_class "form-actions"] [
+                    button [_type "submit"; _class "primary-button"] [encodedText "Download new file"]
+                    button [
+                        _type "button"
+                        _class "secondary-button"
+                        attr "hx-on:click" "this.closest('.new-element-panel').innerHTML='';"
                     ] [
                         encodedText "Cancel"
                     ]

@@ -373,6 +373,15 @@ nav a.active {
     background: #fef2f2;
 }
 
+.new-element-panel {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+}
+
 .relation-description {
     color: #666;
     font-size: 0.9rem;

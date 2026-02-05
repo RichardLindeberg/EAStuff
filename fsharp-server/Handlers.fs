@@ -57,6 +57,121 @@ module Handlers =
         elif isNumber trimmed then trimmed
         else trimmed.Replace("\"", "\\\"") |> sprintf "\"%s\""
 
+    let private layerCodes =
+        Map.ofList [
+            ("strategy", "str")
+            ("business", "bus")
+            ("application", "app")
+            ("technology", "tec")
+            ("physical", "phy")
+            ("motivation", "mot")
+            ("implementation", "imp")
+        ]
+
+    let private typeCodes =
+        Map.ofList [
+            ("resource", "rsrc")
+            ("capability", "capa")
+            ("value-stream", "vstr")
+            ("course-of-action", "cact")
+            ("business-actor", "actr")
+            ("business-role", "role")
+            ("business-collaboration", "colab")
+            ("business-interface", "intf")
+            ("business-process", "proc")
+            ("business-function", "func")
+            ("business-interaction", "intr")
+            ("business-event", "evnt")
+            ("business-service", "srvc")
+            ("business-object", "objt")
+            ("contract", "cntr")
+            ("representation", "repr")
+            ("product", "prod")
+            ("application-component", "comp")
+            ("application-collaboration", "colab")
+            ("application-interface", "intf")
+            ("application-function", "func")
+            ("application-interaction", "intr")
+            ("application-process", "proc")
+            ("application-event", "evnt")
+            ("application-service", "srvc")
+            ("data-object", "data")
+            ("node", "node")
+            ("device", "devc")
+            ("system-software", "sysw")
+            ("technology-collaboration", "colab")
+            ("technology-interface", "intf")
+            ("path", "path")
+            ("communication-network", "netw")
+            ("technology-function", "func")
+            ("technology-process", "proc")
+            ("technology-interaction", "intr")
+            ("technology-event", "evnt")
+            ("technology-service", "srvc")
+            ("artifact", "artf")
+            ("equipment", "equi")
+            ("facility", "faci")
+            ("distribution-network", "dist")
+            ("material", "matr")
+            ("stakeholder", "stkh")
+            ("driver", "drvr")
+            ("assessment", "asmt")
+            ("goal", "goal")
+            ("outcome", "outc")
+            ("principle", "prin")
+            ("requirement", "reqt")
+            ("constraint", "cnst")
+            ("meaning", "mean")
+            ("value", "valu")
+            ("work-package", "work")
+            ("deliverable", "delv")
+            ("implementation-event", "evnt")
+            ("plateau", "plat")
+            ("gap", "gap_")
+        ]
+
+    let private sanitizeName (value: string) : string =
+        let lower = value.Trim().ToLowerInvariant()
+        let spaced = System.Text.RegularExpressions.Regex.Replace(lower, "[\s_]+", "-")
+        let cleaned = System.Text.RegularExpressions.Regex.Replace(spaced, "[^a-z0-9-]", "")
+        let trimmed = cleaned.Trim('-')
+        let collapsed = System.Text.RegularExpressions.Regex.Replace(trimmed, "-+", "-")
+        if collapsed.Length > 30 then
+            let parts = collapsed.Split('-') |> Array.toList
+            let prefix = parts |> List.truncate 4 |> String.concat "-"
+            prefix.Substring(0, min 30 prefix.Length).TrimEnd('-')
+        else
+            collapsed
+
+    let private nextSequence (registry: ElementRegistry) (layerCode: string) (typeCode: string) (namePart: string) : int =
+        let pattern =
+            let escapedName = System.Text.RegularExpressions.Regex.Escape(namePart)
+            System.Text.RegularExpressions.Regex($"^{layerCode}-{typeCode}-(\\d{{3}})-{escapedName}$")
+
+        registry.elements
+        |> Map.toSeq
+        |> Seq.choose (fun (elemId, _) ->
+            let matchResult = pattern.Match(elemId)
+            if matchResult.Success then
+                Some (Int32.Parse(matchResult.Groups.[1].Value))
+            else
+                None
+        )
+        |> Seq.fold (fun acc value -> max acc value) 0
+        |> fun maxValue -> maxValue + 1
+
+    let private generateElementId (registry: ElementRegistry) (layer: string) (typeValue: string) (name: string) : string =
+        let layerKey = layer.Trim().ToLowerInvariant()
+        let typeKey = typeValue.Trim().ToLowerInvariant()
+        let layerCode = layerCodes |> Map.tryFind layerKey |> Option.defaultValue "unk"
+        let typeCode = typeCodes |> Map.tryFind typeKey |> Option.defaultValue "type"
+        let namePart =
+            let sanitized = sanitizeName name
+            if sanitized = "" then "new-element" else sanitized
+        let sequenceNumber = nextSequence registry layerCode typeCode namePart
+        let sequenceText = sequenceNumber.ToString("000")
+        $"{layerCode}-{typeCode}-{sequenceText}-{namePart}"
+
     let private relationCodeToName (code: char) : string option =
         match code with
         | 'c' -> Some "composition"
@@ -171,6 +286,17 @@ module Handlers =
                 logger.LogWarning($"Element not found: {elemId}")
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
+    /// New element form handler
+    let elementNewHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            let layerValue =
+                match ctx.GetQueryStringValue "layer" with
+                | Ok value -> value
+                | Error _ -> ""
+            logger.LogInformation($"GET /elements/new - layer={layerValue}")
+            let html = Views.elementNewFormPartial layerValue registry
+            htmlView html next ctx
+
     /// Relation type options handler (HTMX)
     let relationTypeOptionsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
@@ -202,6 +328,7 @@ module Handlers =
                 | _ -> 0
 
             let sourceId = getValue "sourceId"
+            let sourceTypeOverride = getValue "sourceType"
             let targetFromField = getValue $"rel-target-{index}"
             let targetId =
                 if not (String.IsNullOrWhiteSpace targetFromField) then
@@ -230,9 +357,22 @@ module Handlers =
                         |> Set.toList
                         |> List.choose relationCodeToName
                     | None -> []
-                | None, _ ->
-                    logger.LogWarning($"Relation lookup failed: sourceId '{sourceId}' not found")
-                    []
+                | None, Some targetElem ->
+                    if String.IsNullOrWhiteSpace sourceTypeOverride then
+                        logger.LogWarning($"Relation lookup failed: sourceId '{sourceId}' not found")
+                        []
+                    else
+                        let rules = registry.relationshipRules
+                        let sourceConcept = normalizeConceptName sourceTypeOverride
+                        let targetConcept = tryGetConceptName targetElem
+                        logger.LogInformation($"Relation lookup (override): sourceConcept={sourceConcept}, targetConcept={targetConcept}")
+                        match Map.tryFind (sourceConcept, targetConcept) rules with
+                        | Some codes ->
+                            logger.LogInformation($"Relation rules hit (override): {Set.count codes} allowed codes")
+                            codes
+                            |> Set.toList
+                            |> List.choose relationCodeToName
+                        | None -> []
                 | _, None ->
                     logger.LogWarning($"Relation lookup failed: targetId '{targetId}' not found")
                     []
@@ -302,11 +442,17 @@ module Handlers =
                     let defaultType = ElementRegistry.getString "type" elem.properties |> Option.defaultValue ""
                     let defaultLayer = ElementRegistry.getString "layer" elem.properties |> Option.defaultValue ""
 
-                    let id = getOrDefault (getTrimmed "id") elem.id
                     let name = getOrDefault (getTrimmed "name") elem.name
                     let elementType = getOrDefault (getTrimmed "type") defaultType
                     let layer = getOrDefault (getTrimmed "layer") defaultLayer
                     let content = getRaw "content"
+
+                    let rawId = getTrimmed "id"
+                    let id =
+                        if String.IsNullOrWhiteSpace rawId then
+                            generateElementId registry layer elementType name
+                        else
+                            rawId
 
                     let tags =
                         getTrimmed "tags"
@@ -392,6 +538,117 @@ module Handlers =
                          >=> text markdown)
                             next
                             ctx
+            }
+
+    /// New element download handler
+    let elementNewDownloadHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            task {
+                logger.LogInformation("POST /elements/new/download - New element download requested")
+                let! form = ctx.Request.ReadFormAsync()
+
+                let getRaw (key: string) : string =
+                    if form.ContainsKey key then form.[key].ToString() else ""
+
+                let getTrimmed (key: string) : string =
+                    getRaw key |> fun value -> value.Trim()
+
+                let name = getTrimmed "name"
+                let elementType = getTrimmed "type"
+                let layer = getTrimmed "layer"
+                let content = getRaw "content"
+
+                let rawId = getTrimmed "id"
+                let id =
+                    if String.IsNullOrWhiteSpace rawId then
+                        generateElementId registry layer elementType name
+                    else
+                        rawId
+
+                let tags =
+                    getTrimmed "tags"
+                    |> fun value -> value.Split([| ',' |], StringSplitOptions.RemoveEmptyEntries)
+                    |> Array.map (fun t -> t.Trim())
+                    |> Array.filter (fun t -> t <> "")
+                    |> Array.toList
+
+                let properties =
+                    [
+                        ("owner", getTrimmed "owner")
+                        ("status", getTrimmed "status")
+                        ("criticality", getTrimmed "criticality")
+                        ("version", getTrimmed "version")
+                        ("lifecycle-phase", getTrimmed "lifecycle-phase")
+                        ("last-updated", getTrimmed "last-updated")
+                    ]
+                    |> List.choose (fun (key, value) ->
+                        if String.IsNullOrWhiteSpace value then None else Some (key, value)
+                    )
+
+                let relationTargets =
+                    form.Keys
+                    |> Seq.choose (fun key ->
+                        if key.StartsWith("rel-target-") then
+                            let indexPart = key.Substring("rel-target-".Length)
+                            match Int32.TryParse(indexPart) with
+                            | true, index -> Some (index, form.[key].ToString())
+                            | _ -> None
+                        else
+                            None
+                    )
+                    |> Seq.sortBy fst
+                    |> Seq.toList
+
+                let relationships =
+                    relationTargets
+                    |> List.choose (fun (index, target) ->
+                        let targetValue = target.Trim()
+                        let relType = getTrimmed $"rel-type-{index}"
+                        let desc = getTrimmed $"rel-desc-{index}"
+                        if String.IsNullOrWhiteSpace targetValue || String.IsNullOrWhiteSpace relType then
+                            None
+                        else
+                            Some (relType, targetValue, desc)
+                    )
+
+                let lines = ResizeArray<string>()
+                lines.Add("---")
+                lines.Add($"id: {id}")
+                lines.Add($"name: {yamlScalar name}")
+                lines.Add($"type: {elementType}")
+                lines.Add($"layer: {layer}")
+
+                if not (List.isEmpty relationships) then
+                    lines.Add("relationships:")
+                    for (relType, target, desc) in relationships do
+                        lines.Add($"  - type: {relType}")
+                        lines.Add($"    target: {target}")
+                        if not (String.IsNullOrWhiteSpace desc) then
+                            lines.Add($"    description: {yamlScalar desc}")
+
+                if not (List.isEmpty properties) then
+                    lines.Add("properties:")
+                    for (key, value) in properties do
+                        lines.Add($"  {key}: {yamlScalar value}")
+
+                if not (List.isEmpty tags) then
+                    lines.Add("tags:")
+                    for tag in tags do
+                        lines.Add($"  - {yamlScalar tag}")
+
+                lines.Add("---")
+                lines.Add("")
+                lines.Add(content.TrimEnd())
+
+                let markdown = String.Join("\n", lines)
+                let fileName = $"{id}.md"
+
+                return!
+                    (setHttpHeader "Content-Disposition" $"attachment; filename={fileName}"
+                     >=> setHttpHeader "Content-Type" "text/markdown; charset=utf-8"
+                     >=> text markdown)
+                        next
+                        ctx
             }
     
     /// Tags index handler
@@ -569,6 +826,8 @@ module Handlers =
             route "/" >=> indexHandler registry logger
             route "/index.html" >=> indexHandler registry logger
             route "/elements/types" >=> elementTypeOptionsHandler logger
+            route "/elements/new" >=> elementNewHandler registry logger
+            route "/elements/new/download" >=> elementNewDownloadHandler registry logger
             route "/elements/relations/types" >=> relationTypeOptionsHandler registry logger
             route "/elements/relations/row" >=> relationRowHandler logger
             routef "/elements/%s/edit" (fun elemId -> elementEditHandler elemId registry logger)
