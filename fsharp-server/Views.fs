@@ -24,6 +24,16 @@ module Views =
     /// Helper to pluralize words
     let pluralize (count: int) (singular: string) (plural: string) : string =
         if count <> 1 then plural else singular
+
+    let private optionNode (value: string) (selected: bool) : XmlNode =
+        let encodedValue = WebUtility.HtmlEncode value
+        let selectedAttr = if selected then " selected" else ""
+        rawText $"<option value=\"{encodedValue}\"{selectedAttr}>{encodedValue}</option>"
+
+    let private placeholderOptionNode (label: string) (selected: bool) : XmlNode =
+        let encodedLabel = WebUtility.HtmlEncode label
+        let selectedAttr = if selected then " selected" else ""
+        rawText $"<option value=\"\"{selectedAttr}>{encodedLabel}</option>"
     
     /// Convert ElementType to string for display
     let elementTypeToString (elementType: ElementType) : string =
@@ -198,7 +208,14 @@ module Views =
         ]
 
     /// Layer page
-    let layerPage (layerKey: string) (layer: LayerInfo) (elements: Element list) (registry: ElementRegistry) (filterValue: string option) =
+    let layerPage
+        (layerKey: string)
+        (layer: LayerInfo)
+        (elements: Element list)
+        (registry: ElementRegistry)
+        (filterValue: string option)
+        (subtypeOptions: string list)
+        (subtypeValue: string option) =
         let filterAttrs =
             [
                 _type "text"
@@ -210,7 +227,7 @@ module Views =
                 _hxGet  $"{baseUrl}{layerKey}"
                 _hxTarget "#layer-elements"
                 _hxTrigger "keyup changed delay:300ms"
-                _hxInclude "this"
+                attr "hx-include" "#layer-filter, #subtype-filter"
                 _hxPushUrl "true"
             ]
             |> List.append (
@@ -218,6 +235,26 @@ module Views =
                 | Some value -> [ _value value ]
                 | None -> []
             )
+
+        let subtypeSelect =
+            let placeholder = placeholderOptionNode "All types" (subtypeValue.IsNone)
+            let optionNodes =
+                subtypeOptions
+                |> List.map (fun value ->
+                    optionNode value (subtypeValue = Some value)
+                )
+
+            select [
+                _id "subtype-filter"
+                _name "subtype"
+                _class "filter-input"
+                _hxGet $"{baseUrl}{layerKey}"
+                _hxTarget "#layer-elements"
+                _hxTrigger "change"
+                attr "hx-include" "#layer-filter, #subtype-filter"
+                _hxPushUrl "true"
+                attr "aria-label" "Filter elements by subtype"
+            ] (placeholder :: optionNodes)
 
         let content = [
             div [_class "container"] [
@@ -234,6 +271,10 @@ module Views =
                                 encodedText "Filter:"
                             ]
                             input filterAttrs
+                            label [_class "filter-label"; _for "subtype-filter"] [
+                                encodedText "Subtype:"
+                            ]
+                            subtypeSelect
                         ]
                         button [
                             _type "button"
@@ -293,15 +334,6 @@ module Views =
             if trimmed = "" then None else Some trimmed
         | None -> None
 
-    let private optionNode (value: string) (selected: bool) : XmlNode =
-        let encodedValue = WebUtility.HtmlEncode value
-        let selectedAttr = if selected then " selected" else ""
-        rawText $"<option value=\"{encodedValue}\"{selectedAttr}>{encodedValue}</option>"
-
-    let private placeholderOptionNode (label: string) (selected: bool) : XmlNode =
-        let encodedLabel = WebUtility.HtmlEncode label
-        let selectedAttr = if selected then " selected" else ""
-        rawText $"<option value=\"\"{selectedAttr}>{encodedLabel}</option>"
     
     /// Element detail page
     let elementPage (elemWithRels: ElementWithRelations) =

@@ -224,14 +224,35 @@ module Handlers =
                     | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
                     | _ -> None
 
+                let subtypeValue =
+                    match ctx.GetQueryStringValue "subtype" with
+                    | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
+                    | _ -> None
+
+                let subtypeOptions =
+                    elements
+                    |> List.choose (fun elem -> ElementRegistry.getString "type" elem.properties)
+                    |> List.distinct
+                    |> List.sort
+
                 let filteredElements =
-                    match filterValue with
-                    | Some term ->
-                        elements
-                        |> List.filter (fun elem ->
-                            elem.name.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
-                        )
-                    | None -> elements
+                    elements
+                    |> List.filter (fun elem ->
+                        let nameMatches =
+                            match filterValue with
+                            | Some term -> elem.name.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                            | None -> true
+
+                        let subtypeMatches =
+                            match subtypeValue with
+                            | Some subtype ->
+                                match ElementRegistry.getString "type" elem.properties with
+                                | Some value -> value.Equals(subtype, StringComparison.OrdinalIgnoreCase)
+                                | None -> false
+                            | None -> true
+
+                        nameMatches && subtypeMatches
+                    )
 
                 logger.LogInformation($"Found {List.length elements} elements in layer {layer}")
                 elements |> List.iter (fun elem ->
@@ -242,7 +263,7 @@ module Handlers =
                     let partial = Views.layerElementsPartial filteredElements registry
                     htmlView partial next ctx
                 else
-                    let html = Views.layerPage (layer.ToLowerInvariant()) layerInfo filteredElements registry filterValue
+                    let html = Views.layerPage (layer.ToLowerInvariant()) layerInfo filteredElements registry filterValue subtypeOptions subtypeValue
                     htmlView html next ctx
             | None -> 
                 logger.LogWarning($"Layer not found: {layer} (normalized: {normalizedLayer})")
