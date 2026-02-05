@@ -25,6 +25,11 @@ module Handlers =
         | ErrorType.InvalidType -> "invalid-type"
         | ErrorType.InvalidLayer -> "invalid-layer"
         | ErrorType.MissingRequiredField -> "missing-required-field"
+        | ErrorType.InvalidRelationshipType _ -> "invalid-relationship-type"
+        | ErrorType.RelationshipTargetNotFound _ -> "relationship-target-not-found"
+        | ErrorType.InvalidRelationshipCombination _ -> "invalid-relationship-combination"
+        | ErrorType.SelfReference _ -> "self-reference"
+        | ErrorType.DuplicateRelationship _ -> "duplicate-relationship"
         | ErrorType.Unknown value -> value
     
     /// Build tag index from registry
@@ -62,7 +67,7 @@ module Handlers =
                 elements |> List.iter (fun elem ->
                     logger.LogDebug($"  - {elem.id}: {elem.name}")
                 )
-                let html = Views.layerPage layerInfo elements registry
+                let html = Views.layerPage (layer.ToLowerInvariant()) layerInfo elements registry
                 htmlView html next ctx
             | None -> 
                 logger.LogWarning($"Layer not found: {layer} (normalized: {normalizedLayer})")
@@ -153,9 +158,9 @@ module Handlers =
                     dict [
                         ("filePath", box err.filePath)
                         ("elementId", box (err.elementId |> Option.defaultValue ""))
-                        ("errorType", box err.errorType)
+                        ("errorType", box (errorTypeToString err.errorType))
                         ("message", box err.message)
-                        ("severity", box err.severity)
+                        ("severity", box (severityToString err.severity))
                     ]
                 )
             
@@ -175,9 +180,9 @@ module Handlers =
                     dict [
                         ("filePath", box err.filePath)
                         ("elementId", box (err.elementId |> Option.defaultValue ""))
-                        ("errorType", box err.errorType)
+                        ("errorType", box (errorTypeToString err.errorType))
                         ("message", box err.message)
-                        ("severity", box err.severity)
+                        ("severity", box (severityToString err.severity))
                     ]
                 )
             
@@ -198,7 +203,7 @@ module Handlers =
                 ("errorsByType", box (
                     errors
                     |> List.groupBy (fun e -> e.errorType)
-                    |> List.map (fun (eType, errs) -> dict [("type", box eType); ("count", box errs.Length)])
+                    |> List.map (fun (eType, errs) -> dict [("type", box (errorTypeToString eType)); ("count", box errs.Length)])
                 ))
             ]
             
@@ -230,9 +235,9 @@ module Handlers =
                     errors
                     |> List.map (fun err ->
                         dict [
-                            ("errorType", box err.errorType)
+                            ("errorType", box (errorTypeToString err.errorType))
                             ("message", box err.message)
-                            ("severity", box err.severity)
+                            ("severity", box (severityToString err.severity))
                         ]
                     )
                 ))

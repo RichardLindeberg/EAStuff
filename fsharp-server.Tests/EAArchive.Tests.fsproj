@@ -27,6 +27,7 @@
     <Compile Include="ElementIdFormatTests.fs" />
     <Compile Include="ElementLoadTests.fs" />
     <Compile Include="RegistryTests.fs" />
+    <Compile Include="RelationshipValidationTests.fs" />
   </ItemGroup>
 
 </Project>

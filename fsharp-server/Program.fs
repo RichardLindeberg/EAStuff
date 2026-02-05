@@ -43,6 +43,9 @@ let main args =
         )
         .ConfigureWebHostDefaults(fun webHostBuilder ->
             webHostBuilder
+                .ConfigureServices(fun services ->
+                    services.AddGiraffe() |> ignore
+                )
                 .Configure(fun app ->
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
                     app.UseStaticFiles() |> ignore

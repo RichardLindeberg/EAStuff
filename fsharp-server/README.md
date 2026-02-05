@@ -9,6 +9,7 @@ A modern F# webserver that dynamically renders your ArchiMate Enterprise Archite
 - **Dynamic Content Loading**: Renders architecture elements from markdown files
 - **Full Layer Support**: Strategy, Motivation, Business, Application, Technology, Physical, and Implementation layers
 - **Relationship Mapping**: Visualizes incoming and outgoing relationships between elements
+- **Relationship Validation**: Validates relationships against ArchiMate rules from `schemas/relations.xml`
 - **Tag System**: Browse and filter elements by tags
 - **Responsive Design**: Modern, mobile-friendly interface
 
@@ -71,6 +72,10 @@ relationships:
 ---
 Element content in markdown...
 ```
+
+### Relationship Validation
+
+Relationship rules are loaded from `schemas/relations.xml` at startup. The registry validates each relationship and records warnings for missing targets, self-references, duplicates, unknown relationship types, and invalid combinations based on ArchiMate rules.
 
 ### Routes
 

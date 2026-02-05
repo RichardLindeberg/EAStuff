@@ -149,7 +149,7 @@ module Views =
         htmlPage "Home" "index" content
     
     /// Layer page
-    let layerPage (layer: LayerInfo) (elements: Element list) (registry: ElementRegistry) =
+    let layerPage (layerKey: string) (layer: LayerInfo) (elements: Element list) (registry: ElementRegistry) =
         let elementCards =
             elements
             |> List.map (fun elem ->
@@ -196,7 +196,7 @@ module Views =
                     encodedText layerElemCountStr
                 ]
                 div [_class "diagram-section"] [
-                       a [_class "diagram-link"; _href $"{baseUrl}diagrams/layers/{layer.displayName}"; _target "_blank"; _rel "noopener"] [
+                      a [_class "diagram-link"; _href $"{baseUrl}diagrams/layer/{layerKey}"; _target "_blank"; _rel "noopener"] [
                             encodedText "Open diagram ↗"
                         ]                ]
                 div [_class "element-grid"] elementCards
@@ -454,6 +454,11 @@ module Views =
                             | ErrorType.InvalidType -> "Invalid Type"
                             | ErrorType.InvalidLayer -> "Invalid Layer"
                             | ErrorType.MissingRequiredField -> "Missing Required Field"
+                            | ErrorType.InvalidRelationshipType _ -> "Invalid Relationship Type"
+                            | ErrorType.RelationshipTargetNotFound _ -> "Relationship Target Not Found"
+                            | ErrorType.InvalidRelationshipCombination _ -> "Invalid Relationship Combination"
+                            | ErrorType.SelfReference _ -> "Self Reference"
+                            | ErrorType.DuplicateRelationship _ -> "Duplicate Relationship"
                             | ErrorType.Unknown s -> s
                         div [_class $"error-detail {severityClass}"] [
                             div [_class "error-header"] [

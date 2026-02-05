@@ -84,6 +84,10 @@ Or validate a specific file:
 python scripts/validator/validate.py elements/application/customer-portal.md
 ```
 
+### Relationship Validation (F# Server)
+
+The F# server also validates relationships using ArchiMate rules from [schemas/relations.xml](schemas/relations.xml). Relationship issues are reported as warnings (missing targets, self-references, duplicates, invalid type combinations, or unknown relationship types) on the validation page and related API endpoints.
+
 ### Generating PlantUML Diagrams
 
 Create visual diagrams from your elements:

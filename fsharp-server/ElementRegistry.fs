@@ -231,15 +231,15 @@ module ElementRegistry =
                             severity = Severity.Error
                         })
                     
-                    // Validate type code (must be exactly 4 chars and valid for this layer)
+                    // Validate type code (must be exactly 4 chars, except for collaboration which uses 5)
                     if parts.Length >= 2 then
                         let typeCode = parts.[1]
-                        if typeCode.Length <> 4 then
+                        if typeCode.Length <> 4 && typeCode <> "colab" then
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
                                 errorType = ErrorType.Unknown "invalid-id-format"
-                                message = sprintf "Type code '%s' must be exactly 4 characters" typeCode
+                                message = sprintf "Type code '%s' must be exactly 4 characters (or 'colab' for collaboration)" typeCode
                                 severity = Severity.Error
                             })
                         elif Map.containsKey layerCode typeCodes then
@@ -369,11 +369,128 @@ module ElementRegistry =
     let loadElement (filePath: string) (logger: ILogger) : Element option =
         loadElementWithValidation filePath logger |> fst
     
+    /// Validate relationships for a single element against ArchiMate rules
+    let validateRelationships (rules: RelationshipRules) (registry: ElementRegistry) (elem: Element) : ValidationError list =
+        let errors = ResizeArray<ValidationError>()
+        let filePath = $"{registry.elementsPath}/{ElementType.getLayer elem.elementType}/{elem.id}.md"
+        
+        for rel in elem.relationships do
+            // Check 1: Target element must exist
+            if not (Map.containsKey rel.target registry.elements) then
+                errors.Add {
+                    filePath = filePath
+                    elementId = Some elem.id
+                    errorType = ErrorType.RelationshipTargetNotFound (elem.id, rel.target)
+                    message = $"Relationship target '{rel.target}' not found"
+                    severity = Severity.Warning
+                }
+            
+            // Check 2: No self-references
+            if rel.target = elem.id then
+                errors.Add {
+                    filePath = filePath
+                    elementId = Some elem.id
+                    errorType = ErrorType.SelfReference elem.id
+                    message = "Element cannot have relationship to itself"
+                    severity = Severity.Warning
+                }
+            
+            // Check 3 & 4: ArchiMate rules validation (only if target exists)
+            match Map.tryFind rel.target registry.elements with
+            | Some targetElem ->
+                let sourceConcept = ElementType.elementTypeToConceptName elem.elementType
+                let targetConcept = ElementType.elementTypeToConceptName targetElem.elementType
+                
+                match ElementType.relationTypeToCode rel.relationType with
+                | Some relCode ->
+                    match Map.tryFind (sourceConcept, targetConcept) rules with
+                    | Some allowedCodes when not (Set.contains relCode allowedCodes) ->
+                        let allowedTypes = 
+                            allowedCodes 
+                            |> Set.toList 
+                            |> List.choose (fun c ->
+                                match c with
+                                | 'c' -> Some "composition"
+                                | 'g' -> Some "aggregation"
+                                | 'i' -> Some "assignment"
+                                | 'r' -> Some "realization"
+                                | 's' -> Some "specialization"
+                                | 'o' -> Some "association"
+                                | 'a' -> Some "access"
+                                | 'n' -> Some "influence"
+                                | 'v' -> Some "serving"
+                                | 't' -> Some "triggering"
+                                | 'f' -> Some "flow"
+                                | _ -> None
+                            )
+                            |> String.concat ", "
+                        
+                        let relTypeStr = 
+                            match rel.relationType with
+                            | RelationType.Composition -> "composition"
+                            | RelationType.Aggregation -> "aggregation"
+                            | RelationType.Assignment -> "assignment"
+                            | RelationType.Realization -> "realization"
+                            | RelationType.Specialization -> "specialization"
+                            | RelationType.Association -> "association"
+                            | RelationType.Access -> "access"
+                            | RelationType.Influence -> "influence"
+                            | RelationType.Serving -> "serving"
+                            | RelationType.Triggering -> "triggering"
+                            | RelationType.Flow -> "flow"
+                            | RelationType.Unknown s -> s
+                        
+                        errors.Add {
+                            filePath = filePath
+                            elementId = Some elem.id
+                            errorType = ErrorType.InvalidRelationshipCombination (sourceConcept, targetConcept, relTypeStr)
+                            message = $"Relationship '{relTypeStr}' not allowed from {sourceConcept} to {targetConcept}. Valid types: {allowedTypes}"
+                            severity = Severity.Warning
+                        }
+                    | None ->
+                        // No rules found for this combination - log but don't error
+                        ()
+                    | _ -> ()  // Relationship is valid
+                | None ->
+                    // Unknown relationship type
+                    let relTypeStr = match rel.relationType with | RelationType.Unknown s -> s | _ -> "unknown"
+                    errors.Add {
+                        filePath = filePath
+                        elementId = Some elem.id
+                        errorType = ErrorType.InvalidRelationshipType relTypeStr
+                        message = $"Unrecognized relationship type '{relTypeStr}'"
+                        severity = Severity.Warning
+                    }
+            | None -> ()  // Target not found error already added above
+        
+        // Check 5: Duplicate relationships
+        let duplicates =
+            elem.relationships
+            |> List.groupBy (fun r -> (r.target, r.relationType))
+            |> List.filter (fun (_, rels) -> rels.Length > 1)
+            |> List.map fst
+        
+        for (target, _) in duplicates do
+            errors.Add {
+                filePath = filePath
+                elementId = Some elem.id
+                errorType = ErrorType.DuplicateRelationship (elem.id, target)
+                message = $"Duplicate relationship to '{target}'"
+                severity = Severity.Warning
+            }
+        
+        List.ofSeq errors
+    
     /// Build the element registry from all markdown files
     let create (elementsPath: string) : ElementRegistry =
         let logger = LoggerFactory.Create(fun builder -> builder.AddConsole() |> ignore).CreateLogger("ElementRegistry")
         
         logger.LogInformation($"Creating element registry from: {elementsPath}")
+        
+        // Load relationship rules from relations.xml
+        let relationsXmlPath = Path.Combine(elementsPath, "..", "schemas", "relations.xml")
+        let relationshipRules = ElementType.parseRelationshipRules relationsXmlPath
+        logger.LogInformation($"Loaded {Map.count relationshipRules} relationship rules from {relationsXmlPath}")
         
         let mutable elements = Map.empty
         let mutable elementsByLayer = Map.empty
@@ -422,6 +539,25 @@ module ElementRegistry =
             logger.LogInformation($"Successfully loaded {Map.count elements} elements into registry")
             if allValidationErrors.Length > 0 then
                 logger.LogWarning($"Found {allValidationErrors.Length} validation errors/warnings during load")
+            
+            // Second pass: Validate relationships
+            logger.LogInformation("Starting relationship validation pass")
+            let tempRegistry = {
+                elements = elements
+                elementsByLayer = elementsByLayer
+                incomingRelations = incomingRelations
+                validationErrors = ref []
+                elementsPath = elementsPath
+            }
+            
+            let relationshipErrors =
+                elements
+                |> Map.values
+                |> Seq.collect (fun elem -> validateRelationships relationshipRules tempRegistry elem)
+                |> List.ofSeq
+            
+            allValidationErrors <- allValidationErrors @ relationshipErrors
+            logger.LogInformation($"Relationship validation found {relationshipErrors.Length} warnings")
         else
             logger.LogError($"Elements directory does not exist: {elementsPath}")
         

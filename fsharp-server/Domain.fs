@@ -1,6 +1,7 @@
 namespace EAArchive
 
 open System
+open System.Xml.Linq
 
 /// Strategy layer element types
 [<RequireQualifiedAccess>]
@@ -118,6 +119,11 @@ type ErrorType =
     | InvalidType
     | InvalidLayer
     | MissingRequiredField
+    | InvalidRelationshipType of string
+    | RelationshipTargetNotFound of string * string
+    | InvalidRelationshipCombination of string * string * string
+    | SelfReference of string
+    | DuplicateRelationship of string * string
     | Unknown of string
 
 /// Validation error for element files
@@ -135,6 +141,9 @@ type Relationship = {
     relationType: RelationType
     description: string
 }
+
+/// Map of (sourceType, targetType) -> Set of allowed relationship code chars
+type RelationshipRules = Map<string * string, Set<char>>
 
 /// ArchiMate element core data
 type Element = {
@@ -234,6 +243,11 @@ module ElementType =
         | ErrorType.InvalidType -> "invalid-type"
         | ErrorType.InvalidLayer -> "invalid-layer"
         | ErrorType.MissingRequiredField -> "missing-required-field"
+        | ErrorType.InvalidRelationshipType _ -> "invalid-relationship-type"
+        | ErrorType.RelationshipTargetNotFound _ -> "relationship-target-not-found"
+        | ErrorType.InvalidRelationshipCombination _ -> "invalid-relationship-combination"
+        | ErrorType.SelfReference _ -> "self-reference"
+        | ErrorType.DuplicateRelationship _ -> "duplicate-relationship"
         | ErrorType.Unknown s -> s
     
     /// Convert severity to string
@@ -244,12 +258,22 @@ module ElementType =
     
     /// Parse element type from layer and type name strings
     let parseElementType (layerStr: string) (typeStr: string) : ElementType =
-        let layer = layerStr.ToLowerInvariant()
-        let lower = typeStr.ToLowerInvariant()
-        
+        let layer = layerStr.ToLowerInvariant().Trim()
+        let typeLower = typeStr.ToLowerInvariant().Trim()
+
+        let stripLayerPrefix (value: string) : string =
+            if value.StartsWith(layer + " ") then value.Substring(layer.Length + 1)
+            elif value.StartsWith(layer + "-") then value.Substring(layer.Length + 1)
+            else value
+
+        let normalized =
+            typeLower
+            |> stripLayerPrefix
+            |> fun v -> v.Replace(" ", "").Replace("-", "")
+
         match layer with
         | "strategy" ->
-            (match lower with
+            match normalized with
             | "stakeholder" -> ElementType.Strategy StrategyElement.Stakeholder
             | "driver" -> ElementType.Strategy StrategyElement.Driver
             | "assessment" -> ElementType.Strategy StrategyElement.Assessment
@@ -258,10 +282,10 @@ module ElementType =
             | "principle" -> ElementType.Strategy StrategyElement.Principle
             | "requirement" -> ElementType.Strategy StrategyElement.Requirement
             | "constraint" -> ElementType.Strategy StrategyElement.Constraint
-            | s -> ElementType.Unknown ("Strategy", s))
-        
+            | s -> ElementType.Unknown ("Strategy", s)
+
         | "motivation" ->
-            (match lower with
+            match normalized with
             | "stakeholder" -> ElementType.Motivation MotivationElement.Stakeholder
             | "driver" -> ElementType.Motivation MotivationElement.Driver
             | "assessment" -> ElementType.Motivation MotivationElement.Assessment
@@ -272,10 +296,10 @@ module ElementType =
             | "constraint" -> ElementType.Motivation MotivationElement.Constraint
             | "meaning" -> ElementType.Motivation MotivationElement.Meaning
             | "value" -> ElementType.Motivation MotivationElement.Value
-            | s -> ElementType.Unknown ("Motivation", s))
-        
+            | s -> ElementType.Unknown ("Motivation", s)
+
         | "business" ->
-            (match lower with
+            match normalized with
             | "actor" -> ElementType.Business BusinessElement.Actor
             | "role" -> ElementType.Business BusinessElement.Role
             | "process" -> ElementType.Business BusinessElement.Process
@@ -284,43 +308,148 @@ module ElementType =
             | "object" -> ElementType.Business BusinessElement.Object
             | "event" -> ElementType.Business BusinessElement.Event
             | "product" -> ElementType.Business BusinessElement.Product
-            | s -> ElementType.Unknown ("Business", s))
-        
+            | s -> ElementType.Unknown ("Business", s)
+
         | "application" ->
-            (match lower with
+            match normalized with
             | "component" -> ElementType.Application ApplicationElement.Component
             | "function" -> ElementType.Application ApplicationElement.Function
             | "service" -> ElementType.Application ApplicationElement.Service
             | "interface" -> ElementType.Application ApplicationElement.Interface
-            | "dataobject" | "data-object" | "data object" -> ElementType.Application ApplicationElement.DataObject
-            | s -> ElementType.Unknown ("Application", s))
-        
+            | "dataobject" -> ElementType.Application ApplicationElement.DataObject
+            | s -> ElementType.Unknown ("Application", s)
+
         | "technology" ->
-            (match lower with
+            match normalized with
             | "technology" -> ElementType.Technology TechnologyElement.Technology
             | "device" -> ElementType.Technology TechnologyElement.Device
-            | "systemsoftware" | "system-software" | "system software" -> ElementType.Technology TechnologyElement.SystemSoftware
+            | "systemsoftware" -> ElementType.Technology TechnologyElement.SystemSoftware
             | "service" -> ElementType.Technology TechnologyElement.Service
             | "interface" -> ElementType.Technology TechnologyElement.Interface
             | "artifact" -> ElementType.Technology TechnologyElement.Artifact
             | "node" -> ElementType.Technology TechnologyElement.Node
-            | "communicationnetwork" | "communication-network" | "communication network" -> ElementType.Technology TechnologyElement.CommunicationNetwork
-            | s -> ElementType.Unknown ("Technology", s))
-        
+            | "communicationnetwork" -> ElementType.Technology TechnologyElement.CommunicationNetwork
+            | s -> ElementType.Unknown ("Technology", s)
+
         | "physical" ->
-            (match lower with
+            match normalized with
             | "equipment" -> ElementType.Physical PhysicalElement.Equipment
             | "facility" -> ElementType.Physical PhysicalElement.Facility
-            | "distributionnetwork" | "distribution-network" | "distribution network" -> ElementType.Physical PhysicalElement.DistributionNetwork
-            | s -> ElementType.Unknown ("Physical", s))
-        
+            | "distributionnetwork" -> ElementType.Physical PhysicalElement.DistributionNetwork
+            | s -> ElementType.Unknown ("Physical", s)
+
         | "implementation" ->
-            (match lower with
-            | "workpackage" | "work-package" | "work package" -> ElementType.Implementation ImplementationElement.WorkPackage
+            match normalized with
+            | "workpackage" -> ElementType.Implementation ImplementationElement.WorkPackage
             | "deliverable" -> ElementType.Implementation ImplementationElement.Deliverable
-            | "implementationevent" | "implementation-event" | "implementation event" -> ElementType.Implementation ImplementationElement.ImplementationEvent
+            | "implementationevent" -> ElementType.Implementation ImplementationElement.ImplementationEvent
             | "plateau" -> ElementType.Implementation ImplementationElement.Plateau
             | "gap" -> ElementType.Implementation ImplementationElement.Gap
-            | s -> ElementType.Unknown ("Implementation", s))
-        
+            | s -> ElementType.Unknown ("Implementation", s)
+
         | _ -> ElementType.Unknown (layerStr, typeStr)
+    
+    /// Convert RelationType to ArchiMate relationship code character
+    let relationTypeToCode (relType: RelationType) : char option =
+        match relType with
+        | RelationType.Composition -> Some 'c'
+        | RelationType.Aggregation -> Some 'g'
+        | RelationType.Assignment -> Some 'i'
+        | RelationType.Realization -> Some 'r'
+        | RelationType.Specialization -> Some 's'
+        | RelationType.Association -> Some 'o'
+        | RelationType.Access -> Some 'a'
+        | RelationType.Influence -> Some 'n'
+        | RelationType.Serving -> Some 'v'
+        | RelationType.Triggering -> Some 't'
+        | RelationType.Flow -> Some 'f'
+        | RelationType.Unknown _ -> None
+    
+    /// Convert ElementType to ArchiMate concept name
+    let elementTypeToConceptName (elemType: ElementType) : string =
+        match elemType with
+        // Strategy Layer
+        | ElementType.Strategy StrategyElement.Stakeholder -> "Stakeholder"
+        | ElementType.Strategy StrategyElement.Driver -> "Driver"
+        | ElementType.Strategy StrategyElement.Assessment -> "Assessment"
+        | ElementType.Strategy StrategyElement.Goal -> "Goal"
+        | ElementType.Strategy StrategyElement.Outcome -> "Outcome"
+        | ElementType.Strategy StrategyElement.Principle -> "Principle"
+        | ElementType.Strategy StrategyElement.Requirement -> "Requirement"
+        | ElementType.Strategy StrategyElement.Constraint -> "Constraint"
+        
+        // Motivation Layer
+        | ElementType.Motivation MotivationElement.Stakeholder -> "Stakeholder"
+        | ElementType.Motivation MotivationElement.Driver -> "Driver"
+        | ElementType.Motivation MotivationElement.Assessment -> "Assessment"
+        | ElementType.Motivation MotivationElement.Goal -> "Goal"
+        | ElementType.Motivation MotivationElement.Outcome -> "Outcome"
+        | ElementType.Motivation MotivationElement.Principle -> "Principle"
+        | ElementType.Motivation MotivationElement.Requirement -> "Requirement"
+        | ElementType.Motivation MotivationElement.Constraint -> "Constraint"
+        | ElementType.Motivation MotivationElement.Meaning -> "Meaning"
+        | ElementType.Motivation MotivationElement.Value -> "Value"
+        
+        // Business Layer
+        | ElementType.Business BusinessElement.Actor -> "BusinessActor"
+        | ElementType.Business BusinessElement.Role -> "BusinessRole"
+        | ElementType.Business BusinessElement.Process -> "BusinessProcess"
+        | ElementType.Business BusinessElement.Function -> "BusinessFunction"
+        | ElementType.Business BusinessElement.Service -> "BusinessService"
+        | ElementType.Business BusinessElement.Object -> "BusinessObject"
+        | ElementType.Business BusinessElement.Event -> "BusinessEvent"
+        | ElementType.Business BusinessElement.Product -> "Product"
+        
+        // Application Layer
+        | ElementType.Application ApplicationElement.Component -> "ApplicationComponent"
+        | ElementType.Application ApplicationElement.Function -> "ApplicationFunction"
+        | ElementType.Application ApplicationElement.Service -> "ApplicationService"
+        | ElementType.Application ApplicationElement.Interface -> "ApplicationInterface"
+        | ElementType.Application ApplicationElement.DataObject -> "DataObject"
+        
+        // Technology Layer
+        | ElementType.Technology TechnologyElement.Technology -> "Technology"
+        | ElementType.Technology TechnologyElement.Device -> "Device"
+        | ElementType.Technology TechnologyElement.SystemSoftware -> "SystemSoftware"
+        | ElementType.Technology TechnologyElement.Service -> "TechnologyService"
+        | ElementType.Technology TechnologyElement.Interface -> "TechnologyInterface"
+        | ElementType.Technology TechnologyElement.Artifact -> "Artifact"
+        | ElementType.Technology TechnologyElement.Node -> "Node"
+        | ElementType.Technology TechnologyElement.CommunicationNetwork -> "CommunicationNetwork"
+        
+        // Physical Layer
+        | ElementType.Physical PhysicalElement.Equipment -> "Equipment"
+        | ElementType.Physical PhysicalElement.Facility -> "Facility"
+        | ElementType.Physical PhysicalElement.DistributionNetwork -> "DistributionNetwork"
+        
+        // Implementation Layer
+        | ElementType.Implementation ImplementationElement.WorkPackage -> "WorkPackage"
+        | ElementType.Implementation ImplementationElement.Deliverable -> "Deliverable"
+        | ElementType.Implementation ImplementationElement.ImplementationEvent -> "ImplementationEvent"
+        | ElementType.Implementation ImplementationElement.Plateau -> "Plateau"
+        | ElementType.Implementation ImplementationElement.Gap -> "Gap"
+        
+        // Unknown
+        | ElementType.Unknown (_, typeName) -> typeName
+    
+    /// Parse relationship rules from relations.xml file
+    let parseRelationshipRules (xmlPath: string) : RelationshipRules =
+        try
+            let doc = XDocument.Load(xmlPath)
+            let sources = doc.Descendants(XName.Get("source"))
+            
+            sources
+            |> Seq.collect (fun source ->
+                let sourceConcept = source.Attribute(XName.Get("concept")).Value
+                source.Descendants(XName.Get("target"))
+                |> Seq.map (fun target ->
+                    let targetConcept = target.Attribute(XName.Get("concept")).Value
+                    let relations = target.Attribute(XName.Get("relations")).Value
+                    let relationSet = relations |> Set.ofSeq
+                    ((sourceConcept, targetConcept), relationSet)
+                )
+            )
+            |> Map.ofSeq
+        with ex ->
+            printfn "Warning: Failed to parse relationship rules: %s" ex.Message
+            Map.empty
