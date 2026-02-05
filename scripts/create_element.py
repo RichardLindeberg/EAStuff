@@ -235,7 +235,7 @@ def find_next_sequence_number(elements_dir, id_prefix):
     
     # Search all markdown files for IDs matching the prefix
     max_num = 0
-    pattern = re.compile(rf'^id:\s*{re.escape(id_prefix)}-(\d{{3}})\s*$', re.MULTILINE)
+    pattern = re.compile(rf'^id:\s*{re.escape(id_prefix)}-(\d{{3}})-\w[\w-]*\s*$', re.MULTILINE)
     
     for md_file in elements_dir.glob('*.md'):
         try:
@@ -258,13 +258,13 @@ def generate_element_id(layer, element_type, element_name, elements_dir):
     name_part = sanitize_name_for_id(element_name)
     
     # Build the ID prefix
-    id_prefix = f"{layer_code}-{type_code}-{name_part}"
+    id_prefix = f"{layer_code}-{type_code}"
     
     # Find next available sequence number
     seq_num = find_next_sequence_number(elements_dir, id_prefix)
     
     # Generate full ID
-    element_id = f"{id_prefix}-{seq_num:03d}"
+    element_id = f"{id_prefix}-{seq_num:03d}-{name_part}"
     
     return element_id
 
@@ -443,7 +443,7 @@ def main():
     # Auto-generate ID
     auto_id = generate_element_id(layer, element_type, element_data["name"], elements_dir)
     print(f"\n💡 Auto-generated ID: {auto_id}")
-    print(f"   Format: [{LAYER_CODES[layer]}]-[{TYPE_CODES[element_type]}]-[name]-[###]")
+    print(f"   Format: [{LAYER_CODES[layer]}]-[{TYPE_CODES[element_type]}]-[###]-[name]")
     
     if get_yes_no("Use this ID?", default=True):
         element_data["id"] = auto_id
@@ -507,9 +507,8 @@ def main():
     # Create directory if it doesn't exist
     elements_dir.mkdir(parents=True, exist_ok=True)
     
-    # Generate filename from element name
-    filename = element_data["name"].lower().replace(" ", "-").replace("_", "-")
-    filename = "".join(c for c in filename if c.isalnum() or c == "-")
+    # Generate filename from element ID
+    filename = element_data["id"].lower()
     filepath = elements_dir / f"{filename}.md"
     
     # Check if file exists

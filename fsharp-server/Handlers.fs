@@ -31,6 +31,31 @@ module Handlers =
         | ErrorType.SelfReference _ -> "self-reference"
         | ErrorType.DuplicateRelationship _ -> "duplicate-relationship"
         | ErrorType.Unknown value -> value
+
+    let private relationTypeToYaml (relationType: RelationType) : string =
+        match relationType with
+        | RelationType.Composition -> "composition"
+        | RelationType.Aggregation -> "aggregation"
+        | RelationType.Assignment -> "assignment"
+        | RelationType.Realization -> "realization"
+        | RelationType.Specialization -> "specialization"
+        | RelationType.Association -> "association"
+        | RelationType.Access -> "access"
+        | RelationType.Influence -> "influence"
+        | RelationType.Serving -> "serving"
+        | RelationType.Triggering -> "triggering"
+        | RelationType.Flow -> "flow"
+        | RelationType.Unknown value -> value
+
+    let private isNumber (value: string) : bool =
+        let mutable number = 0.0
+        Double.TryParse(value, NumberStyles.AllowLeadingSign ||| NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, &number)
+
+    let private yamlScalar (value: string) : string =
+        let trimmed = value.Trim()
+        if trimmed = "" then "\"\""
+        elif isNumber trimmed then trimmed
+        else trimmed.Replace("\"", "\\\"") |> sprintf "\"%s\""
     
     /// Build tag index from registry
     let buildTagIndex (registry: ElementRegistry) : Map<string, string list> =
@@ -117,6 +142,125 @@ module Handlers =
             | None ->
                 logger.LogWarning($"Element not found: {elemId}")
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+
+    /// Element edit form partial handler
+    let elementEditHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation($"GET /elements/{elemId}/edit - Element edit form requested")
+            match ElementRegistry.getElement elemId registry with
+            | Some elem ->
+                let html = Views.elementEditFormPartial elem
+                htmlView html next ctx
+            | None ->
+                logger.LogWarning($"Element not found: {elemId}")
+                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+
+    /// Element type options handler (HTMX)
+    let elementTypeOptionsHandler (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            let layerValue =
+                match ctx.GetQueryStringValue "layer" with
+                | Ok value -> value
+                | Error _ -> ""
+
+            let currentValue =
+                match ctx.GetQueryStringValue "type" with
+                | Ok value -> value
+                | Error _ -> ""
+
+            logger.LogInformation($"GET /elements/types - layer={layerValue}")
+            let selectNode = Views.elementTypeSelectPartial layerValue currentValue
+            htmlView selectNode next ctx
+
+    /// Element download handler
+    let elementDownloadHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            task {
+                logger.LogInformation($"POST /elements/{elemId}/download - Element download requested")
+                match ElementRegistry.getElement elemId registry with
+                | None ->
+                    logger.LogWarning($"Element not found: {elemId}")
+                    return! (setStatusCode 404 >=> text "Element not found") next ctx
+                | Some elem ->
+                    let! form = ctx.Request.ReadFormAsync()
+
+                    let getRaw (key: string) : string =
+                        if form.ContainsKey key then form.[key].ToString() else ""
+
+                    let getTrimmed (key: string) : string =
+                        getRaw key |> fun value -> value.Trim()
+
+                    let getOrDefault (value: string) (fallback: string) : string =
+                        if String.IsNullOrWhiteSpace value then fallback else value
+
+                    let defaultType = ElementRegistry.getString "type" elem.properties |> Option.defaultValue ""
+                    let defaultLayer = ElementRegistry.getString "layer" elem.properties |> Option.defaultValue ""
+
+                    let id = getOrDefault (getTrimmed "id") elem.id
+                    let name = getOrDefault (getTrimmed "name") elem.name
+                    let elementType = getOrDefault (getTrimmed "type") defaultType
+                    let layer = getOrDefault (getTrimmed "layer") defaultLayer
+                    let content = getRaw "content"
+
+                    let tags =
+                        getTrimmed "tags"
+                        |> fun value -> value.Split([| ',' |], StringSplitOptions.RemoveEmptyEntries)
+                        |> Array.map (fun t -> t.Trim())
+                        |> Array.filter (fun t -> t <> "")
+                        |> Array.toList
+
+                    let properties =
+                        [
+                            ("owner", getTrimmed "owner")
+                            ("status", getTrimmed "status")
+                            ("criticality", getTrimmed "criticality")
+                            ("version", getTrimmed "version")
+                            ("lifecycle-phase", getTrimmed "lifecycle-phase")
+                            ("last-updated", getTrimmed "last-updated")
+                        ]
+                        |> List.choose (fun (key, value) ->
+                            if String.IsNullOrWhiteSpace value then None else Some (key, value)
+                        )
+
+                    let lines = ResizeArray<string>()
+                    lines.Add("---")
+                    lines.Add($"id: {id}")
+                    lines.Add($"name: {yamlScalar name}")
+                    lines.Add($"type: {elementType}")
+                    lines.Add($"layer: {layer}")
+
+                    if not (List.isEmpty elem.relationships) then
+                        lines.Add("relationships:")
+                        for rel in elem.relationships do
+                            lines.Add($"  - type: {relationTypeToYaml rel.relationType}")
+                            lines.Add($"    target: {rel.target}")
+                            if not (String.IsNullOrWhiteSpace rel.description) then
+                                lines.Add($"    description: {yamlScalar rel.description}")
+
+                    if not (List.isEmpty properties) then
+                        lines.Add("properties:")
+                        for (key, value) in properties do
+                            lines.Add($"  {key}: {yamlScalar value}")
+
+                    if not (List.isEmpty tags) then
+                        lines.Add("tags:")
+                        for tag in tags do
+                            lines.Add($"  - {yamlScalar tag}")
+
+                    lines.Add("---")
+                    lines.Add("")
+                    lines.Add(content.TrimEnd())
+
+                    let markdown = String.Join("\n", lines)
+                    let fileName = $"{id}.md"
+
+                    return!
+                        (setHttpHeader "Content-Disposition" $"attachment; filename={fileName}"
+                         >=> setHttpHeader "Content-Type" "text/markdown; charset=utf-8"
+                         >=> text markdown)
+                            next
+                            ctx
+            }
     
     /// Tags index handler
     let tagsIndexHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
@@ -292,6 +436,9 @@ module Handlers =
         choose [
             route "/" >=> indexHandler registry logger
             route "/index.html" >=> indexHandler registry logger
+            route "/elements/types" >=> elementTypeOptionsHandler logger
+            routef "/elements/%s/edit" (fun elemId -> elementEditHandler elemId registry logger)
+            routef "/elements/%s/download" (fun elemId -> elementDownloadHandler elemId registry logger)
             routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)
             
             // Diagram routes

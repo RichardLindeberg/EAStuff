@@ -2,7 +2,10 @@ namespace EAArchive
 
 open System
 open System.Net
+open System.Collections
+open System.Collections.Generic
 open Giraffe.ViewEngine
+open Htmx.HtmxAttrs
 open Markdig
 
 module Views =
@@ -101,6 +104,7 @@ module Views =
                 script [_src "https://unpkg.com/htmx.org@1.9.10"] []
                 script [_src "/js/validation.js"] []
                 script [_src "/js/cytoscape-diagram.js"] []
+                script [ _src "https://unpkg.com/htmx.org@1.9.12/dist/ext/debug.js" ] []
             ]
             body [] (
                 [htmlHeader pageTitle currentPage] @ content @ [htmlFooter ()]
@@ -203,11 +207,11 @@ module Views =
                 _class "filter-input"
                 _placeholder "Filter elements by name"
                 attr "aria-label" "Filter elements by name"
-                attr "hx-get" $"{baseUrl}{layerKey}"
-                attr "hx-target" "#layer-elements"
-                attr "hx-trigger" "keyup changed delay:300ms"
-                attr "hx-include" "this"
-                attr "hx-push-url" "true"
+                _hxGet  $"{baseUrl}{layerKey}"
+                _hxTarget "#layer-elements"
+                _hxTrigger "keyup changed delay:300ms"
+                _hxInclude "this"
+                _hxPushUrl "true"
             ]
             |> List.append (
                 match filterValue with
@@ -241,6 +245,53 @@ module Views =
         ]
 
         htmlPage layer.displayName layer.displayName content
+
+    let private getMetadataString (key: string) (metadata: Map<string, obj>) : string option =
+        ElementRegistry.getString key metadata
+
+    let private buildPropertiesMap (elem: Element) : Map<string, obj> =
+        elem.properties
+        |> Map.tryFind "properties"
+        |> Option.bind (fun value ->
+            match value with
+            | :? IDictionary as dict ->
+                dict
+                |> Seq.cast<obj>
+                |> Seq.choose (fun entry ->
+                    match entry with
+                    | :? KeyValuePair<obj, obj> as kvp ->
+                        match kvp.Key with
+                        | :? string as key -> Some (key, kvp.Value)
+                        | _ -> None
+                    | :? DictionaryEntry as de ->
+                        match de.Key with
+                        | :? string as key -> Some (key, de.Value)
+                        | _ -> None
+                    | _ -> None
+                )
+                |> Map.ofSeq
+                |> Some
+            | _ -> None
+        )
+        |> Option.defaultValue Map.empty
+
+    let private tryGetPropertyValue (propertiesMap: Map<string, obj>) (key: string) : string option =
+        match Map.tryFind key propertiesMap with
+        | Some value ->
+            let text = if isNull value then "" else value.ToString()
+            let trimmed = text.Trim()
+            if trimmed = "" then None else Some trimmed
+        | None -> None
+
+    let private optionNode (value: string) (selected: bool) : XmlNode =
+        let encodedValue = WebUtility.HtmlEncode value
+        let selectedAttr = if selected then " selected" else ""
+        rawText $"<option value=\"{encodedValue}\"{selectedAttr}>{encodedValue}</option>"
+
+    let private placeholderOptionNode (label: string) (selected: bool) : XmlNode =
+        let encodedLabel = WebUtility.HtmlEncode label
+        let selectedAttr = if selected then " selected" else ""
+        rawText $"<option value=\"\"{selectedAttr}>{encodedLabel}</option>"
     
     /// Element detail page
     let elementPage (elemWithRels: ElementWithRelations) =
@@ -282,9 +333,43 @@ module Views =
                     ]
                 ]
             else []
-        
+
+        let propertiesMap = buildPropertiesMap elem
+
+        let tryGetProperty (key: string) : string option =
+            tryGetPropertyValue propertiesMap key
+
+        let propertyItems =
+            [
+                ("owner", "Owner")
+                ("status", "Status")
+                ("criticality", "Criticality")
+                ("version", "Version")
+                ("lifecycle-phase", "Lifecycle phase")
+                ("last-updated", "Last updated")
+            ]
+            |> List.choose (fun (key, label) ->
+                tryGetProperty key
+                |> Option.map (fun value -> (label, value))
+            )
+
         let content = [
             div [_class "container"] [
+                
+                div [_class "edit-toolbar"] [
+                        button [
+                            _type "button"
+                            _class "edit-button"
+                            _hxExt "debug"
+                            _hxGet   $"{baseUrl}elements/{elem.id}/edit"
+                            _hxTarget "#swapthis"
+                            _hxSwap "innerHTML"
+                        ] [
+                            encodedText "Edit"
+                        ]
+                    ]
+
+
                 let layerName = ElementType.getLayer elem.elementType
                 let layerNameLower = layerName.ToLowerInvariant()
                 div [_class "breadcrumb"] [
@@ -300,73 +385,305 @@ module Views =
                     encodedText elem.name
                 ]
                 
-                div [_class "element-detail"] [
-                    h2 [] [encodedText elem.name]
-                    let elementTypeStr = 
-                        match elem.elementType with
-                        | ElementType.Strategy st -> sprintf "Strategy - %A" st
-                        | ElementType.Motivation mt -> sprintf "Motivation - %A" mt
-                        | ElementType.Business bt -> sprintf "Business - %A" bt
-                        | ElementType.Application at -> sprintf "Application - %A" at
-                        | ElementType.Technology tt -> sprintf "Technology - %A" tt
-                        | ElementType.Physical pt -> sprintf "Physical - %A" pt
-                        | ElementType.Implementation it -> sprintf "Implementation - %A" it
-                        | ElementType.Unknown (layer, typeName) -> sprintf "%s - %s" layer typeName
+                div [
+                    _class "element-detail"
+                    _id "swapthis"
                     
-                    div [_class "metadata"] [
-                        div [_class "metadata-item"] [
-                            div [_class "metadata-label"] [encodedText "ID"]
-                            div [_class "metadata-value"] [encodedText elem.id]
+                ] [
+                    div [_id "edit-panel"; _class "edit-panel"] []
+
+                    div [_class "element-view"] [
+                        h2 [] [encodedText elem.name]
+                        let elementTypeStr = 
+                            match elem.elementType with
+                            | ElementType.Strategy st -> sprintf "Strategy - %A" st
+                            | ElementType.Motivation mt -> sprintf "Motivation - %A" mt
+                            | ElementType.Business bt -> sprintf "Business - %A" bt
+                            | ElementType.Application at -> sprintf "Application - %A" at
+                            | ElementType.Technology tt -> sprintf "Technology - %A" tt
+                            | ElementType.Physical pt -> sprintf "Physical - %A" pt
+                            | ElementType.Implementation it -> sprintf "Implementation - %A" it
+                            | ElementType.Unknown (layer, typeName) -> sprintf "%s - %s" layer typeName
+                        
+                        div [_class "metadata"] [
+                            div [_class "metadata-item"] [
+                                div [_class "metadata-label"] [encodedText "ID"]
+                                div [_class "metadata-value"] [encodedText elem.id]
+                            ]
+                            div [_class "metadata-item"] [
+                                div [_class "metadata-label"] [encodedText "Type"]
+                                div [_class "metadata-value"] [encodedText elementTypeStr]
+                            ]
+                            div [_class "metadata-item"] [
+                                div [_class "metadata-label"] [encodedText "Layer"]
+                                div [_class "metadata-value"] [encodedText layerName]
+                            ]
                         ]
-                        div [_class "metadata-item"] [
-                            div [_class "metadata-label"] [encodedText "Type"]
-                            div [_class "metadata-value"] [encodedText elementTypeStr]
-                        ]
-                        div [_class "metadata-item"] [
-                            div [_class "metadata-label"] [encodedText "Layer"]
-                            div [_class "metadata-value"] [encodedText layerName]
-                        ]
-                    ]
-                    
-                    if not (List.isEmpty elem.tags) then
-                        div [_class "tags"] [
-                            for tag in elem.tags do
-                                a [_href $"{baseUrl}tags/{tag}"; _class "tag"] [
-                                    encodedText tag
+                        if not (List.isEmpty propertyItems) then
+                            div [_class "properties-section"] [
+                                h3 [] [encodedText "Properties"]
+                                div [_class "metadata"] [
+                                    for (label, value) in propertyItems do
+                                        div [_class "metadata-item"] [
+                                            div [_class "metadata-label"] [encodedText label]
+                                            div [_class "metadata-value"] [encodedText value]
+                                        ]
                                 ]
-                        ]
-                    
-                    div [_class "diagram-section"] [
-                        div [_class "diagram-header"] [
-                            h3 [] [encodedText "Context Diagram"]
-                        ]
-                        div [_class "diagram-links"] [
-                            p [] [encodedText "View this element's relationships in different depths:"]
-                            a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=1"; _class "diagram-link"] [
-                                encodedText "Direct relationships (1 level)"
                             ]
-                            a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=2"; _class "diagram-link"] [
-                                encodedText "Extended relationships (2 levels)"
+                        
+                        if not (List.isEmpty elem.tags) then
+                            div [_class "tags"] [
+                                for tag in elem.tags do
+                                    a [_href $"{baseUrl}tags/{tag}"; _class "tag"] [
+                                        encodedText tag
+                                    ]
                             ]
-                            a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=3"; _class "diagram-link"] [
-                                encodedText "Full relationships (3 levels)"
+
+                        div [_class "diagram-section"] [
+                            div [_class "diagram-header"] [
+                                h3 [] [encodedText "Context Diagram"]
+                            ]
+                            div [_class "diagram-links"] [
+                                p [] [encodedText "View this element's relationships in different depths:"]
+                                a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=1"; _class "diagram-link"] [
+                                    encodedText "Direct relationships (1 level)"
+                                ]
+                                a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=2"; _class "diagram-link"] [
+                                    encodedText "Extended relationships (2 levels)"
+                                ]
+                                a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=3"; _class "diagram-link"] [
+                                    encodedText "Full relationships (3 levels)"
+                                ]
                             ]
                         ]
+                        
+                        if elem.content <> "" then
+                            let htmlContent = markdownToHtml elem.content
+                            div [_class "content-section"] [
+                                rawText htmlContent
+                            ]
+                        
+                        yield! incomingSection
+                        yield! outgoingSection
                     ]
-                    
-                    if elem.content <> "" then
-                        let htmlContent = markdownToHtml elem.content
-                        div [_class "content-section"] [
-                            rawText htmlContent
-                        ]
-                    
-                    yield! incomingSection
-                    yield! outgoingSection
                 ]
             ]
         ]
         
         htmlPage elem.name "element" content
+
+    let elementEditFormPartial (elem: Element) : XmlNode =
+        let propertiesMap = buildPropertiesMap elem
+        let propertyValue key =
+            tryGetPropertyValue propertiesMap key |> Option.defaultValue ""
+
+        let layerValue =
+            getMetadataString "layer" elem.properties |> Option.defaultValue ""
+
+        let typeValue =
+            getMetadataString "type" elem.properties |> Option.defaultValue ""
+
+        let tagValue =
+            if List.isEmpty elem.tags then "" else String.concat ", " elem.tags
+
+        let selectOptions (currentValue: string) (options: string list) : XmlNode list =
+            let normalized = currentValue.Trim()
+            let baseOptions =
+                options
+                |> List.distinct
+                |> List.map (fun value ->
+                    optionNode value (value = normalized)
+                )
+
+            if normalized <> "" && not (options |> List.exists (fun v -> v = normalized)) then
+                optionNode normalized true
+                :: baseOptions
+            else
+                baseOptions
+
+        let selectOptionsWithPlaceholder (placeholder: string) (currentValue: string) (options: string list) : XmlNode list =
+            let normalized = currentValue.Trim()
+            let placeholderOption = placeholderOptionNode placeholder (normalized = "")
+            placeholderOption :: selectOptions currentValue options
+
+        let layerOptions = ["strategy"; "business"; "application"; "technology"; "physical"; "motivation"; "implementation"]
+
+        let typeOptionsByLayer =
+            Map.ofList [
+                ("strategy", ["resource"; "capability"; "value-stream"; "course-of-action"])
+                ("business", [
+                    "business-actor"; "business-role"; "business-collaboration"; "business-interface"
+                    "business-process"; "business-function"; "business-interaction"; "business-event"
+                    "business-service"; "business-object"; "contract"; "representation"; "product"
+                ])
+                ("application", [
+                    "application-component"; "application-collaboration"; "application-interface"
+                    "application-function"; "application-interaction"; "application-process"
+                    "application-event"; "application-service"; "data-object"
+                ])
+                ("technology", [
+                    "node"; "device"; "system-software"; "technology-collaboration"
+                    "technology-interface"; "path"; "communication-network"; "technology-function"
+                    "technology-process"; "technology-interaction"; "technology-event"
+                    "technology-service"; "artifact"
+                ])
+                ("physical", ["equipment"; "facility"; "distribution-network"; "material"])
+                ("motivation", [
+                    "stakeholder"; "driver"; "assessment"; "goal"; "outcome"; "principle"
+                    "requirement"; "constraint"; "meaning"; "value"
+                ])
+                ("implementation", ["work-package"; "deliverable"; "implementation-event"; "plateau"; "gap"])
+            ]
+
+        let allTypeOptions =
+            typeOptionsByLayer
+            |> Map.toList
+            |> List.collect snd
+            |> List.distinct
+
+        let typeOptions =
+            let normalizedLayer = layerValue.Trim().ToLowerInvariant()
+            typeOptionsByLayer
+            |> Map.tryFind normalizedLayer
+            |> Option.defaultValue allTypeOptions
+
+        let statusOptions = ["draft"; "proposed"; "active"; "production"; "deprecated"; "retired"]
+
+        let criticalityOptions = ["low"; "medium"; "high"; "critical"]
+
+        let lifecycleOptions = ["plan"; "design"; "build"; "operate"; "retire"]
+
+        div [_id "edit-panel"; _class "edit-panel"] [
+            h3 [] [encodedText "Edit Element"]
+            form [
+                _method "post"
+                _action $"{baseUrl}elements/{elem.id}/download"
+                _class "edit-form"
+            ] [
+                input [_type "hidden"; _name "id"; _value elem.id]
+                div [_class "form-stack"] [
+                    div [_class "form-row"] [
+                        label [_for "name"] [encodedText "Name"]
+                        input [_type "text"; _id "name"; _name "name"; _value elem.name; _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "layer"] [encodedText "Layer"]
+                        select [
+                            _id "layer"
+                            _name "layer"
+                            _class "edit-input"
+                            attr "hx-get" $"{baseUrl}elements/types"
+                            attr "hx-trigger" "change"
+                            attr "hx-target" "#type"
+                            attr "hx-swap" "outerHTML"
+                            attr "hx-include" "#type"
+                        ] (selectOptions layerValue layerOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "type"] [encodedText "Type"]
+                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" typeValue typeOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "tags"] [encodedText "Tags (comma-separated)"]
+                        input [_type "text"; _id "tags"; _name "tags"; _value tagValue; _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "owner"] [encodedText "Owner"]
+                        input [_type "text"; _id "owner"; _name "owner"; _value (propertyValue "owner"); _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "status"] [encodedText "Status"]
+                        select [_id "status"; _name "status"; _class "edit-input"] (selectOptions (propertyValue "status") statusOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "criticality"] [encodedText "Criticality"]
+                        select [_id "criticality"; _name "criticality"; _class "edit-input"] (selectOptions (propertyValue "criticality") criticalityOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "version"] [encodedText "Version"]
+                        input [_type "text"; _id "version"; _name "version"; _value (propertyValue "version"); _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "lifecycle-phase"] [encodedText "Lifecycle phase"]
+                        select [_id "lifecycle-phase"; _name "lifecycle-phase"; _class "edit-input"] (selectOptions (propertyValue "lifecycle-phase") lifecycleOptions)
+                    ]
+                    div [_class "form-row"] [
+                        label [_for "last-updated"] [encodedText "Last updated"]
+                        input [_type "text"; _id "last-updated"; _name "last-updated"; _value (propertyValue "last-updated"); _class "edit-input"]
+                    ]
+                ]
+                div [_class "form-row"] [
+                    label [_for "content"] [encodedText "Content (Markdown)"]
+                    textarea [_id "content"; _name "content"; _rows "18"; _class "edit-textarea"] [
+                        encodedText elem.content
+                    ]
+                ]
+                div [_class "form-actions"] [
+                    button [_type "submit"; _class "primary-button"] [encodedText "Download updated file"]
+                    button [
+                        _type "button"
+                        _class "secondary-button"
+                        attr "hx-on:click" "this.closest('.element-detail').classList.remove('is-editing');document.getElementById('edit-panel').innerHTML='';"
+                    ] [
+                        encodedText "Cancel"
+                    ]
+                ]
+            ]
+        ]
+
+    let elementTypeSelectPartial (layerValue: string) (currentValue: string) : XmlNode =
+        let normalizedLayer = layerValue.Trim().ToLowerInvariant()
+        let options =
+            match normalizedLayer with
+            | "strategy" ->
+                ["resource"; "capability"; "value-stream"; "course-of-action"]
+            | "business" ->
+                [
+                    "business-actor"; "business-role"; "business-collaboration"; "business-interface"
+                    "business-process"; "business-function"; "business-interaction"; "business-event"
+                    "business-service"; "business-object"; "contract"; "representation"; "product"
+                ]
+            | "application" ->
+                [
+                    "application-component"; "application-collaboration"; "application-interface"
+                    "application-function"; "application-interaction"; "application-process"
+                    "application-event"; "application-service"; "data-object"
+                ]
+            | "technology" ->
+                [
+                    "node"; "device"; "system-software"; "technology-collaboration"
+                    "technology-interface"; "path"; "communication-network"; "technology-function"
+                    "technology-process"; "technology-interaction"; "technology-event"
+                    "technology-service"; "artifact"
+                ]
+            | "physical" ->
+                ["equipment"; "facility"; "distribution-network"; "material"]
+            | "motivation" ->
+                [
+                    "stakeholder"; "driver"; "assessment"; "goal"; "outcome"; "principle"
+                    "requirement"; "constraint"; "meaning"; "value"
+                ]
+            | "implementation" ->
+                ["work-package"; "deliverable"; "implementation-event"; "plateau"; "gap"]
+            | _ ->
+                []
+
+        let normalizedCurrent = currentValue.Trim()
+        let placeholder =
+            placeholderOptionNode "Select type" (normalizedCurrent = "")
+
+        let optionNodes =
+            options
+            |> List.distinct
+            |> List.map (fun value -> optionNode value (value = normalizedCurrent))
+
+        let extraOption =
+            if normalizedCurrent <> "" && not (options |> List.exists (fun value -> value = normalizedCurrent)) then
+                [ optionNode normalizedCurrent true ]
+            else
+                []
+
+        select [_id "type"; _name "type"; _class "edit-input"] (placeholder :: extraOption @ optionNodes)
     
     /// Tags index page
     let tagsIndexPage (tagIndex: Map<string, string list>) (registry: ElementRegistry) =
