@@ -472,7 +472,79 @@ module Views =
         
         htmlPage elem.name "element" content
 
-    let elementEditFormPartial (elem: Element) : XmlNode =
+    let relationRowPartial (sourceId: string) (index: int) (targetValue: string) (relationValue: string) (descriptionValue: string) : XmlNode =
+        div [_class "relation-row"] [
+            div [_class "relation-row-header"] [
+                span [_class "relation-row-title"] [encodedText $"Relation {index + 1}"]
+                button [
+                    _type "button"
+                    _class "relation-delete"
+                    attr "hx-on:click" "this.closest('.relation-row').remove();"
+                    attr "aria-label" "Delete relation"
+                ] [
+                    encodedText "Delete"
+                ]
+            ]
+            div [_class "form-row"] [
+                label [_for $"rel-target-{index}"] [encodedText "Target element"]
+                input [
+                    _type "text"
+                    _id $"rel-target-{index}"
+                    _name $"rel-target-{index}"
+                    _class "edit-input rel-target"
+                    _value targetValue
+                    attr "list" "element-id-list"
+                    _hxGet $"{baseUrl}elements/relations/types"
+                    _hxTrigger "load, change"
+                    _hxTarget $"#rel-type-{index}"
+                    _hxSwap "outerHTML"
+                    _hxInclude "this"
+                    _hxVals $"js:{{sourceId: '{sourceId}', index: {index}, current: '{relationValue}'}}"
+                ]
+            ]
+            div [_class "form-row"] [
+                label [_for $"rel-type-{index}"] [encodedText "Relation type"]
+                select [_id $"rel-type-{index}"; _name $"rel-type-{index}"; _class "edit-input"] [
+                    placeholderOptionNode "Select relation type" (relationValue.Trim() = "")
+                    if relationValue.Trim() <> "" then
+                        optionNode relationValue true
+                ]
+            ]
+            div [_class "form-row"] [
+                label [_for $"rel-desc-{index}"] [encodedText "Description"]
+                input [
+                    _type "text"
+                    _id $"rel-desc-{index}"
+                    _name $"rel-desc-{index}"
+                    _class "edit-input"
+                    _value descriptionValue
+                ]
+            ]
+        ]
+
+    let relationTypeSelectPartial (index: int) (allowedTypes: string list) (currentValue: string) : XmlNode =
+        let normalized = currentValue.Trim()
+        if List.isEmpty allowedTypes then
+            select [_id $"rel-type-{index}"; _name $"rel-type-{index}"; _class "edit-input"] [
+                placeholderOptionNode "No allowed relations for this target" true
+            ]
+        else
+            let placeholder = placeholderOptionNode "Select relation type" (normalized = "")
+
+            let optionNodes =
+                allowedTypes
+                |> List.distinct
+                |> List.map (fun value -> optionNode value (value = normalized))
+
+            let extraOption =
+                if normalized <> "" && not (allowedTypes |> List.exists (fun value -> value = normalized)) then
+                    [ optionNode normalized true ]
+                else
+                    []
+
+            select [_id $"rel-type-{index}"; _name $"rel-type-{index}"; _class "edit-input"] (placeholder :: extraOption @ optionNodes)
+
+    let elementEditFormPartial (elem: Element) (registry: ElementRegistry) : XmlNode =
         let propertiesMap = buildPropertiesMap elem
         let propertyValue key =
             tryGetPropertyValue propertiesMap key |> Option.defaultValue ""
@@ -485,6 +557,21 @@ module Views =
 
         let tagValue =
             if List.isEmpty elem.tags then "" else String.concat ", " elem.tags
+
+        let relationTypeValue (relationType: RelationType) : string =
+            match relationType with
+            | RelationType.Composition -> "composition"
+            | RelationType.Aggregation -> "aggregation"
+            | RelationType.Assignment -> "assignment"
+            | RelationType.Realization -> "realization"
+            | RelationType.Specialization -> "specialization"
+            | RelationType.Association -> "association"
+            | RelationType.Access -> "access"
+            | RelationType.Influence -> "influence"
+            | RelationType.Serving -> "serving"
+            | RelationType.Triggering -> "triggering"
+            | RelationType.Flow -> "flow"
+            | RelationType.Unknown value -> value
 
         let selectOptions (currentValue: string) (options: string list) : XmlNode list =
             let normalized = currentValue.Trim()
@@ -560,7 +647,7 @@ module Views =
                 _action $"{baseUrl}elements/{elem.id}/download"
                 _class "edit-form"
             ] [
-                input [_type "hidden"; _name "id"; _value elem.id]
+                input [_type "hidden"; _id "id"; _name "id"; _value elem.id]
                 div [_class "form-stack"] [
                     div [_class "form-row"] [
                         label [_for "name"] [encodedText "Name"]
@@ -575,7 +662,6 @@ module Views =
                             attr "hx-get" $"{baseUrl}elements/types"
                             attr "hx-trigger" "change"
                             attr "hx-target" "#type"
-                            attr "hx-swap" "outerHTML"
                             attr "hx-include" "#type"
                         ] (selectOptions layerValue layerOptions)
                     ]
@@ -610,6 +696,29 @@ module Views =
                     div [_class "form-row"] [
                         label [_for "last-updated"] [encodedText "Last updated"]
                         input [_type "text"; _id "last-updated"; _name "last-updated"; _value (propertyValue "last-updated"); _class "edit-input"]
+                    ]
+                    div [_class "form-row"] [
+                        label [] [encodedText "Outgoing relations"]
+                        div [_id "relations-container"] [
+                            for (index, rel) in elem.relationships |> List.mapi (fun i r -> (i, r)) do
+                                relationRowPartial elem.id index rel.target (relationTypeValue rel.relationType) rel.description
+                            if List.isEmpty elem.relationships then
+                                relationRowPartial elem.id 0 "" "" ""
+                        ]
+                        datalist [_id "element-id-list"] [
+                            for (_, elemValue) in registry.elements |> Map.toList |> List.sortBy (fun (_, e) -> e.name) do
+                                rawText $"<option value=\"{WebUtility.HtmlEncode elemValue.id}\">{WebUtility.HtmlEncode elemValue.name}</option>"
+                        ]
+                        button [
+                            _type "button"
+                            _class "secondary-button"
+                            _hxGet $"{baseUrl}elements/relations/row"
+                            _hxTarget "#relations-container"
+                            _hxSwap "beforeend"
+                            attr "hx-vals" "js:{index: document.querySelectorAll('.relation-row').length, sourceId: document.getElementById('id').value}"
+                        ] [
+                            encodedText "Add relation"
+                        ]
                     ]
                 ]
                 div [_class "form-row"] [

@@ -56,6 +56,22 @@ module Handlers =
         if trimmed = "" then "\"\""
         elif isNumber trimmed then trimmed
         else trimmed.Replace("\"", "\\\"") |> sprintf "\"%s\""
+
+    let private relationCodeToName (code: char) : string option =
+        match code with
+        | 'c' -> Some "composition"
+        | 'g' -> Some "aggregation"
+        | 'i' -> Some "assignment"
+        | 'r' -> Some "realization"
+        | 's' -> Some "specialization"
+        | 'o' -> Some "association"
+        | 'a' -> Some "access"
+        | 'n' -> Some "influence"
+        | 'v' -> Some "serving"
+        | 't' -> Some "triggering"
+        | 'f' -> Some "flow"
+        | _ -> None
+
     
     /// Build tag index from registry
     let buildTagIndex (registry: ElementRegistry) : Map<string, string list> =
@@ -149,11 +165,101 @@ module Handlers =
             logger.LogInformation($"GET /elements/{elemId}/edit - Element edit form requested")
             match ElementRegistry.getElement elemId registry with
             | Some elem ->
-                let html = Views.elementEditFormPartial elem
+                let html = Views.elementEditFormPartial elem registry
                 htmlView html next ctx
             | None ->
                 logger.LogWarning($"Element not found: {elemId}")
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+
+    /// Relation type options handler (HTMX)
+    let relationTypeOptionsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            let normalizeConceptName (value: string) : string =
+                let parts = value.Split([| '-'; ' ' |], StringSplitOptions.RemoveEmptyEntries)
+                parts
+                |> Array.map (fun part ->
+                    if part.Length = 0 then ""
+                    elif part.Length = 1 then part.ToUpperInvariant()
+                    else part.Substring(0, 1).ToUpperInvariant() + part.Substring(1)
+                )
+                |> String.Concat
+
+            let tryGetConceptName (elem: Element) : string =
+                match ElementRegistry.getString "type" elem.properties with
+                | Some typeValue when not (String.IsNullOrWhiteSpace typeValue) ->
+                    normalizeConceptName typeValue
+                | _ ->
+                    ElementType.elementTypeToConceptName elem.elementType
+
+            let getValue (key: string) : string =
+                match ctx.GetQueryStringValue key with
+                | Ok value -> value
+                | Error _ -> ""
+
+            let index =
+                match Int32.TryParse(getValue "index") with
+                | true, value -> value
+                | _ -> 0
+
+            let sourceId = getValue "sourceId"
+            let targetFromField = getValue $"rel-target-{index}"
+            let targetId =
+                if not (String.IsNullOrWhiteSpace targetFromField) then
+                    targetFromField
+                else
+                    let direct = getValue "targetId"
+                    let isMissing =
+                        String.IsNullOrWhiteSpace direct
+                        || direct.Equals("undefined", StringComparison.OrdinalIgnoreCase)
+                        || direct.Equals("null", StringComparison.OrdinalIgnoreCase)
+                    if isMissing then "" else direct
+
+            let currentValue = getValue "current"
+            logger.LogDebug($"relationTypeOptionsHandler: sourceId='{sourceId}', targetId='{targetId}', currentValue='{currentValue}', index={index}")  
+            let allowedTypes =
+                match Map.tryFind sourceId registry.elements, Map.tryFind targetId registry.elements with
+                | Some sourceElem, Some targetElem ->
+                    let rules = registry.relationshipRules
+                    let sourceConcept = tryGetConceptName sourceElem
+                    let targetConcept = tryGetConceptName targetElem
+                    logger.LogInformation($"Relation lookup: sourceConcept={sourceConcept}, targetConcept={targetConcept}")
+                    match Map.tryFind (sourceConcept, targetConcept) rules with
+                    | Some codes ->
+                        logger.LogInformation($"Relation rules hit: {Set.count codes} allowed codes")
+                        codes
+                        |> Set.toList
+                        |> List.choose relationCodeToName
+                    | None -> []
+                | None, _ ->
+                    logger.LogWarning($"Relation lookup failed: sourceId '{sourceId}' not found")
+                    []
+                | _, None ->
+                    logger.LogWarning($"Relation lookup failed: targetId '{targetId}' not found")
+                    []
+
+            logger.LogInformation($"GET /elements/relations/types - source={sourceId}, target={targetId}")
+            let selectNode = Views.relationTypeSelectPartial index allowedTypes currentValue
+            htmlView selectNode next ctx
+
+    /// Relation row partial handler (HTMX)
+    let relationRowHandler (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            let index =
+                match ctx.GetQueryStringValue "index" with
+                | Ok value ->
+                    match Int32.TryParse(value) with
+                    | true, parsed -> parsed
+                    | _ -> 0
+                | Error _ -> 0
+
+            let sourceId =
+                match ctx.GetQueryStringValue "sourceId" with
+                | Ok value -> value
+                | Error _ -> ""
+
+            logger.LogInformation($"GET /elements/relations/row - index={index}")
+            let row = Views.relationRowPartial sourceId index "" "" ""
+            htmlView row next ctx
 
     /// Element type options handler (HTMX)
     let elementTypeOptionsHandler (logger: ILogger) : HttpHandler =
@@ -229,13 +335,39 @@ module Handlers =
                     lines.Add($"type: {elementType}")
                     lines.Add($"layer: {layer}")
 
-                    if not (List.isEmpty elem.relationships) then
+                    let relationTargets =
+                        form.Keys
+                        |> Seq.choose (fun key ->
+                            if key.StartsWith("rel-target-") then
+                                let indexPart = key.Substring("rel-target-".Length)
+                                match Int32.TryParse(indexPart) with
+                                | true, index -> Some (index, form.[key].ToString())
+                                | _ -> None
+                            else
+                                None
+                        )
+                        |> Seq.sortBy fst
+                        |> Seq.toList
+
+                    let relationships =
+                        relationTargets
+                        |> List.choose (fun (index, target) ->
+                            let targetValue = target.Trim()
+                            let relType = getTrimmed $"rel-type-{index}"
+                            let desc = getTrimmed $"rel-desc-{index}"
+                            if String.IsNullOrWhiteSpace targetValue || String.IsNullOrWhiteSpace relType then
+                                None
+                            else
+                                Some (relType, targetValue, desc)
+                        )
+
+                    if not (List.isEmpty relationships) then
                         lines.Add("relationships:")
-                        for rel in elem.relationships do
-                            lines.Add($"  - type: {relationTypeToYaml rel.relationType}")
-                            lines.Add($"    target: {rel.target}")
-                            if not (String.IsNullOrWhiteSpace rel.description) then
-                                lines.Add($"    description: {yamlScalar rel.description}")
+                        for (relType, target, desc) in relationships do
+                            lines.Add($"  - type: {relType}")
+                            lines.Add($"    target: {target}")
+                            if not (String.IsNullOrWhiteSpace desc) then
+                                lines.Add($"    description: {yamlScalar desc}")
 
                     if not (List.isEmpty properties) then
                         lines.Add("properties:")
@@ -437,6 +569,8 @@ module Handlers =
             route "/" >=> indexHandler registry logger
             route "/index.html" >=> indexHandler registry logger
             route "/elements/types" >=> elementTypeOptionsHandler logger
+            route "/elements/relations/types" >=> relationTypeOptionsHandler registry logger
+            route "/elements/relations/row" >=> relationRowHandler logger
             routef "/elements/%s/edit" (fun elemId -> elementEditHandler elemId registry logger)
             routef "/elements/%s/download" (fun elemId -> elementDownloadHandler elemId registry logger)
             routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)

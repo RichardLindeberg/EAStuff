@@ -25,7 +25,7 @@ let main args =
         logging
             .ClearProviders()
             .AddConsole()
-            .SetMinimumLevel(LogLevel.Information)
+            .SetMinimumLevel(LogLevel.Debug)
         |> ignore
 
     let loggerFactory = LoggerFactory.Create(configureLogging)

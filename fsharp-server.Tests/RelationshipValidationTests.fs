@@ -40,6 +40,7 @@ module RelationshipValidationTests =
             incomingRelations = Map.empty
             validationErrors = ref []
             elementsPath = "C:\\temp\\elements"
+            relationshipRules = Map.empty
         }
 
     let private makeElement (id: string) (elemType: ElementType) (relationships: Relationship list) : Element =

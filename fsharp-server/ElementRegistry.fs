@@ -14,6 +14,7 @@ type ElementRegistry = {
     incomingRelations: Map<string, (string * RelationType * string) list> // target -> [(source, relType, desc)]
     validationErrors: ValidationError list ref  // Using ref for mutability
     elementsPath: string
+    relationshipRules: RelationshipRules
 }
 
 module ElementRegistry =
@@ -564,6 +565,7 @@ module ElementRegistry =
                 incomingRelations = incomingRelations
                 validationErrors = ref []
                 elementsPath = elementsPath
+                relationshipRules = relationshipRules
             }
             
             let relationshipErrors =
@@ -583,6 +585,7 @@ module ElementRegistry =
             incomingRelations = incomingRelations
             validationErrors = ref allValidationErrors
             elementsPath = elementsPath
+            relationshipRules = relationshipRules
         }
 
     
