@@ -291,6 +291,39 @@ nav a.active {
 .element-count {
     color: #666;
     font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.filter-label {
+    font-size: 0.95rem;
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.filter-input {
+    width: 100%;
+    margin: 10px;
+    max-width: var(--toolbar-item-width);
+    min-width: var(--toolbar-item-width);
+    padding: 0.7rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: #ffffff;
+    color: #1f2937;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
 }
 
 .diagram-section {
@@ -300,6 +333,19 @@ nav a.active {
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border: 1px solid #e2e8f0;
+    --toolbar-item-width: 220px;
+}
+
+.diagram-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.diagram-toolbar .diagram-link {
+    margin-left: auto;
 }
 
 .diagram-header {
@@ -331,7 +377,9 @@ nav a.active {
 }
 
 .diagram-link {
-    display: block;
+    display: inline-block;
+    min-width: var(--toolbar-item-width);
+    text-align: center;
     padding: 0.75rem 1rem;
     background: white;
     border: 1px solid #e2e8f0;

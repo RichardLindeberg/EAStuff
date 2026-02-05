@@ -63,12 +63,31 @@ module Handlers =
             match Map.tryFind normalizedLayer Config.layerOrder with
             | Some layerInfo ->
                 let elements = ElementRegistry.getLayerElements normalizedLayer registry
+                let filterValue =
+                    match ctx.GetQueryStringValue "filter" with
+                    | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
+                    | _ -> None
+
+                let filteredElements =
+                    match filterValue with
+                    | Some term ->
+                        elements
+                        |> List.filter (fun elem ->
+                            elem.name.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                        )
+                    | None -> elements
+
                 logger.LogInformation($"Found {List.length elements} elements in layer {layer}")
                 elements |> List.iter (fun elem ->
                     logger.LogDebug($"  - {elem.id}: {elem.name}")
                 )
-                let html = Views.layerPage (layer.ToLowerInvariant()) layerInfo elements registry
-                htmlView html next ctx
+                let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
+                if isHxRequest then
+                    let partial = Views.layerElementsPartial filteredElements registry
+                    htmlView partial next ctx
+                else
+                    let html = Views.layerPage (layer.ToLowerInvariant()) layerInfo filteredElements registry filterValue
+                    htmlView html next ctx
             | None -> 
                 logger.LogWarning($"Layer not found: {layer} (normalized: {normalizedLayer})")
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx

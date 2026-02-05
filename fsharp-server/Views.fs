@@ -148,41 +148,73 @@ module Views =
         
         htmlPage "Home" "index" content
     
-    /// Layer page
-    let layerPage (layerKey: string) (layer: LayerInfo) (elements: Element list) (registry: ElementRegistry) =
-        let elementCards =
-            elements
-            |> List.map (fun elem ->
-                let description =
-                    elem.content.Split('\n')
-                    |> Array.filter (fun line -> 
-                        let trimmed = line.Trim()
-                        trimmed <> "" && not (trimmed.StartsWith("#"))
-                    )
-                    |> Array.tryHead
-                    |> Option.map (fun line ->
-                        if line.Length > 150 then line.Substring(0, 150) + "..." else line
-                    )
-                    |> Option.defaultValue ""
-                
-                let incoming = ElementRegistry.getIncomingRelations elem.id registry |> List.length
-                let outgoing = List.length elem.relationships
-                
-                div [_class "element-card"] [
-                    span [_class "element-type"] [encodedText (elementTypeToString elem.elementType)]
-                    h3 [] [
-                        a [_href $"{baseUrl}elements/{elem.id}"] [
-                            encodedText elem.name
-                        ]
-                    ]
-                    p [_class "element-description"] [encodedText description]
-                    let relStr = sprintf "%d outgoing, %d incoming relation%s" outgoing incoming (pluralize incoming "" "s")
-                    p [_style "margin-top: 0.75rem; font-size: 0.85rem; color: #888;"] [
-                        encodedText relStr
+    let private buildElementCards (elements: Element list) (registry: ElementRegistry) : XmlNode list =
+        elements
+        |> List.map (fun elem ->
+            let description =
+                elem.content.Split('\n')
+                |> Array.filter (fun line ->
+                    let trimmed = line.Trim()
+                    trimmed <> "" && not (trimmed.StartsWith("#"))
+                )
+                |> Array.tryHead
+                |> Option.map (fun line ->
+                    if line.Length > 150 then line.Substring(0, 150) + "..." else line
+                )
+                |> Option.defaultValue ""
+
+            let incoming = ElementRegistry.getIncomingRelations elem.id registry |> List.length
+            let outgoing = List.length elem.relationships
+
+            div [_class "element-card"] [
+                span [_class "element-type"] [encodedText (elementTypeToString elem.elementType)]
+                h3 [] [
+                    a [_href $"{baseUrl}elements/{elem.id}"] [
+                        encodedText elem.name
                     ]
                 ]
+                p [_class "element-description"] [encodedText description]
+                let relStr = sprintf "%d outgoing, %d incoming relation%s" outgoing incoming (pluralize incoming "" "s")
+                p [_style "margin-top: 0.75rem; font-size: 0.85rem; color: #888;"] [
+                    encodedText relStr
+                ]
+            ]
+        )
+
+    let layerElementsPartial (elements: Element list) (registry: ElementRegistry) : XmlNode =
+        let elementCards = buildElementCards elements registry
+        let count = List.length elements
+        let layerElemCountStr = sprintf "%d element%s" count (pluralize count "" "s")
+
+        div [_id "layer-elements"] [
+            p [_class "element-count"] [
+                encodedText layerElemCountStr
+            ]
+            div [_class "element-grid"] elementCards
+        ]
+
+    /// Layer page
+    let layerPage (layerKey: string) (layer: LayerInfo) (elements: Element list) (registry: ElementRegistry) (filterValue: string option) =
+        let filterAttrs =
+            [
+                _type "text"
+                _id "layer-filter"
+                _name "filter"
+                _class "filter-input"
+                _placeholder "Filter elements by name"
+                attr "aria-label" "Filter elements by name"
+                attr "hx-get" $"{baseUrl}{layerKey}"
+                attr "hx-target" "#layer-elements"
+                attr "hx-trigger" "keyup changed delay:300ms"
+                attr "hx-include" "this"
+                attr "hx-push-url" "true"
+            ]
+            |> List.append (
+                match filterValue with
+                | Some value -> [ _value value ]
+                | None -> []
             )
-        
+
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
@@ -191,18 +223,23 @@ module Views =
                     encodedText layer.displayName
                 ]
                 h2 [_class "layer-title"] [encodedText layer.displayName]
-                let layerElemCountStr = let count = List.length elements in sprintf "%d element%s" count (pluralize count "" "s")
-                p [_class "element-count"] [
-                    encodedText layerElemCountStr
-                ]
                 div [_class "diagram-section"] [
-                      a [_class "diagram-link"; _href $"{baseUrl}diagrams/layer/{layerKey}"; _target "_blank"; _rel "noopener"] [
-                            encodedText "Open diagram ↗"
-                        ]                ]
-                div [_class "element-grid"] elementCards
+                    div [_class "diagram-toolbar"] [
+                        div [_class "filter-bar"] [
+                            label [_class "filter-label"; _for "layer-filter"] [
+                                encodedText "Filter:"
+                            ]
+                            input filterAttrs
+                        ]
+                        a [_class "diagram-link"; _href $"{baseUrl}diagrams/layer/{layerKey}"; _target "_blank"; _rel "noopener"] [
+                            encodedText "Open diagram"
+                        ]
+                    ]
+                ]
+                layerElementsPartial elements registry
             ]
         ]
-        
+
         htmlPage layer.displayName layer.displayName content
     
     /// Element detail page
