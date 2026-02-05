@@ -103,43 +103,6 @@ module Handlers =
             let html = Views.tagsIndexPage tagIndex registry
             htmlView html next ctx
 
-    /// Layer mermaid diagram handler
-    let layerDiagramHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
-        fun next ctx ->
-            logger.LogInformation($"GET /diagrams/layers/{layer} - Layer diagram requested")
-            let normalizedLayer = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(layer)
-            match Map.tryFind normalizedLayer Config.layerOrder with
-            | Some layerInfo ->
-                let diagram = buildLayerMermaid normalizedLayer registry
-                let html = wrapMermaidHtml ($"{layerInfo.displayName} Diagram") diagram
-                htmlString html next ctx
-            | None ->
-                logger.LogWarning($"Layer not found for diagram: {layer} (normalized: {normalizedLayer})")
-                setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
-    
-    /// Element context diagram handler
-    let contextDiagramHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
-        fun next ctx ->
-            logger.LogInformation($"GET /diagrams/context/{elemId} - Context diagram requested")
-            match ElementRegistry.getElement elemId registry with
-            | Some elem ->
-                let depth = 
-                    match ctx.GetQueryStringValue "depth" with
-                    | Ok value -> 
-                        match System.Int32.TryParse(value) with
-                        | (true, d) when d > 0 && d <= 3 -> d
-                        | _ -> 1
-                    | Error _ -> 1
-                
-                logger.LogInformation($"Found element: {elemId} ({elem.name}), generating context diagram with depth={depth}")
-                let diagram = buildContextDiagram elemId depth registry
-                let title = sprintf "Context: %s (Depth %d)" elem.name depth
-                let html = wrapMermaidHtml title diagram
-                htmlString html next ctx
-            | None ->
-                logger.LogWarning($"Element not found for context diagram: {elemId}")
-                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
-    
     /// Layer Cytoscape diagram handler
     let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
@@ -307,14 +270,9 @@ module Handlers =
             route "/index.html" >=> indexHandler registry logger
             routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)
             
-            // Cytoscape diagrams (new default)
+            // Diagram routes
             routef "/diagrams/layer/%s" (fun layer -> layerDiagramCytoscapeHandler layer registry logger)
             routef "/diagrams/context/%s" (fun elemId -> contextDiagramCytoscapeHandler elemId registry logger)
-            
-            // Legacy Mermaid diagrams (backwards compatibility)
-            routef "/diagrams/layers/%s" (fun layer -> layerDiagramHandler layer registry logger)
-            routef "/diagrams/layers/%s/mermaid" (fun layer -> layerDiagramHandler layer registry logger)
-            routef "/diagrams/context/%s/mermaid" (fun elemId -> contextDiagramHandler elemId registry logger)
             
             // Validation page and API endpoints
             route "/validation" >=> validationPageHandler registry logger

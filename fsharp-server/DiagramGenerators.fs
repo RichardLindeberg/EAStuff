@@ -9,16 +9,6 @@ open System.Xml.Linq
 
 module DiagramGenerators =
 
-    let private sanitizeMermaidId (value: string) =
-        value
-            .Replace("-", "_")
-            .Replace(" ", "_")
-            .Replace("/", "_")
-            .Replace(".", "_")
-
-    let private escapeMermaidLabel (value: string) =
-        value.Replace("\"", "\\\"")
-
     let private symbolsBaseUrl = "/assets/archimate-symbols/"
     let private iconsBaseUrl = "/assets/archimate-icons/"
     let private symbolsRoot =
@@ -178,10 +168,6 @@ module DiagramGenerators =
             if ensureIconFile fileName sourcePath then Some fileName else None
         | None -> None
 
-    let private buildMermaidLabel (elem: Element) : string =
-        let safeName = WebUtility.HtmlEncode elem.name
-        sprintf "<div class='archimate-node'><div class='archimate-label'>%s</div></div>" safeName
-
     /// ArchiMate 3.2 Standard Color Scheme
     let private getArchimateColor (elementType: string) : string =
         match elementType.ToLower() with
@@ -278,163 +264,6 @@ module DiagramGenerators =
         // Default rectangle for structure
         | _ -> "rectangle"
 
-    let buildLayerMermaid (layer: string) (registry: ElementRegistry) =
-        let elements = ElementRegistry.getLayerElements layer registry
-        let elementMap = registry.elements
-
-        let lines = List<string>()
-        lines.Add("graph TD")
-
-        let layerIds = elements |> List.map (fun e -> e.id) |> Set.ofList
-
-        // Collect all element IDs that need nodes (layer elements + relationship targets)
-        let mutable allNodeIds = Set.empty<string>
-        for elem in elements do
-            allNodeIds <- Set.add elem.id allNodeIds
-            for rel in elem.relationships do
-                if Map.containsKey rel.target elementMap then
-                    allNodeIds <- Set.add rel.target allNodeIds
-
-        // Also check incoming relationships
-        for rel in registry.elements |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
-            let sourceId, rel = rel
-            if Set.contains rel.target layerIds then
-                if Map.containsKey sourceId elementMap then
-                    allNodeIds <- Set.add sourceId allNodeIds
-
-        // Create nodes for all referenced elements
-        for nodeId in allNodeIds do
-            match Map.tryFind nodeId elementMap with
-            | Some elem ->
-                let sanitizedId = sanitizeMermaidId nodeId
-                let label = buildMermaidLabel elem
-                lines.Add($"{sanitizedId}[\"{label}\"]")
-            | None -> ()
-
-        lines.Add("")
-        lines.Add("%% Relationships")
-
-        for rel in registry.elements |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
-            let sourceId, rel = rel
-            if Set.contains sourceId layerIds || Set.contains rel.target layerIds then
-                match Map.tryFind sourceId elementMap, Map.tryFind rel.target elementMap with
-                | Some _, Some _ ->
-                    let fromId = sanitizeMermaidId sourceId
-                    let toId = sanitizeMermaidId rel.target
-                    let relLabel = escapeMermaidLabel (relationTypeToKey rel.relationType)
-                    lines.Add($"{fromId} -->|{relLabel}| {toId}")
-                | _ -> ()
-
-        lines.Add("")
-        lines.Add("%% Clickable links")
-        for nodeId in allNodeIds do
-            let sanitizedId = sanitizeMermaidId nodeId
-            lines.Add($"click {sanitizedId} \"/elements/{nodeId}\" \"View details\"")
-
-        // Add ArchiMate color styling
-        lines.Add("")
-        lines.Add("%% ArchiMate 3.2 Standard Colors")
-        let elementsByType =
-            allNodeIds
-            |> Seq.choose (fun nodeId -> Map.tryFind nodeId elementMap)
-            |> Seq.groupBy (fun elem -> elementTypeToKey elem.elementType)
-            |> Seq.toList
-
-        for (elemType, elems) in elementsByType do
-            let color = getArchimateColor elemType
-            let className = (sanitizeMermaidId elemType) + "Style"
-            let ids = elems |> Seq.map (fun e -> sanitizeMermaidId e.id) |> String.concat ","
-            lines.Add($"classDef {className} fill:{color},stroke:#333,stroke-width:2px")
-            lines.Add($"class {ids} {className}")
-
-        String.Join("\n", lines)
-
-    let buildContextDiagram (elementId: string) (depth: int) (registry: ElementRegistry) =
-        let elementMap = registry.elements
-
-        // Find all connected elements up to specified depth
-        let mutable allNodeIds = Set.empty<string>
-        let mutable currentLevel = Set.singleton elementId
-        allNodeIds <- Set.add elementId allNodeIds
-
-        for _ in 1..depth do
-            let mutable nextLevel = Set.empty<string>
-            for elemId in currentLevel do
-                match Map.tryFind elemId elementMap with
-                | Some elem ->
-                    // Add outgoing relationships
-                    for rel in elem.relationships do
-                        if Map.containsKey rel.target elementMap then
-                            allNodeIds <- Set.add rel.target allNodeIds
-                            nextLevel <- Set.add rel.target nextLevel
-                | None -> ()
-
-            // Also check incoming relationships
-            for rel in elementMap |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
-                let sourceId, rel = rel
-                if Set.contains rel.target currentLevel && Map.containsKey sourceId elementMap then
-                    allNodeIds <- Set.add sourceId allNodeIds
-                    nextLevel <- Set.add sourceId nextLevel
-
-            currentLevel <- nextLevel
-
-        let lines = List<string>()
-        lines.Add("graph TD")
-
-        // Create nodes for all collected elements
-        for nodeId in allNodeIds do
-            match Map.tryFind nodeId elementMap with
-            | Some elem ->
-                let sanitizedId = sanitizeMermaidId nodeId
-                let label = buildMermaidLabel elem
-                lines.Add($"{sanitizedId}[\"{label}\"]")
-            | None -> ()
-
-        lines.Add("")
-        lines.Add("%% Relationships")
-
-        // Add relationships between collected elements
-        for rel in elementMap |> Map.toList |> List.collect (fun (_, elem) -> elem.relationships |> List.map (fun r -> (elem.id, r))) do
-            let sourceId, rel = rel
-            if Set.contains sourceId allNodeIds && Set.contains rel.target allNodeIds then
-                match Map.tryFind sourceId elementMap, Map.tryFind rel.target elementMap with
-                | Some _, Some _ ->
-                    let fromId = sanitizeMermaidId sourceId
-                    let toId = sanitizeMermaidId rel.target
-                    let relLabel = escapeMermaidLabel (relationTypeToKey rel.relationType)
-                    lines.Add($"{fromId} -->|{relLabel}| {toId}")
-                | _ -> ()
-
-        lines.Add("")
-        lines.Add("%% ArchiMate 3.2 Standard Colors")
-        let elementsByType =
-            allNodeIds
-            |> Seq.choose (fun nodeId ->
-                if nodeId <> elementId then Map.tryFind nodeId elementMap else None)
-            |> Seq.groupBy (fun elem -> elementTypeToKey elem.elementType)
-            |> Seq.toList
-
-        for (elemType, elems) in elementsByType do
-            let color = getArchimateColor elemType
-            let className = (sanitizeMermaidId elemType) + "Style"
-            let ids = elems |> Seq.map (fun e -> sanitizeMermaidId e.id) |> String.concat ","
-            lines.Add($"classDef {className} fill:{color},stroke:#333,stroke-width:2px")
-            lines.Add($"class {ids} {className}")
-
-        lines.Add("")
-        lines.Add("%% Highlight the central element")
-        let centralId = sanitizeMermaidId elementId
-        lines.Add($"classDef centerStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:4px")
-        lines.Add($"class {centralId} centerStyle")
-
-        lines.Add("")
-        lines.Add("%% Clickable links")
-        for nodeId in allNodeIds do
-            let sanitizedId = sanitizeMermaidId nodeId
-            lines.Add($"click {sanitizedId} \"/elements/{nodeId}\" \"View details\"")
-
-        String.Join("\n", lines)
-
     // ========================================
     // Cytoscape.js Diagram Generation
     // ========================================
@@ -455,8 +284,8 @@ module DiagramGenerators =
                         | None -> ""
 
                 let typeLabel = getElementTypeLabel elementTypeKey
-                let labelText = sprintf "[%s]\\n%s" typeLabel (escapeMermaidLabel elem.name)
-                let classes = (sanitizeMermaidId elementTypeKey) + " badge-label"
+                let labelText = sprintf "[%s]\\n%s" typeLabel (elem.name.Replace("\"", "\\\""))
+                let classes = elementTypeKey.Replace("-", "_") + " badge-label"
                 sprintf """{
                 data: { 
                     id: "%s", 
@@ -635,37 +464,3 @@ module DiagramGenerators =
     <script src="/js/cytoscape-diagram.js"></script>
 </body>
 </html>""" title data
-
-    /// Wrap mermaid diagram in HTML with zoom controls
-    let wrapMermaidHtml (title: string) (diagram: string) : string =
-        sprintf """<!DOCTYPE html
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>%s</title>
-    <link rel="stylesheet" href="/css/mermaid-diagram.css" />
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1>%s</h1>
-        <div class="info">
-            <p><strong>💡 Tip:</strong> Click on any element in the diagram to view its detailed documentation.</p>
-            <p><strong>🧭 Navigation:</strong> Use the zoom controls below or scroll to zoom and drag to pan.</p>
-        </div>
-        <div class="diagram-toolbar">
-            <button type="button" id="zoom-in">Zoom In</button>
-            <button type="button" id="zoom-out">Zoom Out</button>
-            <button type="button" id="zoom-reset">Reset</button>
-        </div>
-        <div class="diagram-wrapper">
-            <div id="diagram-container">
-                <div class="mermaid">%s</div>
-            </div>
-        </div>
-    </div>
-    <script src="/js/mermaid-diagram.js"></script>
-</body>
-</html>""" title title diagram

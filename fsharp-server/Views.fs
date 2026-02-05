@@ -97,11 +97,9 @@ module Views =
                 title [] [encodedText $"{pageTitle} - ArchiMate Architecture"]
                 link [_rel "stylesheet"; _href "/css/site.css"]
                 link [_rel "stylesheet"; _href "/css/cytoscape-diagram.css"]
-                link [_rel "stylesheet"; _href "/css/mermaid-diagram.css"]
                 script [_src "https://unpkg.com/htmx.org@1.9.10"] []
                 script [_src "/js/validation.js"] []
                 script [_src "/js/cytoscape-diagram.js"] []
-                script [_src "/js/mermaid-diagram.js"] []
             ]
             body [] (
                 [htmlHeader pageTitle currentPage] @ content @ [htmlFooter ()]
