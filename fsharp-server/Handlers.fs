@@ -1,7 +1,6 @@
 namespace EAArchive
 
 open System
-open System.Collections.Generic
 open System.Globalization
 open System.IO
 open System.Net
@@ -13,192 +12,7 @@ open Giraffe.ViewEngine
 module Handlers =
 
     open EAArchive.DiagramGenerators
-
-    let private severityToString (severity: Severity) : string =
-        match severity with
-        | Severity.Error -> "error"
-        | Severity.Warning -> "warning"
-
-    let private errorTypeToString (errorType: ErrorType) : string =
-        match errorType with
-        | ErrorType.MissingId -> "missing-id"
-        | ErrorType.InvalidType -> "invalid-type"
-        | ErrorType.InvalidLayer -> "invalid-layer"
-        | ErrorType.MissingRequiredField -> "missing-required-field"
-        | ErrorType.InvalidRelationshipType _ -> "invalid-relationship-type"
-        | ErrorType.RelationshipTargetNotFound _ -> "relationship-target-not-found"
-        | ErrorType.InvalidRelationshipCombination _ -> "invalid-relationship-combination"
-        | ErrorType.SelfReference _ -> "self-reference"
-        | ErrorType.DuplicateRelationship _ -> "duplicate-relationship"
-        | ErrorType.Unknown value -> value
-
-    let private relationTypeToYaml (relationType: RelationType) : string =
-        match relationType with
-        | RelationType.Composition -> "composition"
-        | RelationType.Aggregation -> "aggregation"
-        | RelationType.Assignment -> "assignment"
-        | RelationType.Realization -> "realization"
-        | RelationType.Specialization -> "specialization"
-        | RelationType.Association -> "association"
-        | RelationType.Access -> "access"
-        | RelationType.Influence -> "influence"
-        | RelationType.Serving -> "serving"
-        | RelationType.Triggering -> "triggering"
-        | RelationType.Flow -> "flow"
-        | RelationType.Unknown value -> value
-
-    let private isNumber (value: string) : bool =
-        let mutable number = 0.0
-        Double.TryParse(value, NumberStyles.AllowLeadingSign ||| NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, &number)
-
-    let private yamlScalar (value: string) : string =
-        let trimmed = value.Trim()
-        if trimmed = "" then "\"\""
-        elif isNumber trimmed then trimmed
-        else trimmed.Replace("\"", "\\\"") |> sprintf "\"%s\""
-
-    let private layerCodes =
-        Map.ofList [
-            ("strategy", "str")
-            ("business", "bus")
-            ("application", "app")
-            ("technology", "tec")
-            ("physical", "phy")
-            ("motivation", "mot")
-            ("implementation", "imp")
-        ]
-
-    let private typeCodes =
-        Map.ofList [
-            ("resource", "rsrc")
-            ("capability", "capa")
-            ("value-stream", "vstr")
-            ("course-of-action", "cact")
-            ("business-actor", "actr")
-            ("business-role", "role")
-            ("business-collaboration", "colab")
-            ("business-interface", "intf")
-            ("business-process", "proc")
-            ("business-function", "func")
-            ("business-interaction", "intr")
-            ("business-event", "evnt")
-            ("business-service", "srvc")
-            ("business-object", "objt")
-            ("contract", "cntr")
-            ("representation", "repr")
-            ("product", "prod")
-            ("application-component", "comp")
-            ("application-collaboration", "colab")
-            ("application-interface", "intf")
-            ("application-function", "func")
-            ("application-interaction", "intr")
-            ("application-process", "proc")
-            ("application-event", "evnt")
-            ("application-service", "srvc")
-            ("data-object", "data")
-            ("node", "node")
-            ("device", "devc")
-            ("system-software", "sysw")
-            ("technology-collaboration", "colab")
-            ("technology-interface", "intf")
-            ("path", "path")
-            ("communication-network", "netw")
-            ("technology-function", "func")
-            ("technology-process", "proc")
-            ("technology-interaction", "intr")
-            ("technology-event", "evnt")
-            ("technology-service", "srvc")
-            ("artifact", "artf")
-            ("equipment", "equi")
-            ("facility", "faci")
-            ("distribution-network", "dist")
-            ("material", "matr")
-            ("stakeholder", "stkh")
-            ("driver", "drvr")
-            ("assessment", "asmt")
-            ("goal", "goal")
-            ("outcome", "outc")
-            ("principle", "prin")
-            ("requirement", "reqt")
-            ("constraint", "cnst")
-            ("meaning", "mean")
-            ("value", "valu")
-            ("work-package", "work")
-            ("deliverable", "delv")
-            ("implementation-event", "evnt")
-            ("plateau", "plat")
-            ("gap", "gap_")
-        ]
-
-    let private sanitizeName (value: string) : string =
-        let lower = value.Trim().ToLowerInvariant()
-        let spaced = System.Text.RegularExpressions.Regex.Replace(lower, "[\s_]+", "-")
-        let cleaned = System.Text.RegularExpressions.Regex.Replace(spaced, "[^a-z0-9-]", "")
-        let trimmed = cleaned.Trim('-')
-        let collapsed = System.Text.RegularExpressions.Regex.Replace(trimmed, "-+", "-")
-        if collapsed.Length > 30 then
-            let parts = collapsed.Split('-') |> Array.toList
-            let prefix = parts |> List.truncate 4 |> String.concat "-"
-            prefix.Substring(0, min 30 prefix.Length).TrimEnd('-')
-        else
-            collapsed
-
-    let private nextSequence (registry: ElementRegistry) (layerCode: string) (typeCode: string) (namePart: string) : int =
-        let pattern =
-            let escapedName = System.Text.RegularExpressions.Regex.Escape(namePart)
-            System.Text.RegularExpressions.Regex($"^{layerCode}-{typeCode}-(\\d{{3}})-{escapedName}$")
-
-        registry.elements
-        |> Map.toSeq
-        |> Seq.choose (fun (elemId, _) ->
-            let matchResult = pattern.Match(elemId)
-            if matchResult.Success then
-                Some (Int32.Parse(matchResult.Groups.[1].Value))
-            else
-                None
-        )
-        |> Seq.fold (fun acc value -> max acc value) 0
-        |> fun maxValue -> maxValue + 1
-
-    let private generateElementId (registry: ElementRegistry) (layer: string) (typeValue: string) (name: string) : string =
-        let layerKey = layer.Trim().ToLowerInvariant()
-        let typeKey = typeValue.Trim().ToLowerInvariant()
-        let layerCode = layerCodes |> Map.tryFind layerKey |> Option.defaultValue "unk"
-        let typeCode = typeCodes |> Map.tryFind typeKey |> Option.defaultValue "type"
-        let namePart =
-            let sanitized = sanitizeName name
-            if sanitized = "" then "new-element" else sanitized
-        let sequenceNumber = nextSequence registry layerCode typeCode namePart
-        let sequenceText = sequenceNumber.ToString("000")
-        $"{layerCode}-{typeCode}-{sequenceText}-{namePart}"
-
-    let private relationCodeToName (code: char) : string option =
-        match code with
-        | 'c' -> Some "composition"
-        | 'g' -> Some "aggregation"
-        | 'i' -> Some "assignment"
-        | 'r' -> Some "realization"
-        | 's' -> Some "specialization"
-        | 'o' -> Some "association"
-        | 'a' -> Some "access"
-        | 'n' -> Some "influence"
-        | 'v' -> Some "serving"
-        | 't' -> Some "triggering"
-        | 'f' -> Some "flow"
-        | _ -> None
-
-    
-    /// Build tag index from registry
-    let buildTagIndex (registry: ElementRegistry) : Map<string, string list> =
-        registry.elements
-        |> Map.fold (fun acc elemId elem ->
-            elem.tags
-            |> List.fold (fun tagMap tag ->
-                match Map.tryFind tag tagMap with
-                | Some ids -> Map.add tag (elemId :: ids) tagMap
-                | None -> Map.add tag [elemId] tagMap
-            ) acc
-        ) Map.empty
+    open HandlersHelpers
     
     /// Index/home page handler
     let indexHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
@@ -207,104 +21,113 @@ module Handlers =
             let layerCounts = 
                 registry.elementsByLayer
                 |> Map.map (fun _ ids -> List.length ids)
-            logger.LogDebug($"Layer summary: {layerCounts}")
+            logger.LogDebug("Layer summary: {layerSummary}", layerCounts)
             let html = Views.indexPage registry
             htmlView html next ctx
     
     /// Layer page handler
     let layerHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /{layer} - Layer page requested")
-            let normalizedLayer = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(layer)
-            match Map.tryFind normalizedLayer Config.layerOrder with
-            | Some layerInfo ->
-                let elements = ElementRegistry.getLayerElements normalizedLayer registry
-                let filterValue =
-                    match ctx.GetQueryStringValue "filter" with
-                    | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
-                    | _ -> None
+            logger.LogInformation("GET /{layer} - Layer page requested", layer)
+            match Layer.tryParse layer with
+            | Some layerValue ->
+                match Map.tryFind layerValue Config.layerOrder with
+                | Some layerInfo ->
+                    let elements = ElementRegistry.getLayerElements layerValue registry
+                    let filterValue =
+                        match ctx.GetQueryStringValue "filter" with
+                        | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
+                        | _ -> None
 
-                let subtypeValue =
-                    match ctx.GetQueryStringValue "subtype" with
-                    | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
-                    | _ -> None
+                    let subtypeValue =
+                        match ctx.GetQueryStringValue "subtype" with
+                        | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
+                        | _ -> None
 
-                let subtypeOptions =
-                    elements
-                    |> List.choose (fun elem -> ElementRegistry.getString "type" elem.properties)
-                    |> List.distinct
-                    |> List.sort
+                    let subtypeOptions =
+                        elements
+                        |> List.choose (fun elem -> ElementRegistry.getString "type" elem.properties)
+                        |> List.distinct
+                        |> List.sort
 
-                let filteredElements =
-                    elements
-                    |> List.filter (fun elem ->
-                        let nameMatches =
-                            match filterValue with
-                            | Some term -> elem.name.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
-                            | None -> true
+                    let filteredElements =
+                        elements
+                        |> List.filter (fun elem ->
+                            let nameMatches =
+                                match filterValue with
+                                | Some term -> elem.name.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                                | None -> true
 
-                        let subtypeMatches =
-                            match subtypeValue with
-                            | Some subtype ->
-                                match ElementRegistry.getString "type" elem.properties with
-                                | Some value -> value.Equals(subtype, StringComparison.OrdinalIgnoreCase)
-                                | None -> false
-                            | None -> true
+                            let subtypeMatches =
+                                match subtypeValue with
+                                | Some subtype ->
+                                    match ElementRegistry.getString "type" elem.properties with
+                                    | Some value -> value.Equals(subtype, StringComparison.OrdinalIgnoreCase)
+                                    | None -> false
+                                | None -> true
 
-                        nameMatches && subtypeMatches
+                            nameMatches && subtypeMatches
+                        )
+
+                    logger.LogInformation("Found {elementCount} elements in layer {layer}", List.length elements, layer)
+                    elements |> List.iter (fun elem ->
+                        logger.LogDebug("  - {elementId}: {elementName}", elem.id, elem.name)
                     )
-
-                logger.LogInformation($"Found {List.length elements} elements in layer {layer}")
-                elements |> List.iter (fun elem ->
-                    logger.LogDebug($"  - {elem.id}: {elem.name}")
-                )
-                let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
-                if isHxRequest then
-                    let partial = Views.layerElementsPartial filteredElements registry
-                    htmlView partial next ctx
-                else
-                    let html = Views.layerPage (layer.ToLowerInvariant()) layerInfo filteredElements registry filterValue subtypeOptions subtypeValue
-                    htmlView html next ctx
-            | None -> 
-                logger.LogWarning($"Layer not found: {layer} (normalized: {normalizedLayer})")
+                    let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
+                    if isHxRequest then
+                        let partial = Views.layerElementsPartial filteredElements registry
+                        htmlView partial next ctx
+                    else
+                        let layerKey = Layer.toKey layerValue
+                        let html = Views.layerPage layerKey layerInfo filteredElements registry filterValue subtypeOptions subtypeValue
+                        htmlView html next ctx
+                | None -> 
+                    logger.LogWarning("Layer not found: {layer}", layer)
+                    setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
+            | None ->
+                logger.LogWarning("Layer not found: {layer}", layer)
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element detail page handler
     let elementHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /elements/{elemId} - Element detail requested")
+            logger.LogInformation("GET /elements/{elementId} - Element detail requested", elemId)
             match ElementRegistry.getElement elemId registry with
             | Some elem ->
-                logger.LogInformation($"Found element: {elemId} ({elem.name})")
+                logger.LogInformation("Found element: {elementId} ({elementName})", elemId, elem.name)
                 let incoming = ElementRegistry.getIncomingRelations elemId registry
                 let outgoing = elem.relationships
-                logger.LogInformation($"  Incoming relations: {List.length incoming}, Outgoing relations: {List.length outgoing}")
+                logger.LogInformation("  Incoming relations: {incomingCount}, Outgoing relations: {outgoingCount}", List.length incoming, List.length outgoing)
                 
                 if List.length outgoing > 0 then
-                    logger.LogInformation($"  Outgoing targets:")
+                    logger.LogInformation("  Outgoing targets:")
                     outgoing |> List.iter (fun rel ->
-                        logger.LogInformation($"    - {rel.target}")
+                        logger.LogInformation("    - {targetId}", rel.target)
                     )
                 
                 let elemWithRels = ElementRegistry.withRelations elem registry
-                logger.LogInformation($"  After withRelations: incoming={List.length elemWithRels.incomingRelations}, outgoing={List.length elemWithRels.outgoingRelations}")
+                logger.LogInformation(
+                    "  After withRelations: incoming={incomingCount}, outgoing={outgoingCount}",
+                    List.length elemWithRels.incomingRelations,
+                    List.length elemWithRels.outgoingRelations
+                )
                 
                 let html = Views.elementPage elemWithRels
                 htmlView html next ctx
             | None ->
-                logger.LogWarning($"Element not found: {elemId}")
+                logger.LogWarning("Element not found: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// Element edit form partial handler
     let elementEditHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /elements/{elemId}/edit - Element edit form requested")
+            logger.LogInformation("GET /elements/{elementId}/edit - Element edit form requested", elemId)
             match ElementRegistry.getElement elemId registry with
             | Some elem ->
                 let html = Views.elementEditFormPartial elem registry
                 htmlView html next ctx
             | None ->
-                logger.LogWarning($"Element not found: {elemId}")
+                logger.LogWarning("Element not found: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// New element form handler
@@ -314,7 +137,7 @@ module Handlers =
                 match ctx.GetQueryStringValue "layer" with
                 | Ok value -> value
                 | Error _ -> ""
-            logger.LogInformation($"GET /elements/new - layer={layerValue}")
+            logger.LogInformation("GET /elements/new - layer={layer}", layerValue)
             let html = Views.elementNewFormPartial layerValue registry
             htmlView html next ctx
 
@@ -363,42 +186,48 @@ module Handlers =
                     if isMissing then "" else direct
 
             let currentValue = getValue "current"
-            logger.LogDebug($"relationTypeOptionsHandler: sourceId='{sourceId}', targetId='{targetId}', currentValue='{currentValue}', index={index}")  
+            logger.LogDebug(
+                "relationTypeOptionsHandler: sourceId='{sourceId}', targetId='{targetId}', currentValue='{currentValue}', index={index}",
+                sourceId,
+                targetId,
+                currentValue,
+                index
+            )
             let allowedTypes =
                 match Map.tryFind sourceId registry.elements, Map.tryFind targetId registry.elements with
                 | Some sourceElem, Some targetElem ->
                     let rules = registry.relationshipRules
                     let sourceConcept = tryGetConceptName sourceElem
                     let targetConcept = tryGetConceptName targetElem
-                    logger.LogInformation($"Relation lookup: sourceConcept={sourceConcept}, targetConcept={targetConcept}")
+                    logger.LogInformation("Relation lookup: sourceConcept={sourceConcept}, targetConcept={targetConcept}", sourceConcept, targetConcept)
                     match Map.tryFind (sourceConcept, targetConcept) rules with
                     | Some codes ->
-                        logger.LogInformation($"Relation rules hit: {Set.count codes} allowed codes")
+                        logger.LogInformation("Relation rules hit: {allowedCount} allowed codes", Set.count codes)
                         codes
                         |> Set.toList
                         |> List.choose relationCodeToName
                     | None -> []
                 | None, Some targetElem ->
                     if String.IsNullOrWhiteSpace sourceTypeOverride then
-                        logger.LogWarning($"Relation lookup failed: sourceId '{sourceId}' not found")
+                        logger.LogWarning("Relation lookup failed: sourceId '{sourceId}' not found", sourceId)
                         []
                     else
                         let rules = registry.relationshipRules
                         let sourceConcept = normalizeConceptName sourceTypeOverride
                         let targetConcept = tryGetConceptName targetElem
-                        logger.LogInformation($"Relation lookup (override): sourceConcept={sourceConcept}, targetConcept={targetConcept}")
+                        logger.LogInformation("Relation lookup (override): sourceConcept={sourceConcept}, targetConcept={targetConcept}", sourceConcept, targetConcept)
                         match Map.tryFind (sourceConcept, targetConcept) rules with
                         | Some codes ->
-                            logger.LogInformation($"Relation rules hit (override): {Set.count codes} allowed codes")
+                            logger.LogInformation("Relation rules hit (override): {allowedCount} allowed codes", Set.count codes)
                             codes
                             |> Set.toList
                             |> List.choose relationCodeToName
                         | None -> []
                 | _, None ->
-                    logger.LogWarning($"Relation lookup failed: targetId '{targetId}' not found")
+                    logger.LogWarning("Relation lookup failed: targetId '{targetId}' not found", targetId)
                     []
 
-            logger.LogInformation($"GET /elements/relations/types - source={sourceId}, target={targetId}")
+            logger.LogInformation("GET /elements/relations/types - source={sourceId}, target={targetId}", sourceId, targetId)
             let selectNode = Views.relationTypeSelectPartial index allowedTypes currentValue
             htmlView selectNode next ctx
 
@@ -418,7 +247,7 @@ module Handlers =
                 | Ok value -> value
                 | Error _ -> ""
 
-            logger.LogInformation($"GET /elements/relations/row - index={index}")
+            logger.LogInformation("GET /elements/relations/row - index={index}", index)
             let row = Views.relationRowPartial sourceId index "" "" ""
             htmlView row next ctx
 
@@ -435,7 +264,7 @@ module Handlers =
                 | Ok value -> value
                 | Error _ -> ""
 
-            logger.LogInformation($"GET /elements/types - layer={layerValue}")
+            logger.LogInformation("GET /elements/types - layer={layer}", layerValue)
             let selectNode = Views.elementTypeSelectPartial layerValue currentValue
             htmlView selectNode next ctx
 
@@ -443,10 +272,10 @@ module Handlers =
     let elementDownloadHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             task {
-                logger.LogInformation($"POST /elements/{elemId}/download - Element download requested")
+                logger.LogInformation("POST /elements/{elementId}/download - Element download requested", elemId)
                 match ElementRegistry.getElement elemId registry with
                 | None ->
-                    logger.LogWarning($"Element not found: {elemId}")
+                    logger.LogWarning("Element not found: {elementId}", elemId)
                     return! (setStatusCode 404 >=> text "Element not found") next ctx
                 | Some elem ->
                     let! form = ctx.Request.ReadFormAsync()
@@ -495,13 +324,6 @@ module Handlers =
                             if String.IsNullOrWhiteSpace value then None else Some (key, value)
                         )
 
-                    let lines = ResizeArray<string>()
-                    lines.Add("---")
-                    lines.Add($"id: {id}")
-                    lines.Add($"name: {yamlScalar name}")
-                    lines.Add($"type: {elementType}")
-                    lines.Add($"layer: {layer}")
-
                     let relationTargets =
                         form.Keys
                         |> Seq.choose (fun key ->
@@ -528,29 +350,8 @@ module Handlers =
                                 Some (relType, targetValue, desc)
                         )
 
-                    if not (List.isEmpty relationships) then
-                        lines.Add("relationships:")
-                        for (relType, target, desc) in relationships do
-                            lines.Add($"  - type: {relType}")
-                            lines.Add($"    target: {target}")
-                            if not (String.IsNullOrWhiteSpace desc) then
-                                lines.Add($"    description: {yamlScalar desc}")
-
-                    if not (List.isEmpty properties) then
-                        lines.Add("properties:")
-                        for (key, value) in properties do
-                            lines.Add($"  {key}: {yamlScalar value}")
-
-                    if not (List.isEmpty tags) then
-                        lines.Add("tags:")
-                        for tag in tags do
-                            lines.Add($"  - {yamlScalar tag}")
-
-                    lines.Add("---")
-                    lines.Add("")
-                    lines.Add(content.TrimEnd())
-
-                    let markdown = String.Join("\n", lines)
+                    let frontmatter = buildFrontmatter id name elementType layer relationships properties tags
+                    let markdown = String.Join("\n", [| frontmatter; ""; content.TrimEnd() |])
                     let fileName = $"{id}.md"
 
                     return!
@@ -632,36 +433,8 @@ module Handlers =
                             Some (relType, targetValue, desc)
                     )
 
-                let lines = ResizeArray<string>()
-                lines.Add("---")
-                lines.Add($"id: {id}")
-                lines.Add($"name: {yamlScalar name}")
-                lines.Add($"type: {elementType}")
-                lines.Add($"layer: {layer}")
-
-                if not (List.isEmpty relationships) then
-                    lines.Add("relationships:")
-                    for (relType, target, desc) in relationships do
-                        lines.Add($"  - type: {relType}")
-                        lines.Add($"    target: {target}")
-                        if not (String.IsNullOrWhiteSpace desc) then
-                            lines.Add($"    description: {yamlScalar desc}")
-
-                if not (List.isEmpty properties) then
-                    lines.Add("properties:")
-                    for (key, value) in properties do
-                        lines.Add($"  {key}: {yamlScalar value}")
-
-                if not (List.isEmpty tags) then
-                    lines.Add("tags:")
-                    for tag in tags do
-                        lines.Add($"  - {yamlScalar tag}")
-
-                lines.Add("---")
-                lines.Add("")
-                lines.Add(content.TrimEnd())
-
-                let markdown = String.Join("\n", lines)
+                let frontmatter = buildFrontmatter id name elementType layer relationships properties tags
+                let markdown = String.Join("\n", [| frontmatter; ""; content.TrimEnd() |])
                 let fileName = $"{id}.md"
 
                 return!
@@ -677,28 +450,32 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("GET /tags - Tags index page requested")
             let tagIndex = buildTagIndex registry
-            logger.LogInformation($"Found {Map.count tagIndex} tags")
+            logger.LogInformation("Found {tagCount} tags", Map.count tagIndex)
             let html = Views.tagsIndexPage tagIndex registry
             htmlView html next ctx
 
     /// Layer Cytoscape diagram handler
     let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /diagrams/layer/{layer} - Cytoscape layer diagram requested")
-            let normalizedLayer = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(layer)
-            match Map.tryFind normalizedLayer Config.layerOrder with
-            | Some layerInfo ->
-                let data = buildLayerCytoscape normalizedLayer registry
-                let html = wrapCytoscapeHtml (sprintf "%s Layer" layerInfo.displayName) data true
-                htmlString html next ctx
+            logger.LogInformation("GET /diagrams/layer/{layer} - Cytoscape layer diagram requested", layer)
+            match Layer.tryParse layer with
+            | Some layerValue ->
+                match Map.tryFind layerValue Config.layerOrder with
+                | Some layerInfo ->
+                    let data = buildLayerCytoscape layerValue registry
+                    let html = wrapCytoscapeHtml (sprintf "%s Layer" layerInfo.displayName) data true
+                    htmlString html next ctx
+                | None ->
+                    logger.LogWarning("Layer not found for Cytoscape diagram: {layer}", layer)
+                    setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
             | None ->
-                logger.LogWarning($"Layer not found for Cytoscape diagram: {layer} (normalized: {normalizedLayer})")
+                logger.LogWarning("Layer not found for Cytoscape diagram: {layer}", layer)
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context Cytoscape diagram handler
     let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /diagrams/context/{elemId}/cytoscape - Cytoscape context diagram requested")
+            logger.LogInformation("GET /diagrams/context/{elementId}/cytoscape - Cytoscape context diagram requested", elemId)
             match ElementRegistry.getElement elemId registry with
             | Some elem ->
                 let depth = 
@@ -709,13 +486,18 @@ module Handlers =
                         | _ -> 1
                     | Error _ -> 1
                 
-                logger.LogInformation($"Found element: {elemId} ({elem.name}), generating Cytoscape context diagram with depth={depth}")
+                logger.LogInformation(
+                    "Found element: {elementId} ({elementName}), generating Cytoscape context diagram with depth={depth}",
+                    elemId,
+                    elem.name,
+                    depth
+                )
                 let data = buildContextCytoscape elemId depth registry
                 let title = sprintf "Context: %s (Depth %d)" elem.name depth
                 let html = wrapCytoscapeHtml title data false
                 htmlString html next ctx
             | None ->
-                logger.LogWarning($"Element not found for Cytoscape context diagram: {elemId}")
+                logger.LogWarning("Element not found for Cytoscape context diagram: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
     
     /// Validation errors API handler - list all errors
@@ -723,7 +505,7 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/errors - Validation errors requested")
             let errors = ElementRegistry.getValidationErrors registry
-            logger.LogInformation($"Returning {List.length errors} validation errors")
+            logger.LogInformation("Returning {errorCount} validation errors", List.length errors)
             
             let errorsList =
                 errors
@@ -731,9 +513,9 @@ module Handlers =
                     dict [
                         ("filePath", box err.filePath)
                         ("elementId", box (err.elementId |> Option.defaultValue ""))
-                        ("errorType", box (errorTypeToString err.errorType))
+                        ("errorType", box (ElementType.errorTypeToString err.errorType))
                         ("message", box err.message)
-                        ("severity", box (severityToString err.severity))
+                        ("severity", box (ElementType.severityToString err.severity))
                     ]
                 )
             
@@ -742,10 +524,10 @@ module Handlers =
     /// Validation errors by file handler
     let fileValidationErrorsHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /api/validation/file - Validation errors for file: {filePath}")
+            logger.LogInformation("GET /api/validation/file - Validation errors for file: {filePath}", filePath)
             let decodedPath = Uri.UnescapeDataString(filePath)
             let errors = ElementRegistry.getFileValidationErrors decodedPath registry
-            logger.LogInformation($"File '{decodedPath}' has {List.length errors} validation errors")
+            logger.LogInformation("File '{filePath}' has {errorCount} validation errors", decodedPath, List.length errors)
             
             let errorsList =
                 errors
@@ -753,9 +535,9 @@ module Handlers =
                     dict [
                         ("filePath", box err.filePath)
                         ("elementId", box (err.elementId |> Option.defaultValue ""))
-                        ("errorType", box (errorTypeToString err.errorType))
+                        ("errorType", box (ElementType.errorTypeToString err.errorType))
                         ("message", box err.message)
-                        ("severity", box (severityToString err.severity))
+                        ("severity", box (ElementType.severityToString err.severity))
                     ]
                 )
             
@@ -776,7 +558,7 @@ module Handlers =
                 ("errorsByType", box (
                     errors
                     |> List.groupBy (fun e -> e.errorType)
-                    |> List.map (fun (eType, errs) -> dict [("type", box (errorTypeToString eType)); ("count", box errs.Length)])
+                    |> List.map (fun (eType, errs) -> dict [("type", box (ElementType.errorTypeToString eType)); ("count", box errs.Length)])
                 ))
             ]
             
@@ -787,14 +569,14 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("GET /validation - Validation page requested")
             let errors = ElementRegistry.getValidationErrors registry
-            logger.LogInformation($"Displaying {List.length errors} validation errors")
+            logger.LogInformation("Displaying {errorCount} validation errors", List.length errors)
             let html = Views.validationPage errors
             htmlView html next ctx
     
     /// Revalidate file handler
     let revalidateFileHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"POST /api/validation/revalidate - Revalidating file: {filePath}")
+            logger.LogInformation("POST /api/validation/revalidate - Revalidating file: {filePath}", filePath)
             let decodedPath = Uri.UnescapeDataString(filePath)
             
             ElementRegistry.revalidateFile decodedPath registry logger
@@ -808,9 +590,9 @@ module Handlers =
                     errors
                     |> List.map (fun err ->
                         dict [
-                            ("errorType", box (errorTypeToString err.errorType))
+                            ("errorType", box (ElementType.errorTypeToString err.errorType))
                             ("message", box err.message)
-                            ("severity", box (severityToString err.severity))
+                            ("severity", box (ElementType.severityToString err.severity))
                         ]
                     )
                 ))
@@ -821,11 +603,11 @@ module Handlers =
     /// Individual tag page handler
     let tagHandler (tag: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation($"GET /tags/{tag} - Tag page requested")
+            logger.LogInformation("GET /tags/{tag} - Tag page requested", tag)
             let tagIndex = buildTagIndex registry
             match Map.tryFind tag tagIndex with
             | Some elemIds ->
-                logger.LogInformation($"Found {List.length elemIds} elements with tag '{tag}'")
+                logger.LogInformation("Found {elementCount} elements with tag '{tag}'", List.length elemIds, tag)
                 let elements =
                     elemIds
                     |> List.choose (fun id -> ElementRegistry.getElement id registry)
@@ -833,7 +615,7 @@ module Handlers =
                 let html = Views.tagPage tag elements
                 htmlView html next ctx
             | None ->
-                logger.LogWarning($"Tag not found: {tag}")
+                logger.LogWarning("Tag not found: {tag}", tag)
                 setStatusCode 404 >=> text "Tag not found" |> fun handler -> handler next ctx
     
     /// Create route handlers
@@ -841,7 +623,7 @@ module Handlers =
         let logger = loggerFactory.CreateLogger("Handlers")
         
         logger.LogInformation("Initializing route handlers")
-        logger.LogInformation($"Registry contains {Map.count registry.elements} elements")
+        logger.LogInformation("Registry contains {elementCount} elements", Map.count registry.elements)
         
         choose [
             route "/" >=> indexHandler registry logger

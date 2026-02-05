@@ -38,7 +38,8 @@ module RelationshipValidationTests =
             elements = elementsMap
             elementsByLayer = Map.empty
             incomingRelations = Map.empty
-            validationErrors = ref []
+            validationErrors = []
+            validationErrorsLock = obj ()
             elementsPath = "C:\\temp\\elements"
             relationshipRules = Map.empty
         }

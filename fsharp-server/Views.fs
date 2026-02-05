@@ -1,67 +1,15 @@
 namespace EAArchive
 
-open System
 open System.Net
 open System.Collections
 open System.Collections.Generic
 open Giraffe.ViewEngine
 open Htmx.HtmxAttrs
-open Markdig
+open ViewHelpers
 
 module Views =
-    
+
     let baseUrl = Config.baseUrl
-    
-    /// Convert markdown to HTML
-    let markdownToHtml (markdown: string) : string =
-        try
-            let pipeline = MarkdownPipelineBuilder().UseAdvancedExtensions().Build()
-            Markdown.ToHtml(markdown, pipeline)
-        with
-        | ex ->
-            sprintf "<p>Error rendering markdown: %s</p>" (WebUtility.HtmlEncode ex.Message)
-    
-    /// Helper to pluralize words
-    let pluralize (count: int) (singular: string) (plural: string) : string =
-        if count <> 1 then plural else singular
-
-    let private optionNode (value: string) (selected: bool) : XmlNode =
-        let encodedValue = WebUtility.HtmlEncode value
-        let selectedAttr = if selected then " selected" else ""
-        rawText $"<option value=\"{encodedValue}\"{selectedAttr}>{encodedValue}</option>"
-
-    let private placeholderOptionNode (label: string) (selected: bool) : XmlNode =
-        let encodedLabel = WebUtility.HtmlEncode label
-        let selectedAttr = if selected then " selected" else ""
-        rawText $"<option value=\"\"{selectedAttr}>{encodedLabel}</option>"
-    
-    /// Convert ElementType to string for display
-    let elementTypeToString (elementType: ElementType) : string =
-        match elementType with
-        | ElementType.Strategy st -> sprintf "Strategy %A" st
-        | ElementType.Motivation mt -> sprintf "Motivation %A" mt
-        | ElementType.Business bt -> sprintf "Business %A" bt
-        | ElementType.Application at -> sprintf "Application %A" at
-        | ElementType.Technology tt -> sprintf "Technology %A" tt
-        | ElementType.Physical pt -> sprintf "Physical %A" pt
-        | ElementType.Implementation it -> sprintf "Implementation %A" it
-        | ElementType.Unknown (layer, typeName) -> sprintf "%s %s" layer typeName
-    
-    /// Convert RelationType to string for display
-    let relationTypeToString (relationType: RelationType) : string =
-        match relationType with
-        | RelationType.Composition -> "Composition"
-        | RelationType.Aggregation -> "Aggregation"
-        | RelationType.Assignment -> "Assignment"
-        | RelationType.Realization -> "Realization"
-        | RelationType.Specialization -> "Specialization"
-        | RelationType.Association -> "Association"
-        | RelationType.Access -> "Access"
-        | RelationType.Influence -> "Influence"
-        | RelationType.Serving -> "Serving"
-        | RelationType.Triggering -> "Triggering"
-        | RelationType.Flow -> "Flow"
-        | RelationType.Unknown s -> s
     
     /// HTML header with navigation
     let htmlHeader (title: string) (currentPage: string) =
@@ -70,9 +18,10 @@ module Views =
             |> Map.toList
             |> List.sortBy (fun (_, layerInfo) -> layerInfo.order)
             |> List.map (fun (layerKey, layerInfo) ->
-                let isActive = currentPage = layerKey
+                let layerKeyLower = Layer.toKey layerKey
+                let isActive = currentPage = layerKeyLower
                 let activeClass = if isActive then "active" else ""
-                a [_href $"{baseUrl}{layerKey.ToLowerInvariant()}"; _class $"nav-link {activeClass}"] [
+                a [_href $"{baseUrl}{layerKeyLower}"; _class $"nav-link {activeClass}"] [
                     encodedText layerInfo.displayName
                 ]
             )
@@ -128,8 +77,8 @@ module Views =
             |> Map.toList
             |> List.sortBy (fun (_, layerInfo) -> layerInfo.order)
             |> List.choose (fun (layerKey, layerInfo) ->
-                let layerKeyLower = layerKey.ToLowerInvariant()
-                let elements = ElementRegistry.getLayerElements layerKeyLower registry
+                let layerKeyLower = Layer.toKey layerKey
+                let elements = ElementRegistry.getLayerElements layerKey registry
                 if List.isEmpty elements then None
                 else
                     Some (
@@ -295,7 +244,7 @@ module Views =
             ]
         ]
 
-        htmlPage layer.displayName layer.displayName content
+        htmlPage layer.displayName layerKey content
 
     let private getMetadataString (key: string) (metadata: Map<string, obj>) : string option =
         ElementRegistry.getString key metadata
@@ -342,7 +291,7 @@ module Views =
         let relationItem (related: Element) (rel: Relationship) (isIncoming: bool) =
             let relClass = if isIncoming then "incoming" else ""
             li [_class $"relation-item {relClass}"] [
-                span [_class "relation-type"] [encodedText (relationTypeToString rel.relationType)]
+                span [_class "relation-type"] [encodedText (ElementType.relationTypeToDisplayName rel.relationType)]
                 a [_href $"{baseUrl}elements/{related.id}"] [
                     encodedText related.name
                 ]
@@ -413,7 +362,7 @@ module Views =
 
 
                 let layerName = ElementType.getLayer elem.elementType
-                let layerNameLower = layerName.ToLowerInvariant()
+                let layerNameLower = Layer.toKey layerName
                 div [_class "breadcrumb"] [
                     a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / "
@@ -421,7 +370,7 @@ module Views =
                         Config.layerOrder
                         |> Map.tryFind layerName
                         |> Option.map (fun l -> l.displayName)
-                        |> Option.defaultValue layerName
+                        |> Option.defaultValue (Layer.toString layerName)
                     )]
                     encodedText " / "
                     encodedText elem.name
@@ -458,7 +407,7 @@ module Views =
                             ]
                             div [_class "metadata-item"] [
                                 div [_class "metadata-label"] [encodedText "Layer"]
-                                div [_class "metadata-value"] [encodedText layerName]
+                                div [_class "metadata-value"] [encodedText (Layer.toString layerName)]
                             ]
                         ]
                         if not (List.isEmpty propertyItems) then
@@ -601,19 +550,7 @@ module Views =
             if List.isEmpty elem.tags then "" else String.concat ", " elem.tags
 
         let relationTypeValue (relationType: RelationType) : string =
-            match relationType with
-            | RelationType.Composition -> "composition"
-            | RelationType.Aggregation -> "aggregation"
-            | RelationType.Assignment -> "assignment"
-            | RelationType.Realization -> "realization"
-            | RelationType.Specialization -> "specialization"
-            | RelationType.Association -> "association"
-            | RelationType.Access -> "access"
-            | RelationType.Influence -> "influence"
-            | RelationType.Serving -> "serving"
-            | RelationType.Triggering -> "triggering"
-            | RelationType.Flow -> "flow"
-            | RelationType.Unknown value -> value
+            ElementType.relationTypeToString relationType
 
         let selectOptions (currentValue: string) (options: string list) : XmlNode list =
             let normalized = currentValue.Trim()
@@ -635,46 +572,11 @@ module Views =
             let placeholderOption = placeholderOptionNode placeholder (normalized = "")
             placeholderOption :: selectOptions currentValue options
 
-        let layerOptions = ["strategy"; "business"; "application"; "technology"; "physical"; "motivation"; "implementation"]
+        let layerOptions = Config.layerOptions
 
-        let typeOptionsByLayer =
-            Map.ofList [
-                ("strategy", ["resource"; "capability"; "value-stream"; "course-of-action"])
-                ("business", [
-                    "business-actor"; "business-role"; "business-collaboration"; "business-interface"
-                    "business-process"; "business-function"; "business-interaction"; "business-event"
-                    "business-service"; "business-object"; "contract"; "representation"; "product"
-                ])
-                ("application", [
-                    "application-component"; "application-collaboration"; "application-interface"
-                    "application-function"; "application-interaction"; "application-process"
-                    "application-event"; "application-service"; "data-object"
-                ])
-                ("technology", [
-                    "node"; "device"; "system-software"; "technology-collaboration"
-                    "technology-interface"; "path"; "communication-network"; "technology-function"
-                    "technology-process"; "technology-interaction"; "technology-event"
-                    "technology-service"; "artifact"
-                ])
-                ("physical", ["equipment"; "facility"; "distribution-network"; "material"])
-                ("motivation", [
-                    "stakeholder"; "driver"; "assessment"; "goal"; "outcome"; "principle"
-                    "requirement"; "constraint"; "meaning"; "value"
-                ])
-                ("implementation", ["work-package"; "deliverable"; "implementation-event"; "plateau"; "gap"])
-            ]
+        let typeOptionsByLayer = Config.typeOptionsByLayer
 
-        let allTypeOptions =
-            typeOptionsByLayer
-            |> Map.toList
-            |> List.collect snd
-            |> List.distinct
-
-        let typeOptions =
-            let normalizedLayer = layerValue.Trim().ToLowerInvariant()
-            typeOptionsByLayer
-            |> Map.tryFind normalizedLayer
-            |> Option.defaultValue allTypeOptions
+        let typeOptions = Config.getTypeOptions layerValue
 
         let statusOptions = ["draft"; "proposed"; "active"; "production"; "deprecated"; "retired"]
 
@@ -806,46 +708,11 @@ module Views =
             let placeholderOption = placeholderOptionNode placeholder (normalized = "")
             placeholderOption :: selectOptions currentValue options
 
-        let layerOptions = ["strategy"; "business"; "application"; "technology"; "physical"; "motivation"; "implementation"]
+        let layerOptions = Config.layerOptions
 
-        let typeOptionsByLayer =
-            Map.ofList [
-                ("strategy", ["resource"; "capability"; "value-stream"; "course-of-action"])
-                ("business", [
-                    "business-actor"; "business-role"; "business-collaboration"; "business-interface"
-                    "business-process"; "business-function"; "business-interaction"; "business-event"
-                    "business-service"; "business-object"; "contract"; "representation"; "product"
-                ])
-                ("application", [
-                    "application-component"; "application-collaboration"; "application-interface"
-                    "application-function"; "application-interaction"; "application-process"
-                    "application-event"; "application-service"; "data-object"
-                ])
-                ("technology", [
-                    "node"; "device"; "system-software"; "technology-collaboration"
-                    "technology-interface"; "path"; "communication-network"; "technology-function"
-                    "technology-process"; "technology-interaction"; "technology-event"
-                    "technology-service"; "artifact"
-                ])
-                ("physical", ["equipment"; "facility"; "distribution-network"; "material"])
-                ("motivation", [
-                    "stakeholder"; "driver"; "assessment"; "goal"; "outcome"; "principle"
-                    "requirement"; "constraint"; "meaning"; "value"
-                ])
-                ("implementation", ["work-package"; "deliverable"; "implementation-event"; "plateau"; "gap"])
-            ]
+        let typeOptionsByLayer = Config.typeOptionsByLayer
 
-        let allTypeOptions =
-            typeOptionsByLayer
-            |> Map.toList
-            |> List.collect snd
-            |> List.distinct
-
-        let typeOptions =
-            let normalizedLayer = layerValue.Trim().ToLowerInvariant()
-            typeOptionsByLayer
-            |> Map.tryFind normalizedLayer
-            |> Option.defaultValue allTypeOptions
+        let typeOptions = Config.getTypeOptions layerValue
 
         let statusOptions = ["draft"; "proposed"; "active"; "production"; "deprecated"; "retired"]
         let criticalityOptions = ["low"; "medium"; "high"; "critical"]
@@ -950,41 +817,7 @@ module Views =
         ]
 
     let elementTypeSelectPartial (layerValue: string) (currentValue: string) : XmlNode =
-        let normalizedLayer = layerValue.Trim().ToLowerInvariant()
-        let options =
-            match normalizedLayer with
-            | "strategy" ->
-                ["resource"; "capability"; "value-stream"; "course-of-action"]
-            | "business" ->
-                [
-                    "business-actor"; "business-role"; "business-collaboration"; "business-interface"
-                    "business-process"; "business-function"; "business-interaction"; "business-event"
-                    "business-service"; "business-object"; "contract"; "representation"; "product"
-                ]
-            | "application" ->
-                [
-                    "application-component"; "application-collaboration"; "application-interface"
-                    "application-function"; "application-interaction"; "application-process"
-                    "application-event"; "application-service"; "data-object"
-                ]
-            | "technology" ->
-                [
-                    "node"; "device"; "system-software"; "technology-collaboration"
-                    "technology-interface"; "path"; "communication-network"; "technology-function"
-                    "technology-process"; "technology-interaction"; "technology-event"
-                    "technology-service"; "artifact"
-                ]
-            | "physical" ->
-                ["equipment"; "facility"; "distribution-network"; "material"]
-            | "motivation" ->
-                [
-                    "stakeholder"; "driver"; "assessment"; "goal"; "outcome"; "principle"
-                    "requirement"; "constraint"; "meaning"; "value"
-                ]
-            | "implementation" ->
-                ["work-package"; "deliverable"; "implementation-event"; "plateau"; "gap"]
-            | _ ->
-                []
+        let options = Config.getTypeOptions layerValue
 
         let normalizedCurrent = currentValue.Trim()
         let placeholder =
@@ -1120,18 +953,7 @@ module Views =
                         let elemId = err.elementId |> Option.defaultValue "N/A"
                         let severityStr = match err.severity with Severity.Error -> "error" | Severity.Warning -> "warning"
                         let severityClass = $"severity-{severityStr}"
-                        let errorTypeStr =
-                            match err.errorType with
-                            | ErrorType.MissingId -> "Missing ID"
-                            | ErrorType.InvalidType -> "Invalid Type"
-                            | ErrorType.InvalidLayer -> "Invalid Layer"
-                            | ErrorType.MissingRequiredField -> "Missing Required Field"
-                            | ErrorType.InvalidRelationshipType _ -> "Invalid Relationship Type"
-                            | ErrorType.RelationshipTargetNotFound _ -> "Relationship Target Not Found"
-                            | ErrorType.InvalidRelationshipCombination _ -> "Invalid Relationship Combination"
-                            | ErrorType.SelfReference _ -> "Self Reference"
-                            | ErrorType.DuplicateRelationship _ -> "Duplicate Relationship"
-                            | ErrorType.Unknown s -> s
+                        let errorTypeStr = ElementType.errorTypeToDisplayName err.errorType
                         div [_class $"error-detail {severityClass}"] [
                             div [_class "error-header"] [
                                 span [_class "error-type"] [encodedText errorTypeStr]

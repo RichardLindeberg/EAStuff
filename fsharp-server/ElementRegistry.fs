@@ -6,13 +6,15 @@ open System.Collections.Generic
 open System.Text.RegularExpressions
 open YamlDotNet.Serialization
 open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Logging.Abstractions
 
 /// Registry for all elements and relationships
 type ElementRegistry = {
     elements: Map<string, Element>
-    elementsByLayer: Map<string, string list>
+    elementsByLayer: Map<Layer, string list>
     incomingRelations: Map<string, (string * RelationType * string) list> // target -> [(source, relType, desc)]
-    validationErrors: ValidationError list ref  // Using ref for mutability
+    mutable validationErrors: ValidationError list
+    validationErrorsLock: obj
     elementsPath: string
     relationshipRules: RelationshipRules
 }
@@ -185,9 +187,9 @@ module ElementRegistry =
             })
         
         // Validate layer value
-        let validLayers = ["strategy"; "motivation"; "business"; "application"; "technology"; "physical"; "implementation"]
+        let validLayers = Config.layerOptions
         match getString "layer" metadata with
-        | Some layer when not (List.contains (layer.ToLower()) validLayers) ->
+        | Some layer when Layer.tryParse layer |> Option.isNone ->
             errors.Add({
                 filePath = filePath
                 elementId = id
@@ -327,14 +329,14 @@ module ElementRegistry =
                 try 
                     parseFrontmatter content
                 with ex ->
-                    logger.LogError($"Error parsing frontmatter from {filePath}: {ex.Message}")
+                    logger.LogError(ex, "Error parsing frontmatter from {filePath}", filePath)
                     raise (System.FormatException($"Failed to parse YAML frontmatter: {ex.Message}", ex))
             
             let validationErrors = validateElement filePath metadata
             
             let id = getString "id" metadata |> Option.defaultValue ""
             if id = "" then 
-                logger.LogWarning($"Element in {filePath} has no ID, skipping")
+                logger.LogWarning("Element in {filePath} has no ID, skipping", filePath)
                 (None, validationErrors)
             else
                 let name = getString "name" metadata |> Option.defaultValue "Unnamed"
@@ -342,7 +344,7 @@ module ElementRegistry =
                 let typeStr = getString "type" metadata |> Option.defaultValue "unknown"
                 let elementType = ElementType.parseElementType layerStr typeStr
                 
-                logger.LogDebug($"Loaded element: {id} ({name}) in layer {layerStr} from {filePath}")
+                logger.LogDebug("Loaded element: {elementId} ({elementName}) in layer {layer} from {filePath}", id, name, layerStr, filePath)
                 
                 let element = {
                     id = id
@@ -355,7 +357,7 @@ module ElementRegistry =
                 }
                 (Some element, validationErrors)
         with ex ->
-            logger.LogError($"Error loading element from {filePath}: {ex.Message}")
+            logger.LogError(ex, "Error loading element from {filePath}", filePath)
             ({
                 filePath = filePath
                 elementId = None
@@ -371,7 +373,12 @@ module ElementRegistry =
     /// Validate relationships for a single element against ArchiMate rules
     let validateRelationships (rules: RelationshipRules) (registry: ElementRegistry) (elem: Element) : ValidationError list =
         let errors = ResizeArray<ValidationError>()
-        let filePath = $"{registry.elementsPath}/{ElementType.getLayer elem.elementType}/{elem.id}.md"
+        let filePath =
+            Path.Combine(
+                registry.elementsPath,
+                Layer.toString (ElementType.getLayer elem.elementType),
+                $"{elem.id}.md"
+            )
         
         for rel in elem.relationships do
             // Check 1: Target element must exist
@@ -481,10 +488,8 @@ module ElementRegistry =
         List.ofSeq errors
     
     /// Build the element registry from all markdown files
-    let create (elementsPath: string) : ElementRegistry =
-        let logger = LoggerFactory.Create(fun builder -> builder.AddConsole() |> ignore).CreateLogger("ElementRegistry")
-        
-        logger.LogInformation($"Creating element registry from: {elementsPath}")
+    let createWithLogger (elementsPath: string) (logger: ILogger) : ElementRegistry =
+        logger.LogInformation("Creating element registry from: {elementsPath}", elementsPath)
         
         // Load relationship rules from relations.xml
         let relationsXmlPathCandidates =
@@ -504,28 +509,35 @@ module ElementRegistry =
 
         if relationsXmlPathOpt.IsNone then
             let triedPaths = String.concat "; " relationsXmlPathCandidates
-            logger.LogWarning($"Relationship rules file not found. Tried: {triedPaths}")
+            logger.LogWarning("Relationship rules file not found. Tried: {triedPaths}", triedPaths)
 
-        let relationshipRules = ElementType.parseRelationshipRules relationsXmlPath
-        logger.LogInformation($"Loaded {Map.count relationshipRules} relationship rules from {relationsXmlPath}")
+        let relationshipRules =
+            match ElementType.parseRelationshipRulesWithLogger relationsXmlPath logger with
+            | Ok rules ->
+                logger.LogInformation("Loaded {ruleCount} relationship rules from {rulesPath}", Map.count rules, relationsXmlPath)
+                rules
+            | Error errorMessage ->
+                logger.LogWarning("Failed to parse relationship rules from {rulesPath}: {error}", relationsXmlPath, errorMessage)
+                Map.empty
         
         let mutable elements = Map.empty
         let mutable elementsByLayer = Map.empty
         let mutable incomingRelations = Map.empty
-        let mutable allValidationErrors = []
+        let validationErrors = ResizeArray<ValidationError>()
         
         if Directory.Exists(elementsPath) then
             let mdFiles = 
                 Directory.EnumerateFiles(elementsPath, "*.md", SearchOption.AllDirectories)
                 |> Seq.toList
             
-            logger.LogInformation($"Found {mdFiles.Length} markdown files")
+            logger.LogInformation("Found {fileCount} markdown files", mdFiles.Length)
             
             // Load all elements with validation
             mdFiles
             |> List.iter (fun filePath ->
                 let (elemOpt, errors) = loadElementWithValidation filePath logger
-                allValidationErrors <- allValidationErrors @ errors
+                if errors.Length > 0 then
+                    validationErrors.AddRange errors
                 
                 match elemOpt with
                 | Some elem ->
@@ -553,9 +565,9 @@ module ElementRegistry =
                 | None -> ()
             )
             
-            logger.LogInformation($"Successfully loaded {Map.count elements} elements into registry")
-            if allValidationErrors.Length > 0 then
-                logger.LogWarning($"Found {allValidationErrors.Length} validation errors/warnings during load")
+            logger.LogInformation("Successfully loaded {elementCount} elements into registry", Map.count elements)
+            if validationErrors.Count > 0 then
+                logger.LogWarning("Found {errorCount} validation errors/warnings during load", validationErrors.Count)
             
             // Second pass: Validate relationships
             logger.LogInformation("Starting relationship validation pass")
@@ -563,7 +575,8 @@ module ElementRegistry =
                 elements = elements
                 elementsByLayer = elementsByLayer
                 incomingRelations = incomingRelations
-                validationErrors = ref []
+                validationErrors = []
+                validationErrorsLock = obj ()
                 elementsPath = elementsPath
                 relationshipRules = relationshipRules
             }
@@ -574,33 +587,38 @@ module ElementRegistry =
                 |> Seq.collect (fun elem -> validateRelationships relationshipRules tempRegistry elem)
                 |> List.ofSeq
             
-            allValidationErrors <- allValidationErrors @ relationshipErrors
-            logger.LogInformation($"Relationship validation found {relationshipErrors.Length} warnings")
+            if relationshipErrors.Length > 0 then
+                validationErrors.AddRange relationshipErrors
+            logger.LogInformation("Relationship validation found {warningCount} warnings", relationshipErrors.Length)
         else
-            logger.LogError($"Elements directory does not exist: {elementsPath}")
+            logger.LogError("Elements directory does not exist: {elementsPath}", elementsPath)
         
         {
             elements = elements
             elementsByLayer = elementsByLayer
             incomingRelations = incomingRelations
-            validationErrors = ref allValidationErrors
+            validationErrors = List.ofSeq validationErrors
+            validationErrorsLock = obj ()
             elementsPath = elementsPath
             relationshipRules = relationshipRules
         }
 
+    let create (elementsPath: string) : ElementRegistry =
+        createWithLogger elementsPath (NullLogger.Instance)
+
     
     /// Get all validation errors
     let getValidationErrors (registry: ElementRegistry) : ValidationError list =
-        !registry.validationErrors
+        lock registry.validationErrorsLock (fun () -> registry.validationErrors)
     
     /// Get validation errors for a specific file
     let getFileValidationErrors (filePath: string) (registry: ElementRegistry) : ValidationError list =
-        !registry.validationErrors
+        lock registry.validationErrorsLock (fun () -> registry.validationErrors)
         |> List.filter (fun err -> err.filePath = filePath)
     
     /// Get validation errors by severity
     let getErrorsBySeverity (severity: Severity) (registry: ElementRegistry) : ValidationError list =
-        !registry.validationErrors
+        lock registry.validationErrorsLock (fun () -> registry.validationErrors)
         |> List.filter (fun err -> err.severity = severity)
     
     /// Reload validation for a single file and update registry
@@ -609,24 +627,24 @@ module ElementRegistry =
             let (elemOpt, newErrors) = loadElementWithValidation filePath logger
             
             // Remove old validation errors for this file
-            let updatedErrors = 
-                !registry.validationErrors
-                |> List.filter (fun err -> err.filePath <> filePath)
-                |> (@) newErrors
+            lock registry.validationErrorsLock (fun () ->
+                let updatedErrors =
+                    registry.validationErrors
+                    |> List.filter (fun err -> err.filePath <> filePath)
+                    |> (@) newErrors
+                registry.validationErrors <- updatedErrors
+            )
             
-            // Update the ref with new errors
-            registry.validationErrors := updatedErrors
-            
-            logger.LogInformation($"Revalidated file {filePath}: {newErrors.Length} errors found")
+            logger.LogInformation("Revalidated file {filePath}: {errorCount} errors found", filePath, newErrors.Length)
         else
-            logger.LogWarning($"File not found for revalidation: {filePath}")
+            logger.LogWarning("File not found for revalidation: {filePath}", filePath)
     
     /// Get an element by ID
     let getElement (id: string) (registry: ElementRegistry) : Element option =
         Map.tryFind id registry.elements
     
     /// Get all elements in a layer
-    let getLayerElements (layer: string) (registry: ElementRegistry) : Element list =
+    let getLayerElements (layer: Layer) (registry: ElementRegistry) : Element list =
         registry.elementsByLayer
         |> Map.tryFind layer
         |> Option.defaultValue []

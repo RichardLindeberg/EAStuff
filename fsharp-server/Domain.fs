@@ -2,6 +2,8 @@ namespace EAArchive
 
 open System
 open System.Xml.Linq
+open Microsoft.Extensions.Logging
+open Microsoft.Extensions.Logging.Abstractions
 
 /// Strategy layer element types
 [<RequireQualifiedAccess>]
@@ -169,35 +171,130 @@ type LayerInfo = {
     order: int
 }
 
+/// Layer names in the domain model
+[<RequireQualifiedAccess>]
+type Layer =
+    | Strategy
+    | Motivation
+    | Business
+    | Application
+    | Technology
+    | Physical
+    | Implementation
+    | Unknown of string
+
+/// Helper functions for Layer
+module Layer =
+    let toString (layer: Layer) : string =
+        match layer with
+        | Layer.Strategy -> "Strategy"
+        | Layer.Motivation -> "Motivation"
+        | Layer.Business -> "Business"
+        | Layer.Application -> "Application"
+        | Layer.Technology -> "Technology"
+        | Layer.Physical -> "Physical"
+        | Layer.Implementation -> "Implementation"
+        | Layer.Unknown value -> value
+
+    let toKey (layer: Layer) : string =
+        toString layer |> fun value -> value.ToLowerInvariant()
+
+    let tryParse (value: string) : Layer option =
+        match value.Trim().ToLowerInvariant() with
+        | "strategy" -> Some Layer.Strategy
+        | "motivation" -> Some Layer.Motivation
+        | "business" -> Some Layer.Business
+        | "application" -> Some Layer.Application
+        | "technology" -> Some Layer.Technology
+        | "physical" -> Some Layer.Physical
+        | "implementation" -> Some Layer.Implementation
+        | _ -> None
+
+    let parse (value: string) : Layer =
+        match tryParse value with
+        | Some layer -> layer
+        | None -> Layer.Unknown value
+
 /// Application constants
 module Config =
     let layerOrder = 
         [
-            ("Motivation", { displayName = "Motivation Layer"; order = 0 })
-            ("Strategy", { displayName = "Strategy Layer"; order = 1 })
-            ("Business", { displayName = "Business Layer"; order = 2 })
-            ("Application", { displayName = "Application Layer"; order = 3 })
-            ("Technology", { displayName = "Technology Layer"; order = 4 })
-            ("Physical", { displayName = "Physical Layer"; order = 5 })
-            ("Implementation", { displayName = "Implementation & Migration Layer"; order = 6 })
+            (Layer.Motivation, { displayName = "Motivation Layer"; order = 0 })
+            (Layer.Strategy, { displayName = "Strategy Layer"; order = 1 })
+            (Layer.Business, { displayName = "Business Layer"; order = 2 })
+            (Layer.Application, { displayName = "Application Layer"; order = 3 })
+            (Layer.Technology, { displayName = "Technology Layer"; order = 4 })
+            (Layer.Physical, { displayName = "Physical Layer"; order = 5 })
+            (Layer.Implementation, { displayName = "Implementation & Migration Layer"; order = 6 })
         ]
         |> Map.ofList
     
     let elementsPath = "../elements"
     let baseUrl = "/"
 
+    let layerOptions =
+        [
+            Layer.Strategy
+            Layer.Motivation
+            Layer.Business
+            Layer.Application
+            Layer.Technology
+            Layer.Physical
+            Layer.Implementation
+        ]
+        |> List.map Layer.toKey
+
+    let typeOptionsByLayer =
+        Map.ofList [
+            ("strategy", [ "resource"; "capability"; "value-stream"; "course-of-action" ])
+            ("business", [
+                "business-actor"; "business-role"; "business-collaboration"; "business-interface"
+                "business-process"; "business-function"; "business-interaction"; "business-event"
+                "business-service"; "business-object"; "contract"; "representation"; "product"
+            ])
+            ("application", [
+                "application-component"; "application-collaboration"; "application-interface"
+                "application-function"; "application-interaction"; "application-process"
+                "application-event"; "application-service"; "data-object"
+            ])
+            ("technology", [
+                "node"; "device"; "system-software"; "technology-collaboration"
+                "technology-interface"; "path"; "communication-network"; "technology-function"
+                "technology-process"; "technology-interaction"; "technology-event"
+                "technology-service"; "artifact"
+            ])
+            ("physical", [ "equipment"; "facility"; "distribution-network"; "material" ])
+            ("motivation", [
+                "stakeholder"; "driver"; "assessment"; "goal"; "outcome"; "principle"
+                "requirement"; "constraint"; "meaning"; "value"
+            ])
+            ("implementation", [ "work-package"; "deliverable"; "implementation-event"; "plateau"; "gap" ])
+        ]
+
+    let allTypeOptions =
+        typeOptionsByLayer
+        |> Map.toList
+        |> List.collect snd
+        |> List.distinct
+
+    let getTypeOptions (layerValue: string) : string list =
+        let normalized = layerValue.Trim().ToLowerInvariant()
+        typeOptionsByLayer
+        |> Map.tryFind normalized
+        |> Option.defaultValue allTypeOptions
+
 /// Helper functions to work with ElementType and parsing
 module ElementType =
     /// Extract layer name from ElementType
     let getLayer = function
-        | ElementType.Strategy _ -> "Strategy"
-        | ElementType.Motivation _ -> "Motivation"
-        | ElementType.Business _ -> "Business"
-        | ElementType.Application _ -> "Application"
-        | ElementType.Technology _ -> "Technology"
-        | ElementType.Physical _ -> "Physical"
-        | ElementType.Implementation _ -> "Implementation"
-        | ElementType.Unknown (layer, _) -> layer
+        | ElementType.Strategy _ -> Layer.Strategy
+        | ElementType.Motivation _ -> Layer.Motivation
+        | ElementType.Business _ -> Layer.Business
+        | ElementType.Application _ -> Layer.Application
+        | ElementType.Technology _ -> Layer.Technology
+        | ElementType.Physical _ -> Layer.Physical
+        | ElementType.Implementation _ -> Layer.Implementation
+        | ElementType.Unknown (layer, _) -> Layer.Unknown layer
     
     /// Parse relationship type from string
     let parseRelationType (relTypeStr: string) : RelationType =
@@ -215,6 +312,30 @@ module ElementType =
         | "triggering" -> RelationType.Triggering
         | "flow" -> RelationType.Flow
         | s -> RelationType.Unknown s
+
+    /// Convert RelationType to canonical lowercase string
+    let relationTypeToString (relType: RelationType) : string =
+        match relType with
+        | RelationType.Composition -> "composition"
+        | RelationType.Aggregation -> "aggregation"
+        | RelationType.Assignment -> "assignment"
+        | RelationType.Realization -> "realization"
+        | RelationType.Specialization -> "specialization"
+        | RelationType.Association -> "association"
+        | RelationType.Access -> "access"
+        | RelationType.Influence -> "influence"
+        | RelationType.Serving -> "serving"
+        | RelationType.Triggering -> "triggering"
+        | RelationType.Flow -> "flow"
+        | RelationType.Unknown value -> value
+
+    /// Convert RelationType to display name
+    let relationTypeToDisplayName (relType: RelationType) : string =
+        let value = relationTypeToString relType
+        if String.IsNullOrWhiteSpace value then
+            ""
+        else
+            value.Substring(0, 1).ToUpperInvariant() + value.Substring(1)
     
     /// Parse severity from string
     let parseSeverity (sevStr: string) : Severity =
@@ -248,6 +369,20 @@ module ElementType =
         | ErrorType.InvalidRelationshipCombination _ -> "invalid-relationship-combination"
         | ErrorType.SelfReference _ -> "self-reference"
         | ErrorType.DuplicateRelationship _ -> "duplicate-relationship"
+        | ErrorType.Unknown s -> s
+
+    /// Convert error type to display name
+    let errorTypeToDisplayName (errType: ErrorType) : string =
+        match errType with
+        | ErrorType.MissingId -> "Missing ID"
+        | ErrorType.InvalidType -> "Invalid Type"
+        | ErrorType.InvalidLayer -> "Invalid Layer"
+        | ErrorType.MissingRequiredField -> "Missing Required Field"
+        | ErrorType.InvalidRelationshipType _ -> "Invalid Relationship Type"
+        | ErrorType.RelationshipTargetNotFound _ -> "Relationship Target Not Found"
+        | ErrorType.InvalidRelationshipCombination _ -> "Invalid Relationship Combination"
+        | ErrorType.SelfReference _ -> "Self Reference"
+        | ErrorType.DuplicateRelationship _ -> "Duplicate Relationship"
         | ErrorType.Unknown s -> s
     
     /// Convert severity to string
@@ -433,23 +568,31 @@ module ElementType =
         | ElementType.Unknown (_, typeName) -> typeName
     
     /// Parse relationship rules from relations.xml file
-    let parseRelationshipRules (xmlPath: string) : RelationshipRules =
+    let parseRelationshipRulesWithLogger (xmlPath: string) (logger: ILogger) : Result<RelationshipRules, string> =
         try
             let doc = XDocument.Load(xmlPath)
             let sources = doc.Descendants(XName.Get("source"))
             
-            sources
-            |> Seq.collect (fun source ->
-                let sourceConcept = source.Attribute(XName.Get("concept")).Value
-                source.Descendants(XName.Get("target"))
-                |> Seq.map (fun target ->
-                    let targetConcept = target.Attribute(XName.Get("concept")).Value
-                    let relations = target.Attribute(XName.Get("relations")).Value
-                    let relationSet = relations |> Set.ofSeq
-                    ((sourceConcept, targetConcept), relationSet)
+            let rules =
+                sources
+                |> Seq.collect (fun source ->
+                    let sourceConcept = source.Attribute(XName.Get("concept")).Value
+                    source.Descendants(XName.Get("target"))
+                    |> Seq.map (fun target ->
+                        let targetConcept = target.Attribute(XName.Get("concept")).Value
+                        let relations = target.Attribute(XName.Get("relations")).Value
+                        let relationSet = relations |> Set.ofSeq
+                        ((sourceConcept, targetConcept), relationSet)
+                    )
                 )
-            )
-            |> Map.ofSeq
+                |> Map.ofSeq
+
+            Ok rules
         with ex ->
-            printfn "Warning: Failed to parse relationship rules: %s" ex.Message
-            Map.empty
+            logger.LogError(ex, "Failed to parse relationship rules from {rulesPath}", xmlPath)
+            Error ex.Message
+
+    let parseRelationshipRules (xmlPath: string) : RelationshipRules =
+        match parseRelationshipRulesWithLogger xmlPath (NullLogger.Instance) with
+        | Ok rules -> rules
+        | Error _ -> Map.empty

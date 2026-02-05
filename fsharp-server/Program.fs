@@ -6,6 +6,7 @@ open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
+open Microsoft.Extensions.Configuration
 open Giraffe
 open EAArchive
 
@@ -14,46 +15,45 @@ let webApp (registry: ElementRegistry) (loggerFactory: ILoggerFactory) : HttpHan
 
 [<EntryPoint>]
 let main args =
-    let elementsPath = 
-        if args.Length > 0 then 
-            args.[0]
-        else
-            // Elements are copied directly to the application directory with their layer structure preserved
-            AppContext.BaseDirectory
-    
-    let configureLogging (logging: ILoggingBuilder) : unit =
-        logging
-            .ClearProviders()
-            .AddConsole()
-            .SetMinimumLevel(LogLevel.Debug)
-        |> ignore
+    let elementsPathArg = if args.Length > 0 then Some args.[0] else None
 
-    let loggerFactory = LoggerFactory.Create(configureLogging)
-
-    let logger = loggerFactory.CreateLogger("Startup")
-
-    logger.LogInformation("Starting EA Archive Server...")
-    logger.LogInformation("Loading elements from: {elementsPath}", elementsPath)
-    logger.LogInformation("Elements path exists: {pathExists}", Directory.Exists(elementsPath))
-    
-    let registry = ElementRegistry.create elementsPath
-    logger.LogInformation("Successfully loaded {elementCount} elements", Map.count registry.elements)
-    logger.LogInformation("Elements by layer:")
-    registry.elementsByLayer
-    |> Map.iter (fun layer ids ->
-        logger.LogInformation("  {layer}: {count} elements", layer, List.length ids)
-    )
-    
     Host
         .CreateDefaultBuilder(args)
-        .ConfigureLogging(configureLogging)
+        .ConfigureLogging(fun context logging ->
+            logging
+                .ClearProviders()
+                .AddConfiguration(context.Configuration.GetSection("Logging"))
+                .AddConsole()
+            |> ignore
+        )
         .ConfigureWebHostDefaults(fun webHostBuilder ->
             webHostBuilder
-                .ConfigureServices(fun services ->
+                .ConfigureServices(fun context services ->
                     services.AddGiraffe() |> ignore
+
+                    services.AddSingleton<ElementRegistry>(fun sp ->
+                        let config = sp.GetRequiredService<IConfiguration>()
+                        let logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("ElementRegistry")
+
+                        let configuredPath = config.GetValue<string>("EAArchive:ElementsPath")
+                        let defaultPath = AppContext.BaseDirectory
+                        let elementsPath =
+                            match elementsPathArg with
+                            | Some argPath when not (String.IsNullOrWhiteSpace argPath) -> argPath
+                            | _ when not (String.IsNullOrWhiteSpace configuredPath) -> configuredPath
+                            | _ -> defaultPath
+
+                        logger.LogInformation("Loading elements from: {elementsPath}", elementsPath)
+                        logger.LogInformation("Elements path exists: {pathExists}", Directory.Exists(elementsPath))
+
+                        ElementRegistry.createWithLogger elementsPath logger
+                    )
+                    |> ignore
                 )
                 .Configure(fun app ->
+                    let registry = app.ApplicationServices.GetRequiredService<ElementRegistry>()
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
+
                     app.UseStaticFiles() |> ignore
                     app.UseGiraffe(webApp registry loggerFactory)
                 ) |> ignore

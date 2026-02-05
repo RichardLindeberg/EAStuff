@@ -344,7 +344,7 @@ module DiagramGenerators =
             (String.concat "," nodes)
             (String.concat "," edges)
 
-    let buildLayerCytoscape (layer: string) (registry: ElementRegistry) : string =
+    let buildLayerCytoscape (layer: Layer) (registry: ElementRegistry) : string =
         let layerElements = ElementRegistry.getLayerElements layer registry
 
         // Collect all relationships involving layer elements

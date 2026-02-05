@@ -46,10 +46,10 @@ This is test content.
             let elem = elemOpt.Value
             Assert.Equal("bus-proc-001-customer-onboarding", elem.id)
             Assert.Equal("Customer Onboarding", elem.name)
-            let elemTypeStr = Views.elementTypeToString elem.elementType
+            let elemTypeStr = ViewHelpers.elementTypeToString elem.elementType
             Assert.Equal("Business Process", elemTypeStr)
             let layer = ElementType.getLayer elem.elementType
-            Assert.Equal("Business", layer)
+            Assert.Equal("Business", Layer.toString layer)
         finally
             cleanupTempFile tempFile
     
