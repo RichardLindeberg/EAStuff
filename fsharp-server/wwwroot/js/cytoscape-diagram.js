@@ -1,14 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const dataElement = document.getElementById('graph-data');
-    if (!dataElement) {
+    // Check if graphData is already defined in the page (from wrapCytoscapeHtml)
+    if (typeof graphData === 'undefined') {
+        console.error('graphData is not defined');
         return;
     }
 
-    let graphData = { nodes: [], edges: [] };
-    try {
-        graphData = JSON.parse(dataElement.textContent || '{}');
-    } catch (err) {
-        console.error('Failed to parse graph data', err);
+    if (!graphData || !graphData.nodes || !graphData.edges) {
+        console.error('Invalid graphData structure', graphData);
+        return;
     }
 
     const cy = cytoscape({
