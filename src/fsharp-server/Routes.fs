@@ -8,15 +8,19 @@ open Giraffe
 module Routes =
 
     /// Create route handlers
-    let createHandlers (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+    let createHandlers (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
         let logger = loggerFactory.CreateLogger("Handlers")
 
         logger.LogInformation("Initializing route handlers")
         logger.LogInformation("Registry contains {elementCount} elements", Map.count registry.elements)
 
         choose [
-            route "/" >=> Handlers.indexHandler registry webConfig logger
-            route "/index.html" >=> Handlers.indexHandler registry webConfig logger
+            route "/" >=> Handlers.indexHandler registry governanceRegistry webConfig logger
+            route "/index.html" >=> Handlers.indexHandler registry governanceRegistry webConfig logger
+            route "/governance" >=> Handlers.governanceIndexHandler governanceRegistry webConfig logger
+            routef "/governance/%s" (fun slug -> Handlers.governanceDocHandler slug governanceRegistry registry webConfig logger)
+            route "/management-system" >=> Handlers.governanceIndexHandler governanceRegistry webConfig logger
+            routef "/management-system/%s" (fun slug -> Handlers.governanceDocHandler slug governanceRegistry registry webConfig logger)
             route "/elements/types" >=> Handlers.elementTypeOptionsHandler logger
             route "/elements/new" >=> Handlers.elementNewHandler registry webConfig logger
             route "/elements/new/download" >=> Handlers.elementNewDownloadHandler registry logger

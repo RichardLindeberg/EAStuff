@@ -15,15 +15,34 @@ module Handlers =
     open HandlersHelpers
     
     /// Index/home page handler
-    let indexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let indexHandler (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET / - Home page requested")
             let layerCounts = 
                 registry.elementsByLayer
                 |> Map.map (fun _ ids -> List.length ids)
             logger.LogDebug("Layer summary: {layerSummary}", layerCounts)
-            let html = Views.Index.indexPage webConfig registry
+            let html = Views.Index.indexPage webConfig registry governanceRegistry
             htmlView html next ctx
+
+    /// Governance system index handler
+    let governanceIndexHandler (governanceRegistry: GovernanceRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /governance - Governance index requested")
+            let html = Views.Governance.indexPage webConfig governanceRegistry
+            htmlView html next ctx
+
+    /// Governance document detail handler
+    let governanceDocHandler (slug: string) (governanceRegistry: GovernanceRegistry) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /governance/{slug} - Governance document requested", slug)
+            match Map.tryFind slug governanceRegistry.documents with
+            | Some doc ->
+                let html = Views.Governance.documentPage webConfig registry doc
+                htmlView html next ctx
+            | None ->
+                logger.LogWarning("Governance document not found: {slug}", slug)
+                setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
     
     /// Layer page handler
     let layerHandler (layer: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =

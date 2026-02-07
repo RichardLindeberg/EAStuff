@@ -1,0 +1,41 @@
+# Model Risk Management Policy
+
+**Metadata**
+
+- Document ID: ms-policy-020-model-risk-management
+- Owner: Chief Risk Officer
+- Approved by: Risk Committee
+- Status: Draft
+- Version: 0.1
+- Effective date: 2026-02-07
+- Review cycle: Annual
+- Next review: 2027-02-07
+- Relations:
+	- type: appliesTo
+		target: str-capa-003-data-analytics-and-ai
+	- type: appliesTo
+		target: str-capa-009-regulatory-compliance-and-risk
+
+**Purpose:**
+Establish governance for development, validation, and monitoring of models used in decision making.
+
+## Scope
+- All predictive, scoring, and decision models used in the bank.
+- Vendor models and internally developed models.
+
+## Policy Statement
+- Models must be inventoried, risk-rated, and approved before use.
+- Independent validation is required for material models.
+- Ongoing monitoring is required to detect drift and bias.
+
+## Roles and Responsibilities
+- Model Risk: Owns framework and validation standards.
+- Model Owners: Maintain model documentation and monitoring.
+- Internal Audit: Provides independent assurance.
+
+## Compliance and Exceptions
+Exceptions require CRO approval and documented compensating controls.
+
+## Related Documents
+- Related instruction: ms-instruction-021-model-validation.md
+- Related manual: ms-manual-020-model-risk-management.md

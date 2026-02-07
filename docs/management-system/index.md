@@ -1,6 +1,6 @@
-# Management System Documentation
+# Governance System Documentation
 
-This section explains how management system documents are organized and how to author them. These documents are separate from ArchiMate element definitions in data/archimate and do not use YAML frontmatter.
+This section explains how governance system documents are organized and how to author them. These documents are separate from ArchiMate element definitions in data/archimate and do not use YAML frontmatter.
 
 ## What Each Document Type Means
 
@@ -24,14 +24,18 @@ Keep the numeric sequence per type and use short, lowercase, hyphenated titles.
 
 ## Minimal Metadata
 
-Add a small metadata block near the top of each document to capture ownership and who the document is for. Use a relations-style list similar to ArchiMate, and use ArchiMate IDs for roles/actors (for example, business-role or business-actor IDs).
+Add a small metadata block near the top of each document to capture governance ownership, approvals, and applicability. Use a relations-style list similar to ArchiMate, and use ArchiMate IDs for roles/actors (for example, business-role or business-actor IDs).
 
 Format:
 
 - Document ID:
 - Owner:
+- Approved by:
+- Status:
+- Version:
 - Effective date:
 - Review cycle:
+- Next review:
 - Relations:
 	- type: appliesTo
 		target:
@@ -58,7 +62,7 @@ Location: data/management-system/manuals/
 
 ## Glossary
 
-- Management system: The set of governed documents and practices that define how work is controlled, performed, and improved.
+- Governance system: The set of governed documents and practices that define how work is controlled, performed, and improved.
 - Document owner: The person accountable for keeping a document current and approved.
 - Effective date: The date a document becomes active and should be followed.
 - Review cycle: The cadence for reviewing and updating a document.

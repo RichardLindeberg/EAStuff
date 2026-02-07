@@ -8,7 +8,7 @@ open Common
 module Index =
 
     /// Index page
-    let indexPage (webConfig: WebUiConfig) (registry: ElementRegistry) =
+    let indexPage (webConfig: WebUiConfig) (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) =
         let baseUrl = webConfig.BaseUrl
         let layerCards =
             Config.layerOrder
@@ -39,13 +39,30 @@ module Index =
                     )
             )
 
+        let governanceCard =
+            let docCount = governanceRegistry.documents |> Map.count
+            let docCountText = sprintf "%d document%s" docCount (pluralize docCount "" "s")
+            div [_class "element-card"] [
+                h3 [] [
+                    a [_href $"{baseUrl}governance"] [
+                        encodedText "Governance System"
+                    ]
+                ]
+                p [_class "element-count"] [
+                    encodedText docCountText
+                ]
+                p [_class "element-description"] [
+                    encodedText "Policies, instructions, and manuals that govern how work is performed."
+                ]
+            ]
+
         let content = [
             div [_class "container"] [
                 h2 [_class "layer-title"] [encodedText "Architecture Overview"]
                 p [_class "layer-description"] [
                     encodedText "This repository contains the enterprise architecture organized by ArchiMate layers. Each layer represents a different aspect of the architecture, from strategic goals to technical implementation."
                 ]
-                div [_class "element-grid"] layerCards
+                div [_class "element-grid"] (layerCards @ [governanceCard])
             ]
         ]
 

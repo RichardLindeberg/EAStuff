@@ -1,0 +1,38 @@
+# Governance Framework Policy
+
+**Metadata**
+
+- Document ID: ms-policy-010-governance-framework
+- Owner: Corporate Governance Office
+- Approved by: Board of Directors
+- Status: Draft
+- Version: 0.1
+- Effective date: 2026-02-07
+- Review cycle: Annual
+- Next review: 2027-02-07
+- Relations:
+	- type: appliesTo
+		target: str-capa-009-regulatory-compliance-and-risk
+
+**Purpose:**
+Define the governance framework for policies, instructions, and manuals to ensure consistent ownership, approval, and compliance across the enterprise.
+
+## Scope
+Applies to all business units, subsidiaries, and material outsourced services.
+
+## Policy Statement
+- The organization maintains a governed set of policies, instructions, and manuals aligned to regulatory requirements and enterprise architecture.
+- Each governance document has a named owner, approval authority, and review cadence.
+- Governance documents must be discoverable, current, and mapped to the enterprise capabilities they govern.
+
+## Roles and Responsibilities
+- Corporate Governance Office: Owns the framework and coordinates annual reviews.
+- Risk and Compliance: Reviews alignment to regulatory obligations.
+- Business Unit Leaders: Ensure local adoption and adherence.
+
+## Compliance and Exceptions
+Exceptions require documented rationale, executive approval, and a remediation timeline.
+
+## Related Documents
+- Related instruction: ms-instruction-010-policy-lifecycle.md
+- Related manual: ms-manual-010-governance-system-overview.md

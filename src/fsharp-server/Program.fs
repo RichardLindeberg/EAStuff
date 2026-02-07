@@ -11,8 +11,8 @@ open Giraffe
 open EAArchive
 open EAArchive.DiagramGenerators
 
-let webApp (registry: ElementRegistry) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
-    Routes.createHandlers registry diagramAssets webConfig loggerFactory
+let webApp (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+    Routes.createHandlers registry governanceRegistry diagramAssets webConfig loggerFactory
 
 [<EntryPoint>]
 let main args =
@@ -110,15 +110,30 @@ let main args =
                         ElementRegistry.createWithLogger elementsPath relationsPath logger
                     )
                     |> ignore
+
+                    services.AddSingleton<GovernanceRegistry>(fun sp ->
+                        let config = sp.GetRequiredService<IConfiguration>()
+                        let logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("GovernanceRegistry")
+
+                        let configuredManagementPath = getRequired config "EAArchive:ManagementSystemPath"
+                        let managementSystemPath = resolvePath configuredManagementPath
+
+                        logger.LogInformation("Loading governance documents from: {managementSystemPath}", managementSystemPath)
+                        logger.LogInformation("Management system path exists: {pathExists}", Directory.Exists(managementSystemPath))
+
+                        GovernanceRegistryLoader.createWithLogger managementSystemPath logger
+                    )
+                    |> ignore
                 )
                 .Configure(fun app ->
                     let registry = app.ApplicationServices.GetRequiredService<ElementRegistry>()
+                    let governanceRegistry = app.ApplicationServices.GetRequiredService<GovernanceRegistry>()
                     let diagramAssets = app.ApplicationServices.GetRequiredService<DiagramAssetConfig>()
                     let webConfig = app.ApplicationServices.GetRequiredService<WebUiConfig>()
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
 
                     app.UseStaticFiles() |> ignore
-                    app.UseGiraffe(webApp registry diagramAssets webConfig loggerFactory)
+                    app.UseGiraffe(webApp registry governanceRegistry diagramAssets webConfig loggerFactory)
                 ) |> ignore
         )
         .Build()

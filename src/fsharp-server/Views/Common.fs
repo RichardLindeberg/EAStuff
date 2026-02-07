@@ -21,11 +21,15 @@ module Common =
                 ]
             )
 
+        let governanceActive = if currentPage = "governance" then "active" else ""
         let tagsActive = if currentPage = "tags" then "active" else ""
         let validationActive = if currentPage = "validation" then "active" else ""
         let navLinks =
             navItems
             @ [
+                a [_href $"{baseUrl}governance"; _class $"nav-link {governanceActive}"] [
+                    encodedText "Governance"
+                ]
                 a [_href $"{baseUrl}tags"; _class $"nav-link {tagsActive}"] [
                     encodedText "Tags"
                 ]

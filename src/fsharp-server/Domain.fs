@@ -225,6 +225,40 @@ type WebUiConfig = {
     CytoscapeDagreScriptUrl: string
     LodashScriptUrl: string }
 
+/// Governance document types
+[<RequireQualifiedAccess>]
+type GovernanceDocType =
+    | Policy
+    | Instruction
+    | Manual
+    | Unknown of string
+
+/// Relationship entry for governance docs
+type GovernanceRelation = {
+    relationType: string
+    target: string
+}
+
+/// Governance document metadata and content
+type GovernanceDocument = {
+    slug: string
+    docId: string
+    title: string
+    docType: GovernanceDocType
+    filePath: string
+    metadata: Map<string, string>
+    relations: GovernanceRelation list
+    content: string
+    rawContent: string
+}
+
+/// Governance document registry
+type GovernanceRegistry = {
+    documents: Map<string, GovernanceDocument>
+    documentsByType: Map<GovernanceDocType, string list>
+    managementSystemPath: string
+}
+
 /// Application constants
 module Config =
     let layerOrder = 
