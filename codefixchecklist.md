@@ -137,6 +137,9 @@ Configuration errors fail fast via `failwith`, but the message is not very user-
 **Acceptance**
 - Clear log output on configuration failure.
 
+**Status**
+Completed (2026-02-07). Missing configuration now logs a clear message with environment-specific guidance before failing.
+
 ## 8) Document Config Keys in README
 
 **Issue**

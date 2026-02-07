@@ -31,6 +31,7 @@ let main args =
                 .ConfigureServices(fun context services ->
                     services.AddGiraffe() |> ignore
 
+                    let environmentName = context.HostingEnvironment.EnvironmentName
                     let contentRoot = context.HostingEnvironment.ContentRootPath
                     let resolvePath (pathValue: string) =
                         if Path.IsPathRooted(pathValue) then
@@ -46,7 +47,13 @@ let main args =
                     let getRequired (config: IConfiguration) (key: string) : string =
                         let value = config.GetValue<string>(key)
                         if String.IsNullOrWhiteSpace value then
-                            failwith (sprintf "%s must be set in appsettings.json" key)
+                            let message =
+                                sprintf
+                                    "Missing required configuration: %s. Set it in appsettings.json or appsettings.%s.json."
+                                    key
+                                    environmentName
+                            Console.Error.WriteLine(message)
+                            failwith message
                         value
 
                     services.AddSingleton<WebUiConfig>(fun sp ->
