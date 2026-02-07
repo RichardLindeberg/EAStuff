@@ -1,5 +1,7 @@
 namespace EAArchive
 
+open System
+open System.IO
 open System.Net
 open System.Collections
 open System.Collections.Generic
@@ -924,7 +926,7 @@ module Views =
         htmlPage tag "tags" content
 
     /// Validation errors page
-    let validationPage (errors: ValidationError list) =
+    let validationPage (basePath: string) (errors: ValidationError list) =
         let errorsByFile =
             errors
             |> List.groupBy (fun e -> e.filePath)
@@ -964,11 +966,10 @@ module Views =
                     )
                 
                 let relativeFilePath =
-                    if filePath.Contains("\\elements\\") then
-                        let idx = filePath.LastIndexOf("\\elements\\")
-                        filePath.Substring(idx + 1)
-                    else
-                        filePath
+                    try
+                        Path.GetRelativePath(basePath, filePath)
+                    with
+                    | _ -> filePath
                 
                 div [_class $"file-card {errorClass}"] [
                     div [_class "file-header"] [

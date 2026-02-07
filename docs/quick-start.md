@@ -9,10 +9,10 @@ Get started with the EA Tool in 5 minutes.
 
 ## Step 2: Create Your First Element
 
-Create a new file in the `elements` directory. Choose the appropriate subdirectory based on the ArchiMate layer:
+Create a new file in the `data/archimate` directory. Choose the appropriate subdirectory based on the ArchiMate layer:
 
 ```
-elements/
+data/archimate/
   ├── strategy/          # Capabilities, resources
   ├── business/          # Processes, actors, services
   ├── application/       # Applications, data
@@ -24,7 +24,7 @@ elements/
 
 ## Step 3: Write Element Markdown
 
-Create `elements/application/my-app.md`:
+Create `data/archimate/application/my-app.md`:
 
 ```markdown
 ---
@@ -123,7 +123,7 @@ properties:
 
 ## Next Steps
 
-1. Review example elements in the `elements/` directory
+1. Review example elements in the `data/archimate/` directory
 2. Check the [Element Types Reference](element-types-reference.md) for all available types
 3. Explore relationship types in the schema file
 4. Start documenting your architecture!
@@ -141,6 +141,6 @@ properties:
 
 - See [element-types-reference.md](element-types-reference.md) for all ArchiMate 3.2 element types
 - Check [../schemas/archimate-3.2-schema.yaml](../schemas/archimate-3.2-schema.yaml) for validation rules
-- Review examples in the elements/ directories
+- Review examples in the data/archimate/ directories
 - Browse the UI guide in [mermaid-guide.md](mermaid-guide.md)
 - Review standards in [best-practices.md](best-practices.md)

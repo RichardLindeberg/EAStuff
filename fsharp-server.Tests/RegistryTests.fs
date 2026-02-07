@@ -37,7 +37,9 @@ Content.
 """
             File.WriteAllText(invalidFile, invalidContent)
             
-            let registry = ElementRegistry.create tempDir
+            let relationsPath = Path.Combine(tempDir, "relations.xml")
+            File.WriteAllText(relationsPath, "<relations></relations>")
+            let registry = ElementRegistry.create tempDir relationsPath
             let allErrors = ElementRegistry.getValidationErrors registry
             
             Assert.NotEmpty(allErrors)
@@ -61,7 +63,9 @@ Content.
 """
             File.WriteAllText(file1, content1)
             
-            let registry = ElementRegistry.create tempDir
+            let relationsPath = Path.Combine(tempDir, "relations.xml")
+            File.WriteAllText(relationsPath, "<relations></relations>")
+            let registry = ElementRegistry.create tempDir relationsPath
             let fileErrors = ElementRegistry.getFileValidationErrors file1 registry
             
             Assert.NotEmpty(fileErrors)
@@ -87,7 +91,9 @@ Content.
 """
             File.WriteAllText(file1, content1)
             
-            let registry = ElementRegistry.create tempDir
+            let relationsPath = Path.Combine(tempDir, "relations.xml")
+            File.WriteAllText(relationsPath, "<relations></relations>")
+            let registry = ElementRegistry.create tempDir relationsPath
             let errors = ElementRegistry.getErrorsBySeverity Severity.Error registry
             
             // Should have at least one error for missing name

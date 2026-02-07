@@ -2,7 +2,7 @@
 
 ## Create Elements Manually
 
-Create a new markdown file under elements/business/ and include YAML frontmatter with the required fields:
+Create a new markdown file under data/archimate/business/ and include YAML frontmatter with the required fields:
 
 - id
 - name

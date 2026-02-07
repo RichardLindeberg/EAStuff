@@ -1,0 +1,122 @@
+# ArchiMate 3.2 Element Types and Relationship Schema
+
+# Valid element types by layer
+element_types:
+  strategy:
+    - resource
+    - capability
+    - value-stream
+    - course-of-action
+  
+  business:
+    - business-actor
+    - business-role
+    - business-collaboration
+    - business-interface
+    - business-process
+    - business-function
+    - business-interaction
+    - business-event
+    - business-service
+    - business-object
+    - contract
+    - representation
+    - product
+  
+  application:
+    - application-component
+    - application-collaboration
+    - application-interface
+    - application-function
+    - application-interaction
+    - application-process
+    - application-event
+    - application-service
+    - data-object
+  
+  technology:
+    - node
+    - device
+    - system-software
+    - technology-collaboration
+    - technology-interface
+    - path
+    - communication-network
+    - technology-function
+    - technology-process
+    - technology-interaction
+    - technology-event
+    - technology-service
+    - artifact
+  
+  physical:
+    - equipment
+    - facility
+    - distribution-network
+    - material
+  
+  motivation:
+    - stakeholder
+    - driver
+    - assessment
+    - goal
+    - outcome
+    - principle
+    - requirement
+    - constraint
+    - meaning
+    - value
+  
+  implementation:
+    - work-package
+    - deliverable
+    - implementation-event
+    - plateau
+    - gap
+
+# Valid relationship types
+relationships:
+  structural:
+    - composition      # Part-of relationship
+    - aggregation      # Combines elements
+    - assignment       # Allocates responsibility
+    - realization      # Implements or fulfills
+  
+  dependency:
+    - serving          # Provides functionality
+    - access           # Provides access to data
+    - influence        # Affects or modifies
+    - association      # Unspecified relationship
+  
+  dynamic:
+    - triggering       # Temporal or causal relationship
+    - flow             # Transfer or exchange
+  
+  other:
+    - specialization   # Is a kind of
+    - junction         # And/Or logical operators
+
+# Required fields for all elements
+required_fields:
+  - id
+  - name
+  - type
+  - layer
+
+# Optional but recommended fields
+optional_fields:
+  - relationships
+  - properties
+  - documentation
+  - tags
+
+# Valid properties
+standard_properties:
+  - owner
+  - status
+  - criticality
+  - cost
+  - complexity
+  - lifecycle-phase
+  - version
+  - last-updated

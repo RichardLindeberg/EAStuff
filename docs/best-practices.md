@@ -9,7 +9,7 @@ Guidelines for creating and maintaining high-quality EA documentation.
 Organize elements by ArchiMate layer:
 
 ```
-elements/
+data/archimate/
   ├── strategy/          # Strategic capabilities and resources
   ├── business/          # Business architecture
   ├── application/       # Application architecture

@@ -46,17 +46,17 @@ dotnet run
 
 The server will start on `http://localhost:5000` by default.
 
-### With Custom Elements Path
+### With Custom Archimate Path
 
 ```bash
-dotnet run -- /path/to/elements
+dotnet run -- /path/to/data/archimate
 ```
 
 ## How It Works
 
 ### Element Loading
 
-The application automatically discovers and loads all markdown files from the `elements/` directory. Each markdown file should contain YAML frontmatter with element metadata:
+The application automatically discovers and loads all markdown files from the `data/archimate/` directory. Each markdown file should contain YAML frontmatter with element metadata:
 
 ```yaml
 ---
@@ -206,7 +206,7 @@ Same as parent project
 
 ### Elements Not Loading
 
-- Ensure the elements path is correct (default: `../elements`)
+- Ensure the archimate path is correct (default: `../data/archimate`)
 - Check that markdown files have valid YAML frontmatter with `id` field
 - Check console output for parsing errors
 

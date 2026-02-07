@@ -225,7 +225,6 @@ module Config =
         ]
         |> Map.ofList
     
-    let elementsPath = "../elements"
     let baseUrl = "/"
 
     let layerOptions =

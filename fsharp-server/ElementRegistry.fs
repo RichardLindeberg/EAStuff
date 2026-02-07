@@ -488,36 +488,20 @@ module ElementRegistry =
         List.ofSeq errors
     
     /// Build the element registry from all markdown files
-    let createWithLogger (elementsPath: string) (logger: ILogger) : ElementRegistry =
+    let createWithLogger (elementsPath: string) (relationsPath: string) (logger: ILogger) : ElementRegistry =
         logger.LogInformation("Creating element registry from: {elementsPath}", elementsPath)
-        
-        // Load relationship rules from relations.xml
-        let relationsXmlPathCandidates =
-            [
-                Path.Combine(elementsPath, "relations.xml")
-                Path.Combine(elementsPath, "schemas", "relations.xml")
-                Path.Combine(elementsPath, "..", "schemas", "relations.xml")
-            ]
-
-        let relationsXmlPathOpt =
-            relationsXmlPathCandidates
-            |> List.tryFind File.Exists
-
-        let relationsXmlPath =
-            relationsXmlPathOpt
-            |> Option.defaultValue relationsXmlPathCandidates.Head
-
-        if relationsXmlPathOpt.IsNone then
-            let triedPaths = String.concat "; " relationsXmlPathCandidates
-            logger.LogWarning("Relationship rules file not found. Tried: {triedPaths}", triedPaths)
 
         let relationshipRules =
-            match ElementType.parseRelationshipRulesWithLogger relationsXmlPath logger with
-            | Ok rules ->
-                logger.LogInformation("Loaded {ruleCount} relationship rules from {rulesPath}", Map.count rules, relationsXmlPath)
-                rules
-            | Error errorMessage ->
-                logger.LogWarning("Failed to parse relationship rules from {rulesPath}: {error}", relationsXmlPath, errorMessage)
+            if File.Exists(relationsPath) then
+                match ElementType.parseRelationshipRulesWithLogger relationsPath logger with
+                | Ok rules ->
+                    logger.LogInformation("Loaded {ruleCount} relationship rules from {rulesPath}", Map.count rules, relationsPath)
+                    rules
+                | Error errorMessage ->
+                    logger.LogWarning("Failed to parse relationship rules from {rulesPath}: {error}", relationsPath, errorMessage)
+                    Map.empty
+            else
+                logger.LogWarning("Relationship rules file not found: {rulesPath}", relationsPath)
                 Map.empty
         
         let mutable elements = Map.empty
@@ -603,8 +587,8 @@ module ElementRegistry =
             relationshipRules = relationshipRules
         }
 
-    let create (elementsPath: string) : ElementRegistry =
-        createWithLogger elementsPath (NullLogger.Instance)
+    let create (elementsPath: string) (relationsPath: string) : ElementRegistry =
+        createWithLogger elementsPath relationsPath (NullLogger.Instance)
 
     
     /// Get all validation errors

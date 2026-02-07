@@ -35,7 +35,7 @@ Open http://localhost:5000 in your browser.
 ## Development Tips
 
 - Use dotnet watch run for hot reload during development
-- Pass a custom elements path: dotnet run -- /path/to/elements
+- Pass a custom archimate path: dotnet run -- /path/to/data/archimate
 
 ## Troubleshooting
 

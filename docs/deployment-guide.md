@@ -43,6 +43,6 @@ Create a Dockerfile based on .NET 8 and publish output, then run the container e
 
 ## Notes
 
-- The server reads from elements/ at startup
-- Pass a custom elements path to dotnet run if needed
+- The server reads from data/archimate at startup
+- Pass a custom archimate path to dotnet run if needed
 - Use a reverse proxy for TLS termination in production

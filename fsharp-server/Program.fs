@@ -15,7 +15,6 @@ let webApp (registry: ElementRegistry) (loggerFactory: ILoggerFactory) : HttpHan
 
 [<EntryPoint>]
 let main args =
-    let elementsPathArg = if args.Length > 0 then Some args.[0] else None
 
     Host
         .CreateDefaultBuilder(args)
@@ -35,18 +34,30 @@ let main args =
                         let config = sp.GetRequiredService<IConfiguration>()
                         let logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("ElementRegistry")
 
-                        let configuredPath = config.GetValue<string>("EAArchive:ElementsPath")
-                        let defaultPath = AppContext.BaseDirectory
-                        let elementsPath =
-                            match elementsPathArg with
-                            | Some argPath when not (String.IsNullOrWhiteSpace argPath) -> argPath
-                            | _ when not (String.IsNullOrWhiteSpace configuredPath) -> configuredPath
-                            | _ -> defaultPath
+                        let configuredElementsPath = config.GetValue<string>("EAArchive:ElementsPath")
+                        let configuredRelationsPath = config.GetValue<string>("EAArchive:RelationsPath")
+
+                        if String.IsNullOrWhiteSpace configuredElementsPath then
+                            failwith "EAArchive:ElementsPath must be set in appsettings.json"
+                        if String.IsNullOrWhiteSpace configuredRelationsPath then
+                            failwith "EAArchive:RelationsPath must be set in appsettings.json"
+
+                        let contentRoot = context.HostingEnvironment.ContentRootPath
+                        let resolvePath (pathValue: string) =
+                            if Path.IsPathRooted(pathValue) then
+                                Path.GetFullPath(pathValue)
+                            else
+                                Path.GetFullPath(Path.Combine(contentRoot, pathValue))
+
+                        let elementsPath = resolvePath configuredElementsPath
+                        let relationsPath = resolvePath configuredRelationsPath
 
                         logger.LogInformation("Loading elements from: {elementsPath}", elementsPath)
                         logger.LogInformation("Elements path exists: {pathExists}", Directory.Exists(elementsPath))
+                        logger.LogInformation("Relationship rules path: {relationsPath}", relationsPath)
+                        logger.LogInformation("Relations file exists: {pathExists}", File.Exists(relationsPath))
 
-                        ElementRegistry.createWithLogger elementsPath logger
+                        ElementRegistry.createWithLogger elementsPath relationsPath logger
                     )
                     |> ignore
                 )

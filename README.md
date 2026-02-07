@@ -47,17 +47,19 @@ The Customer Portal is the primary interface for customers to interact with our 
 ## Directory Structure
 
 ```
-/elements          # All EA elements
-  /strategy        # Strategy layer elements
-  /business        # Business layer elements
-  /application     # Application layer elements
-  /technology      # Technology layer elements
-  /physical        # Physical layer elements (optional; create when needed)
-  /motivation      # Stakeholder, Driver, Goal, Requirement
-  /implementation  # Implementation & Migration elements (optional; create when needed)
-/schemas           # ArchiMate schemas and validation rules
-/docs              # Documentation and guides
-/fsharp-server     # F# web server (current source of truth)
+/data
+  /archimate       # All EA elements
+    /strategy      # Strategy layer elements
+    /business      # Business layer elements
+    /application   # Application layer elements
+    /technology    # Technology layer elements
+    /physical      # Physical layer elements (optional; create when needed)
+    /motivation    # Stakeholder, Driver, Goal, Requirement
+    /implementation # Implementation & Migration elements (optional; create when needed)
+  /management-system # Policies, instructions, manuals
+/schemas            # ArchiMate schemas and validation rules
+/docs               # Documentation and guides
+/fsharp-server      # F# web server (current source of truth)
 ```
 
 ## Usage
@@ -96,7 +98,8 @@ The server validates relationships using ArchiMate rules from [schemas/relations
 - [docs/mermaid-guide.md](docs/mermaid-guide.md)
 - [docs/deployment-guide.md](docs/deployment-guide.md)
 - [docs/repository-structure.md](docs/repository-structure.md)
+- [docs/management-system/index.md](docs/management-system/index.md)
 
 ## Getting Started
 
-See example elements in the `/elements` directory to understand the format. For server usage, see [fsharp-server/QUICK-START.md](fsharp-server/QUICK-START.md).
+See example elements in the `/data/archimate` directory to understand the format. For server usage, see [fsharp-server/QUICK-START.md](fsharp-server/QUICK-START.md).

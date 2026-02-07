@@ -8,7 +8,7 @@ open EAArchive
 module RelationshipValidationTests =
     let private withTempRegistry (elements: (string * string) list) (rulesXml: string) (assertFn: ElementRegistry -> unit) : unit =
         let rootDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
-        let elementsPath = Path.Combine(rootDir, "elements")
+        let elementsPath = Path.Combine(rootDir, "archimate")
         let schemasPath = Path.Combine(rootDir, "schemas")
 
         Directory.CreateDirectory(elementsPath) |> ignore
@@ -23,7 +23,7 @@ module RelationshipValidationTests =
         )
 
         try
-            let registry = ElementRegistry.create elementsPath
+            let registry = ElementRegistry.create elementsPath relationsPath
             assertFn registry
         finally
             Directory.Delete(rootDir, true)
@@ -40,7 +40,7 @@ module RelationshipValidationTests =
             incomingRelations = Map.empty
             validationErrors = []
             validationErrorsLock = obj ()
-            elementsPath = "C:\\temp\\elements"
+            elementsPath = Path.Combine(Path.GetTempPath(), "archimate")
             relationshipRules = Map.empty
         }
 

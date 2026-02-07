@@ -18,6 +18,6 @@ Most tools that support ArchiMate exchange can import a .archimate file from dis
 
 ## Recommended Workflow
 
-- Maintain the model in markdown under elements/
+- Maintain the model in markdown under data/archimate/
 - Use the F# server for browsing and validation
 - Use external tools for exchange import/export when needed

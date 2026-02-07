@@ -570,7 +570,7 @@ module Handlers =
             logger.LogInformation("GET /validation - Validation page requested")
             let errors = ElementRegistry.getValidationErrors registry
             logger.LogInformation("Displaying {errorCount} validation errors", List.length errors)
-            let html = Views.validationPage errors
+            let html = Views.validationPage registry.elementsPath errors
             htmlView html next ctx
     
     /// Revalidate file handler
