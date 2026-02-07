@@ -212,18 +212,18 @@ module Layer =
         | None -> Layer.Unknown value
 
 /// Web UI configuration values
-type WebUiConfig =
-        { BaseUrl: string
-            SiteCssUrl: string
-            DiagramCssUrl: string
-            ValidationScriptUrl: string
-            DiagramScriptUrl: string
-            HtmxScriptUrl: string
-            HtmxDebugScriptUrl: string
-            CytoscapeScriptUrl: string
-            DagreScriptUrl: string
-            CytoscapeDagreScriptUrl: string
-            LodashScriptUrl: string }
+type WebUiConfig = { 
+    BaseUrl: string
+    SiteCssUrl: string
+    DiagramCssUrl: string
+    ValidationScriptUrl: string
+    DiagramScriptUrl: string
+    HtmxScriptUrl: string
+    HtmxDebugScriptUrl: string
+    CytoscapeScriptUrl: string
+    DagreScriptUrl: string
+    CytoscapeDagreScriptUrl: string
+    LodashScriptUrl: string }
 
 /// Application constants
 module Config =

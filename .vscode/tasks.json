@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build-fsharp-server",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"src/fsharp-server/EAArchive.fsproj"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
+}
