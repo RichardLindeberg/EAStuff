@@ -65,7 +65,9 @@ module Views =
                 script [_src "https://unpkg.com/htmx.org@1.9.10"] []
                 script [_src "/js/validation.js"] []
                 script [_src "/js/cytoscape-diagram.js"] []
+#if DEBUG
                 script [ _src "https://unpkg.com/htmx.org@1.9.12/dist/ext/debug.js" ] []
+#endif
             ]
             body [] (
                 [htmlHeader pageTitle currentPage] @ content @ [htmlFooter ()]
@@ -353,7 +355,9 @@ module Views =
                         button [
                             _type "button"
                             _class "edit-button"
+#if DEBUG
                             _hxExt "debug"
+#endif
                             _hxGet   $"{baseUrl}elements/{elem.id}/edit"
                             _hxTarget "#swapthis"
                             _hxSwap "innerHTML"

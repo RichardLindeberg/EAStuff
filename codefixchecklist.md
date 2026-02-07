@@ -100,6 +100,9 @@ HTMX debug extension is loaded on every page. It is meant for development only.
 **Acceptance**
 - Debug script only loads in development builds.
 
+**Status**
+Completed (2026-02-07). HTMX debug extension is now included only under `#if DEBUG`.
+
 ## 6) Minimize Hardcoded URLs and Paths in Views
 
 **Issue**
