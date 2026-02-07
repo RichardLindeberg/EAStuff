@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-011-kyc-onboarding
-owner: Compliance Operations
+owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -44,3 +44,4 @@ Provide a step-by-step process for completing KYC onboarding and risk classifica
 ## Related Documents
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related manual: ms-manual-012-kyc-cdd-operations.md
+

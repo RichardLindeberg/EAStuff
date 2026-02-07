@@ -1,6 +1,6 @@
 ---
 id: ms-policy-013-sanctions-screening
-owner: Chief Compliance Officer
+owner: bus-role-004-chief-compliance-officer
 approved_by: Risk Committee
 status: Draft
 version: 0.1
@@ -42,3 +42,4 @@ No processing is permitted without screening clearance.
 - Related instruction: ms-instruction-024-sanctions-hit-escalation.md
 - Related manual: ms-manual-013-transaction-monitoring-sanctions.md
 - Related manual: ms-manual-023-sanctions-screening-operations.md
+

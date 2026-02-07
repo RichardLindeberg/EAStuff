@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-023-ongoing-kyc-refresh
-owner: Compliance Operations
+owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -42,3 +42,4 @@ Define a consistent approach for periodic KYC refreshes and event-driven reviews
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related instruction: ms-instruction-015-edd-review.md
 - Related manual: ms-manual-021-kyc-cdd-ongoing-monitoring.md
+

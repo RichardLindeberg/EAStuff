@@ -1,6 +1,6 @@
 ---
 id: ms-policy-018-business-continuity-dr
-owner: Chief Operating Officer
+owner: bus-role-018-chief-operating-officer
 approved_by: Board of Directors
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ Exceptions require executive approval and remediation plans.
 ## Related Documents
 - Related instruction: ms-instruction-016-payment-exceptions.md
 - Related manual: ms-manual-018-bcm-dr.md
+

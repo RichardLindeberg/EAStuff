@@ -18,9 +18,9 @@ module Routes =
             route "/" >=> Handlers.indexHandler registry governanceRegistry webConfig logger
             route "/index.html" >=> Handlers.indexHandler registry governanceRegistry webConfig logger
             route "/architecture" >=> Handlers.architectureIndexHandler registry governanceRegistry webConfig logger
-            route "/governance" >=> Handlers.governanceIndexHandler governanceRegistry webConfig logger
+            route "/governance" >=> Handlers.governanceIndexHandler registry governanceRegistry webConfig logger
             routef "/governance/%s" (fun slug -> Handlers.governanceDocHandler slug governanceRegistry registry webConfig logger)
-            route "/management-system" >=> Handlers.governanceIndexHandler governanceRegistry webConfig logger
+            route "/management-system" >=> Handlers.governanceIndexHandler registry governanceRegistry webConfig logger
             routef "/management-system/%s" (fun slug -> Handlers.governanceDocHandler slug governanceRegistry registry webConfig logger)
             route "/elements/types" >=> Handlers.elementTypeOptionsHandler logger
             route "/elements/new" >=> Handlers.elementNewHandler registry webConfig logger

@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-021-model-validation
-owner: Model Risk Management
+owner: bus-role-020-model-risk-management
 approved_by: Chief Risk Officer
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ Provide steps for independent validation, approval, and ongoing monitoring of mo
 ## Related Documents
 - Related policy: ms-policy-020-model-risk-management.md
 - Related manual: ms-manual-020-model-risk-management.md
+

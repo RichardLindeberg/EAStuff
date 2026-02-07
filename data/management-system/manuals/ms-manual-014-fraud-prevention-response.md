@@ -1,6 +1,6 @@
 ---
 id: ms-manual-014-fraud-prevention-response
-owner: Fraud Prevention Department
+owner: bus-role-005-fraud-prevention-department
 approved_by: Chief Risk Officer
 status: Draft
 version: 0.1
@@ -38,3 +38,4 @@ Fraud operations, security, and payments teams.
 ## Related Documents
 - Related policy: ms-policy-014-fraud-risk-management.md
 - Related instruction: ms-instruction-018-fraud-case-investigation.md
+

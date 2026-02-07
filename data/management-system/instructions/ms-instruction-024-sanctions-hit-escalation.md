@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-024-sanctions-hit-escalation
-owner: Financial Crime Operations
+owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -41,3 +41,4 @@ Provide steps for assessing and escalating potential sanctions hits in line with
 ## Related Documents
 - Related policy: ms-policy-013-sanctions-screening.md
 - Related manual: ms-manual-023-sanctions-screening-operations.md
+

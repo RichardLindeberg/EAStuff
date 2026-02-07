@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-017-credit-assessment
-owner: Credit Risk Department
+owner: bus-role-012-credit-risk-department
 approved_by: Chief Risk Officer
 status: Draft
 version: 0.1
@@ -41,3 +41,4 @@ Define steps for assessing creditworthiness and documenting decisions.
 ## Related Documents
 - Related policy: ms-policy-015-credit-risk.md
 - Related manual: ms-manual-015-credit-risk-lending.md
+

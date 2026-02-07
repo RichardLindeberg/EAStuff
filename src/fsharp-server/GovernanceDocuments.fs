@@ -169,6 +169,30 @@ module GovernanceRegistryLoader =
         errors.AddRange(validateRequiredField doc.filePath docId "effective_date" "effective_date" doc.metadata)
         errors.AddRange(validateRequiredField doc.filePath docId "review_cycle" "review_cycle" doc.metadata)
 
+        match Map.tryFind "owner" doc.metadata |> Option.map (fun value -> value.Trim()) with
+        | Some ownerId when ownerId <> "" ->
+            match Map.tryFind ownerId elementRegistry.elements with
+            | Some elem ->
+                match elem.elementType with
+                | ElementType.Business BusinessElement.Role -> ()
+                | _ ->
+                    errors.Add({
+                        filePath = doc.filePath
+                        elementId = docId
+                        errorType = ErrorType.InvalidType
+                        message = sprintf "Owner '%s' must reference a business-role element" ownerId
+                        severity = Severity.Error
+                    })
+            | None ->
+                errors.Add({
+                    filePath = doc.filePath
+                    elementId = docId
+                    errorType = ErrorType.RelationshipTargetNotFound (doc.docId, ownerId)
+                    message = sprintf "Owner '%s' was not found in ArchiMate elements" ownerId
+                    severity = Severity.Error
+                })
+        | _ -> ()
+
         if List.isEmpty doc.relations then
             errors.Add({
                 filePath = doc.filePath

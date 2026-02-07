@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-016-payment-exceptions
-owner: Payment Operations
+owner: bus-role-011-payment-operations
 approved_by: Head of Payments
 status: Draft
 version: 0.1
@@ -38,3 +38,4 @@ Provide steps for handling payment exceptions, rejects, and recalls.
 ## Related Documents
 - Related policy: ms-policy-013-sanctions-screening.md
 - Related manual: ms-manual-013-transaction-monitoring-sanctions.md
+

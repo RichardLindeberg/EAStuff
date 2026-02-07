@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-012-beneficial-ownership
-owner: Compliance Operations
+owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -38,3 +38,4 @@ Define the steps to identify and verify beneficial owners for legal entities.
 ## Related Documents
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related manual: ms-manual-012-kyc-cdd-operations.md
+

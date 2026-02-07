@@ -1,6 +1,6 @@
 ---
 id: ms-manual-021-kyc-cdd-ongoing-monitoring
-owner: Compliance Operations
+owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -38,3 +38,4 @@ Compliance operations, onboarding teams, and relationship managers.
 ## Related Documents
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related instruction: ms-instruction-023-ongoing-kyc-refresh.md
+

@@ -1,6 +1,6 @@
 ---
 id: ms-policy-014-fraud-risk-management
-owner: Fraud Prevention Department
+owner: bus-role-005-fraud-prevention-department
 approved_by: Risk Committee
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ Exceptions require approval from the fraud risk owner.
 ## Related Documents
 - Related instruction: ms-instruction-018-fraud-case-investigation.md
 - Related manual: ms-manual-014-fraud-prevention-response.md
+

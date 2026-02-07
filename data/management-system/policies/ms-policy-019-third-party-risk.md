@@ -1,6 +1,6 @@
 ---
 id: ms-policy-019-third-party-risk
-owner: Chief Risk Officer
+owner: bus-role-006-chief-risk-officer
 approved_by: Risk Committee
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ Exceptions require CRO approval and documented mitigation.
 ## Related Documents
 - Related instruction: ms-instruction-019-third-party-due-diligence.md
 - Related manual: ms-manual-019-vendor-third-party.md
+

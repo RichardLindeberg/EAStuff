@@ -1,6 +1,6 @@
 ---
 id: ms-policy-015-credit-risk
-owner: Chief Risk Officer
+owner: bus-role-006-chief-risk-officer
 approved_by: Credit Committee
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ All exceptions must be recorded and reviewed.
 ## Related Documents
 - Related instruction: ms-instruction-017-credit-assessment.md
 - Related manual: ms-manual-015-credit-risk-lending.md
+

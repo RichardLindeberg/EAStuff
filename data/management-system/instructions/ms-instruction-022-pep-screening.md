@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-022-pep-screening
-owner: Financial Crime Operations
+owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -42,3 +42,4 @@ Define steps for identifying, screening, and approving politically exposed perso
 - Related policy: ms-policy-011-aml-ctf.md
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related manual: ms-manual-022-pep-management.md
+

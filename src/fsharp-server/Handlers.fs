@@ -33,7 +33,7 @@ module Handlers =
             htmlView html next ctx
 
     /// Governance system index handler
-    let governanceIndexHandler (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceIndexHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance - Governance index requested")
             let filterValue =
@@ -71,7 +71,13 @@ module Handlers =
             let filteredDocuments =
                 documents
                 |> List.filter (fun doc ->
-                    let owner = tryGetMetadataValue "owner" doc.metadata |> Option.defaultValue ""
+                    let ownerId = tryGetMetadataValue "owner" doc.metadata |> Option.defaultValue ""
+                    let ownerLabel =
+                        if String.IsNullOrWhiteSpace ownerId then ""
+                        else
+                            match Map.tryFind ownerId registry.elements with
+                            | Some elem -> elem.name
+                            | None -> ownerId
                     let reviewDate =
                         tryGetMetadataValue "next_review" doc.metadata
                         |> Option.orElseWith (fun () -> tryGetMetadataValue "next review" doc.metadata)
@@ -82,7 +88,7 @@ module Handlers =
                         | Some term ->
                             doc.title.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
                             || doc.slug.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
-                            || owner.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                            || ownerLabel.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
                         | None -> true
 
                     let typeMatches =
@@ -117,10 +123,10 @@ module Handlers =
 
             let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
             if isHxRequest then
-                let partial = Views.Governance.documentsPartial webConfig filteredDocuments
+                let partial = Views.Governance.documentsPartial webConfig registry filteredDocuments
                 htmlView partial next ctx
             else
-                let html = Views.Governance.indexPage webConfig governanceRegistry filteredDocuments filterValue docTypeValue reviewValue
+                let html = Views.Governance.indexPage webConfig governanceRegistry registry filteredDocuments filterValue docTypeValue reviewValue
                 htmlView html next ctx
 
     /// Governance document detail handler

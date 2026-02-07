@@ -1,6 +1,6 @@
 ---
 id: ms-manual-017-info-security-access
-owner: Information Security
+owner: bus-role-016-information-security
 approved_by: Chief Information Security Officer
 status: Draft
 version: 0.1
@@ -38,3 +38,4 @@ Technology teams, security operations, and application owners.
 ## Related Documents
 - Related policy: ms-policy-017-information-security.md
 - Related instruction: ms-instruction-018-fraud-case-investigation.md
+

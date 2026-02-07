@@ -1,6 +1,6 @@
 ---
 id: ms-policy-010-governance-framework
-owner: Corporate Governance Office
+owner: bus-role-019-corporate-governance-office
 approved_by: Board of Directors
 status: Draft
 version: 0.1
@@ -36,3 +36,4 @@ Exceptions require documented rationale, executive approval, and a remediation t
 ## Related Documents
 - Related instruction: ms-instruction-010-policy-lifecycle.md
 - Related manual: ms-manual-010-governance-system-overview.md
+

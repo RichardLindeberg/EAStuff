@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-015-edd-review
-owner: Compliance Operations
+owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ Define steps to complete EDD for high-risk customers and transactions.
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related manual: ms-manual-011-aml-ctf-compliance.md
+

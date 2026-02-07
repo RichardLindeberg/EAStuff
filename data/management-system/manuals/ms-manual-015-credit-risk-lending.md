@@ -1,6 +1,6 @@
 ---
 id: ms-manual-015-credit-risk-lending
-owner: Credit Risk Department
+owner: bus-role-012-credit-risk-department
 approved_by: Chief Risk Officer
 status: Draft
 version: 0.1
@@ -38,3 +38,4 @@ Credit risk analysts, underwriting teams, and lending operations.
 ## Related Documents
 - Related policy: ms-policy-015-credit-risk.md
 - Related instruction: ms-instruction-017-credit-assessment.md
+

@@ -1,6 +1,6 @@
 ---
 id: ms-manual-024-transaction-monitoring-typologies
-owner: Financial Crime Analytics
+owner: bus-role-017-financial-crime-analytics
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -35,3 +35,4 @@ Financial crime analytics, compliance, and monitoring operations.
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related instruction: ms-instruction-025-transaction-monitoring-calibration.md
+

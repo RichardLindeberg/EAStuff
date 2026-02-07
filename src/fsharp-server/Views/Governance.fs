@@ -47,7 +47,17 @@ module Governance =
             if trimmed = "" then None else Some trimmed
         )
 
-    let private buildDocCard (webConfig: WebUiConfig) (doc: GovernanceDocument) : XmlNode =
+    let private tryResolveOwner (registry: ElementRegistry) (ownerValue: string) : (string * string option) option =
+        if String.IsNullOrWhiteSpace ownerValue then None
+        else
+            match ElementRegistry.getElement ownerValue registry with
+            | Some elem ->
+                let label = elem.name
+                Some (label, Some ownerValue)
+            | None ->
+                Some (ownerValue, None)
+
+    let private buildDocCard (webConfig: WebUiConfig) (registry: ElementRegistry) (doc: GovernanceDocument) : XmlNode =
         let baseUrl = webConfig.BaseUrl
         let owner = tryGetMetadataValue "owner" doc.metadata |> Option.defaultValue ""
 
@@ -59,10 +69,22 @@ module Governance =
                 ]
             ]
             if owner <> "" then
-                p [_class "element-description"] [encodedText $"Owner: {owner}"]
+                let ownerLabel, ownerLink =
+                    match tryResolveOwner registry owner with
+                    | Some (label, linkOpt) -> label, linkOpt
+                    | None -> owner, None
+
+                p [_class "element-description"] [
+                    encodedText "Owner: "
+                    match ownerLink with
+                    | Some elemId ->
+                        a [_href $"{baseUrl}elements/{elemId}"] [encodedText ownerLabel]
+                    | None ->
+                        encodedText ownerLabel
+                ]
         ]
 
-    let private renderDocumentsSection (webConfig: WebUiConfig) (documents: GovernanceDocument list) : XmlNode list =
+    let private renderDocumentsSection (webConfig: WebUiConfig) (registry: ElementRegistry) (documents: GovernanceDocument list) : XmlNode list =
         if List.isEmpty documents then
             [
                 div [_class "content-section"] [
@@ -83,17 +105,18 @@ module Governance =
                         h3 [] [encodedText $"{label} ({count})"]
                         div [_class "element-grid"] [
                             for doc in docs |> List.sortBy (fun d -> d.title) do
-                                buildDocCard webConfig doc
+                                buildDocCard webConfig registry doc
                         ]
                     ]
             ]
 
-    let documentsPartial (webConfig: WebUiConfig) (documents: GovernanceDocument list) : XmlNode =
-        div [_id "governance-documents"] (renderDocumentsSection webConfig documents)
+    let documentsPartial (webConfig: WebUiConfig) (registry: ElementRegistry) (documents: GovernanceDocument list) : XmlNode =
+        div [_id "governance-documents"] (renderDocumentsSection webConfig registry documents)
 
     let indexPage
         (webConfig: WebUiConfig)
         (registry: GovernanceDocRegistry)
+        (elementRegistry: ElementRegistry)
         (filteredDocuments: GovernanceDocument list)
         (filterValue: string option)
         (docTypeValue: string option)
@@ -193,7 +216,7 @@ module Governance =
                         ]
                     ]
                 ]
-                documentsPartial webConfig filteredDocuments
+                documentsPartial webConfig elementRegistry filteredDocuments
             ]
         ]
 
@@ -248,7 +271,26 @@ module Governance =
             metadataOrder
             |> List.choose (fun (key, label) ->
                 tryGetMetadataValue key doc.metadata
-                |> Option.map (fun value -> label, value)
+                |> Option.map (fun value -> key, label, value)
+            )
+
+        let metadataNodes =
+            metadataItems
+            |> List.map (fun (key, label, value) ->
+                let valueNode =
+                    if key = "owner" then
+                        match tryResolveOwner registry value with
+                        | Some (ownerLabel, Some ownerId) ->
+                            a [_href $"{baseUrl}elements/{ownerId}"] [encodedText ownerLabel]
+                        | Some (ownerLabel, None) -> encodedText ownerLabel
+                        | None -> encodedText value
+                    else
+                        encodedText value
+
+                div [_class "metadata-item"] [
+                    div [_class "metadata-label"] [encodedText label]
+                    div [_class "metadata-value"] [valueNode]
+                ]
             )
 
         let relationItems =
@@ -299,11 +341,7 @@ module Governance =
                             div [_class "properties-section"] [
                                 h3 [] [encodedText "Metadata"]
                                 div [_class "metadata"] [
-                                    for (label, value) in metadataItems do
-                                        div [_class "metadata-item"] [
-                                            div [_class "metadata-label"] [encodedText label]
-                                            div [_class "metadata-value"] [encodedText value]
-                                        ]
+                                    yield! metadataNodes
                                 ]
                             ]
 

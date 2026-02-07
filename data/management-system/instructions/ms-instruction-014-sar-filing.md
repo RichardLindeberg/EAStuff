@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-014-sar-filing
-owner: Financial Crime Operations
+owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ Define required steps for SAR investigation and reporting.
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related manual: ms-manual-011-aml-ctf-compliance.md
+

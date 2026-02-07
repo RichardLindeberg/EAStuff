@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-010-policy-lifecycle
-owner: Corporate Governance Office
+owner: bus-role-019-corporate-governance-office
 approved_by: Head of Risk and Compliance
 status: Draft
 version: 0.1
@@ -41,3 +41,4 @@ Applies to all new policies and material revisions to existing policies.
 ## Related Documents
 - Related policy: ms-policy-010-governance-framework.md
 - Related manual: ms-manual-010-governance-system-overview.md
+

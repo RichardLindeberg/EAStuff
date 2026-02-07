@@ -1,6 +1,6 @@
 ---
 id: ms-policy-020-model-risk-management
-owner: Chief Risk Officer
+owner: bus-role-006-chief-risk-officer
 approved_by: Risk Committee
 status: Draft
 version: 0.1
@@ -39,3 +39,4 @@ Exceptions require CRO approval and documented compensating controls.
 ## Related Documents
 - Related instruction: ms-instruction-021-model-validation.md
 - Related manual: ms-manual-020-model-risk-management.md
+
