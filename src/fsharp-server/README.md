@@ -48,7 +48,12 @@ The server will start on `http://localhost:5000` by default.
 
 ### Configure Paths
 
-Set `EAArchive:ElementsPath` and `EAArchive:RelationsPath` in appsettings.json.
+Set `EAArchive:ElementsPath` and `EAArchive:RelationsPath` in appsettings.
+
+The server expects external data only and does not bundle `data/archimate` in publish output. Use environment-specific settings:
+
+- Development: `appsettings.Development.json`
+- Production: `appsettings.Production.json` (absolute path required)
 
 ## How It Works
 

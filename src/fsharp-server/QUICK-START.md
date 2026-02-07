@@ -101,3 +101,5 @@ dotnet publish -c Release -r win-x64
 ```
 
 Output will be in `bin/Release/net8.0/win-x64/publish/`
+
+The server expects external data only. Set `EAArchive:ElementsPath` in `appsettings.Production.json` to an absolute path containing the ArchiMate markdown files.

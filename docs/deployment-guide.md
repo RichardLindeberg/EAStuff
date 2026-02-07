@@ -22,6 +22,10 @@ src/fsharp-server/bin/Release/net8.0/win-x64/publish/
 dotnet EAArchive.dll
 ```
 
+## Data Location (External Only)
+
+Publish output does not include `data/archimate`. Provide the data folder externally and set `EAArchive:ElementsPath` to an absolute path in `appsettings.Production.json` before running the server.
+
 ## Configure the URL
 
 Set the URL with environment variables:
@@ -43,6 +47,6 @@ Create a Dockerfile based on .NET 8 and publish output, then run the container e
 
 ## Notes
 
-- The server reads from data/archimate at startup
-- Set a custom archimate path in appsettings.json if needed
+- The server reads from `EAArchive:ElementsPath` at startup
+- Set the path in `appsettings.Production.json` for production deployments
 - Use a reverse proxy for TLS termination in production

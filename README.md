@@ -85,6 +85,10 @@ dotnet run
 
 Then open `http://localhost:5000` to browse the architecture.
 
+### Data Location Policy
+
+The server does not bundle `data/archimate` in publish output. Production deployments must provide the data folder externally and set `EAArchive:ElementsPath` to its absolute path (see `src/fsharp-server/appsettings.Production.json`).
+
 ### Relationship Validation (F# Server)
 
 The server validates relationships using ArchiMate rules from [schemas/relations.xml](schemas/relations.xml). Any issues are reported as warnings when browsing elements.
