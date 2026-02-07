@@ -5,7 +5,7 @@ The static website generator has been removed. The current, supported experience
 ## Use the F# Server
 
 ```bash
-cd fsharp-server
+cd src/fsharp-server
 dotnet build
 dotnet run
 ```

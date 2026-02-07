@@ -3,12 +3,12 @@
 Use this checklist to track a full documentation refresh. Mark each item as it is completed.
 
 ## 1) Inventory and scope
-- [x] List all documentation sources (root README, docs/, fsharp-server docs, examples)
+- [x] List all documentation sources (root README, docs/, src/fsharp-server docs, examples)
 - [x] Identify primary audiences and their top tasks
 - [x] Confirm the current source of truth (code, configs, schemas, servers)
 
 ### Inventory notes
-- Sources: root README, docs/, fsharp-server/README.md, fsharp-server/QUICK-START.md, examples/
+- Sources: root README, docs/, src/fsharp-server/README.md, src/fsharp-server/QUICK-START.md, examples/
 - Primary audience: developers/architects using the tool
 - Source of truth: current repo contents (F# server, schemas, configs, and actual scripts)
 

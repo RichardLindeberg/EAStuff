@@ -59,7 +59,7 @@ The Customer Portal is the primary interface for customers to interact with our 
   /management-system # Policies, instructions, manuals
 /schemas            # ArchiMate schemas and validation rules
 /docs               # Documentation and guides
-/fsharp-server      # F# web server (current source of truth)
+/src/fsharp-server  # F# web server (current source of truth)
 ```
 
 ## Usage
@@ -76,7 +76,7 @@ The Customer Portal is the primary interface for customers to interact with our 
 
 ### Running the F# Server
 
-From the `fsharp-server` directory:
+From the `src/fsharp-server` directory:
 
 ```bash
 dotnet build
@@ -102,4 +102,4 @@ The server validates relationships using ArchiMate rules from [schemas/relations
 
 ## Getting Started
 
-See example elements in the `/data/archimate` directory to understand the format. For server usage, see [fsharp-server/QUICK-START.md](fsharp-server/QUICK-START.md).
+See example elements in the `/data/archimate` directory to understand the format. For server usage, see [src/fsharp-server/QUICK-START.md](src/fsharp-server/QUICK-START.md).

@@ -31,11 +31,13 @@ EA Stuff/
 │   └── management-system/          # Management system docs (overview)
 │       └── index.md
 │
-├── fsharp-server/                  # F# web server
-│   ├── Program.fs
-│   ├── Handlers.fs
-│   ├── Views.fs
-│   └── EAArchive.fsproj
+├── src/
+│   ├── fsharp-server/              # F# web server
+│   │   ├── Program.fs
+│   │   ├── Handlers.fs
+│   │   ├── Views.fs
+│   │   └── EAArchive.fsproj
+│   └── fsharp-server.Tests/        # F# server tests
 │
 ├── examples/                       # Example files
 │   ├── invalid-missing-fields.md
@@ -48,7 +50,7 @@ EA Stuff/
 
 ## Usage
 
-Run the F# server from the fsharp-server directory:
+Run the F# server from the src/fsharp-server directory:
 
 ```bash
 dotnet build

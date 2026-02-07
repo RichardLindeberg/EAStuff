@@ -21,7 +21,7 @@ Migrate the F# server's diagram generation from Mermaid to Cytoscape.js to enabl
 
 ### Existing Implementation (Mermaid-based)
 
-**File:** `fsharp-server/Handlers.fs`
+**File:** `src/fsharp-server/Handlers.fs`
 
 **Key Functions:**
 - `buildLayerMermaid` (lines 97-172): Generates layer-specific diagrams
@@ -130,7 +130,7 @@ Migrate the F# server's diagram generation from Mermaid to Cytoscape.js to enabl
 
 #### 1. Add Relationship Color Mapping
 
-**Location:** `fsharp-server/Handlers.fs` (add after `getArchimateColor` function)
+**Location:** `src/fsharp-server/Handlers.fs` (add after `getArchimateColor` function)
 
 ```fsharp
 let private getRelationshipColor (relType: string) : string =
@@ -171,7 +171,7 @@ let private getRelationshipLineWidth (relType: string) : float =
 
 #### 2. Add Node Shape Mapping
 
-**Location:** `fsharp-server/Handlers.fs` (add after relationship functions)
+**Location:** `src/fsharp-server/Handlers.fs` (add after relationship functions)
 
 ```fsharp
 let private getNodeShape (elementType: string) : string =
@@ -200,7 +200,7 @@ let private getNodeShape (elementType: string) : string =
 
 #### 3. Create Cytoscape Data Builder
 
-**Location:** `fsharp-server/Handlers.fs` (replace `buildLayerMermaid`)
+**Location:** `src/fsharp-server/Handlers.fs` (replace `buildLayerMermaid`)
 
 ```fsharp
 let private buildCytoscapeData (elements: Element list) (allRelationships: (string * Relationship) list) : string =
@@ -274,7 +274,7 @@ let private buildCytoscapeData (elements: Element list) (allRelationships: (stri
 
 #### 4. Update Layer Diagram Function
 
-**Location:** `fsharp-server/Handlers.fs` (replace `buildLayerMermaid`)
+**Location:** `src/fsharp-server/Handlers.fs` (replace `buildLayerMermaid`)
 
 ```fsharp
 let private buildLayerCytoscape (layer: string) (registry: ElementRegistry) : string =
@@ -308,7 +308,7 @@ let private buildLayerCytoscape (layer: string) (registry: ElementRegistry) : st
 
 #### 5. Update Context Diagram Function
 
-**Location:** `fsharp-server/Handlers.fs` (replace `buildContextDiagram`)
+**Location:** `src/fsharp-server/Handlers.fs` (replace `buildContextDiagram`)
 
 ```fsharp
 let private buildContextCytoscape (elementId: string) (depth: int) (registry: ElementRegistry) : string =
@@ -358,7 +358,7 @@ let private buildContextCytoscape (elementId: string) (depth: int) (registry: El
 
 #### 6. Create Cytoscape HTML Wrapper
 
-**Location:** `fsharp-server/Handlers.fs` (replace `wrapMermaidHtml`)
+**Location:** `src/fsharp-server/Handlers.fs` (replace `wrapMermaidHtml`)
 
 ```fsharp
 let private wrapCytoscapeHtml (title: string) (data: string) (enableSave: bool) : string =
@@ -639,7 +639,7 @@ let private wrapCytoscapeHtml (title: string) (data: string) (enableSave: bool) 
 
 #### 7. Update HTTP Handlers
 
-**Location:** `fsharp-server/Handlers.fs`
+**Location:** `src/fsharp-server/Handlers.fs`
 
 ```fsharp
 let layerDiagramCytoscape (layer: string) : HttpHandler =
@@ -671,7 +671,7 @@ let contextDiagramCytoscape (elementId: string) (depth: int) : HttpHandler =
 
 #### 8. Update Routes
 
-**Location:** `fsharp-server/Program.fs`
+**Location:** `src/fsharp-server/Program.fs`
 
 ```fsharp
 let webApp =
@@ -850,7 +850,7 @@ let webApp =
 ```
 
 ### SVG Icon Directory
-- Location: `fsharp-server/wwwroot/assets/archimate-symbols/`
+- Location: `src/fsharp-server/wwwroot/assets/archimate-symbols/`
 - Format: `{Element Type Title Case}.svg` (e.g., `Business Process.svg`)
 - Size: 32x32px recommended
 - Style: ArchiMate standard symbols
@@ -879,4 +879,4 @@ let webApp =
 - **ArchiMate 3.2 Standard**: https://pubs.opengroup.org/architecture/archimate32-doc/
 - **ArchiMate Visual Reference**: https://gbruneau.github.io/ArchiMate/
 - **Dagre Layout Algorithm**: https://github.com/dagrejs/dagre
-- **Current F# Server Code**: `fsharp-server/Handlers.fs`, `fsharp-server/Program.fs`
+- **Current F# Server Code**: `src/fsharp-server/Handlers.fs`, `src/fsharp-server/Program.fs`

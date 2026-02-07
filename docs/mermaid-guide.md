@@ -15,7 +15,7 @@ This project now uses the F# server to render the architecture dynamically. The 
 
 ## Run the Server
 
-From the fsharp-server directory:
+From the src/fsharp-server directory:
 
 ```bash
 dotnet build
@@ -35,7 +35,7 @@ Open http://localhost:5000 in your browser.
 ## Development Tips
 
 - Use dotnet watch run for hot reload during development
-- Pass a custom archimate path: dotnet run -- /path/to/data/archimate
+- Set a custom archimate path in appsettings.json (`EAArchive:ElementsPath`)
 
 ## Troubleshooting
 

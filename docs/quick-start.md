@@ -54,7 +54,7 @@ features, and how it fits into the overall architecture.
 
 ## Step 4: Run the F# Server
 
-From the `fsharp-server` directory:
+From the `src/fsharp-server` directory:
 
 ```bash
 dotnet build

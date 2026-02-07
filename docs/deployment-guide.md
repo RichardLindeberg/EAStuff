@@ -4,7 +4,7 @@ The supported deployment target is the F# web server. This guide covers basic pu
 
 ## Build and Publish
 
-From the fsharp-server directory:
+From the src/fsharp-server directory:
 
 ```bash
 dotnet publish -c Release -r win-x64
@@ -13,7 +13,7 @@ dotnet publish -c Release -r win-x64
 Publish output is under:
 
 ```
-fsharp-server/bin/Release/net8.0/win-x64/publish/
+src/fsharp-server/bin/Release/net8.0/win-x64/publish/
 ```
 
 ## Run in Production
@@ -44,5 +44,5 @@ Create a Dockerfile based on .NET 8 and publish output, then run the container e
 ## Notes
 
 - The server reads from data/archimate at startup
-- Pass a custom archimate path to dotnet run if needed
+- Set a custom archimate path in appsettings.json if needed
 - Use a reverse proxy for TLS termination in production

@@ -88,7 +88,7 @@ Phase 3: Error Message Formatting
 [x] Add special formatting for relationship warnings (distinct from other warnings)
 [x] Include relationship type and description in error display
 Phase 4: Testing
-[x] Create test file at fsharp-server.Tests/RelationshipValidationTests.fs
+[x] Create test file at src/fsharp-server.Tests/RelationshipValidationTests.fs
 
 [x] Add to EAArchive.Tests.fsproj
 [x] Write XML parsing tests
@@ -113,7 +113,7 @@ Phase 4: Testing
 Phase 5: Integration & Verification
  Test with existing elements
 
- Run server locally: dotnet run in fsharp-server
+ Run server locally: dotnet run in src/fsharp-server
  Navigate to http://localhost:5000/validation
  Verify relationship warnings appear (if any exist)
  Check warning styling (yellow, not red)

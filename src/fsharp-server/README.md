@@ -32,7 +32,7 @@ A modern F# webserver that dynamically renders your ArchiMate Enterprise Archite
 ## Building
 
 ```bash
-cd fsharp-server
+cd src/fsharp-server
 dotnet build
 ```
 
@@ -46,11 +46,9 @@ dotnet run
 
 The server will start on `http://localhost:5000` by default.
 
-### With Custom Archimate Path
+### Configure Paths
 
-```bash
-dotnet run -- /path/to/data/archimate
-```
+Set `EAArchive:ElementsPath` and `EAArchive:RelationsPath` in appsettings.json.
 
 ## How It Works
 
@@ -75,7 +73,7 @@ Element content in markdown...
 
 ### Relationship Validation
 
-Relationship rules are loaded from `schemas/relations.xml` at startup. The registry validates each relationship and records warnings for missing targets, self-references, duplicates, unknown relationship types, and invalid combinations based on ArchiMate rules.
+Relationship rules are loaded from `wwwroot/schemas/relations.xml` at startup. The registry validates each relationship and records warnings for missing targets, self-references, duplicates, unknown relationship types, and invalid combinations based on ArchiMate rules.
 
 ### Routes
 
