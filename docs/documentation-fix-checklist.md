@@ -38,17 +38,17 @@ Use this checklist to track a full documentation refresh. Mark each item as it i
 - [x] Ensure entry points (README, quick start) point to correct docs
 
 ## 6) Quality review
-- [ ] Remove stale or contradictory statements
-- [ ] Check for missing prerequisites or implicit steps
-- [ ] Run a final read-through for clarity and completeness
+- [x] Remove stale or contradictory statements
+- [x] Check for missing prerequisites or implicit steps
+- [x] Run a final read-through for clarity and completeness
 
 ## 7) Sign-off
-- [ ] Record date and reviewer
-- [ ] Note any follow-up tasks or deferred items
+- [x] Record date and reviewer
+- [x] Note any follow-up tasks or deferred items
 
 ---
 
 ### Review log
-- Date:
-- Reviewer:
-- Notes:
+- Date: 2026-02-07
+- Reviewer: Richard
+- Notes: None

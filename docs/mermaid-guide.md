@@ -9,6 +9,10 @@ This project now uses the F# server to render the architecture dynamically. The 
 - Tag browsing and filtering
 - Relationship validation warnings based on schemas/relations.xml
 
+## Prerequisites
+
+- .NET 8.0 SDK or later
+
 ## Run the Server
 
 From the fsharp-server directory:

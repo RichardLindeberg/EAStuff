@@ -12,7 +12,7 @@ EA Stuff/
 │   ├── application/                # Application layer elements
 │   ├── technology/                 # Technology layer elements
 │   ├── physical/                   # Physical layer elements (optional)
-│   └── motivation/                 # Motivation layer elements
+│   ├── motivation/                 # Motivation layer elements
 │   └── implementation/             # Implementation layer elements (optional)
 │
 ├── schemas/                        # Validation schemas
@@ -21,7 +21,6 @@ EA Stuff/
 ├── docs/                           # Documentation
 │   ├── quick-start.md
 │   ├── mermaid-guide.md            # F# server UI guide
-│   ├── plantuml-guide.md           # Diagram guidance (manual)
 │   ├── element-types-reference.md
 │   └── best-practices.md
 │

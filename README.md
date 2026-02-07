@@ -62,6 +62,10 @@ The Customer Portal is the primary interface for customers to interact with our 
 
 ## Usage
 
+### Prerequisites
+
+- .NET 8.0 SDK or later
+
 ### Creating an Element
 
 1. Create a new markdown file in the appropriate layer directory
