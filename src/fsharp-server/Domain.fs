@@ -253,10 +253,11 @@ type GovernanceDocument = {
 }
 
 /// Governance document registry
-type GovernanceRegistry = {
+type GovernanceDocRegistry = {
     documents: Map<string, GovernanceDocument>
     documentsByType: Map<GovernanceDocType, string list>
     managementSystemPath: string
+    validationErrors: ValidationError list
 }
 
 /// Application constants

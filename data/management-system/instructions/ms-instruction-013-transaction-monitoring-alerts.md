@@ -1,20 +1,20 @@
+---
+id: ms-instruction-013-transaction-monitoring-alerts
+owner: Financial Crime Operations
+approved_by: Chief Compliance Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: appliesTo
+    target: bus-proc-006-fraud-detection-process
+---
 # Transaction Monitoring Alert Handling Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-013-transaction-monitoring-alerts
-- Owner: Financial Crime Operations
-- Approved by: Chief Compliance Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-014-transaction-monitoring-and-screening
-	- type: appliesTo
-		target: bus-proc-006-fraud-detection-process
 
 **Purpose:**
 Provide steps for triaging, investigating, and resolving monitoring alerts.

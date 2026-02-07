@@ -1,20 +1,20 @@
+---
+id: ms-instruction-011-kyc-onboarding
+owner: Compliance Operations
+approved_by: Chief Compliance Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-013-kyc-and-customer-identification
+  - type: appliesTo
+    target: bus-proc-001-account-management-process
+---
 # KYC Onboarding Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-011-kyc-onboarding
-- Owner: Compliance Operations
-- Approved by: Chief Compliance Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-013-kyc-and-customer-identification
-	- type: appliesTo
-		target: bus-proc-001-account-management-process
 
 **Purpose:**
 Provide a step-by-step process for completing KYC onboarding and risk classification.

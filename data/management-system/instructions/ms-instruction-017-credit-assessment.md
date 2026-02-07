@@ -1,20 +1,20 @@
+---
+id: ms-instruction-017-credit-assessment
+owner: Credit Risk Department
+approved_by: Chief Risk Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: bus-proc-004-credit-assessment-process
+  - type: appliesTo
+    target: bus-proc-007-loan-origination-process
+---
 # Credit Assessment Workflow Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-017-credit-assessment
-- Owner: Credit Risk Department
-- Approved by: Chief Risk Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: bus-proc-004-credit-assessment-process
-	- type: appliesTo
-		target: bus-proc-007-loan-origination-process
 
 **Purpose:**
 Define steps for assessing creditworthiness and documenting decisions.

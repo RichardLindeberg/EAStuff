@@ -1,20 +1,20 @@
+---
+id: ms-manual-013-transaction-monitoring-sanctions
+owner: Financial Crime Operations
+approved_by: Chief Compliance Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: appliesTo
+    target: bus-proc-008-payment-processing
+---
 # Transaction Monitoring and Sanctions Manual
 
-**Metadata**
-
-- Document ID: ms-manual-013-transaction-monitoring-sanctions
-- Owner: Financial Crime Operations
-- Approved by: Chief Compliance Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-014-transaction-monitoring-and-screening
-	- type: appliesTo
-		target: bus-proc-008-payment-processing
 
 **Purpose:**
 Provide detailed guidance for monitoring, alert handling, and sanctions screening.

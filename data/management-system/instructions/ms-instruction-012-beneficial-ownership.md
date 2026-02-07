@@ -1,18 +1,18 @@
+---
+id: ms-instruction-012-beneficial-ownership
+owner:
+approved_by: Chief Compliance Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: bus-proc-002-beneficial-ownership-identification-proc
+---
 # Beneficial Ownership Verification Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-012-beneficial-ownership
-- Owner: Compliance Operations
-- Approved by: Chief Compliance Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: bus-proc-002-beneficial-ownership-identification-proc
 
 **Purpose:**
 Define the steps to identify and verify beneficial owners for legal entities.
@@ -23,9 +23,6 @@ Define the steps to identify and verify beneficial owners for legal entities.
 
 ## Prerequisites
 - Corporate structure documents
-- Ownership declaration form
-- Authorized customer contacts
-
 ## Procedure
 1. Collect corporate structure and ownership declarations.
 2. Identify all beneficial owners meeting thresholds.

@@ -1,20 +1,20 @@
+---
+id: ms-policy-012-kyc-cdd
+owner: Chief Compliance Officer
+approved_by: Risk Committee
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-013-kyc-and-customer-identification
+  - type: appliesTo
+    target: bus-proc-001-account-management-process
+---
 # KYC/CDD Policy
 
-**Metadata**
-
-- Document ID: ms-policy-012-kyc-cdd
-- Owner: Chief Compliance Officer
-- Approved by: Risk Committee
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-013-kyc-and-customer-identification
-	- type: appliesTo
-		target: bus-proc-001-account-management-process
 
 **Purpose:**
 Set mandatory standards for customer identification, verification, and risk classification.

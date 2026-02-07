@@ -1,18 +1,18 @@
+---
+id: ms-instruction-014-sar-filing
+owner: Financial Crime Operations
+approved_by: Chief Compliance Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-015-suspicious-activity-reporting-sar
+---
 # SAR Filing Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-014-sar-filing
-- Owner: Financial Crime Operations
-- Approved by: Chief Compliance Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-015-suspicious-activity-reporting-sar
 
 **Purpose:**
 Define required steps for SAR investigation and reporting.

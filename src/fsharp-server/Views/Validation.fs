@@ -10,7 +10,20 @@ open Common
 module Validation =
 
     /// Validation errors page
-    let validationPage (webConfig: WebUiConfig) (basePath: string) (errors: ValidationError list) =
+    let validationPage (webConfig: WebUiConfig) (basePaths: string list) (errors: ValidationError list) =
+        let toRelativePath (filePath: string) : string =
+            let candidates =
+                basePaths
+                |> List.choose (fun basePath ->
+                    try
+                        let relative = Path.GetRelativePath(basePath, filePath)
+                        if relative.StartsWith("..") then None else Some relative
+                    with
+                    | _ -> None
+                )
+            match candidates with
+            | head :: _ -> head
+            | [] -> filePath
         let errorsByFile =
             errors
             |> List.groupBy (fun e -> e.filePath)
@@ -55,11 +68,7 @@ module Validation =
                         ]
                     )
 
-                let relativeFilePath =
-                    try
-                        Path.GetRelativePath(basePath, filePath)
-                    with
-                    | _ -> filePath
+                let relativeFilePath = toRelativePath filePath
 
                 div [_class $"file-card {errorClass}"] [
                     div [_class "file-header"] [

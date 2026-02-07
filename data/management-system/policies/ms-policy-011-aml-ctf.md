@@ -1,20 +1,20 @@
+---
+id: ms-policy-011-aml-ctf
+owner: Chief Compliance Officer
+approved_by: Board of Directors
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: appliesTo
+    target: mot-reqt-015-suspicious-activity-reporting-sar
+---
 # AML/CTF Policy
 
-**Metadata**
-
-- Document ID: ms-policy-011-aml-ctf
-- Owner: Chief Compliance Officer
-- Approved by: Board of Directors
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-014-transaction-monitoring-and-screening
-	- type: appliesTo
-		target: mot-reqt-015-suspicious-activity-reporting-sar
 
 **Purpose:**
 Define the bank's AML/CTF obligations, risk appetite, and control expectations to detect, prevent, and report financial crime.

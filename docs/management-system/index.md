@@ -1,6 +1,6 @@
 # Governance System Documentation
 
-This section explains how governance system documents are organized and how to author them. These documents are separate from ArchiMate element definitions in data/archimate and do not use YAML frontmatter.
+This section explains how governance system documents are organized and how to author them. These documents are separate from ArchiMate element definitions in data/archimate, but they do use YAML frontmatter for metadata.
 
 ## What Each Document Type Means
 
@@ -24,41 +24,37 @@ Keep the numeric sequence per type and use short, lowercase, hyphenated titles.
 
 ## Minimal Metadata
 
-Add a small metadata block near the top of each document to capture governance ownership, approvals, and applicability. Use a relations-style list similar to ArchiMate, and use ArchiMate IDs for roles/actors (for example, business-role or business-actor IDs).
+Add a YAML frontmatter block near the top of each document to capture governance ownership, approvals, and applicability. Use a relationships list similar to ArchiMate, and use ArchiMate IDs for roles/actors (for example, business-role or business-actor IDs).
 
 Format:
 
-- Document ID:
-- Owner:
-- Approved by:
-- Status:
-- Version:
-- Effective date:
-- Review cycle:
-- Next review:
-- Relations:
-	- type: appliesTo
-		target:
-	- type: ownedBy
-		target:
+---
+id: ms-policy-001-short-title
+owner:
+approved_by:
+status:
+version:
+effective_date:
+review_cycle:
+next_review:
+relationships:
+  - type: appliesTo
+    target:
+  - type: ownedBy
+    target:
+---
 
 ## Policies
 
 Location: data/management-system/policies/
 
-- Template: [data/management-system/policies/ms-policy-001-template.md](../../data/management-system/policies/ms-policy-001-template.md)
-
 ## Instructions
 
 Location: data/management-system/instructions/
 
-- Template: [data/management-system/instructions/ms-instruction-001-template.md](../../data/management-system/instructions/ms-instruction-001-template.md)
-
 ## Manuals
 
 Location: data/management-system/manuals/
-
-- Template: [data/management-system/manuals/ms-manual-001-template.md](../../data/management-system/manuals/ms-manual-001-template.md)
 
 ## Glossary
 

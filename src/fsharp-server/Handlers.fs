@@ -15,7 +15,7 @@ module Handlers =
     open HandlersHelpers
     
     /// Index/home page handler
-    let indexHandler (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let indexHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET / - Home page requested")
             let layerCounts = 
@@ -26,19 +26,19 @@ module Handlers =
             htmlView html next ctx
 
     /// Governance system index handler
-    let governanceIndexHandler (governanceRegistry: GovernanceRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceIndexHandler (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance - Governance index requested")
             let html = Views.Governance.indexPage webConfig governanceRegistry
             htmlView html next ctx
 
     /// Governance document detail handler
-    let governanceDocHandler (slug: string) (governanceRegistry: GovernanceRegistry) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceDocHandler (slug: string) (governanceRegistry: GovernanceDocRegistry) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance/{slug} - Governance document requested", slug)
             match Map.tryFind slug governanceRegistry.documents with
             | Some doc ->
-                let html = Views.Governance.documentPage webConfig registry doc
+                let html = Views.Governance.documentPage webConfig registry governanceRegistry doc
                 htmlView html next ctx
             | None ->
                 logger.LogWarning("Governance document not found: {slug}", slug)
@@ -520,10 +520,12 @@ module Handlers =
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
     
     /// Validation errors API handler - list all errors
-    let validationErrorsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let validationErrorsHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/errors - Validation errors requested")
-            let errors = ElementRegistry.getValidationErrors registry
+            let errors =
+                ElementRegistry.getValidationErrors registry
+                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
             logger.LogInformation("Returning {errorCount} validation errors", List.length errors)
             
             let errorsList =
@@ -541,11 +543,14 @@ module Handlers =
             json errorsList next ctx
     
     /// Validation errors by file handler
-    let fileValidationErrorsHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let fileValidationErrorsHandler (filePath: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/file - Validation errors for file: {filePath}", filePath)
             let decodedPath = Uri.UnescapeDataString(filePath)
-            let errors = ElementRegistry.getFileValidationErrors decodedPath registry
+            let errors =
+                ElementRegistry.getValidationErrors registry
+                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
+                |> List.filter (fun err -> err.filePath = decodedPath)
             logger.LogInformation("File '{filePath}' has {errorCount} validation errors", decodedPath, List.length errors)
             
             let errorsList =
@@ -563,12 +568,14 @@ module Handlers =
             json errorsList next ctx
     
     /// Validation statistics handler
-    let validationStatsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let validationStatsHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/stats - Validation statistics requested")
-            let errors = ElementRegistry.getValidationErrors registry
-            let errors_list = ElementRegistry.getErrorsBySeverity Severity.Error registry
-            let warnings_list = ElementRegistry.getErrorsBySeverity Severity.Warning registry
+            let errors =
+                ElementRegistry.getValidationErrors registry
+                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
+            let errors_list = errors |> List.filter (fun e -> e.severity = Severity.Error)
+            let warnings_list = errors |> List.filter (fun e -> e.severity = Severity.Warning)
             
             let stats = dict [
                 ("totalFiles", box (errors |> List.map (fun e -> e.filePath) |> List.distinct |> List.length))
@@ -584,12 +591,14 @@ module Handlers =
             json stats next ctx
     
     /// Validation page handler
-    let validationPageHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let validationPageHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /validation - Validation page requested")
-            let errors = ElementRegistry.getValidationErrors registry
+            let errors =
+                ElementRegistry.getValidationErrors registry
+                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
             logger.LogInformation("Displaying {errorCount} validation errors", List.length errors)
-            let html = Views.Validation.validationPage webConfig registry.elementsPath errors
+            let html = Views.Validation.validationPage webConfig [ registry.elementsPath; governanceRegistry.managementSystemPath ] errors
             htmlView html next ctx
     
     /// Revalidate file handler

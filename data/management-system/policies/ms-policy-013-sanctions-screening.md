@@ -1,20 +1,20 @@
+---
+id: ms-policy-013-sanctions-screening
+owner: Chief Compliance Officer
+approved_by: Risk Committee
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: appliesTo
+    target: bus-proc-008-payment-processing
+---
 # Sanctions Screening Policy
 
-**Metadata**
-
-- Document ID: ms-policy-013-sanctions-screening
-- Owner: Chief Compliance Officer
-- Approved by: Risk Committee
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-014-transaction-monitoring-and-screening
-	- type: appliesTo
-		target: bus-proc-008-payment-processing
 
 **Purpose:**
 Ensure sanctions screening is performed on customers, counterparties, and transactions.

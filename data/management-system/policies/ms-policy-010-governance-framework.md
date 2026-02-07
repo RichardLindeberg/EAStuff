@@ -1,18 +1,18 @@
+---
+id: ms-policy-010-governance-framework
+owner: Corporate Governance Office
+approved_by: Board of Directors
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: str-capa-009-regulatory-compliance-and-risk
+---
 # Governance Framework Policy
 
-**Metadata**
-
-- Document ID: ms-policy-010-governance-framework
-- Owner: Corporate Governance Office
-- Approved by: Board of Directors
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: str-capa-009-regulatory-compliance-and-risk
 
 **Purpose:**
 Define the governance framework for policies, instructions, and manuals to ensure consistent ownership, approval, and compliance across the enterprise.

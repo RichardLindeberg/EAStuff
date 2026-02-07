@@ -1,20 +1,20 @@
+---
+id: ms-policy-015-credit-risk
+owner: Chief Risk Officer
+approved_by: Credit Committee
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: bus-proc-004-credit-assessment-process
+  - type: appliesTo
+    target: bus-proc-007-loan-origination-process
+---
 # Credit Risk Policy
 
-**Metadata**
-
-- Document ID: ms-policy-015-credit-risk
-- Owner: Chief Risk Officer
-- Approved by: Credit Committee
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: bus-proc-004-credit-assessment-process
-	- type: appliesTo
-		target: bus-proc-007-loan-origination-process
 
 **Purpose:**
 Set credit risk appetite, underwriting standards, and portfolio monitoring expectations.

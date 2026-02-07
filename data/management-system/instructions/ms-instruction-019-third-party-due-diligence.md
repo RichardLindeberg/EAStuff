@@ -1,18 +1,18 @@
+---
+id: ms-instruction-019-third-party-due-diligence
+owner: Vendor Management
+approved_by: Chief Risk Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: str-vstr-003-secure-and-resilient-operations
+---
 # Third-Party Due Diligence Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-019-third-party-due-diligence
-- Owner: Vendor Management
-- Approved by: Chief Risk Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: str-vstr-003-secure-and-resilient-operations
 
 **Purpose:**
 Provide steps for evaluating third-party risk before onboarding or renewal.

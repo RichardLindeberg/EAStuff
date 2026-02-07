@@ -1,20 +1,20 @@
+---
+id: ms-instruction-020-dsar-requests
+owner: Privacy Office
+approved_by: Chief Privacy Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-001-gdpr-data-protection-compliance
+  - type: appliesTo
+    target: mot-reqt-007-data-security-and-privacy
+---
 # Data Subject Access Request (DSAR) Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-020-dsar-requests
-- Owner: Privacy Office
-- Approved by: Chief Privacy Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-001-gdpr-data-protection-compliance
-	- type: appliesTo
-		target: mot-reqt-007-data-security-and-privacy
 
 **Purpose:**
 Provide a step-by-step process for handling data subject access requests in line with GDPR requirements.

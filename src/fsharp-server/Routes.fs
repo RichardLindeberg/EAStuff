@@ -8,7 +8,7 @@ open Giraffe
 module Routes =
 
     /// Create route handlers
-    let createHandlers (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+    let createHandlers (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
         let logger = loggerFactory.CreateLogger("Handlers")
 
         logger.LogInformation("Initializing route handlers")
@@ -35,10 +35,10 @@ module Routes =
             routef "/diagrams/context/%s" (fun elemId -> Handlers.contextDiagramCytoscapeHandler elemId registry assets webConfig logger)
 
             // Validation page and API endpoints
-            route "/validation" >=> Handlers.validationPageHandler registry webConfig logger
-            route "/api/validation/errors" >=> Handlers.validationErrorsHandler registry logger
-            routef "/api/validation/file/%s" (fun filePath -> Handlers.fileValidationErrorsHandler filePath registry logger)
-            route "/api/validation/stats" >=> Handlers.validationStatsHandler registry logger
+            route "/validation" >=> Handlers.validationPageHandler registry governanceRegistry webConfig logger
+            route "/api/validation/errors" >=> Handlers.validationErrorsHandler registry governanceRegistry logger
+            routef "/api/validation/file/%s" (fun filePath -> Handlers.fileValidationErrorsHandler filePath registry governanceRegistry logger)
+            route "/api/validation/stats" >=> Handlers.validationStatsHandler registry governanceRegistry logger
             routef "/api/validation/revalidate/%s" (fun filePath -> Handlers.revalidateFileHandler filePath registry logger)
 
             route "/tags" >=> Handlers.tagsIndexHandler registry webConfig logger

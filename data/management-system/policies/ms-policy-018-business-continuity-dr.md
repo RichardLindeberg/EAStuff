@@ -1,20 +1,20 @@
+---
+id: ms-policy-018-business-continuity-dr
+owner: Chief Operating Officer
+approved_by: Board of Directors
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-011-dora-digital-operational-resilience
+  - type: appliesTo
+    target: str-capa-005-digital-operational-resilience-capabilit
+---
 # Business Continuity and Disaster Recovery Policy
 
-**Metadata**
-
-- Document ID: ms-policy-018-business-continuity-dr
-- Owner: Chief Operating Officer
-- Approved by: Board of Directors
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-011-dora-digital-operational-resilience
-	- type: appliesTo
-		target: str-capa-005-digital-operational-resilience-capabilit
 
 **Purpose:**
 Ensure critical services continue through disruptions and recover within defined targets.

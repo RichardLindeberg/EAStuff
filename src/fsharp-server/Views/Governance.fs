@@ -1,6 +1,8 @@
 namespace EAArchive.Views
 
 open System
+open System.Globalization
+open System.Text.RegularExpressions
 open EAArchive
 open EAArchive.ViewHelpers
 open Giraffe.ViewEngine
@@ -57,7 +59,7 @@ module Governance =
                 ]
         ]
 
-    let indexPage (webConfig: WebUiConfig) (registry: GovernanceRegistry) : XmlNode =
+    let indexPage (webConfig: WebUiConfig) (registry: GovernanceDocRegistry) : XmlNode =
         let documents = registry.documents |> Map.toList |> List.map snd
         let grouped =
             documents
@@ -97,18 +99,42 @@ module Governance =
         else
             content
 
-    let documentPage (webConfig: WebUiConfig) (registry: ElementRegistry) (doc: GovernanceDocument) : XmlNode =
+    let private linkRelatedDocs (baseUrl: string) (governanceRegistry: GovernanceDocRegistry) (content: string) : string =
+        let pattern = "^\\s*[-*]\\s+Related\\s+[^:]+:\\s+([a-z0-9-]+)\\.md\\s*$"
+        let regex = Regex(pattern, RegexOptions.IgnoreCase ||| RegexOptions.Multiline)
+
+        regex.Replace(content, fun (m: Match) ->
+            let slug = m.Groups.[1].Value
+            let prefix = m.Value.Substring(0, m.Value.IndexOf(':') + 1)
+            let linkLabel =
+                governanceRegistry.documents
+                |> Map.tryFind slug
+                |> Option.map (fun doc -> doc.title)
+                |> Option.defaultValue slug
+            $"{prefix} [{linkLabel}]({baseUrl}governance/{slug})"
+        )
+
+    let private formatRelationType (value: string) : string =
+        let trimmed = value.Trim()
+        if trimmed = "" then
+            "Relation"
+        else
+            let normalized = trimmed.Replace("_", " ").Replace("-", " ")
+            let spaced = Regex.Replace(normalized, "([a-z])([A-Z])", "$1 $2")
+            CultureInfo.InvariantCulture.TextInfo.ToTitleCase(spaced)
+
+    let documentPage (webConfig: WebUiConfig) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (doc: GovernanceDocument) : XmlNode =
         let baseUrl = webConfig.BaseUrl
         let metadataOrder =
             [
-                "document id", "Document ID"
+                "id", "Document ID"
                 "owner", "Owner"
-                "approved by", "Approved by"
+                "approved_by", "Approved by"
                 "status", "Status"
                 "version", "Version"
-                "effective date", "Effective date"
-                "review cycle", "Review cycle"
-                "next review", "Next review"
+                "effective_date", "Effective date"
+                "review_cycle", "Review cycle"
+                "next_review", "Next review"
             ]
 
         let metadataItems =
@@ -126,11 +152,17 @@ module Governance =
                     | Some elem -> elem.name
                     | None -> rel.target
 
+                let relationLabel = formatRelationType rel.relationType
                 li [_class "relation-item"] [
-                    span [_class "relation-type"] [encodedText rel.relationType]
-                    a [_href $"{baseUrl}elements/{rel.target}"] [
-                        encodedText targetLabel
-                    ]
+                    span [_class "relation-type governance-relation-type"] [encodedText relationLabel]
+                    span [_class "governance-relation-label"] [encodedText "Governance"]
+                    match ElementRegistry.getElement rel.target registry with
+                    | Some _ ->
+                        a [_href $"{baseUrl}elements/{rel.target}"] [
+                            encodedText targetLabel
+                        ]
+                    | None ->
+                        span [] [encodedText targetLabel]
                 ]
             )
 
@@ -175,7 +207,11 @@ module Governance =
                             ]
 
                         if not (String.IsNullOrWhiteSpace doc.content) then
-                            let htmlContent = doc.content |> stripTitleHeading |> markdownToHtml
+                            let htmlContent =
+                                doc.content
+                                |> stripTitleHeading
+                                |> linkRelatedDocs baseUrl governanceRegistry
+                                |> markdownToHtml
                             div [_class "content-section"] [
                                 rawText htmlContent
                             ]

@@ -1,20 +1,20 @@
+---
+id: ms-policy-019-third-party-risk
+owner: Chief Risk Officer
+approved_by: Risk Committee
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: str-vstr-003-secure-and-resilient-operations
+  - type: appliesTo
+    target: str-capa-009-regulatory-compliance-and-risk
+---
 # Third-Party Risk Management Policy
 
-**Metadata**
-
-- Document ID: ms-policy-019-third-party-risk
-- Owner: Chief Risk Officer
-- Approved by: Risk Committee
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: str-vstr-003-secure-and-resilient-operations
-	- type: appliesTo
-		target: str-capa-009-regulatory-compliance-and-risk
 
 **Purpose:**
 Define third-party risk oversight for vendors, partners, and outsourced services.

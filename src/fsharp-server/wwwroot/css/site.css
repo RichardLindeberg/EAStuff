@@ -325,6 +325,23 @@ nav a.active {
     background: #48bb78;
 }
 
+.governance-relation-type {
+    background: #0f766e;
+}
+
+.governance-relation-label {
+    display: inline-block;
+    margin-right: 0.5rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #e6fffa;
+    color: #0f766e;
+}
+
 .relation-item a {
     color: #667eea;
     text-decoration: none;

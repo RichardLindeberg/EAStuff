@@ -1,20 +1,20 @@
+---
+id: ms-manual-011-aml-ctf-compliance
+owner: Financial Crime Compliance
+approved_by: Chief Compliance Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: appliesTo
+    target: mot-reqt-015-suspicious-activity-reporting-sar
+---
 # AML/CTF Compliance Manual
 
-**Metadata**
-
-- Document ID: ms-manual-011-aml-ctf-compliance
-- Owner: Financial Crime Compliance
-- Approved by: Chief Compliance Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-014-transaction-monitoring-and-screening
-	- type: appliesTo
-		target: mot-reqt-015-suspicious-activity-reporting-sar
 
 **Purpose:**
 Provide a reference guide for AML/CTF controls, roles, and reporting workflows.

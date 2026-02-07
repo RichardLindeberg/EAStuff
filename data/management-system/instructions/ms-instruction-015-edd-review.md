@@ -1,18 +1,18 @@
+---
+id: ms-instruction-015-edd-review
+owner: Compliance Operations
+approved_by: Chief Compliance Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-016-enhanced-due-diligence-edd
+---
 # Enhanced Due Diligence Review Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-015-edd-review
-- Owner: Compliance Operations
-- Approved by: Chief Compliance Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-016-enhanced-due-diligence-edd
 
 **Purpose:**
 Define steps to complete EDD for high-risk customers and transactions.

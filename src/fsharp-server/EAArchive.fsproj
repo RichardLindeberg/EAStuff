@@ -8,7 +8,7 @@
   <ItemGroup>
     <Compile Include="Domain.fs" />
     <Compile Include="ElementRegistry.fs" />
-    <Compile Include="GovernanceRegistry.fs" />
+    <Compile Include="GovernanceDocuments.fs" />
     <Compile Include="Views\DiagramGenerators.fs" />
     <Compile Include="Views\ViewHelpers.fs" />
     <Compile Include="Views\Common.fs" />

@@ -1,18 +1,18 @@
+---
+id: ms-instruction-018-fraud-case-investigation
+owner: Fraud Prevention Department
+approved_by: Chief Risk Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: bus-proc-006-fraud-detection-process
+---
 # Fraud Case Investigation Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-018-fraud-case-investigation
-- Owner: Fraud Prevention Department
-- Approved by: Chief Risk Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: bus-proc-006-fraud-detection-process
 
 **Purpose:**
 Provide steps to investigate, document, and resolve fraud cases.

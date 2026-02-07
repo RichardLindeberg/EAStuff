@@ -1,20 +1,20 @@
+---
+id: ms-manual-018-bcm-dr
+owner: Business Continuity Office
+approved_by: Chief Operating Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: mot-reqt-011-dora-digital-operational-resilience
+  - type: appliesTo
+    target: str-vstr-003-secure-and-resilient-operations
+---
 # Business Continuity and Disaster Recovery Manual
 
-**Metadata**
-
-- Document ID: ms-manual-018-bcm-dr
-- Owner: Business Continuity Office
-- Approved by: Chief Operating Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: mot-reqt-011-dora-digital-operational-resilience
-	- type: appliesTo
-		target: str-vstr-003-secure-and-resilient-operations
 
 **Purpose:**
 Provide guidance for continuity planning, recovery procedures, and testing.

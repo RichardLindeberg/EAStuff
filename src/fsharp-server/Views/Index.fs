@@ -8,7 +8,7 @@ open Common
 module Index =
 
     /// Index page
-    let indexPage (webConfig: WebUiConfig) (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) =
+    let indexPage (webConfig: WebUiConfig) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) =
         let baseUrl = webConfig.BaseUrl
         let layerCards =
             Config.layerOrder

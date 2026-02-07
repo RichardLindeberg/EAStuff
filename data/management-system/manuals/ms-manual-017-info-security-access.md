@@ -1,20 +1,20 @@
+---
+id: ms-manual-017-info-security-access
+owner: Information Security
+approved_by: Chief Information Security Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: str-capa-005-digital-operational-resilience-capabilit
+  - type: appliesTo
+    target: mot-reqt-012-ict-incident-detection-and
+---
 # Information Security and Access Control Manual
 
-**Metadata**
-
-- Document ID: ms-manual-017-info-security-access
-- Owner: Information Security
-- Approved by: Chief Information Security Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: str-capa-005-digital-operational-resilience-capabilit
-	- type: appliesTo
-		target: mot-reqt-012-ict-incident-detection-and
 
 **Purpose:**
 Describe security controls, access governance, and incident response requirements.

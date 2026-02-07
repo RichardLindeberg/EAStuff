@@ -1,18 +1,18 @@
+---
+id: ms-manual-010-governance-system-overview
+owner: Corporate Governance Office
+approved_by: Chief Operating Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: str-capa-009-regulatory-compliance-and-risk
+---
 # Governance System Manual
 
-**Metadata**
-
-- Document ID: ms-manual-010-governance-system-overview
-- Owner: Corporate Governance Office
-- Approved by: Chief Operating Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: str-capa-009-regulatory-compliance-and-risk
 
 **Purpose:**
 Provide a reference overview of the governance system, including document types, ownership, and how governance links to enterprise architecture.

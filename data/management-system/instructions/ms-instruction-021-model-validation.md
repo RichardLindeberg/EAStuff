@@ -1,18 +1,18 @@
+---
+id: ms-instruction-021-model-validation
+owner: Model Risk Management
+approved_by: Chief Risk Officer
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: str-capa-003-data-analytics-and-ai
+---
 # Model Validation and Monitoring Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-021-model-validation
-- Owner: Model Risk Management
-- Approved by: Chief Risk Officer
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: str-capa-003-data-analytics-and-ai
 
 **Purpose:**
 Provide steps for independent validation, approval, and ongoing monitoring of models.

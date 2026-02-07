@@ -1,20 +1,20 @@
+---
+id: ms-policy-017-information-security
+owner: Chief Information Security Officer
+approved_by: Risk Committee
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: str-capa-005-digital-operational-resilience-capabilit
+  - type: appliesTo
+    target: str-vstr-003-secure-and-resilient-operations
+---
 # Information Security Policy
 
-**Metadata**
-
-- Document ID: ms-policy-017-information-security
-- Owner: Chief Information Security Officer
-- Approved by: Risk Committee
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: str-capa-005-digital-operational-resilience-capabilit
-	- type: appliesTo
-		target: str-vstr-003-secure-and-resilient-operations
 
 **Purpose:**
 Define minimum security controls for systems, data, and access across the bank.

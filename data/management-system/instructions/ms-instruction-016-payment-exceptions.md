@@ -1,18 +1,18 @@
+---
+id: ms-instruction-016-payment-exceptions
+owner: Payment Operations
+approved_by: Head of Payments
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: bus-proc-008-payment-processing
+---
 # Payment Exceptions Handling Instruction
 
-**Metadata**
-
-- Document ID: ms-instruction-016-payment-exceptions
-- Owner: Payment Operations
-- Approved by: Head of Payments
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: bus-proc-008-payment-processing
 
 **Purpose:**
 Provide steps for handling payment exceptions, rejects, and recalls.

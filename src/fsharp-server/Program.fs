@@ -11,7 +11,7 @@ open Giraffe
 open EAArchive
 open EAArchive.DiagramGenerators
 
-let webApp (registry: ElementRegistry) (governanceRegistry: GovernanceRegistry) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+let webApp (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
     Routes.createHandlers registry governanceRegistry diagramAssets webConfig loggerFactory
 
 [<EntryPoint>]
@@ -111,9 +111,10 @@ let main args =
                     )
                     |> ignore
 
-                    services.AddSingleton<GovernanceRegistry>(fun sp ->
+                    services.AddSingleton<GovernanceDocRegistry>(fun sp ->
                         let config = sp.GetRequiredService<IConfiguration>()
                         let logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("GovernanceRegistry")
+                        let elementRegistry = sp.GetRequiredService<ElementRegistry>()
 
                         let configuredManagementPath = getRequired config "EAArchive:ManagementSystemPath"
                         let managementSystemPath = resolvePath configuredManagementPath
@@ -121,13 +122,13 @@ let main args =
                         logger.LogInformation("Loading governance documents from: {managementSystemPath}", managementSystemPath)
                         logger.LogInformation("Management system path exists: {pathExists}", Directory.Exists(managementSystemPath))
 
-                        GovernanceRegistryLoader.createWithLogger managementSystemPath logger
+                        GovernanceRegistryLoader.createWithLoggerAndElements managementSystemPath elementRegistry logger
                     )
                     |> ignore
                 )
                 .Configure(fun app ->
                     let registry = app.ApplicationServices.GetRequiredService<ElementRegistry>()
-                    let governanceRegistry = app.ApplicationServices.GetRequiredService<GovernanceRegistry>()
+                    let governanceRegistry = app.ApplicationServices.GetRequiredService<GovernanceDocRegistry>()
                     let diagramAssets = app.ApplicationServices.GetRequiredService<DiagramAssetConfig>()
                     let webConfig = app.ApplicationServices.GetRequiredService<WebUiConfig>()
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()

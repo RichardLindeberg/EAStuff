@@ -1,20 +1,20 @@
+---
+id: ms-policy-014-fraud-risk-management
+owner: Fraud Prevention Department
+approved_by: Risk Committee
+status: Draft
+version: 0.1
+effective_date: 2026-02-07
+review_cycle: Annual
+next_review: 2027-02-07
+relationships:
+  - type: appliesTo
+    target: bus-proc-006-fraud-detection-process
+  - type: appliesTo
+    target: str-vstr-003-secure-and-resilient-operations
+---
 # Fraud Risk Management Policy
 
-**Metadata**
-
-- Document ID: ms-policy-014-fraud-risk-management
-- Owner: Fraud Prevention Department
-- Approved by: Risk Committee
-- Status: Draft
-- Version: 0.1
-- Effective date: 2026-02-07
-- Review cycle: Annual
-- Next review: 2027-02-07
-- Relations:
-	- type: appliesTo
-		target: bus-proc-006-fraud-detection-process
-	- type: appliesTo
-		target: str-vstr-003-secure-and-resilient-operations
 
 **Purpose:**
 Define fraud risk ownership, detection standards, and response expectations.
