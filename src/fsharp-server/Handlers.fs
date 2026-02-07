@@ -22,7 +22,14 @@ module Handlers =
                 registry.elementsByLayer
                 |> Map.map (fun _ ids -> List.length ids)
             logger.LogDebug("Layer summary: {layerSummary}", layerCounts)
-            let html = Views.Index.indexPage webConfig registry governanceRegistry
+            let html = Views.Index.indexPage webConfig registry governanceRegistry "index"
+            htmlView html next ctx
+
+    /// Architecture index handler
+    let architectureIndexHandler (registry: ElementRegistry) (_governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /architecture - Architecture overview requested")
+            let html = Views.Architecture.indexPage webConfig registry "architecture"
             htmlView html next ctx
 
     /// Governance system index handler

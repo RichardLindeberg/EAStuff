@@ -8,7 +8,7 @@ module Common =
     /// HTML header with navigation
     let htmlHeader (webConfig: WebUiConfig) (title: string) (currentPage: string) =
         let baseUrl = webConfig.BaseUrl
-        let navItems =
+        let layerLinks =
             Config.layerOrder
             |> Map.toList
             |> List.sortBy (fun (_, layerInfo) -> layerInfo.order)
@@ -16,32 +16,55 @@ module Common =
                 let layerKeyLower = Layer.toKey layerKey
                 let isActive = currentPage = layerKeyLower
                 let activeClass = if isActive then "active" else ""
-                a [_href $"{baseUrl}{layerKeyLower}"; _class $"nav-link {activeClass}"] [
+                a [_href $"{baseUrl}{layerKeyLower}"; _class $"submenu-link {activeClass}"] [
                     encodedText layerInfo.displayName
                 ]
             )
 
-        let governanceActive = if currentPage = "governance" then "active" else ""
-        let tagsActive = if currentPage = "tags" then "active" else ""
+        let isArchitectureActive =
+            Config.layerOptions
+            |> List.exists (fun layerKey -> layerKey = currentPage)
+
+        let governanceActive = if currentPage = "governance" || currentPage = "index" then "active" else ""
+        let architectureActive = if currentPage = "architecture" || isArchitectureActive then "active" else ""
         let validationActive = if currentPage = "validation" then "active" else ""
-        let navLinks =
-            navItems
-            @ [
-                a [_href $"{baseUrl}governance"; _class $"nav-link {governanceActive}"] [
+
+        let menuRow =
+            div [_class "menu-row"] [
+                a [_href $"{baseUrl}governance"; _class $"menu-link {governanceActive}"] [
                     encodedText "Governance"
                 ]
-                a [_href $"{baseUrl}tags"; _class $"nav-link {tagsActive}"] [
-                    encodedText "Tags"
+                a [_href $"{baseUrl}architecture"; _class $"menu-link {architectureActive}"] [
+                    encodedText "Architecture"
                 ]
-                a [_href $"{baseUrl}validation"; _class $"nav-link {validationActive}"] [
+                a [_href $"{baseUrl}validation"; _class $"menu-link {validationActive}"] [
                     encodedText "Validation"
                 ]
             ]
 
+        let submenuRow =
+            let submenuItems =
+                if currentPage = "architecture" || isArchitectureActive then
+                    layerLinks
+                elif currentPage = "governance" || currentPage = "index" then
+                    [ a [_href $"{baseUrl}governance"; _class "submenu-link active"] [encodedText "Governance Overview"] ]
+                elif currentPage = "validation" then
+                    [ a [_href $"{baseUrl}validation"; _class "submenu-link active"] [encodedText "Validation Report"] ]
+                else
+                    []
+
+            if List.isEmpty submenuItems then
+                emptyText
+            else
+                div [_class "submenu-row"] submenuItems
+
         header [_class "header"] [
             div [_class "header-content"] [
                 h1 [] [encodedText "ArchiMate Architecture Repository"]
-                nav [] navLinks
+                nav [] [
+                    menuRow
+                    submenuRow
+                ]
             ]
         ]
 

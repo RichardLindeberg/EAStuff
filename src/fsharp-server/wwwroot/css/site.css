@@ -20,29 +20,44 @@ header {
 
 .header-content {
     max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
+    nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        margin-top: 1rem;
+    }
 
-header h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
+    .menu-row,
+    .submenu-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
 
-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
+    .menu-link,
+    .submenu-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.2);
+        transition: all 0.3s;
+    }
 
-nav a {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.2);
-    transition: all 0.3s;
+    .submenu-link {
+        background: rgba(255,255,255,0.14);
+        font-size: 0.95rem;
+    }
+
+    .menu-link:hover,
+    .submenu-link:hover,
+    .menu-link.active,
+    .submenu-link.active {
+        background: rgba(255,255,255,0.35);
+    }
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
 }
 
 nav a:hover,
@@ -456,6 +471,14 @@ nav a.active {
     font-size: 2.5rem;
     color: #2d3748;
     margin-bottom: 0.5rem;
+}
+
+.architecture-foldout {
+    margin-top: 2rem;
+}
+
+.architecture-foldout summary.layer-title {
+    cursor: pointer;
 }
 
 .layer-description {

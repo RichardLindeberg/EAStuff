@@ -17,6 +17,7 @@ module Routes =
         choose [
             route "/" >=> Handlers.indexHandler registry governanceRegistry webConfig logger
             route "/index.html" >=> Handlers.indexHandler registry governanceRegistry webConfig logger
+            route "/architecture" >=> Handlers.architectureIndexHandler registry governanceRegistry webConfig logger
             route "/governance" >=> Handlers.governanceIndexHandler governanceRegistry webConfig logger
             routef "/governance/%s" (fun slug -> Handlers.governanceDocHandler slug governanceRegistry registry webConfig logger)
             route "/management-system" >=> Handlers.governanceIndexHandler governanceRegistry webConfig logger
