@@ -587,6 +587,23 @@ module Handlers =
             let html = Views.Tags.tagsIndexPage webConfig tagIndex registry
             htmlView html next ctx
 
+    let private selectGovernanceDocs (elementIds: Set<string>) (governanceRegistry: GovernanceDocRegistry) : GovernanceDocument list =
+        governanceRegistry.documents
+        |> Map.toList
+        |> List.map snd
+        |> List.filter (fun doc ->
+            let ownerMatch =
+                match Map.tryFind "owner" doc.metadata with
+                | Some ownerId when elementIds.Contains(ownerId) -> true
+                | _ -> false
+
+            let relationMatch =
+                doc.relations
+                |> List.exists (fun rel -> elementIds.Contains(rel.target))
+
+            ownerMatch || relationMatch
+        )
+
     /// Layer Cytoscape diagram handler
     let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
@@ -595,7 +612,30 @@ module Handlers =
             | Some layerValue ->
                 match Map.tryFind layerValue Config.layerOrder with
                 | Some layerInfo ->
-                    let data = buildLayerCytoscape assets layerValue registry governanceRegistry
+                    let layerElements = ElementRegistry.getLayerElements layerValue registry
+
+                    let allRels =
+                        registry.elements
+                        |> Map.toList
+                        |> List.collect (fun (id, elem) ->
+                            if layerElements |> List.exists (fun le -> le.id = id) then
+                                elem.relationships |> List.map (fun rel -> (id, rel))
+                            else [])
+
+                    let relatedIds = allRels |> List.map (fun (_, rel) -> rel.target) |> Set.ofList
+                    let relatedElements =
+                        registry.elements
+                        |> Map.toList
+                        |> List.choose (fun (id, elem) ->
+                            if Set.contains id relatedIds && not (layerElements |> List.exists (fun le -> le.id = id))
+                            then Some elem
+                            else None)
+
+                    let allElements = layerElements @ relatedElements
+                    let elementIds = allElements |> List.map (fun e -> e.id) |> Set.ofList
+                    let governanceDocs = selectGovernanceDocs elementIds governanceRegistry
+
+                    let data = buildCytoscapeDiagram assets allElements allRels governanceDocs
                     let view = Views.Diagrams.cytoscapeDiagramPage webConfig (sprintf "%s Layer" layerInfo.displayName) data
                     htmlView view next ctx
                 | None ->
@@ -625,7 +665,52 @@ module Handlers =
                     elem.name,
                     depth
                 )
-                let data = buildContextCytoscape assets elemId depth registry governanceRegistry
+                let rec collectNeighbors (currentIds: Set<string>) (currentDepth: int) : Set<string> =
+                    if currentDepth >= depth then currentIds
+                    else
+                        let nextIds =
+                            currentIds
+                            |> Set.toList
+                            |> List.collect (fun id ->
+                                match Map.tryFind id registry.elements with
+                                | Some elem ->
+                                    let outgoing = elem.relationships |> List.map (fun r -> r.target)
+                                    let incoming =
+                                        registry.elements
+                                        |> Map.toList
+                                        |> List.choose (fun (srcId, srcElem) ->
+                                            if srcElem.relationships |> List.exists (fun r -> r.target = id)
+                                            then Some srcId
+                                            else None)
+                                    outgoing @ incoming
+                                | None -> [])
+                            |> Set.ofList
+
+                        let combined = Set.union currentIds nextIds
+                        collectNeighbors combined (currentDepth + 1)
+
+                let allNodeIds = collectNeighbors (Set.singleton elemId) 0
+
+                let elements =
+                    allNodeIds
+                    |> Set.toList
+                    |> List.choose (fun id -> Map.tryFind id registry.elements)
+
+                let rels =
+                    elements
+                    |> List.collect (fun elem ->
+                        elem.relationships
+                        |> List.filter (fun rel -> Set.contains rel.target allNodeIds)
+                        |> List.map (fun rel -> (elem.id, rel)))
+
+                let elementIds =
+                    elements
+                    |> List.map (fun e -> e.id)
+                    |> Set.ofList
+
+                let governanceDocs = selectGovernanceDocs elementIds governanceRegistry
+
+                let data = buildCytoscapeDiagram assets elements rels governanceDocs
                 let title = sprintf "Context: %s (Depth %d)" elem.name depth
                 let view = Views.Diagrams.cytoscapeDiagramPage webConfig title data
                 htmlView view next ctx
@@ -655,7 +740,47 @@ module Handlers =
                     | None -> relationTargets
                     |> Set.ofList
 
-                let data = buildGovernanceDocCytoscape assets doc elementIds registry
+                let governanceDocs =
+                    doc :: selectGovernanceDocs elementIds governanceRegistry
+                    |> List.distinctBy (fun d -> d.slug)
+
+                let relatedElementIds =
+                    governanceDocs
+                    |> List.collect (fun governanceDoc ->
+                        let ownerId =
+                            match Map.tryFind "owner" governanceDoc.metadata with
+                            | Some value when not (String.IsNullOrWhiteSpace value) -> [ value.Trim() ]
+                            | _ -> []
+
+                        let relationTargets =
+                            governanceDoc.relations
+                            |> List.map (fun rel -> rel.target.Trim())
+                            |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+
+                        ownerId @ relationTargets
+                    )
+                    |> Set.ofList
+
+                let allElementIds = Set.union elementIds relatedElementIds
+
+                let elements =
+                    allElementIds
+                    |> Set.toList
+                    |> List.choose (fun id -> Map.tryFind id registry.elements)
+
+                let validElementIds =
+                    elements
+                    |> List.map (fun elem -> elem.id)
+                    |> Set.ofList
+
+                let rels =
+                    elements
+                    |> List.collect (fun elem ->
+                        elem.relationships
+                        |> List.filter (fun rel -> Set.contains rel.target validElementIds)
+                        |> List.map (fun rel -> (elem.id, rel)))
+
+                let data = buildCytoscapeDiagram assets elements rels governanceDocs
                 let title = sprintf "Governance: %s" doc.title
                 let view = Views.Diagrams.cytoscapeDiagramPage webConfig title data
                 htmlView view next ctx

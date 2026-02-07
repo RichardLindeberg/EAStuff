@@ -6,6 +6,7 @@ open System.Globalization
 open System.IO
 open System.Net
 open System.Text.Encodings.Web
+open System.Text.RegularExpressions
 open System.Text.Json
 open System.Xml.Linq
 
@@ -422,129 +423,62 @@ module DiagramGenerators =
 
         [ node ], ownerEdges @ relationEdges
 
-    let private buildGovernanceGraph (elementIds: Set<string>) (governanceRegistry: GovernanceDocRegistry) : CytoscapeNode list * CytoscapeEdge list =
-        let docs = governanceRegistry.documents |> Map.toList |> List.map snd
-        let relevantDocs =
-            docs
-            |> List.filter (fun doc ->
-                let ownerMatch =
-                    match Map.tryFind "owner" doc.metadata with
-                    | Some ownerId when elementIds.Contains(ownerId) -> true
-                    | _ -> false
+    let private getRelatedDocSlugs (doc: GovernanceDocument) : string list =
+        let pattern = "^\\s*[-*]\\s+Related\\s+[^:]+:\\s+([a-z0-9-]+)\\.md\\s*$"
+        let regex = Regex(pattern, RegexOptions.IgnoreCase ||| RegexOptions.Multiline)
+        regex.Matches(doc.rawContent)
+        |> Seq.cast<Match>
+        |> Seq.map (fun m -> m.Groups.[1].Value)
+        |> Seq.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+        |> Seq.toList
 
-                let relationMatch =
-                    doc.relations
-                    |> List.exists (fun rel -> elementIds.Contains(rel.target))
-
-                ownerMatch || relationMatch
-            )
+    let private buildGovernanceDocsGraph (docs: GovernanceDocument list) (elementIds: Set<string>) : CytoscapeNode list * CytoscapeEdge list =
+        let docSlugSet = docs |> List.map (fun doc -> doc.slug) |> Set.ofList
 
         let nodes, edges =
-            relevantDocs
+            docs
             |> List.map (fun doc -> buildGovernanceDocGraph doc elementIds)
             |> List.fold (fun (nodesAcc: CytoscapeNode list, edgesAcc: CytoscapeEdge list) (docNodes, docEdges) ->
                 nodesAcc @ docNodes, edgesAcc @ docEdges
             ) ([], [])
 
-        nodes, edges
+        let docEdges =
+            docs
+            |> List.collect (fun doc ->
+                getRelatedDocSlugs doc
+                |> List.filter (fun slug -> Set.contains slug docSlugSet)
+                |> List.map (fun slug ->
+                    {
+                        data =
+                            { id = sprintf "govdoc_%s_%s" doc.slug slug
+                              source = "gov-" + doc.slug
+                              target = "gov-" + slug
+                              label = "related"
+                              relType = "related-doc"
+                              color = governanceEdgeColor
+                              arrowType = "triangle"
+                              lineStyle = "dashed"
+                              lineWidth = 1.5
+                              kind = "governance" }
+                        classes = "governance-edge"
+                    }
+                )
+            )
 
-    let buildLayerCytoscape (assets: DiagramAssetConfig) (layer: Layer) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) : string =
-        let layerElements = ElementRegistry.getLayerElements layer registry
+        nodes, edges @ docEdges
 
-        // Collect all relationships involving layer elements
-        let allRels =
-            registry.elements
-            |> Map.toList
-            |> List.collect (fun (id, elem) ->
-                if layerElements |> List.exists (fun le -> le.id = id) then
-                    elem.relationships |> List.map (fun rel -> (id, rel))
-                else [])
-
-        // Include related elements from other layers
-        let relatedIds = allRels |> List.map (fun (_, rel) -> rel.target) |> Set.ofList
-        let relatedElements =
-            registry.elements
-            |> Map.toList
-            |> List.choose (fun (id, elem) ->
-                if Set.contains id relatedIds && not (layerElements |> List.exists (fun le -> le.id = id))
-                then Some elem
-                else None)
-
-        let allElements = layerElements @ relatedElements
-        let elementIds = allElements |> List.map (fun e -> e.id) |> Set.ofList
-
-        let archNodes = buildArchNodes assets allElements
-        let archEdges = buildArchEdges allRels
-        let governanceNodes, governanceEdges = buildGovernanceGraph elementIds governanceRegistry
-
-        buildCytoscapeData (archNodes @ governanceNodes) (archEdges @ governanceEdges)
-
-    let buildContextCytoscape (assets: DiagramAssetConfig) (elementId: string) (depth: int) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) : string =
-        let rec collectNeighbors (currentIds: Set<string>) (currentDepth: int) : Set<string> =
-            if currentDepth >= depth then currentIds
-            else
-                let nextIds =
-                    currentIds
-                    |> Set.toList
-                    |> List.collect (fun id ->
-                        match Map.tryFind id registry.elements with
-                        | Some elem ->
-                            let outgoing = elem.relationships |> List.map (fun r -> r.target)
-                            let incoming =
-                                registry.elements
-                                |> Map.toList
-                                |> List.choose (fun (srcId, srcElem) ->
-                                    if srcElem.relationships |> List.exists (fun r -> r.target = id)
-                                    then Some srcId
-                                    else None)
-                            outgoing @ incoming
-                        | None -> [])
-                    |> Set.ofList
-
-                let combined = Set.union currentIds nextIds
-                collectNeighbors combined (currentDepth + 1)
-
-        let allNodeIds = collectNeighbors (Set.singleton elementId) 0
-
-        let elements =
-            allNodeIds
-            |> Set.toList
-            |> List.choose (fun id -> Map.tryFind id registry.elements)
-
-        let rels =
-            elements
-            |> List.collect (fun elem ->
-                elem.relationships
-                |> List.filter (fun rel -> Set.contains rel.target allNodeIds)
-                |> List.map (fun rel -> (elem.id, rel)))
-
-        let elementIds = allNodeIds
-        let archNodes = buildArchNodes assets elements
-        let archEdges = buildArchEdges rels
-        let governanceNodes, governanceEdges = buildGovernanceGraph elementIds governanceRegistry
-
-        buildCytoscapeData (archNodes @ governanceNodes) (archEdges @ governanceEdges)
-
-    let buildGovernanceDocCytoscape (assets: DiagramAssetConfig) (doc: GovernanceDocument) (elementIds: Set<string>) (registry: ElementRegistry) : string =
-        let elements =
-            elementIds
-            |> Set.toList
-            |> List.choose (fun id -> Map.tryFind id registry.elements)
-
-        let validElementIds =
+    let buildCytoscapeDiagram
+        (assets: DiagramAssetConfig)
+        (elements: Element list)
+        (relationships: (string * Relationship) list)
+        (governanceDocs: GovernanceDocument list) : string =
+        let elementIds =
             elements
             |> List.map (fun elem -> elem.id)
             |> Set.ofList
 
-        let rels =
-            elements
-            |> List.collect (fun elem ->
-                elem.relationships
-                |> List.filter (fun rel -> Set.contains rel.target validElementIds)
-                |> List.map (fun rel -> (elem.id, rel)))
-
         let archNodes = buildArchNodes assets elements
-        let archEdges = buildArchEdges rels
-        let governanceNodes, governanceEdges = buildGovernanceDocGraph doc validElementIds
+        let archEdges = buildArchEdges relationships
+        let governanceNodes, governanceEdges = buildGovernanceDocsGraph governanceDocs elementIds
 
         buildCytoscapeData (archNodes @ governanceNodes) (archEdges @ governanceEdges)
