@@ -12,7 +12,7 @@ open EAArchive
 open EAArchive.DiagramGenerators
 
 let webApp (registry: ElementRegistry) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
-    Handlers.createHandlers registry diagramAssets webConfig loggerFactory
+    Routes.createHandlers registry diagramAssets webConfig loggerFactory
 
 [<EntryPoint>]
 let main args =
