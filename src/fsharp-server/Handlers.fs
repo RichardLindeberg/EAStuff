@@ -632,6 +632,36 @@ module Handlers =
             | None ->
                 logger.LogWarning("Element not found for Cytoscape context diagram: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+
+    /// Governance document Cytoscape diagram handler
+    let governanceDiagramCytoscapeHandler (slug: string) (governanceRegistry: GovernanceDocRegistry) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /diagrams/governance/{slug} - Cytoscape governance diagram requested", slug)
+            match Map.tryFind slug governanceRegistry.documents with
+            | Some doc ->
+                let ownerId =
+                    match Map.tryFind "owner" doc.metadata with
+                    | Some value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim())
+                    | _ -> None
+
+                let relationTargets =
+                    doc.relations
+                    |> List.map (fun rel -> rel.target.Trim())
+                    |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+
+                let elementIds =
+                    match ownerId with
+                    | Some owner -> owner :: relationTargets
+                    | None -> relationTargets
+                    |> Set.ofList
+
+                let data = buildGovernanceDocCytoscape assets doc elementIds registry
+                let title = sprintf "Governance: %s" doc.title
+                let view = Views.Diagrams.cytoscapeDiagramPage webConfig title data
+                htmlView view next ctx
+            | None ->
+                logger.LogWarning("Governance document not found for Cytoscape diagram: {slug}", slug)
+                setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
     
     /// Validation errors API handler - list all errors
     let validationErrorsHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (logger: ILogger) : HttpHandler =

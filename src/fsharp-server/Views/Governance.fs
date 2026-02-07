@@ -337,6 +337,17 @@ module Governance =
                                 div [_class "metadata-value"] [encodedText doc.slug]
                             ]
                         ]
+                        div [_class "diagram-section"] [
+                            div [_class "diagram-header"] [
+                                h3 [] [encodedText "Diagram"]
+                            ]
+                            div [_class "diagram-links"] [
+                                p [] [encodedText "View related architecture and governance links for this document:"]
+                                a [_href $"{baseUrl}diagrams/governance/{doc.slug}"; _class "diagram-link"; _target "_blank"; _rel "noopener"] [
+                                    encodedText "Open governance diagram"
+                                ]
+                            ]
+                        ]
                         if not (List.isEmpty metadataItems) then
                             div [_class "properties-section"] [
                                 h3 [] [encodedText "Metadata"]

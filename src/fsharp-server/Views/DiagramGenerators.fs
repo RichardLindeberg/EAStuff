@@ -360,6 +360,68 @@ module DiagramGenerators =
             }
         )
 
+    let private buildGovernanceDocGraph (doc: GovernanceDocument) (elementIds: Set<string>) : CytoscapeNode list * CytoscapeEdge list =
+        let labelText = sprintf "[%s]\n%s" (getGovernanceDocTypeLabel doc.docType) doc.title
+        let nodeId = "gov-" + doc.slug
+        let nodeData: CytoscapeNodeData =
+            { id = nodeId
+              label = labelText
+              ``type`` = "governance"
+              color = governanceNodeColor
+              icon = ""
+              shape = "roundrectangle"
+              kind = "governance"
+              slug = doc.slug }
+
+        let node: CytoscapeNode =
+            {
+                data = nodeData
+                classes = "governance-node badge-label"
+            }
+
+        let ownerEdges: CytoscapeEdge list =
+            match Map.tryFind "owner" doc.metadata with
+            | Some ownerId when elementIds.Contains(ownerId) ->
+                [
+                    {
+                        data =
+                            { id = sprintf "govowner_%s_%s" doc.slug ownerId
+                              source = nodeId
+                              target = ownerId
+                              label = "owner"
+                              relType = "owner"
+                              color = governanceEdgeColor
+                              arrowType = "triangle"
+                              lineStyle = "dashed"
+                              lineWidth = 1.5
+                              kind = "governance" }
+                        classes = "governance-edge"
+                    }
+                ]
+            | _ -> []
+
+        let relationEdges: CytoscapeEdge list =
+            doc.relations
+            |> List.filter (fun rel -> elementIds.Contains(rel.target))
+            |> List.map (fun rel ->
+                {
+                    data =
+                        { id = sprintf "govrel_%s_%s_%s" doc.slug rel.target rel.relationType
+                          source = nodeId
+                          target = rel.target
+                          label = rel.relationType
+                          relType = rel.relationType
+                          color = governanceEdgeColor
+                          arrowType = "triangle"
+                          lineStyle = "dashed"
+                          lineWidth = 1.5
+                          kind = "governance" }
+                    classes = "governance-edge"
+                }
+            )
+
+        [ node ], ownerEdges @ relationEdges
+
     let private buildGovernanceGraph (elementIds: Set<string>) (governanceRegistry: GovernanceDocRegistry) : CytoscapeNode list * CytoscapeEdge list =
         let docs = governanceRegistry.documents |> Map.toList |> List.map snd
         let relevantDocs =
@@ -377,72 +439,12 @@ module DiagramGenerators =
                 ownerMatch || relationMatch
             )
 
-        let nodes: CytoscapeNode list =
+        let nodes, edges =
             relevantDocs
-            |> List.map (fun doc ->
-                let labelText = sprintf "[%s]\n%s" (getGovernanceDocTypeLabel doc.docType) doc.title
-                let nodeId = "gov-" + doc.slug
-                {
-                    data =
-                        { id = nodeId
-                          label = labelText
-                          ``type`` = "governance"
-                          color = governanceNodeColor
-                          icon = ""
-                          shape = "roundrectangle"
-                          kind = "governance"
-                          slug = doc.slug }
-                    classes = "governance-node badge-label"
-                }
-            )
-
-        let edges: CytoscapeEdge list =
-            relevantDocs
-            |> List.collect (fun doc ->
-                let nodeId = "gov-" + doc.slug
-                let ownerEdges =
-                    match Map.tryFind "owner" doc.metadata with
-                    | Some ownerId when elementIds.Contains(ownerId) ->
-                        [
-                            {
-                                data =
-                                    { id = sprintf "govowner_%s_%s" doc.slug ownerId
-                                      source = nodeId
-                                      target = ownerId
-                                      label = "owner"
-                                      relType = "owner"
-                                      color = governanceEdgeColor
-                                      arrowType = "triangle"
-                                      lineStyle = "dashed"
-                                      lineWidth = 1.5
-                                      kind = "governance" }
-                                classes = "governance-edge"
-                            }
-                        ]
-                    | _ -> []
-
-                let relationEdges =
-                    doc.relations
-                    |> List.filter (fun rel -> elementIds.Contains(rel.target))
-                    |> List.map (fun rel ->
-                        {
-                            data =
-                                { id = sprintf "govrel_%s_%s_%s" doc.slug rel.target rel.relationType
-                                  source = nodeId
-                                  target = rel.target
-                                  label = rel.relationType
-                                  relType = rel.relationType
-                                  color = governanceEdgeColor
-                                  arrowType = "triangle"
-                                  lineStyle = "dashed"
-                                  lineWidth = 1.5
-                                  kind = "governance" }
-                            classes = "governance-edge"
-                        }
-                    )
-
-                ownerEdges @ relationEdges
-            )
+            |> List.map (fun doc -> buildGovernanceDocGraph doc elementIds)
+            |> List.fold (fun (nodesAcc: CytoscapeNode list, edgesAcc: CytoscapeEdge list) (docNodes, docEdges) ->
+                nodesAcc @ docNodes, edgesAcc @ docEdges
+            ) ([], [])
 
         nodes, edges
 
@@ -520,5 +522,29 @@ module DiagramGenerators =
         let archNodes = buildArchNodes assets elements
         let archEdges = buildArchEdges rels
         let governanceNodes, governanceEdges = buildGovernanceGraph elementIds governanceRegistry
+
+        buildCytoscapeData (archNodes @ governanceNodes) (archEdges @ governanceEdges)
+
+    let buildGovernanceDocCytoscape (assets: DiagramAssetConfig) (doc: GovernanceDocument) (elementIds: Set<string>) (registry: ElementRegistry) : string =
+        let elements =
+            elementIds
+            |> Set.toList
+            |> List.choose (fun id -> Map.tryFind id registry.elements)
+
+        let validElementIds =
+            elements
+            |> List.map (fun elem -> elem.id)
+            |> Set.ofList
+
+        let rels =
+            elements
+            |> List.collect (fun elem ->
+                elem.relationships
+                |> List.filter (fun rel -> Set.contains rel.target validElementIds)
+                |> List.map (fun rel -> (elem.id, rel)))
+
+        let archNodes = buildArchNodes assets elements
+        let archEdges = buildArchEdges rels
+        let governanceNodes, governanceEdges = buildGovernanceDocGraph doc validElementIds
 
         buildCytoscapeData (archNodes @ governanceNodes) (archEdges @ governanceEdges)
