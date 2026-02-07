@@ -119,6 +119,9 @@ Several links and asset paths are embedded as literals in the views.
 **Acceptance**
 - Views build URLs from config values only.
 
+**Status**
+Completed (2026-02-07). UI and diagram asset URLs are now configured via `EAArchive:Web` settings.
+
 ## 7) Add Configuration Validation Output
 
 **Issue**

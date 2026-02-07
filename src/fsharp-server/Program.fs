@@ -11,8 +11,8 @@ open Giraffe
 open EAArchive
 open EAArchive.DiagramGenerators
 
-let webApp (registry: ElementRegistry) (diagramAssets: DiagramAssetConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
-    Handlers.createHandlers registry diagramAssets loggerFactory
+let webApp (registry: ElementRegistry) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+    Handlers.createHandlers registry diagramAssets webConfig loggerFactory
 
 [<EntryPoint>]
 let main args =
@@ -43,22 +43,40 @@ let main args =
                         elif value.EndsWith("/") then value
                         else value + "/"
 
+                    let getRequired (config: IConfiguration) (key: string) : string =
+                        let value = config.GetValue<string>(key)
+                        if String.IsNullOrWhiteSpace value then
+                            failwith (sprintf "%s must be set in appsettings.json" key)
+                        value
+
+                    services.AddSingleton<WebUiConfig>(fun sp ->
+                        let config = sp.GetRequiredService<IConfiguration>()
+
+                        let baseUrl =
+                            getRequired config "EAArchive:Web:BaseUrl"
+                            |> normalizeBaseUrl
+
+                        { BaseUrl = baseUrl
+                          SiteCssUrl = getRequired config "EAArchive:Web:SiteCssUrl"
+                          DiagramCssUrl = getRequired config "EAArchive:Web:DiagramCssUrl"
+                          ValidationScriptUrl = getRequired config "EAArchive:Web:ValidationScriptUrl"
+                          DiagramScriptUrl = getRequired config "EAArchive:Web:DiagramScriptUrl"
+                          HtmxScriptUrl = getRequired config "EAArchive:Web:HtmxScriptUrl"
+                          HtmxDebugScriptUrl = getRequired config "EAArchive:Web:HtmxDebugScriptUrl"
+                          CytoscapeScriptUrl = getRequired config "EAArchive:Web:CytoscapeScriptUrl"
+                          DagreScriptUrl = getRequired config "EAArchive:Web:DagreScriptUrl"
+                          CytoscapeDagreScriptUrl = getRequired config "EAArchive:Web:CytoscapeDagreScriptUrl"
+                          LodashScriptUrl = getRequired config "EAArchive:Web:LodashScriptUrl" }
+                    )
+                    |> ignore
+
                     services.AddSingleton<DiagramAssetConfig>(fun sp ->
                         let config = sp.GetRequiredService<IConfiguration>()
 
-                        let configuredSymbolsPath = config.GetValue<string>("EAArchive:Assets:SymbolsPath")
-                        let configuredIconsPath = config.GetValue<string>("EAArchive:Assets:IconsPath")
-                        let configuredSymbolsBaseUrl = config.GetValue<string>("EAArchive:Assets:SymbolsBaseUrl")
-                        let configuredIconsBaseUrl = config.GetValue<string>("EAArchive:Assets:IconsBaseUrl")
-
-                        if String.IsNullOrWhiteSpace configuredSymbolsPath then
-                            failwith "EAArchive:Assets:SymbolsPath must be set in appsettings.json"
-                        if String.IsNullOrWhiteSpace configuredIconsPath then
-                            failwith "EAArchive:Assets:IconsPath must be set in appsettings.json"
-                        if String.IsNullOrWhiteSpace configuredSymbolsBaseUrl then
-                            failwith "EAArchive:Assets:SymbolsBaseUrl must be set in appsettings.json"
-                        if String.IsNullOrWhiteSpace configuredIconsBaseUrl then
-                            failwith "EAArchive:Assets:IconsBaseUrl must be set in appsettings.json"
+                        let configuredSymbolsPath = getRequired config "EAArchive:Assets:SymbolsPath"
+                        let configuredIconsPath = getRequired config "EAArchive:Assets:IconsPath"
+                        let configuredSymbolsBaseUrl = getRequired config "EAArchive:Assets:SymbolsBaseUrl"
+                        let configuredIconsBaseUrl = getRequired config "EAArchive:Assets:IconsBaseUrl"
 
                         { SymbolsPath = resolvePath configuredSymbolsPath
                           IconsPath = resolvePath configuredIconsPath
@@ -71,13 +89,8 @@ let main args =
                         let config = sp.GetRequiredService<IConfiguration>()
                         let logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("ElementRegistry")
 
-                        let configuredElementsPath = config.GetValue<string>("EAArchive:ElementsPath")
-                        let configuredRelationsPath = config.GetValue<string>("EAArchive:RelationsPath")
-
-                        if String.IsNullOrWhiteSpace configuredElementsPath then
-                            failwith "EAArchive:ElementsPath must be set in appsettings.json"
-                        if String.IsNullOrWhiteSpace configuredRelationsPath then
-                            failwith "EAArchive:RelationsPath must be set in appsettings.json"
+                        let configuredElementsPath = getRequired config "EAArchive:ElementsPath"
+                        let configuredRelationsPath = getRequired config "EAArchive:RelationsPath"
 
                         let elementsPath = resolvePath configuredElementsPath
                         let relationsPath = resolvePath configuredRelationsPath
@@ -94,10 +107,11 @@ let main args =
                 .Configure(fun app ->
                     let registry = app.ApplicationServices.GetRequiredService<ElementRegistry>()
                     let diagramAssets = app.ApplicationServices.GetRequiredService<DiagramAssetConfig>()
+                    let webConfig = app.ApplicationServices.GetRequiredService<WebUiConfig>()
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
 
                     app.UseStaticFiles() |> ignore
-                    app.UseGiraffe(webApp registry diagramAssets loggerFactory)
+                    app.UseGiraffe(webApp registry diagramAssets webConfig loggerFactory)
                 ) |> ignore
         )
         .Build()

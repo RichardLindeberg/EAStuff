@@ -11,10 +11,9 @@ open ViewHelpers
 
 module Views =
 
-    let baseUrl = Config.baseUrl
-    
     /// HTML header with navigation
-    let htmlHeader (title: string) (currentPage: string) =
+    let htmlHeader (webConfig: WebUiConfig) (title: string) (currentPage: string) =
+        let baseUrl = webConfig.BaseUrl
         let navItems =
             Config.layerOrder
             |> Map.toList
@@ -54,28 +53,29 @@ module Views =
         ]
     
     /// Full HTML page template
-    let htmlPage (pageTitle: string) (currentPage: string) (content: XmlNode list) =
+    let htmlPage (webConfig: WebUiConfig) (pageTitle: string) (currentPage: string) (content: XmlNode list) =
         html [_lang "en"] [
             head [] [
                 meta [_charset "UTF-8"]
                 meta [_name "viewport"; _content "width=device-width, initial-scale=1.0"]
                 title [] [encodedText $"{pageTitle} - ArchiMate Architecture"]
-                link [_rel "stylesheet"; _href "/css/site.css"]
-                link [_rel "stylesheet"; _href "/css/cytoscape-diagram.css"]
-                script [_src "https://unpkg.com/htmx.org@1.9.10"] []
-                script [_src "/js/validation.js"] []
-                script [_src "/js/cytoscape-diagram.js"] []
+                link [_rel "stylesheet"; _href webConfig.SiteCssUrl]
+                link [_rel "stylesheet"; _href webConfig.DiagramCssUrl]
+                script [_src webConfig.HtmxScriptUrl] []
+                script [_src webConfig.ValidationScriptUrl] []
+                script [_src webConfig.DiagramScriptUrl] []
 #if DEBUG
-                script [ _src "https://unpkg.com/htmx.org@1.9.12/dist/ext/debug.js" ] []
+                script [ _src webConfig.HtmxDebugScriptUrl ] []
 #endif
             ]
             body [] (
-                [htmlHeader pageTitle currentPage] @ content @ [htmlFooter ()]
+                [htmlHeader webConfig pageTitle currentPage] @ content @ [htmlFooter ()]
             )
         ]
     
     /// Index page
-    let indexPage (registry: ElementRegistry) =
+    let indexPage (webConfig: WebUiConfig) (registry: ElementRegistry) =
+        let baseUrl = webConfig.BaseUrl
         let layerCards =
             Config.layerOrder
             |> Map.toList
@@ -113,9 +113,10 @@ module Views =
             ]
         ]
         
-        htmlPage "Home" "index" content
+        htmlPage webConfig "Home" "index" content
     
-    let private buildElementCards (elements: Element list) (registry: ElementRegistry) : XmlNode list =
+    let private buildElementCards (webConfig: WebUiConfig) (elements: Element list) (registry: ElementRegistry) : XmlNode list =
+        let baseUrl = webConfig.BaseUrl
         elements
         |> List.map (fun elem ->
             let description =
@@ -148,8 +149,8 @@ module Views =
             ]
         )
 
-    let layerElementsPartial (elements: Element list) (registry: ElementRegistry) : XmlNode =
-        let elementCards = buildElementCards elements registry
+    let layerElementsPartial (webConfig: WebUiConfig) (elements: Element list) (registry: ElementRegistry) : XmlNode =
+        let elementCards = buildElementCards webConfig elements registry
         let count = List.length elements
         let layerElemCountStr = sprintf "%d element%s" count (pluralize count "" "s")
 
@@ -162,6 +163,7 @@ module Views =
 
     /// Layer page
     let layerPage
+        (webConfig: WebUiConfig)
         (layerKey: string)
         (layer: LayerInfo)
         (elements: Element list)
@@ -169,6 +171,7 @@ module Views =
         (filterValue: string option)
         (subtypeOptions: string list)
         (subtypeValue: string option) =
+        let baseUrl = webConfig.BaseUrl
         let filterAttrs =
             [
                 _type "text"
@@ -244,11 +247,11 @@ module Views =
                     ]
                 ]
                 div [_id "new-element-panel"] []
-                layerElementsPartial elements registry
+                layerElementsPartial webConfig elements registry
             ]
         ]
 
-        htmlPage layer.displayName layerKey content
+        htmlPage webConfig layer.displayName layerKey content
 
     let private getMetadataString (key: string) (metadata: Map<string, obj>) : string option =
         ElementRegistry.getString key metadata
@@ -289,7 +292,8 @@ module Views =
 
     
     /// Element detail page
-    let elementPage (elemWithRels: ElementWithRelations) =
+    let elementPage (webConfig: WebUiConfig) (elemWithRels: ElementWithRelations) =
+        let baseUrl = webConfig.BaseUrl
         let elem = elemWithRels.element
         
         let relationItem (related: Element) (rel: Relationship) (isIncoming: bool) =
@@ -467,9 +471,10 @@ module Views =
             ]
         ]
         
-        htmlPage elem.name "element" content
+        htmlPage webConfig elem.name "element" content
 
-    let relationRowPartial (sourceId: string) (index: int) (targetValue: string) (relationValue: string) (descriptionValue: string) : XmlNode =
+    let relationRowPartial (webConfig: WebUiConfig) (sourceId: string) (index: int) (targetValue: string) (relationValue: string) (descriptionValue: string) : XmlNode =
+        let baseUrl = webConfig.BaseUrl
         div [_class "relation-row"] [
             div [_class "relation-row-header"] [
                 span [_class "relation-row-title"] [encodedText $"Relation {index + 1}"]
@@ -541,7 +546,8 @@ module Views =
 
             select [_id $"rel-type-{index}"; _name $"rel-type-{index}"; _class "edit-input"] (placeholder :: extraOption @ optionNodes)
 
-    let elementEditFormPartial (elem: Element) (registry: ElementRegistry) : XmlNode =
+    let elementEditFormPartial (webConfig: WebUiConfig) (elem: Element) (registry: ElementRegistry) : XmlNode =
+        let baseUrl = webConfig.BaseUrl
         let propertiesMap = buildPropertiesMap elem
         let propertyValue key =
             tryGetPropertyValue propertiesMap key |> Option.defaultValue ""
@@ -651,9 +657,9 @@ module Views =
                         label [] [encodedText "Outgoing relations"]
                         div [_id "relations-container"] [
                             for (index, rel) in elem.relationships |> List.mapi (fun i r -> (i, r)) do
-                                relationRowPartial elem.id index rel.target (relationTypeValue rel.relationType) rel.description
+                                relationRowPartial webConfig elem.id index rel.target (relationTypeValue rel.relationType) rel.description
                             if List.isEmpty elem.relationships then
-                                relationRowPartial elem.id 0 "" "" ""
+                                relationRowPartial webConfig elem.id 0 "" "" ""
                         ]
                         datalist [_id "element-id-list"] [
                             for (_, elemValue) in registry.elements |> Map.toList |> List.sortBy (fun (_, e) -> e.name) do
@@ -690,7 +696,8 @@ module Views =
             ]
         ]
 
-    let elementNewFormPartial (layerValue: string) (registry: ElementRegistry) : XmlNode =
+    let elementNewFormPartial (webConfig: WebUiConfig) (layerValue: string) (registry: ElementRegistry) : XmlNode =
+        let baseUrl = webConfig.BaseUrl
         let emptyValue = ""
         let tagValue = ""
 
@@ -785,7 +792,7 @@ module Views =
                     div [_class "form-row"] [
                         label [] [encodedText "Outgoing relations"]
                         div [_id "relations-container"] [
-                            relationRowPartial emptyValue 0 "" "" ""
+                            relationRowPartial webConfig emptyValue 0 "" "" ""
                         ]
                         datalist [_id "element-id-list"] [
                             for (_, elemValue) in registry.elements |> Map.toList |> List.sortBy (fun (_, e) -> e.name) do
@@ -843,7 +850,8 @@ module Views =
         select [_id "type"; _name "type"; _class "edit-input"] (placeholder :: extraOption @ optionNodes)
     
     /// Tags index page
-    let tagsIndexPage (tagIndex: Map<string, string list>) (registry: ElementRegistry) =
+    let tagsIndexPage (webConfig: WebUiConfig) (tagIndex: Map<string, string list>) (registry: ElementRegistry) =
+        let baseUrl = webConfig.BaseUrl
         let tagCards =
             tagIndex
             |> Map.toList
@@ -878,10 +886,11 @@ module Views =
             ]
         ]
         
-        htmlPage "Tags" "tags" content
+        htmlPage webConfig "Tags" "tags" content
     
     /// Tag detail page
-    let tagPage (tag: string) (elements: Element list) =
+    let tagPage (webConfig: WebUiConfig) (tag: string) (elements: Element list) =
+        let baseUrl = webConfig.BaseUrl
         let elementCards =
             elements
             |> List.sortBy (fun e -> e.name)
@@ -927,10 +936,10 @@ module Views =
             ]
         ]
         
-        htmlPage tag "tags" content
+        htmlPage webConfig tag "tags" content
 
     /// Validation errors page
-    let validationPage (basePath: string) (errors: ValidationError list) =
+    let validationPage (webConfig: WebUiConfig) (basePath: string) (errors: ValidationError list) =
         let errorsByFile =
             errors
             |> List.groupBy (fun e -> e.filePath)
@@ -1021,7 +1030,7 @@ module Views =
             ]
         ]
         
-        htmlPage "Validation Report" "validation" content
+        htmlPage webConfig "Validation Report" "validation" content
 
 module HtmlEncode =
     let htmlEncode (text: string) : string =

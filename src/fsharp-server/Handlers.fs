@@ -15,18 +15,18 @@ module Handlers =
     open HandlersHelpers
     
     /// Index/home page handler
-    let indexHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let indexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET / - Home page requested")
             let layerCounts = 
                 registry.elementsByLayer
                 |> Map.map (fun _ ids -> List.length ids)
             logger.LogDebug("Layer summary: {layerSummary}", layerCounts)
-            let html = Views.indexPage registry
+            let html = Views.indexPage webConfig registry
             htmlView html next ctx
     
     /// Layer page handler
-    let layerHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let layerHandler (layer: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /{layer} - Layer page requested", layer)
             match Layer.tryParse layer with
@@ -75,11 +75,11 @@ module Handlers =
                     )
                     let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
                     if isHxRequest then
-                        let partial = Views.layerElementsPartial filteredElements registry
+                        let partial = Views.layerElementsPartial webConfig filteredElements registry
                         htmlView partial next ctx
                     else
                         let layerKey = Layer.toKey layerValue
-                        let html = Views.layerPage layerKey layerInfo filteredElements registry filterValue subtypeOptions subtypeValue
+                        let html = Views.layerPage webConfig layerKey layerInfo filteredElements registry filterValue subtypeOptions subtypeValue
                         htmlView html next ctx
                 | None -> 
                     logger.LogWarning("Layer not found: {layer}", layer)
@@ -89,7 +89,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element detail page handler
-    let elementHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let elementHandler (elemId: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /elements/{elementId} - Element detail requested", elemId)
             match ElementRegistry.getElement elemId registry with
@@ -112,33 +112,33 @@ module Handlers =
                     List.length elemWithRels.outgoingRelations
                 )
                 
-                let html = Views.elementPage elemWithRels
+                let html = Views.elementPage webConfig elemWithRels
                 htmlView html next ctx
             | None ->
                 logger.LogWarning("Element not found: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// Element edit form partial handler
-    let elementEditHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let elementEditHandler (elemId: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /elements/{elementId}/edit - Element edit form requested", elemId)
             match ElementRegistry.getElement elemId registry with
             | Some elem ->
-                let html = Views.elementEditFormPartial elem registry
+                let html = Views.elementEditFormPartial webConfig elem registry
                 htmlView html next ctx
             | None ->
                 logger.LogWarning("Element not found: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// New element form handler
-    let elementNewHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let elementNewHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             let layerValue =
                 match ctx.GetQueryStringValue "layer" with
                 | Ok value -> value
                 | Error _ -> ""
             logger.LogInformation("GET /elements/new - layer={layer}", layerValue)
-            let html = Views.elementNewFormPartial layerValue registry
+            let html = Views.elementNewFormPartial webConfig layerValue registry
             htmlView html next ctx
 
     /// Relation type options handler (HTMX)
@@ -232,7 +232,7 @@ module Handlers =
             htmlView selectNode next ctx
 
     /// Relation row partial handler (HTMX)
-    let relationRowHandler (logger: ILogger) : HttpHandler =
+    let relationRowHandler (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             let index =
                 match ctx.GetQueryStringValue "index" with
@@ -248,7 +248,7 @@ module Handlers =
                 | Error _ -> ""
 
             logger.LogInformation("GET /elements/relations/row - index={index}", index)
-            let row = Views.relationRowPartial sourceId index "" "" ""
+            let row = Views.relationRowPartial webConfig sourceId index "" "" ""
             htmlView row next ctx
 
     /// Element type options handler (HTMX)
@@ -446,16 +446,16 @@ module Handlers =
             }
     
     /// Tags index handler
-    let tagsIndexHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let tagsIndexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /tags - Tags index page requested")
             let tagIndex = buildTagIndex registry
             logger.LogInformation("Found {tagCount} tags", Map.count tagIndex)
-            let html = Views.tagsIndexPage tagIndex registry
+            let html = Views.tagsIndexPage webConfig tagIndex registry
             htmlView html next ctx
 
     /// Layer Cytoscape diagram handler
-    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (logger: ILogger) : HttpHandler =
+    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/layer/{layer} - Cytoscape layer diagram requested", layer)
             match Layer.tryParse layer with
@@ -463,7 +463,7 @@ module Handlers =
                 match Map.tryFind layerValue Config.layerOrder with
                 | Some layerInfo ->
                     let data = buildLayerCytoscape assets layerValue registry
-                    let html = wrapCytoscapeHtml (sprintf "%s Layer" layerInfo.displayName) data true
+                    let html = wrapCytoscapeHtml webConfig (sprintf "%s Layer" layerInfo.displayName) data true
                     htmlString html next ctx
                 | None ->
                     logger.LogWarning("Layer not found for Cytoscape diagram: {layer}", layer)
@@ -473,7 +473,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context Cytoscape diagram handler
-    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (logger: ILogger) : HttpHandler =
+    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/context/{elementId}/cytoscape - Cytoscape context diagram requested", elemId)
             match ElementRegistry.getElement elemId registry with
@@ -494,7 +494,7 @@ module Handlers =
                 )
                 let data = buildContextCytoscape assets elemId depth registry
                 let title = sprintf "Context: %s (Depth %d)" elem.name depth
-                let html = wrapCytoscapeHtml title data false
+                let html = wrapCytoscapeHtml webConfig title data false
                 htmlString html next ctx
             | None ->
                 logger.LogWarning("Element not found for Cytoscape context diagram: {elementId}", elemId)
@@ -565,12 +565,12 @@ module Handlers =
             json stats next ctx
     
     /// Validation page handler
-    let validationPageHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let validationPageHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /validation - Validation page requested")
             let errors = ElementRegistry.getValidationErrors registry
             logger.LogInformation("Displaying {errorCount} validation errors", List.length errors)
-            let html = Views.validationPage registry.elementsPath errors
+            let html = Views.validationPage webConfig registry.elementsPath errors
             htmlView html next ctx
     
     /// Revalidate file handler
@@ -619,7 +619,7 @@ module Handlers =
                 json result next ctx
     
     /// Individual tag page handler
-    let tagHandler (tag: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let tagHandler (tag: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /tags/{tag} - Tag page requested", tag)
             let tagIndex = buildTagIndex registry
@@ -630,43 +630,43 @@ module Handlers =
                     elemIds
                     |> List.choose (fun id -> ElementRegistry.getElement id registry)
                     |> List.sortBy (fun e -> e.name)
-                let html = Views.tagPage tag elements
+                let html = Views.tagPage webConfig tag elements
                 htmlView html next ctx
             | None ->
                 logger.LogWarning("Tag not found: {tag}", tag)
                 setStatusCode 404 >=> text "Tag not found" |> fun handler -> handler next ctx
     
     /// Create route handlers
-    let createHandlers (registry: ElementRegistry) (assets: DiagramAssetConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+    let createHandlers (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
         let logger = loggerFactory.CreateLogger("Handlers")
         
         logger.LogInformation("Initializing route handlers")
         logger.LogInformation("Registry contains {elementCount} elements", Map.count registry.elements)
         
         choose [
-            route "/" >=> indexHandler registry logger
-            route "/index.html" >=> indexHandler registry logger
+            route "/" >=> indexHandler registry webConfig logger
+            route "/index.html" >=> indexHandler registry webConfig logger
             route "/elements/types" >=> elementTypeOptionsHandler logger
-            route "/elements/new" >=> elementNewHandler registry logger
+            route "/elements/new" >=> elementNewHandler registry webConfig logger
             route "/elements/new/download" >=> elementNewDownloadHandler registry logger
             route "/elements/relations/types" >=> relationTypeOptionsHandler registry logger
-            route "/elements/relations/row" >=> relationRowHandler logger
-            routef "/elements/%s/edit" (fun elemId -> elementEditHandler elemId registry logger)
+            route "/elements/relations/row" >=> relationRowHandler webConfig logger
+            routef "/elements/%s/edit" (fun elemId -> elementEditHandler elemId registry webConfig logger)
             routef "/elements/%s/download" (fun elemId -> elementDownloadHandler elemId registry logger)
-            routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)
+            routef "/elements/%s" (fun elemId -> elementHandler elemId registry webConfig logger)
             
             // Diagram routes
-            routef "/diagrams/layer/%s" (fun layer -> layerDiagramCytoscapeHandler layer registry assets logger)
-            routef "/diagrams/context/%s" (fun elemId -> contextDiagramCytoscapeHandler elemId registry assets logger)
+            routef "/diagrams/layer/%s" (fun layer -> layerDiagramCytoscapeHandler layer registry assets webConfig logger)
+            routef "/diagrams/context/%s" (fun elemId -> contextDiagramCytoscapeHandler elemId registry assets webConfig logger)
             
             // Validation page and API endpoints
-            route "/validation" >=> validationPageHandler registry logger
+            route "/validation" >=> validationPageHandler registry webConfig logger
             route "/api/validation/errors" >=> validationErrorsHandler registry logger
             routef "/api/validation/file/%s" (fun filePath -> fileValidationErrorsHandler filePath registry logger)
             route "/api/validation/stats" >=> validationStatsHandler registry logger
             routef "/api/validation/revalidate/%s" (fun filePath -> revalidateFileHandler filePath registry logger)
             
-            route "/tags" >=> tagsIndexHandler registry logger
-            routef "/tags/%s" (fun tag -> tagHandler (Uri.UnescapeDataString tag) registry logger)
-            routef "/%s" (fun layer -> layerHandler layer registry logger)
+            route "/tags" >=> tagsIndexHandler registry webConfig logger
+            routef "/tags/%s" (fun tag -> tagHandler (Uri.UnescapeDataString tag) registry webConfig logger)
+            routef "/%s" (fun layer -> layerHandler layer registry webConfig logger)
         ]

@@ -211,6 +211,20 @@ module Layer =
         | Some layer -> layer
         | None -> Layer.Unknown value
 
+/// Web UI configuration values
+type WebUiConfig =
+        { BaseUrl: string
+            SiteCssUrl: string
+            DiagramCssUrl: string
+            ValidationScriptUrl: string
+            DiagramScriptUrl: string
+            HtmxScriptUrl: string
+            HtmxDebugScriptUrl: string
+            CytoscapeScriptUrl: string
+            DagreScriptUrl: string
+            CytoscapeDagreScriptUrl: string
+            LodashScriptUrl: string }
+
 /// Application constants
 module Config =
     let layerOrder = 
@@ -225,8 +239,6 @@ module Config =
         ]
         |> Map.ofList
     
-    let baseUrl = "/"
-
     let layerOptions =
         [
             Layer.Strategy

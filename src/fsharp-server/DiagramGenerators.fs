@@ -376,7 +376,7 @@ module DiagramGenerators =
         buildCytoscapeData assets elements rels
 
     /// Wrap Cytoscape diagram in HTML with interactive controls
-    let wrapCytoscapeHtml (title: string) (data: string) (enableSave: bool) : string =
+    let wrapCytoscapeHtml (webConfig: WebUiConfig) (title: string) (data: string) (enableSave: bool) : string =
         // Note: enableSave parameter kept for API compatibility
         let _enableSave = enableSave
         sprintf """<!DOCTYPE html
@@ -385,11 +385,11 @@ module DiagramGenerators =
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>%s</title>
-    <link rel="stylesheet" href="/css/cytoscape-diagram.css" />
-    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <link rel="stylesheet" href="%s" />
+    <script src="%s"></script>
+    <script src="%s"></script>
+    <script src="%s"></script>
+    <script src="%s"></script>
 </head>
 <body>
     <div id="cy"></div>
@@ -425,6 +425,14 @@ module DiagramGenerators =
     <script>
         const graphData = %s;
     </script>
-    <script src="/js/cytoscape-diagram.js"></script>
+    <script src="%s"></script>
 </body>
-</html>""" title data
+</html>"""
+            title
+            webConfig.DiagramCssUrl
+            webConfig.CytoscapeScriptUrl
+            webConfig.DagreScriptUrl
+            webConfig.CytoscapeDagreScriptUrl
+            webConfig.LodashScriptUrl
+            data
+            webConfig.DiagramScriptUrl
