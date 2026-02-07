@@ -17,14 +17,14 @@ relationships:
 
 
 **Purpose:**
-Ensure sanctions screening is performed on customers, counterparties, and transactions.
+Ensure sanctions screening is performed on customers, counterparties, and transactions as part of the AML/CTF program and EU AMLR expectations.
 
 ## Scope
 - Customer onboarding and periodic review.
 - All payment and transfer activity.
 
 ## Policy Statement
-- Sanctions screening is required in real time for payments.
+- Sanctions screening is required for onboarding, ongoing monitoring, and payments.
 - Matches are escalated and resolved before processing.
 - Screening lists are updated per regulatory guidance.
 
@@ -37,5 +37,8 @@ Ensure sanctions screening is performed on customers, counterparties, and transa
 No processing is permitted without screening clearance.
 
 ## Related Documents
+- Related policy: ms-policy-011-aml-ctf.md
 - Related instruction: ms-instruction-013-transaction-monitoring-alerts.md
+- Related instruction: ms-instruction-024-sanctions-hit-escalation.md
 - Related manual: ms-manual-013-transaction-monitoring-sanctions.md
+- Related manual: ms-manual-023-sanctions-screening-operations.md

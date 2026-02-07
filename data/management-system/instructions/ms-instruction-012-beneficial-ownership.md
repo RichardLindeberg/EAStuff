@@ -1,6 +1,6 @@
 ---
 id: ms-instruction-012-beneficial-ownership
-owner:
+owner: Compliance Operations
 approved_by: Chief Compliance Officer
 status: Draft
 version: 0.1

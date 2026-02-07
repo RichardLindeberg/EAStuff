@@ -9,33 +9,56 @@ review_cycle: Annual
 next_review: 2027-02-07
 relationships:
   - type: appliesTo
+    target: mot-reqt-013-kyc-and-customer-identification
+  - type: appliesTo
     target: mot-reqt-014-transaction-monitoring-and-screening
   - type: appliesTo
     target: mot-reqt-015-suspicious-activity-reporting-sar
+  - type: appliesTo
+    target: mot-reqt-016-enhanced-due-diligence-edd
 ---
 # AML/CTF Policy
 
 
 **Purpose:**
-Define the bank's AML/CTF obligations, risk appetite, and control expectations to detect, prevent, and report financial crime.
+Define the bank's AML/CTF obligations, risk appetite, and control expectations under EU AMLR to detect, prevent, and report financial crime.
 
 ## Scope
 - All customer segments, products, channels, and jurisdictions.
+- Customer due diligence, enhanced due diligence, sanctions screening, and transaction monitoring.
 - All employees, contractors, and outsourced service providers.
 
 ## Policy Statement
-- The bank maintains a risk-based AML/CTF framework aligned to regulatory requirements.
-- Customer due diligence and ongoing monitoring are mandatory.
-- Suspicious activity is investigated and reported without delay.
+- The bank maintains a risk-based AML/CTF framework aligned to EU AMLR and applicable national requirements.
+- Customer due diligence and ongoing monitoring are mandatory for all relationships.
+- Enhanced due diligence is required for higher-risk customers, including PEPs and complex ownership structures.
+- Sanctions screening is required for onboarding, ongoing monitoring, and transactions.
+- Transaction monitoring scenarios are calibrated to cover current typologies and regulatory expectations.
+- Suspicious activity is investigated and reported to the FIU without delay.
 
 ## Roles and Responsibilities
-- Compliance: Owns AML/CTF framework and reporting.
+- Compliance and MLRO: Own the AML/CTF framework and reporting.
 - Business Units: Execute controls and escalation procedures.
+- Operations: Maintain records, evidence, and audit trails.
 - Internal Audit: Independently tests AML/CTF effectiveness.
 
 ## Compliance and Exceptions
 Exceptions require documented rationale, compliance approval, and remediation timelines.
 
 ## Related Documents
+- Related policy: ms-policy-012-kyc-cdd.md
+- Related policy: ms-policy-013-sanctions-screening.md
+- Related instruction: ms-instruction-011-kyc-onboarding.md
+- Related instruction: ms-instruction-012-beneficial-ownership.md
 - Related instruction: ms-instruction-014-sar-filing.md
+- Related instruction: ms-instruction-015-edd-review.md
+- Related instruction: ms-instruction-022-pep-screening.md
+- Related instruction: ms-instruction-023-ongoing-kyc-refresh.md
+- Related instruction: ms-instruction-024-sanctions-hit-escalation.md
+- Related instruction: ms-instruction-025-transaction-monitoring-calibration.md
 - Related manual: ms-manual-011-aml-ctf-compliance.md
+- Related manual: ms-manual-021-kyc-cdd-ongoing-monitoring.md
+- Related manual: ms-manual-022-pep-management.md
+- Related manual: ms-manual-023-sanctions-screening-operations.md
+- Related manual: ms-manual-024-transaction-monitoring-typologies.md
+- Related manual: ms-manual-025-fiu-reporting-str.md
