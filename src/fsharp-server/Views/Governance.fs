@@ -6,6 +6,7 @@ open System.Text.RegularExpressions
 open EAArchive
 open EAArchive.ViewHelpers
 open Giraffe.ViewEngine
+open Htmx.HtmxAttrs
 open Common
 
 module Governance =
@@ -31,6 +32,13 @@ module Governance =
         | GovernanceDocType.Manual -> "Manuals"
         | GovernanceDocType.Unknown value -> value
 
+    let private docTypeFilterValue (docType: GovernanceDocType) : string =
+        match docType with
+        | GovernanceDocType.Policy -> "policy"
+        | GovernanceDocType.Instruction -> "instruction"
+        | GovernanceDocType.Manual -> "manual"
+        | GovernanceDocType.Unknown value -> value.Trim().ToLowerInvariant()
+
     let private tryGetMetadataValue (key: string) (metadata: Map<string, string>) : string option =
         metadata
         |> Map.tryFind key
@@ -42,7 +50,6 @@ module Governance =
     let private buildDocCard (webConfig: WebUiConfig) (doc: GovernanceDocument) : XmlNode =
         let baseUrl = webConfig.BaseUrl
         let owner = tryGetMetadataValue "owner" doc.metadata |> Option.defaultValue ""
-        let reviewCycle = tryGetMetadataValue "review cycle" doc.metadata |> Option.defaultValue ""
 
         div [_class "element-card"] [
             span [_class "element-type"] [encodedText (docTypeLabel doc.docType)]
@@ -53,18 +60,111 @@ module Governance =
             ]
             if owner <> "" then
                 p [_class "element-description"] [encodedText $"Owner: {owner}"]
-            if reviewCycle <> "" then
-                p [_style "margin-top: 0.25rem; font-size: 0.85rem; color: #888;"] [
-                    encodedText $"Review cycle: {reviewCycle}"
-                ]
         ]
 
-    let indexPage (webConfig: WebUiConfig) (registry: GovernanceDocRegistry) : XmlNode =
-        let documents = registry.documents |> Map.toList |> List.map snd
-        let grouped =
-            documents
-            |> List.groupBy (fun doc -> doc.docType)
-            |> List.sortBy (fun (docType, _) -> docTypeOrder docType)
+    let private renderDocumentsSection (webConfig: WebUiConfig) (documents: GovernanceDocument list) : XmlNode list =
+        if List.isEmpty documents then
+            [
+                div [_class "content-section"] [
+                    p [] [encodedText "No governance documents found."]
+                ]
+            ]
+        else
+            let grouped =
+                documents
+                |> List.groupBy (fun doc -> doc.docType)
+                |> List.sortBy (fun (docType, _) -> docTypeOrder docType)
+
+            [
+                for (docType, docs) in grouped do
+                    let label = docTypePluralLabel docType
+                    let count = List.length docs
+                    div [_class "content-section"] [
+                        h3 [] [encodedText $"{label} ({count})"]
+                        div [_class "element-grid"] [
+                            for doc in docs |> List.sortBy (fun d -> d.title) do
+                                buildDocCard webConfig doc
+                        ]
+                    ]
+            ]
+
+    let documentsPartial (webConfig: WebUiConfig) (documents: GovernanceDocument list) : XmlNode =
+        div [_id "governance-documents"] (renderDocumentsSection webConfig documents)
+
+    let indexPage
+        (webConfig: WebUiConfig)
+        (registry: GovernanceDocRegistry)
+        (filteredDocuments: GovernanceDocument list)
+        (filterValue: string option)
+        (docTypeValue: string option)
+        (reviewValue: string option) : XmlNode =
+        let allDocuments = registry.documents |> Map.toList |> List.map snd
+        let docTypeOptions =
+            allDocuments
+            |> List.map (fun doc -> doc.docType)
+            |> List.distinct
+            |> List.sortBy docTypeOrder
+
+        let filterAttrs =
+            [
+                _type "text"
+                _id "governance-filter"
+                _name "filter"
+                _class "filter-input"
+                _placeholder "Filter documents by name"
+                attr "aria-label" "Filter documents by name"
+                _hxGet $"{webConfig.BaseUrl}governance"
+                _hxTarget "#governance-documents"
+                _hxTrigger "keyup changed delay:300ms"
+                attr "hx-include" "#governance-filter, #doctype-filter, #review-filter"
+                _hxPushUrl "true"
+            ]
+            |> List.append (
+                match filterValue with
+                | Some value -> [ _value value ]
+                | None -> []
+            )
+
+        let docTypeSelect =
+            let placeholder = placeholderOptionNode "All types" (docTypeValue.IsNone)
+            let optionNodes =
+                docTypeOptions
+                |> List.map (fun value ->
+                    let optionValue = docTypeFilterValue value
+                    optionNode optionValue (docTypeValue = Some optionValue)
+                )
+
+            select [
+                _id "doctype-filter"
+                _name "docType"
+                _class "filter-input"
+                _hxGet $"{webConfig.BaseUrl}governance"
+                _hxTarget "#governance-documents"
+                _hxTrigger "change"
+                attr "hx-include" "#governance-filter, #doctype-filter, #review-filter"
+                _hxPushUrl "true"
+                attr "aria-label" "Filter documents by type"
+            ] (placeholder :: optionNodes)
+
+        let reviewSelect =
+            let placeholder = placeholderOptionNode "All review dates" (reviewValue.IsNone)
+            let optionNodes =
+                [
+                    optionNode "overdue" (reviewValue = Some "overdue")
+                    optionNode "due-soon" (reviewValue = Some "due-soon")
+                ]
+
+            select [
+                _id "review-filter"
+                _name "review"
+                _class "filter-input"
+                _hxGet $"{webConfig.BaseUrl}governance"
+                _hxTarget "#governance-documents"
+                _hxTrigger "change"
+                attr "hx-include" "#governance-filter, #doctype-filter, #review-filter"
+                _hxPushUrl "true"
+                attr "aria-label" "Filter documents by review date"
+            ] (placeholder :: optionNodes)
 
         let content = [
             div [_class "container"] [
@@ -72,21 +172,28 @@ module Governance =
                 p [_class "layer-description"] [
                     encodedText "Policies, instructions, and manuals that define how the organization is governed, operated, and improved."
                 ]
-                if List.isEmpty documents then
-                    div [_class "content-section"] [
-                        p [] [encodedText "No governance documents found yet."]
-                    ]
-                else
-                    for (docType, docs) in grouped do
-                        let label = docTypePluralLabel docType
-                        let count = List.length docs
-                        div [_class "content-section"] [
-                            h3 [] [encodedText $"{label}s ({count})"]
-                            div [_class "element-grid"] [
-                                for doc in docs |> List.sortBy (fun d -> d.title) do
-                                    buildDocCard webConfig doc
+                div [_class "diagram-section"] [
+                    div [_class "diagram-toolbar"] [
+                        div [_class "filter-bar"] [
+                            label [_class "filter-label"; _for "governance-filter"] [
+                                encodedText "Filter:"
                             ]
+                            input filterAttrs
+                            label [_class "filter-label"; _for "doctype-filter"] [
+                                encodedText "Type:"
+                            ]
+                            docTypeSelect
+                            label [_class "filter-label"; _for "review-filter"] [
+                                encodedText "Review:"
+                            ]
+                            reviewSelect
                         ]
+                        p [_class "filter-hint"] [
+                            encodedText "Search matches title, slug, and owner. Review uses next_review date."
+                        ]
+                    ]
+                ]
+                documentsPartial webConfig filteredDocuments
             ]
         ]
 

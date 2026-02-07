@@ -138,6 +138,12 @@ nav a.active {
     margin-top: 0.5rem;
 }
 
+.filter-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
 .element-meta {
     margin-top: 0.75rem;
     font-size: 0.85rem;

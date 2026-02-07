@@ -36,8 +36,92 @@ module Handlers =
     let governanceIndexHandler (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance - Governance index requested")
-            let html = Views.Governance.indexPage webConfig governanceRegistry
-            htmlView html next ctx
+            let filterValue =
+                match ctx.GetQueryStringValue "filter" with
+                | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
+                | _ -> None
+
+            let docTypeValue =
+                match ctx.GetQueryStringValue "docType" with
+                | Ok value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim().ToLowerInvariant())
+                | _ -> None
+
+            let reviewValue =
+                match ctx.GetQueryStringValue "review" with
+                | Ok value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim().ToLowerInvariant())
+                | _ -> None
+
+            let documents = governanceRegistry.documents |> Map.toList |> List.map snd
+            let tryGetMetadataValue (key: string) (metadata: Map<string, string>) : string option =
+                metadata
+                |> Map.tryFind key
+                |> Option.bind (fun value ->
+                    let trimmed = value.Trim()
+                    if trimmed = "" then None else Some trimmed
+                )
+
+            let tryParseReviewDate (value: string) : DateTime option =
+                let trimmed = value.Trim()
+                if trimmed = "" then None
+                else
+                    match DateTime.TryParse(trimmed, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal) with
+                    | true, parsed -> Some parsed.Date
+                    | _ -> None
+
+            let filteredDocuments =
+                documents
+                |> List.filter (fun doc ->
+                    let owner = tryGetMetadataValue "owner" doc.metadata |> Option.defaultValue ""
+                    let reviewDate =
+                        tryGetMetadataValue "next_review" doc.metadata
+                        |> Option.orElseWith (fun () -> tryGetMetadataValue "next review" doc.metadata)
+                        |> Option.bind tryParseReviewDate
+
+                    let nameMatches =
+                        match filterValue with
+                        | Some term ->
+                            doc.title.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                            || doc.slug.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                            || owner.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                        | None -> true
+
+                    let typeMatches =
+                        match docTypeValue with
+                        | Some value ->
+                            let docTypeValue =
+                                match doc.docType with
+                                | GovernanceDocType.Policy -> "policy"
+                                | GovernanceDocType.Instruction -> "instruction"
+                                | GovernanceDocType.Manual -> "manual"
+                                | GovernanceDocType.Unknown other -> other.Trim().ToLowerInvariant()
+                            docTypeValue = value
+                        | None -> true
+
+                    let reviewMatches =
+                        match reviewValue with
+                        | Some "overdue" ->
+                            match reviewDate with
+                            | Some value -> value < DateTime.UtcNow.Date
+                            | None -> false
+                        | Some "due-soon" ->
+                            match reviewDate with
+                            | Some value ->
+                                let today = DateTime.UtcNow.Date
+                                value >= today && value <= today.AddDays(60.0)
+                            | None -> false
+                        | Some _ -> false
+                        | None -> true
+
+                    nameMatches && typeMatches && reviewMatches
+                )
+
+            let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
+            if isHxRequest then
+                let partial = Views.Governance.documentsPartial webConfig filteredDocuments
+                htmlView partial next ctx
+            else
+                let html = Views.Governance.indexPage webConfig governanceRegistry filteredDocuments filterValue docTypeValue reviewValue
+                htmlView html next ctx
 
     /// Governance document detail handler
     let governanceDocHandler (slug: string) (governanceRegistry: GovernanceDocRegistry) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
