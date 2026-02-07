@@ -9,9 +9,10 @@ open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Configuration
 open Giraffe
 open EAArchive
+open EAArchive.DiagramGenerators
 
-let webApp (registry: ElementRegistry) (loggerFactory: ILoggerFactory) : HttpHandler =
-    Handlers.createHandlers registry loggerFactory
+let webApp (registry: ElementRegistry) (diagramAssets: DiagramAssetConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+    Handlers.createHandlers registry diagramAssets loggerFactory
 
 [<EntryPoint>]
 let main args =
@@ -30,6 +31,42 @@ let main args =
                 .ConfigureServices(fun context services ->
                     services.AddGiraffe() |> ignore
 
+                    let contentRoot = context.HostingEnvironment.ContentRootPath
+                    let resolvePath (pathValue: string) =
+                        if Path.IsPathRooted(pathValue) then
+                            Path.GetFullPath(pathValue)
+                        else
+                            Path.GetFullPath(Path.Combine(contentRoot, pathValue))
+
+                    let normalizeBaseUrl (value: string) =
+                        if String.IsNullOrWhiteSpace value then value
+                        elif value.EndsWith("/") then value
+                        else value + "/"
+
+                    services.AddSingleton<DiagramAssetConfig>(fun sp ->
+                        let config = sp.GetRequiredService<IConfiguration>()
+
+                        let configuredSymbolsPath = config.GetValue<string>("EAArchive:Assets:SymbolsPath")
+                        let configuredIconsPath = config.GetValue<string>("EAArchive:Assets:IconsPath")
+                        let configuredSymbolsBaseUrl = config.GetValue<string>("EAArchive:Assets:SymbolsBaseUrl")
+                        let configuredIconsBaseUrl = config.GetValue<string>("EAArchive:Assets:IconsBaseUrl")
+
+                        if String.IsNullOrWhiteSpace configuredSymbolsPath then
+                            failwith "EAArchive:Assets:SymbolsPath must be set in appsettings.json"
+                        if String.IsNullOrWhiteSpace configuredIconsPath then
+                            failwith "EAArchive:Assets:IconsPath must be set in appsettings.json"
+                        if String.IsNullOrWhiteSpace configuredSymbolsBaseUrl then
+                            failwith "EAArchive:Assets:SymbolsBaseUrl must be set in appsettings.json"
+                        if String.IsNullOrWhiteSpace configuredIconsBaseUrl then
+                            failwith "EAArchive:Assets:IconsBaseUrl must be set in appsettings.json"
+
+                        { SymbolsPath = resolvePath configuredSymbolsPath
+                          IconsPath = resolvePath configuredIconsPath
+                          SymbolsBaseUrl = normalizeBaseUrl configuredSymbolsBaseUrl
+                          IconsBaseUrl = normalizeBaseUrl configuredIconsBaseUrl }
+                    )
+                    |> ignore
+
                     services.AddSingleton<ElementRegistry>(fun sp ->
                         let config = sp.GetRequiredService<IConfiguration>()
                         let logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("ElementRegistry")
@@ -41,13 +78,6 @@ let main args =
                             failwith "EAArchive:ElementsPath must be set in appsettings.json"
                         if String.IsNullOrWhiteSpace configuredRelationsPath then
                             failwith "EAArchive:RelationsPath must be set in appsettings.json"
-
-                        let contentRoot = context.HostingEnvironment.ContentRootPath
-                        let resolvePath (pathValue: string) =
-                            if Path.IsPathRooted(pathValue) then
-                                Path.GetFullPath(pathValue)
-                            else
-                                Path.GetFullPath(Path.Combine(contentRoot, pathValue))
 
                         let elementsPath = resolvePath configuredElementsPath
                         let relationsPath = resolvePath configuredRelationsPath
@@ -63,10 +93,11 @@ let main args =
                 )
                 .Configure(fun app ->
                     let registry = app.ApplicationServices.GetRequiredService<ElementRegistry>()
+                    let diagramAssets = app.ApplicationServices.GetRequiredService<DiagramAssetConfig>()
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
 
                     app.UseStaticFiles() |> ignore
-                    app.UseGiraffe(webApp registry loggerFactory)
+                    app.UseGiraffe(webApp registry diagramAssets loggerFactory)
                 ) |> ignore
         )
         .Build()

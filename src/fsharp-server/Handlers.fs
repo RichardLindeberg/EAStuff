@@ -455,14 +455,14 @@ module Handlers =
             htmlView html next ctx
 
     /// Layer Cytoscape diagram handler
-    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/layer/{layer} - Cytoscape layer diagram requested", layer)
             match Layer.tryParse layer with
             | Some layerValue ->
                 match Map.tryFind layerValue Config.layerOrder with
                 | Some layerInfo ->
-                    let data = buildLayerCytoscape layerValue registry
+                    let data = buildLayerCytoscape assets layerValue registry
                     let html = wrapCytoscapeHtml (sprintf "%s Layer" layerInfo.displayName) data true
                     htmlString html next ctx
                 | None ->
@@ -473,7 +473,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context Cytoscape diagram handler
-    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/context/{elementId}/cytoscape - Cytoscape context diagram requested", elemId)
             match ElementRegistry.getElement elemId registry with
@@ -492,7 +492,7 @@ module Handlers =
                     elem.name,
                     depth
                 )
-                let data = buildContextCytoscape elemId depth registry
+                let data = buildContextCytoscape assets elemId depth registry
                 let title = sprintf "Context: %s (Depth %d)" elem.name depth
                 let html = wrapCytoscapeHtml title data false
                 htmlString html next ctx
@@ -637,7 +637,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Tag not found" |> fun handler -> handler next ctx
     
     /// Create route handlers
-    let createHandlers (registry: ElementRegistry) (loggerFactory: ILoggerFactory) : HttpHandler =
+    let createHandlers (registry: ElementRegistry) (assets: DiagramAssetConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
         let logger = loggerFactory.CreateLogger("Handlers")
         
         logger.LogInformation("Initializing route handlers")
@@ -656,8 +656,8 @@ module Handlers =
             routef "/elements/%s" (fun elemId -> elementHandler elemId registry logger)
             
             // Diagram routes
-            routef "/diagrams/layer/%s" (fun layer -> layerDiagramCytoscapeHandler layer registry logger)
-            routef "/diagrams/context/%s" (fun elemId -> contextDiagramCytoscapeHandler elemId registry logger)
+            routef "/diagrams/layer/%s" (fun layer -> layerDiagramCytoscapeHandler layer registry assets logger)
+            routef "/diagrams/context/%s" (fun elemId -> contextDiagramCytoscapeHandler elemId registry assets logger)
             
             // Validation page and API endpoints
             route "/validation" >=> validationPageHandler registry logger

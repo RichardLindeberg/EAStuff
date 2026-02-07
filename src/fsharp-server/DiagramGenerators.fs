@@ -11,23 +11,11 @@ open System.Xml.Linq
 
 module DiagramGenerators =
 
-    let private symbolsBaseUrl = "/assets/archimate-symbols/"
-    let private iconsBaseUrl = "/assets/archimate-icons/"
-    let private symbolsRoot =
-        let cwdRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets", "archimate-symbols")
-        if Directory.Exists(cwdRoot) then cwdRoot
-        else
-            let baseRoot = Path.Combine(AppContext.BaseDirectory, "wwwroot", "assets", "archimate-symbols")
-            if Directory.Exists(baseRoot) then baseRoot else ""
-
-    let private symbolsEnabled = symbolsRoot <> ""
-    let private iconsRoot =
-        if symbolsEnabled then
-            let assetsRoot = Directory.GetParent(symbolsRoot).FullName
-            Path.Combine(assetsRoot, "archimate-icons")
-        else ""
-
-    let private iconsEnabled = iconsRoot <> ""
+    type DiagramAssetConfig =
+        { SymbolsPath: string
+          IconsPath: string
+          SymbolsBaseUrl: string
+          IconsBaseUrl: string }
 
     let private toTitleCase (value: string) =
         let normalized = value.Replace("-", " ").Replace("_", " ").ToLowerInvariant()
@@ -117,22 +105,22 @@ module DiagramGenerators =
         | len when len > 20 -> formatted.Substring(0, 20) + "..."
         | _ -> formatted
 
-    let private getSymbolFile (elementType: string) : (string * string) option =
-        if not symbolsEnabled then None
+    let private getSymbolFile (assets: DiagramAssetConfig) (elementType: string) : (string * string) option =
+        if String.IsNullOrWhiteSpace assets.SymbolsPath then None
         else
             let fileName = toTitleCase elementType + ".svg"
-            let fullPath = Path.Combine(symbolsRoot, fileName)
+            let fullPath = Path.Combine(assets.SymbolsPath, fileName)
             if File.Exists(fullPath) then Some (fileName, fullPath) else None
 
-    let private tryGetSymbolFileName (elementType: string) : string option =
-        getSymbolFile elementType |> Option.map fst
+    let private tryGetSymbolFileName (assets: DiagramAssetConfig) (elementType: string) : string option =
+        getSymbolFile assets elementType |> Option.map fst
 
     let private iconViewBox = "120 0 30 30"
     let private iconSizePx = "12"
 
-    let private ensureIconFile (fileName: string) (sourcePath: string) : bool =
+    let private ensureIconFile (iconsRoot: string) (fileName: string) (sourcePath: string) : bool =
         try
-            if not iconsEnabled then false
+            if String.IsNullOrWhiteSpace iconsRoot then false
             else
                 if not (Directory.Exists(iconsRoot)) then
                     Directory.CreateDirectory(iconsRoot) |> ignore
@@ -160,10 +148,10 @@ module DiagramGenerators =
                         true
         with _ -> false
 
-    let private tryGetIconFileName (elementType: string) : string option =
-        match getSymbolFile elementType with
+    let private tryGetIconFileName (assets: DiagramAssetConfig) (elementType: string) : string option =
+        match getSymbolFile assets elementType with
         | Some (fileName, sourcePath) ->
-            if ensureIconFile fileName sourcePath then Some fileName else None
+            if ensureIconFile assets.IconsPath fileName sourcePath then Some fileName else None
         | None -> None
 
     /// ArchiMate 3.2 Standard Color Scheme
@@ -266,7 +254,7 @@ module DiagramGenerators =
     // Cytoscape.js Diagram Generation
     // ========================================
 
-    let private buildCytoscapeData (elements: Element list) (allRelationships: (string * Relationship) list) : string =
+    let private buildCytoscapeData (assets: DiagramAssetConfig) (elements: Element list) (allRelationships: (string * Relationship) list) : string =
         let nodes =
             elements
             |> List.map (fun elem ->
@@ -274,11 +262,11 @@ module DiagramGenerators =
                 let color = getArchimateColor elementTypeKey
                 let shape = getNodeShape elementTypeKey
                 let icon =
-                    match tryGetIconFileName elementTypeKey with
-                    | Some fileName -> sprintf "%s%s" iconsBaseUrl fileName
+                    match tryGetIconFileName assets elementTypeKey with
+                    | Some fileName -> sprintf "%s%s" assets.IconsBaseUrl fileName
                     | None ->
-                        match tryGetSymbolFileName elementTypeKey with
-                        | Some fileName -> sprintf "%s%s" symbolsBaseUrl fileName
+                        match tryGetSymbolFileName assets elementTypeKey with
+                        | Some fileName -> sprintf "%s%s" assets.SymbolsBaseUrl fileName
                         | None -> ""
 
                 let typeLabel = getElementTypeLabel elementTypeKey
@@ -320,7 +308,7 @@ module DiagramGenerators =
         let options = JsonSerializerOptions(Encoder = JavaScriptEncoder.Default)
         JsonSerializer.Serialize(graph, options)
 
-    let buildLayerCytoscape (layer: Layer) (registry: ElementRegistry) : string =
+    let buildLayerCytoscape (assets: DiagramAssetConfig) (layer: Layer) (registry: ElementRegistry) : string =
         let layerElements = ElementRegistry.getLayerElements layer registry
 
         // Collect all relationships involving layer elements
@@ -344,9 +332,9 @@ module DiagramGenerators =
 
         let allElements = layerElements @ relatedElements
 
-        buildCytoscapeData allElements allRels
+        buildCytoscapeData assets allElements allRels
 
-    let buildContextCytoscape (elementId: string) (depth: int) (registry: ElementRegistry) : string =
+    let buildContextCytoscape (assets: DiagramAssetConfig) (elementId: string) (depth: int) (registry: ElementRegistry) : string =
         let rec collectNeighbors (currentIds: Set<string>) (currentDepth: int) : Set<string> =
             if currentDepth >= depth then currentIds
             else
@@ -385,7 +373,7 @@ module DiagramGenerators =
                 |> List.filter (fun rel -> Set.contains rel.target allNodeIds)
                 |> List.map (fun rel -> (elem.id, rel)))
 
-        buildCytoscapeData elements rels
+        buildCytoscapeData assets elements rels
 
     /// Wrap Cytoscape diagram in HTML with interactive controls
     let wrapCytoscapeHtml (title: string) (data: string) (enableSave: bool) : string =
