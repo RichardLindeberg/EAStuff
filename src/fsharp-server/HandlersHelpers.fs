@@ -120,7 +120,7 @@ module HandlersHelpers =
             ("deliverable", "delv")
             ("implementation-event", "evnt")
             ("plateau", "plat")
-            ("gap", "gap_")
+            ("gap", "gap")
         ]
 
     let private sanitizeName (value: string) : string =

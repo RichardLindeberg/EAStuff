@@ -81,6 +81,9 @@ Implementation type code includes `gap_`, but the ID regex forbids underscores. 
 **Acceptance**
 - Valid IDs with implementation gap pass validation.
 
+**Status**
+Completed (2026-02-07). Normalized the implementation gap type code to `gap` and updated ID naming guidance.
+
 ## 5) Limit HTMX Debug Script to Development
 
 **Issue**

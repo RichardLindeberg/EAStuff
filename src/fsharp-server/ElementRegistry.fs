@@ -146,7 +146,7 @@ module ElementRegistry =
                 // Motivation Layer
                 ("mot", ["stkh"; "drvr"; "asmt"; "goal"; "outc"; "prin"; "reqt"; "cnst"; "mean"; "valu"])
                 // Implementation Layer
-                ("imp", ["work"; "delv"; "evnt"; "plat"; "gap_"])
+                ("imp", ["work"; "delv"; "evnt"; "plat"; "gap"])
             ]
         
         // Required fields

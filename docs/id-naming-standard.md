@@ -124,7 +124,7 @@ All element IDs must follow this standardized format:
 | deliverable | `delv` | imp-delv-001-deployment-guide |
 | implementation-event | `evnt` | imp-evnt-001-go-live |
 | plateau | `plat` | imp-plat-001-target-architecture |
-| gap | `gap_` | imp-gap_-001-capability-shortfall |
+| gap | `gap` | imp-gap-001-capability-shortfall |
 
 ## Descriptive Name Guidelines
 
