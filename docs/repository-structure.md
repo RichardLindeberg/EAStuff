@@ -11,8 +11,9 @@ EA Stuff/
 │   ├── business/                   # Business layer elements
 │   ├── application/                # Application layer elements
 │   ├── technology/                 # Technology layer elements
-│   ├── physical/                   # Physical layer elements
+│   ├── physical/                   # Physical layer elements (optional)
 │   └── motivation/                 # Motivation layer elements
+│   └── implementation/             # Implementation layer elements (optional)
 │
 ├── schemas/                        # Validation schemas
 │   └── archimate-3.2-schema.yaml   # ArchiMate 3.2 specification

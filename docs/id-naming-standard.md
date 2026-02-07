@@ -15,7 +15,7 @@ All element IDs must follow this standardized format:
 ### Components
 
 1. **Layer Code** (3 characters): Identifies the ArchiMate layer
-2. **Type Code** (4 characters): Identifies the element type
+2. **Type Code** (4 characters, or 5 for collaboration): Identifies the element type
 3. **Sequential Number**: Three-digit number (001-999)
 4. **Descriptive Name**: Short, meaningful identifier (lowercase, hyphen-separated)
 
@@ -23,7 +23,7 @@ All element IDs must follow this standardized format:
 
 | Layer | Code | Example |
 |-------|------|---------|
-| Strategy | `str` | str-cap-001-customer-engagement |
+| Strategy | `str` | str-capa-001-customer-engagement |
 | Business | `bus` | bus-proc-001-order-fulfillment |
 | Application | `app` | app-comp-001-customer-portal |
 | Technology | `tec` | tec-node-001-web-server |
@@ -241,7 +241,7 @@ This matches the element ID format exactly, with the `.md` extension added.
 
 ### Web Display
 
-File names do NOT affect how elements are displayed on the generated website. The website uses the `name` field from within each element's YAML frontmatter for display purposes.
+File names do NOT affect how elements are displayed in the F# server UI. The UI uses the `name` field from within each element's YAML frontmatter for display purposes.
 
 ```yaml
 ---

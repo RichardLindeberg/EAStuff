@@ -17,9 +17,9 @@ elements/
   ├── business/          # Processes, actors, services
   ├── application/       # Applications, data
   ├── technology/        # Infrastructure, servers
-  ├── physical/          # Equipment, facilities
+  ├── physical/          # Equipment, facilities (optional; create when needed)
   ├── motivation/        # Goals, requirements
-  └── implementation/    # Work packages, deliverables
+  └── implementation/    # Work packages, deliverables (optional; create when needed)
 ```
 
 ## Step 3: Write Element Markdown

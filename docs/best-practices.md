@@ -14,9 +14,9 @@ elements/
   ├── business/          # Business architecture
   ├── application/       # Application architecture
   ├── technology/        # Technology infrastructure
-  ├── physical/          # Physical elements
+  ├── physical/          # Physical elements (optional; create when needed)
   ├── motivation/        # Goals, requirements, drivers
-  └── implementation/    # Projects and deliverables
+  └── implementation/    # Projects and deliverables (optional; create when needed)
 ```
 
 ### Naming Conventions

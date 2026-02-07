@@ -28,12 +28,12 @@ Use this checklist to track a full documentation refresh. Mark each item as it i
 - [x] Ensure examples reflect current validation rules
 
 ## 4) Structure and format consistency
-- [ ] Confirm repository structure descriptions match actual folders
-- [ ] Ensure element format examples match actual element files
-- [ ] Normalize terminology across docs (layers, element types, views)
+- [x] Confirm repository structure descriptions match actual folders
+- [x] Ensure element format examples match actual element files
+- [x] Normalize terminology across docs (layers, element types, views)
 
 ## 5) Cross-linking and navigation
-- [ ] Fix broken links and outdated anchors
+- [x] Fix broken links and outdated anchors
 - [x] Add or update cross-links between related guides
 - [x] Ensure entry points (README, quick start) point to correct docs
 

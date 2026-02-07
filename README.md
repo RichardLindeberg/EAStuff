@@ -52,8 +52,9 @@ The Customer Portal is the primary interface for customers to interact with our 
   /business        # Business layer elements
   /application     # Application layer elements
   /technology      # Technology layer elements
-  /physical        # Physical layer elements
+  /physical        # Physical layer elements (optional; create when needed)
   /motivation      # Stakeholder, Driver, Goal, Requirement
+  /implementation  # Implementation & Migration elements (optional; create when needed)
 /schemas           # ArchiMate schemas and validation rules
 /docs              # Documentation and guides
 /fsharp-server     # F# web server (current source of truth)
