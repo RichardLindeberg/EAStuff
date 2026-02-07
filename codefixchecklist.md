@@ -154,3 +154,6 @@ Completed (2026-02-07). Missing configuration now logs a clear message with envi
 
 **Acceptance**
 - README explains how to configure the server.
+
+**Status**
+Completed (2026-02-07). README files now list required `EAArchive` keys including assets and web URL settings.

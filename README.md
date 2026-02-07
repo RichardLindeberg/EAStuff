@@ -89,6 +89,43 @@ Then open `http://localhost:5000` to browse the architecture.
 
 The server does not bundle `data/archimate` in publish output. Production deployments must provide the data folder externally and set `EAArchive:ElementsPath` to its absolute path (see `src/fsharp-server/appsettings.Production.json`).
 
+### Configuration
+
+Required settings are defined in appsettings files under `src/fsharp-server`.
+
+```json
+{
+  "EAArchive": {
+    "ElementsPath": "..\\..\\data\\archimate",
+    "RelationsPath": "wwwroot\\schemas\\relations.xml",
+    "Assets": {
+      "SymbolsPath": "wwwroot\\assets\\archimate-symbols",
+      "IconsPath": "wwwroot\\assets\\archimate-icons",
+      "SymbolsBaseUrl": "/assets/archimate-symbols/",
+      "IconsBaseUrl": "/assets/archimate-icons/"
+    },
+    "Web": {
+      "BaseUrl": "/",
+      "SiteCssUrl": "/css/site.css",
+      "DiagramCssUrl": "/css/cytoscape-diagram.css",
+      "ValidationScriptUrl": "/js/validation.js",
+      "DiagramScriptUrl": "/js/cytoscape-diagram.js",
+      "HtmxScriptUrl": "https://unpkg.com/htmx.org@1.9.10",
+      "HtmxDebugScriptUrl": "https://unpkg.com/htmx.org@1.9.12/dist/ext/debug.js",
+      "CytoscapeScriptUrl": "https://cdn.jsdelivr.net/npm/cytoscape@3.26.0/dist/cytoscape.min.js",
+      "DagreScriptUrl": "https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js",
+      "CytoscapeDagreScriptUrl": "https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.js",
+      "LodashScriptUrl": "https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"
+    }
+  }
+}
+```
+
+Use environment-specific overrides:
+
+- Development: `src/fsharp-server/appsettings.Development.json`
+- Production: `src/fsharp-server/appsettings.Production.json`
+
 ### Relationship Validation (F# Server)
 
 The server validates relationships using ArchiMate rules from [schemas/relations.xml](schemas/relations.xml). Any issues are reported as warnings when browsing elements.

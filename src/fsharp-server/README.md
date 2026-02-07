@@ -48,7 +48,25 @@ The server will start on `http://localhost:5000` by default.
 
 ### Configure Paths
 
-Set `EAArchive:ElementsPath` and `EAArchive:RelationsPath` in appsettings.
+Set required settings in appsettings. The following keys are required:
+
+- `EAArchive:ElementsPath` (external data root)
+- `EAArchive:RelationsPath` (relations rules file)
+- `EAArchive:Assets:SymbolsPath`
+- `EAArchive:Assets:IconsPath`
+- `EAArchive:Assets:SymbolsBaseUrl`
+- `EAArchive:Assets:IconsBaseUrl`
+- `EAArchive:Web:BaseUrl`
+- `EAArchive:Web:SiteCssUrl`
+- `EAArchive:Web:DiagramCssUrl`
+- `EAArchive:Web:ValidationScriptUrl`
+- `EAArchive:Web:DiagramScriptUrl`
+- `EAArchive:Web:HtmxScriptUrl`
+- `EAArchive:Web:HtmxDebugScriptUrl`
+- `EAArchive:Web:CytoscapeScriptUrl`
+- `EAArchive:Web:DagreScriptUrl`
+- `EAArchive:Web:CytoscapeDagreScriptUrl`
+- `EAArchive:Web:LodashScriptUrl`
 
 The server expects external data only and does not bundle `data/archimate` in publish output. Use environment-specific settings:
 
