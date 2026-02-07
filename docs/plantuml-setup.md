@@ -106,12 +106,7 @@ java -jar plantuml.jar -tsvg diagrams/full-architecture.puml
 
 ### Issue: "ArchiMate not found" or "!include error"
 
-**Solution**: The old version used ArchiMate library. Regenerate all diagrams:
-```powershell
-python3 scripts/generators/generate_puml.py
-python3 scripts/generators/generate_puml.py --layer application
-python3 scripts/generators/generate_puml.py --layer business
-```
+**Solution**: Ensure your PlantUML files are current and use valid ArchiMate syntax. If you maintain diagrams manually, update them to use the latest PlantUML ArchiMate notation.
 
 ### Issue: VS Code extension shows "java.home" error
 
@@ -239,11 +234,9 @@ component "Name" as id #4ECDC4
 
 ## 🚀 Quick Start
 
-**1. Generate Diagrams**
-```powershell
-cd "c:\Users\SveaUser\Documents\EA Stuff"
-python3 scripts/generators/generate_puml.py
-```
+**1. Create a PlantUML File**
+- Create a .puml file in your docs or diagrams folder
+- Add ArchiMate elements using PlantUML syntax
 
 **2. Open in VS Code**
 - Open any `.puml` file in `diagrams/` folder
@@ -258,11 +251,11 @@ That's it! 🎉
 
 ## 💡 Pro Tips
 
-1. **Regenerate regularly**: After updating EA elements, regenerate diagrams
+1. **Keep diagrams current**: Update PlantUML files when elements change
 2. **Version control**: Commit both `.puml` and exported images
-3. **Custom views**: Manually edit generated files for presentation
+3. **Custom views**: Tailor diagrams for each audience
 4. **Documentation**: Reference exported PNGs in your README files
-5. **Layer focus**: Use `--layer` option for focused diagrams
+5. **Layer focus**: Create separate files per layer for clarity
 
 ---
 

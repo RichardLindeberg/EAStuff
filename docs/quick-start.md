@@ -4,15 +4,8 @@ Get started with the EA Tool in 5 minutes.
 
 ## Prerequisites
 
-- Python 3.8 or higher
-- PyYAML library (`pip install pyyaml`)
+- .NET 8.0 SDK or later
 - A text editor (VS Code recommended)
-
-## Step 1: Install Dependencies
-
-```bash
-pip install pyyaml
-```
 
 ## Step 2: Create Your First Element
 
@@ -35,13 +28,13 @@ Create `elements/application/my-app.md`:
 
 ```markdown
 ---
-id: my-app-001
+id: app-comp-001-my-app
 name: My Application
 type: application-component
 layer: application
 relationships:
   - type: serving
-    target: some-business-process
+    target: bus-proc-001-customer-onboarding
     description: Supports business process
 properties:
   owner: IT Team
@@ -59,28 +52,20 @@ Add more details here about the application's purpose,
 features, and how it fits into the overall architecture.
 ```
 
-## Step 4: Validate Your Element
+## Step 4: Run the F# Server
 
-Run the validator:
-
-```bash
-python scripts/validator/validate.py elements/application/my-app.md
-```
-
-Or validate all elements:
+From the `fsharp-server` directory:
 
 ```bash
-python scripts/validator/validate.py
+dotnet build
+dotnet run
 ```
 
-## Step 5: Review Results
+Open `http://localhost:5000` to browse your elements.
 
-The validator will check:
-- ✅ Required fields (id, name, type, layer)
-- ✅ Valid element type for the specified layer
-- ✅ Valid relationship types
-- ✅ Proper YAML structure
-- ⚠️ Optional but recommended fields
+## Step 5: Review Validation Warnings
+
+The server validates elements and relationships at startup and while rendering pages. Watch the console output and element pages for warnings about missing targets, invalid relationships, or schema issues.
 
 ## Common Element Templates
 
@@ -88,13 +73,13 @@ The validator will check:
 
 ```yaml
 ---
-id: process-001
+id: bus-proc-001-customer-onboarding
 name: My Business Process
 type: business-process
 layer: business
 relationships:
   - type: realization
-    target: service-001
+    target: bus-srvc-001-customer-onboarding
 properties:
   owner: Business Unit
   status: active
@@ -105,13 +90,13 @@ properties:
 
 ```yaml
 ---
-id: svc-001
+id: app-srvc-001-authentication
 name: Authentication Service
 type: application-service
 layer: application
 relationships:
   - type: serving
-    target: app-component-001
+    target: bus-proc-001-customer-onboarding
 properties:
   owner: Platform Team
   status: production
@@ -123,13 +108,13 @@ properties:
 
 ```yaml
 ---
-id: server-001
+id: tec-node-001-application-server
 name: Application Server
 type: node
 layer: technology
 relationships:
   - type: realization
-    target: app-component-001
+    target: app-comp-001-customer-portal
 properties:
   owner: Infrastructure Team
   status: production
@@ -145,7 +130,7 @@ properties:
 
 ## Tips
 
-- Use meaningful IDs following the standard format (e.g., `app-comp-customer-portal-001`, `app-srvc-authentication-001`)
+- Use meaningful IDs following the standard format (e.g., `app-comp-001-customer-portal`, `app-srvc-001-authentication`)
 - Keep element names concise but descriptive
 - Add detailed descriptions in the markdown section
 - Use relationships to show connections between elements
@@ -154,6 +139,8 @@ properties:
 
 ## Getting Help
 
-- See `docs/element-types-reference.md` for all ArchiMate 3.2 element types
-- Check `schemas/archimate-3.2-schema.yaml` for validation rules
-- Review examples in `elements/` directories
+- See [element-types-reference.md](element-types-reference.md) for all ArchiMate 3.2 element types
+- Check [../schemas/archimate-3.2-schema.yaml](../schemas/archimate-3.2-schema.yaml) for validation rules
+- Review examples in the elements/ directories
+- Browse the UI guide in [mermaid-guide.md](mermaid-guide.md)
+- Review standards in [best-practices.md](best-practices.md)

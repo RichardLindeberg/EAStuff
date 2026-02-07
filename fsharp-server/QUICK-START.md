@@ -24,16 +24,9 @@ The F# server dynamically renders your ArchiMate elements from markdown files wi
 - **HTMX integration**: Interactive UI for browsing relationships
 - **Real-time rendering**: No static file generation needed
 
-## Key Differences from Python Static Generator
+## Legacy Note
 
-| Aspect | Python Generator | F# Server |
-|--------|-----------------|-----------|
-| **Rendering** | Generates static HTML files | Dynamic on-demand rendering |
-| **Updates** | Requires regeneration | Instant with file changes (in development) |
-| **Interactivity** | Basic HTML links | HTMX-powered dynamic interactions |
-| **Performance** | One-time build cost | Streaming responses |
-| **Type Safety** | Python dynamic types | F# static typing |
-| **Deployment** | FTP/S3 for static files | Standard ASP.NET Core deployment |
+Static Python generators have been removed. Use the F# server for all browsing and validation workflows.
 
 ## Project Files
 

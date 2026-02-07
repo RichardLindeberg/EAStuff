@@ -275,8 +275,8 @@ For existing elements with non-standard IDs:
 
 1. **Document legacy ID**: Add `legacy-id` property to preserve old identifier
 2. **Update references**: Find and update all relationships pointing to the old ID
-3. **Validate**: Run validation scripts to ensure no broken references
-4. **Update diagrams**: Regenerate all diagrams with new IDs
+3. **Validate**: Run the F# server and resolve any warnings
+4. **Confirm**: Review affected element pages for correct links
 
 Example migration:
 ```yaml
@@ -291,23 +291,15 @@ properties:
 
 ## Tooling Support
 
-The `scripts/create_element.py` script automatically generates IDs following this standard based on:
-- Selected layer
-- Selected element type
-- User-provided element name
-- Auto-incremented sequential number (scans existing elements)
+ID creation is manual. Use this standard consistently when adding or renaming elements.
 
 ## Validation
 
-The validation script (`scripts/validator/validate.py`) enforces:
-- Correct ID format structure
-- Valid layer and type codes
-- Proper character usage in descriptive names
-- Unique IDs across the repository
+ID structure is validated during code review and by the F# server checks at runtime. Treat any warnings as required fixes.
 
 ## Best Practices
 
-1. **Always use the creation script**: Ensures consistency and avoids manual errors
+1. **Follow the standard exactly**: Ensures consistency and avoids manual errors
 2. **Don't reuse IDs**: Even for deleted elements, skip that number in the sequence
 3. **Keep names stable**: Once assigned, avoid changing the descriptive name portion
 4. **Document exceptions**: If deviation is necessary, document the reason

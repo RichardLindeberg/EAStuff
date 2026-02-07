@@ -1,22 +1,15 @@
 # Quick Start: Creating Business Layer Elements
 
-## Using the Element Creation Script
+## Create Elements Manually
 
-The easiest way to create business elements is using the provided script:
+Create a new markdown file under elements/business/ and include YAML frontmatter with the required fields:
 
-```bash
-source .venv/bin/activate
-python3 scripts/create_element.py
-```
+- id
+- name
+- type
+- layer
 
-The script will prompt you for:
-1. Element type (choose from business layer types)
-2. Element name
-3. Element ID (or auto-generate)
-4. Layer (will be 'business')
-5. Relationships
-6. Properties
-7. Tags
+Add relationships, properties, and tags as needed.
 
 ## Business Layer Element Types
 
@@ -47,16 +40,16 @@ The script will prompt you for:
 
 ```yaml
 ---
-id: bus-actor-retail-customer-001
+id: bus-actr-001-retail-customer
 name: Retail Customer
 type: business-actor
 layer: business
 relationships:
   - type: assignment
-    target: bus-proc-customer-onboarding-001
+    target: bus-proc-001-customer-onboarding
     description: Performs customer onboarding activities
   - type: serving
-    target: bus-svc-digital-account-mgmt-001
+    target: bus-srvc-001-digital-account-mgmt
     description: Uses digital account management service
 properties:
   segment: retail-banking
@@ -102,7 +95,7 @@ This actor is central to:
 
 ```yaml
 ---
-id: bus-svc-digital-account-mgmt-001
+id: bus-srvc-001-digital-account-mgmt
 name: Digital Account Management Service
 type: business-service
 layer: business
@@ -111,13 +104,13 @@ relationships:
     target: mot-goal-002-digital-banking-excellence
     description: Realizes digital banking enhancement goal
   - type: realization
-    target: str-capa-digital-banking-001
+    target: str-capa-001-digital-banking
     description: Supported by digital banking platform capability
   - type: serving
-    target: bus-actor-retail-customer-001
+    target: bus-actr-001-retail-customer
     description: Serves retail customers
   - type: realization
-    target: app-comp-customer-portal-001
+    target: app-comp-001-customer-portal
     description: Realized by customer portal application
 properties:
   owner: Digital Banking Department
@@ -176,25 +169,25 @@ This service provides customers with comprehensive self-service capabilities to 
 
 ```yaml
 ---
-id: bus-proc-customer-onboarding-001
+id: bus-proc-001-customer-onboarding
 name: Digital Customer Onboarding Process
 type: business-process
 layer: business
 relationships:
   - type: realization
-    target: bus-svc-customer-onboarding-001
+    target: bus-srvc-001-customer-onboarding
     description: Realizes customer onboarding service
   - type: realization
-    target: mot-requirement-003-mobile-first
+    target: mot-reqt-003-mobile-first
     description: Supports mobile-first requirement
   - type: assignment
-    target: bus-role-customer-service-rep-001
+    target: bus-role-001-customer-service-rep
     description: Assigned to customer service reps for review
   - type: access
-    target: bus-obj-customer-profile-001
+    target: bus-objt-001-customer-profile
     description: Creates and accesses customer profile
   - type: triggering
-    target: bus-event-customer-registration-001
+    target: bus-evnt-001-customer-registration
     description: Triggered by customer registration event
 properties:
   owner: Customer Experience Department
@@ -280,19 +273,19 @@ This process enables customers to become fully onboarded bank customers within 1
 
 ```yaml
 ---
-id: bus-obj-account-001
+id: bus-objt-001-account
 name: Account
 type: business-object
 layer: business
 relationships:
   - type: access
-    target: bus-svc-digital-account-mgmt-001
+    target: bus-srvc-001-digital-account-mgmt
     description: Accessed by account management service
   - type: access
-    target: bus-proc-payment-initiation-001
+    target: bus-proc-001-payment-initiation
     description: Accessed by payment processes
   - type: realization
-    target: app-data-account-001
+    target: app-data-001-account
     description: Realized by account data object in application layer
 properties:
   data-classification: confidential
@@ -417,8 +410,8 @@ Before finalizing a business element, ensure:
 
 After creating business elements:
 
-1. **Regenerate website**: `./generate-website.sh`
-2. **Verify relationships**: Check incoming/outgoing relations in website
+1. **Run the F# server**: `dotnet run`
+2. **Verify relationships**: Review incoming and outgoing relations in the UI
 3. **Review traceability**: Ensure goals → capabilities → services trace correctly
 4. **Validate with stakeholders**: Review with business owners
-5. **Create viewpoints**: Generate diagrams showing specific aspects
+5. **Create viewpoints**: Document specific aspects in dedicated views

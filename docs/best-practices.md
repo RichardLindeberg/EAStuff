@@ -27,9 +27,8 @@ elements/
 - Match the element name where possible
 
 **Element IDs:**
-- Use a consistent pattern: `[prefix]-[name]-[number]`
-- Examples: `app-comp-customer-portal-001`, `app-srvc-authentication-001`
-- Follow the standardized ID format: `[layer-code]-[type-code]-[descriptive-name]-[###]`
+- Follow the standardized ID format: `[layer-code]-[type-code]-[###]-[descriptive-name]`
+- Examples: `app-comp-001-customer-portal`, `app-srvc-001-authentication`
 - See [ID Naming Standard](id-naming-standard.md) for complete details
 - Keep IDs unique across all elements
 - Use meaningful prefixes for element categories
@@ -47,7 +46,7 @@ elements/
 **Required Fields:**
 Always include these fields:
 ```yaml
-id: unique-id-001
+id: app-comp-001-customer-portal
 name: Element Name
 type: element-type
 layer: layer-name
@@ -68,7 +67,7 @@ Document connections to other elements:
 ```yaml
 relationships:
   - type: relationship-type
-    target: target-element-id
+    target: bus-proc-001-customer-onboarding
     description: Brief explanation of the relationship
 ```
 
@@ -181,14 +180,12 @@ When replacing elements:
 
 ### Regular Validation
 
-Run the validator regularly:
+Run the F# server and review validation warnings:
 ```bash
-# Validate all elements
-python validator/validate.py
-
-# Validate specific element
-python validator/validate.py elements/application/my-app.md
+dotnet run
 ```
+
+Check the console output and element pages for relationship or schema warnings.
 
 ### Quality Checklist
 

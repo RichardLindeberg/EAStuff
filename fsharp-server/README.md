@@ -180,18 +180,9 @@ dotnet publish -c Release -r win-x64 -p:SelfContained=true
 
 Then configure IIS to use the output folder.
 
-## Comparison with Python Generator
+## Legacy Note
 
-This F# implementation offers several advantages over the static Python generator:
-
-| Feature | Python | F# |
-|---------|--------|---|
-| Dynamic rendering | ❌ Static generation | ✅ Real-time |
-| Interactive UI | ❌ Basic HTML | ✅ HTMX-powered |
-| Performance | One-time build | On-demand rendering |
-| Memory | Disk-based output | Efficient registry |
-| Type Safety | Dynamic | ✅ Full F# typing |
-| Scalability | File-based | Web server |
+Static Python generators have been removed. The F# server is the only supported runtime for browsing and validating the architecture.
 
 ## Dependencies
 

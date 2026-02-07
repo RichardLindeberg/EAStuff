@@ -1,3 +1,4 @@
+# Legacy file (Python tooling removed). Retained to document former dependencies.
 pyyaml>=6.0
 markdown>=3.4
 python-frontmatter>=1.0.0
