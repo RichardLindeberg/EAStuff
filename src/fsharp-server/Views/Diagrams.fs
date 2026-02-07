@@ -27,6 +27,17 @@ module Diagrams =
                     button [_id "exportPNG"] [encodedText "Export PNG"]
                 ]
                 div [_class "legend"] [
+                    h4 [] [encodedText "Layers"]
+                    label [_class "legend-toggle"] [
+                        input [_type "checkbox"; _id "toggle-architecture"; _checked]
+                        span [_class "legend-swatch architecture"] []
+                        span [] [encodedText "Architecture"]
+                    ]
+                    label [_class "legend-toggle"] [
+                        input [_type "checkbox"; _id "toggle-governance"; _checked]
+                        span [_class "legend-swatch governance"] []
+                        span [] [encodedText "Governance"]
+                    ]
                     h4 [] [encodedText "Relationships"]
                     div [_class "legend-item"] [
                         div [_class "legend-line"; _style "background: #0066cc;"] []
@@ -43,6 +54,10 @@ module Diagrams =
                     div [_class "legend-item"] [
                         div [_class "legend-line"; _style "background: #cc3366; border-top: 2px dashed;"] []
                         span [] [encodedText "Influence"]
+                    ]
+                    div [_class "legend-item"] [
+                        div [_class "legend-line"; _style "background: #5a67d8; border-top: 2px dashed;"] []
+                        span [] [encodedText "Governance link"]
                     ]
                 ]
                 script [] [rawText (sprintf "const graphData = %s;" dataJson)]

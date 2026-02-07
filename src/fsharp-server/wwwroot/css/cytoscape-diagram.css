@@ -55,6 +55,35 @@ body {
     font-size: 14px;
 }
 
+.legend-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 12px;
+}
+
+.legend-toggle input {
+    accent-color: #0066cc;
+}
+
+.legend-swatch {
+    width: 16px;
+    height: 10px;
+    border-radius: 3px;
+    border: 1px solid #333;
+    display: inline-block;
+}
+
+.legend-swatch.architecture {
+    background: #ffffff;
+}
+
+.legend-swatch.governance {
+    background: #e0e7ff;
+    border-color: #5a67d8;
+}
+
 .legend-item {
     display: flex;
     align-items: center;

@@ -588,14 +588,14 @@ module Handlers =
             htmlView html next ctx
 
     /// Layer Cytoscape diagram handler
-    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/layer/{layer} - Cytoscape layer diagram requested", layer)
             match Layer.tryParse layer with
             | Some layerValue ->
                 match Map.tryFind layerValue Config.layerOrder with
                 | Some layerInfo ->
-                    let data = buildLayerCytoscape assets layerValue registry
+                    let data = buildLayerCytoscape assets layerValue registry governanceRegistry
                     let view = Views.Diagrams.cytoscapeDiagramPage webConfig (sprintf "%s Layer" layerInfo.displayName) data
                     htmlView view next ctx
                 | None ->
@@ -606,7 +606,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context Cytoscape diagram handler
-    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/context/{elementId}/cytoscape - Cytoscape context diagram requested", elemId)
             match ElementRegistry.getElement elemId registry with
@@ -625,7 +625,7 @@ module Handlers =
                     elem.name,
                     depth
                 )
-                let data = buildContextCytoscape assets elemId depth registry
+                let data = buildContextCytoscape assets elemId depth registry governanceRegistry
                 let title = sprintf "Context: %s (Depth %d)" elem.name depth
                 let view = Views.Diagrams.cytoscapeDiagramPage webConfig title data
                 htmlView view next ctx

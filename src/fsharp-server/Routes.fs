@@ -32,8 +32,8 @@ module Routes =
             routef "/elements/%s" (fun elemId -> Handlers.elementHandler elemId registry governanceRegistry webConfig logger)
 
             // Diagram routes
-            routef "/diagrams/layer/%s" (fun layer -> Handlers.layerDiagramCytoscapeHandler layer registry assets webConfig logger)
-            routef "/diagrams/context/%s" (fun elemId -> Handlers.contextDiagramCytoscapeHandler elemId registry assets webConfig logger)
+            routef "/diagrams/layer/%s" (fun layer -> Handlers.layerDiagramCytoscapeHandler layer registry governanceRegistry assets webConfig logger)
+            routef "/diagrams/context/%s" (fun elemId -> Handlers.contextDiagramCytoscapeHandler elemId registry governanceRegistry assets webConfig logger)
 
             // Validation page and API endpoints
             route "/validation" >=> Handlers.validationPageHandler registry governanceRegistry webConfig logger

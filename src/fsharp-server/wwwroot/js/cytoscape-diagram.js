@@ -97,7 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cy.on('tap', 'node', function (evt) {
         const nodeId = evt.target.id();
-        window.location.href = '/elements/' + nodeId;
+        const kind = evt.target.data('kind');
+        if (kind === 'governance') {
+            const slug = evt.target.data('slug');
+            window.location.href = '/governance/' + slug;
+        } else {
+            window.location.href = '/elements/' + nodeId;
+        }
     });
 
     document.getElementById('fitView')?.addEventListener('click', () => {
@@ -162,4 +168,23 @@ document.addEventListener('DOMContentLoaded', () => {
     cy.on('mouseout', 'node', function () {
         cy.elements().style('opacity', 1);
     });
+
+    const toggleElements = (selector, isVisible) => {
+        cy.elements(selector).style('display', isVisible ? 'element' : 'none');
+    };
+
+    const archToggle = document.getElementById('toggle-architecture');
+    const govToggle = document.getElementById('toggle-governance');
+
+    if (archToggle) {
+        archToggle.addEventListener('change', (e) => {
+            toggleElements('.arch-node, .arch-edge', e.target.checked);
+        });
+    }
+
+    if (govToggle) {
+        govToggle.addEventListener('change', (e) => {
+            toggleElements('.governance-node, .governance-edge', e.target.checked);
+        });
+    }
 });

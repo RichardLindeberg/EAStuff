@@ -188,6 +188,16 @@ module DiagramGenerators =
         // Default
         | _ -> "#ffffff"
 
+    let private governanceNodeColor = "#e0e7ff"
+    let private governanceEdgeColor = "#5a67d8"
+
+    let private getGovernanceDocTypeLabel (docType: GovernanceDocType) : string =
+        match docType with
+        | GovernanceDocType.Policy -> "Policy"
+        | GovernanceDocType.Instruction -> "Instruction"
+        | GovernanceDocType.Manual -> "Manual"
+        | GovernanceDocType.Unknown value -> value
+
     // ========================================
     // Cytoscape.js Relationship Styling
     // ========================================
@@ -254,61 +264,189 @@ module DiagramGenerators =
     // Cytoscape.js Diagram Generation
     // ========================================
 
-    let private buildCytoscapeData (assets: DiagramAssetConfig) (elements: Element list) (allRelationships: (string * Relationship) list) : string =
-        let nodes =
-            elements
-            |> List.map (fun elem ->
-                let elementTypeKey = elementTypeToKey elem.elementType
-                let color = getArchimateColor elementTypeKey
-                let shape = getNodeShape elementTypeKey
-                let icon =
-                    match tryGetIconFileName assets elementTypeKey with
-                    | Some fileName -> sprintf "%s%s" assets.IconsBaseUrl fileName
-                    | None ->
-                        match tryGetSymbolFileName assets elementTypeKey with
-                        | Some fileName -> sprintf "%s%s" assets.SymbolsBaseUrl fileName
-                        | None -> ""
+    type CytoscapeNodeData = {
+        id: string
+        label: string
+        ``type``: string
+        color: string
+        icon: string
+        shape: string
+        kind: string
+        slug: string
+    }
 
-                let typeLabel = getElementTypeLabel elementTypeKey
-                let labelText = sprintf "[%s]\n%s" typeLabel elem.name
-                let classes = elementTypeKey.Replace("-", "_") + " badge-label"
+    type CytoscapeNode = {
+        data: CytoscapeNodeData
+        classes: string
+    }
 
-                {| data =
-                       {| id = elem.id
-                          label = labelText
-                          ``type`` = elementTypeKey
-                          color = color
-                          icon = icon
-                          shape = shape |}
-                   classes = classes |}
-            )
+    type CytoscapeEdgeData = {
+        id: string
+        source: string
+        target: string
+        label: string
+        relType: string
+        color: string
+        arrowType: string
+        lineStyle: string
+        lineWidth: float
+        kind: string
+    }
 
-        let edges =
-            allRelationships
-            |> List.map (fun (sourceId, rel) ->
-                let relationTypeKey = relationTypeToKey rel.relationType
-                let color = getRelationshipColor relationTypeKey
-                let arrowType = getRelationshipArrowType relationTypeKey
-                let lineStyle = getRelationshipLineStyle relationTypeKey
-                let lineWidth = getRelationshipLineWidth relationTypeKey
+    type CytoscapeEdge = {
+        data: CytoscapeEdgeData
+        classes: string
+    }
 
-                {| data =
-                       {| id = sprintf "%s_%s" sourceId rel.target
-                          source = sourceId
-                          target = rel.target
-                          label = relationTypeKey
-                          relType = relationTypeKey
-                          color = color
-                          arrowType = arrowType
-                          lineStyle = lineStyle
-                          lineWidth = lineWidth |} |}
-            )
-
+    let private buildCytoscapeData (nodes: CytoscapeNode list) (edges: CytoscapeEdge list) : string =
         let graph = {| nodes = nodes; edges = edges |}
         let options = JsonSerializerOptions(Encoder = JavaScriptEncoder.Default)
         JsonSerializer.Serialize(graph, options)
 
-    let buildLayerCytoscape (assets: DiagramAssetConfig) (layer: Layer) (registry: ElementRegistry) : string =
+    let private buildArchNodes (assets: DiagramAssetConfig) (elements: Element list) : CytoscapeNode list =
+        elements
+        |> List.map (fun elem ->
+            let elementTypeKey = elementTypeToKey elem.elementType
+            let color = getArchimateColor elementTypeKey
+            let shape = getNodeShape elementTypeKey
+            let icon =
+                match tryGetIconFileName assets elementTypeKey with
+                | Some fileName -> sprintf "%s%s" assets.IconsBaseUrl fileName
+                | None ->
+                    match tryGetSymbolFileName assets elementTypeKey with
+                    | Some fileName -> sprintf "%s%s" assets.SymbolsBaseUrl fileName
+                    | None -> ""
+
+            let typeLabel = getElementTypeLabel elementTypeKey
+            let labelText = sprintf "[%s]\n%s" typeLabel elem.name
+            let classes = "arch-node " + elementTypeKey.Replace("-", "_") + " badge-label"
+
+            {
+                data =
+                    { id = elem.id
+                      label = labelText
+                      ``type`` = elementTypeKey
+                      color = color
+                      icon = icon
+                      shape = shape
+                      kind = "archimate"
+                      slug = "" }
+                classes = classes
+            }
+        )
+
+    let private buildArchEdges (allRelationships: (string * Relationship) list) : CytoscapeEdge list =
+        allRelationships
+        |> List.map (fun (sourceId, rel) ->
+            let relationTypeKey = relationTypeToKey rel.relationType
+            let color = getRelationshipColor relationTypeKey
+            let arrowType = getRelationshipArrowType relationTypeKey
+            let lineStyle = getRelationshipLineStyle relationTypeKey
+            let lineWidth = getRelationshipLineWidth relationTypeKey
+
+            {
+                data =
+                    { id = sprintf "%s_%s" sourceId rel.target
+                      source = sourceId
+                      target = rel.target
+                      label = relationTypeKey
+                      relType = relationTypeKey
+                      color = color
+                      arrowType = arrowType
+                      lineStyle = lineStyle
+                      lineWidth = lineWidth
+                      kind = "archimate" }
+                classes = "arch-edge"
+            }
+        )
+
+    let private buildGovernanceGraph (elementIds: Set<string>) (governanceRegistry: GovernanceDocRegistry) : CytoscapeNode list * CytoscapeEdge list =
+        let docs = governanceRegistry.documents |> Map.toList |> List.map snd
+        let relevantDocs =
+            docs
+            |> List.filter (fun doc ->
+                let ownerMatch =
+                    match Map.tryFind "owner" doc.metadata with
+                    | Some ownerId when elementIds.Contains(ownerId) -> true
+                    | _ -> false
+
+                let relationMatch =
+                    doc.relations
+                    |> List.exists (fun rel -> elementIds.Contains(rel.target))
+
+                ownerMatch || relationMatch
+            )
+
+        let nodes: CytoscapeNode list =
+            relevantDocs
+            |> List.map (fun doc ->
+                let labelText = sprintf "[%s]\n%s" (getGovernanceDocTypeLabel doc.docType) doc.title
+                let nodeId = "gov-" + doc.slug
+                {
+                    data =
+                        { id = nodeId
+                          label = labelText
+                          ``type`` = "governance"
+                          color = governanceNodeColor
+                          icon = ""
+                          shape = "roundrectangle"
+                          kind = "governance"
+                          slug = doc.slug }
+                    classes = "governance-node badge-label"
+                }
+            )
+
+        let edges: CytoscapeEdge list =
+            relevantDocs
+            |> List.collect (fun doc ->
+                let nodeId = "gov-" + doc.slug
+                let ownerEdges =
+                    match Map.tryFind "owner" doc.metadata with
+                    | Some ownerId when elementIds.Contains(ownerId) ->
+                        [
+                            {
+                                data =
+                                    { id = sprintf "govowner_%s_%s" doc.slug ownerId
+                                      source = nodeId
+                                      target = ownerId
+                                      label = "owner"
+                                      relType = "owner"
+                                      color = governanceEdgeColor
+                                      arrowType = "triangle"
+                                      lineStyle = "dashed"
+                                      lineWidth = 1.5
+                                      kind = "governance" }
+                                classes = "governance-edge"
+                            }
+                        ]
+                    | _ -> []
+
+                let relationEdges =
+                    doc.relations
+                    |> List.filter (fun rel -> elementIds.Contains(rel.target))
+                    |> List.map (fun rel ->
+                        {
+                            data =
+                                { id = sprintf "govrel_%s_%s_%s" doc.slug rel.target rel.relationType
+                                  source = nodeId
+                                  target = rel.target
+                                  label = rel.relationType
+                                  relType = rel.relationType
+                                  color = governanceEdgeColor
+                                  arrowType = "triangle"
+                                  lineStyle = "dashed"
+                                  lineWidth = 1.5
+                                  kind = "governance" }
+                            classes = "governance-edge"
+                        }
+                    )
+
+                ownerEdges @ relationEdges
+            )
+
+        nodes, edges
+
+    let buildLayerCytoscape (assets: DiagramAssetConfig) (layer: Layer) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) : string =
         let layerElements = ElementRegistry.getLayerElements layer registry
 
         // Collect all relationships involving layer elements
@@ -331,10 +469,15 @@ module DiagramGenerators =
                 else None)
 
         let allElements = layerElements @ relatedElements
+        let elementIds = allElements |> List.map (fun e -> e.id) |> Set.ofList
 
-        buildCytoscapeData assets allElements allRels
+        let archNodes = buildArchNodes assets allElements
+        let archEdges = buildArchEdges allRels
+        let governanceNodes, governanceEdges = buildGovernanceGraph elementIds governanceRegistry
 
-    let buildContextCytoscape (assets: DiagramAssetConfig) (elementId: string) (depth: int) (registry: ElementRegistry) : string =
+        buildCytoscapeData (archNodes @ governanceNodes) (archEdges @ governanceEdges)
+
+    let buildContextCytoscape (assets: DiagramAssetConfig) (elementId: string) (depth: int) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) : string =
         let rec collectNeighbors (currentIds: Set<string>) (currentDepth: int) : Set<string> =
             if currentDepth >= depth then currentIds
             else
@@ -373,4 +516,9 @@ module DiagramGenerators =
                 |> List.filter (fun rel -> Set.contains rel.target allNodeIds)
                 |> List.map (fun rel -> (elem.id, rel)))
 
-        buildCytoscapeData assets elements rels
+        let elementIds = allNodeIds
+        let archNodes = buildArchNodes assets elements
+        let archEdges = buildArchEdges rels
+        let governanceNodes, governanceEdges = buildGovernanceGraph elementIds governanceRegistry
+
+        buildCytoscapeData (archNodes @ governanceNodes) (archEdges @ governanceEdges)
