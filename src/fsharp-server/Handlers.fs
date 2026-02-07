@@ -205,7 +205,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element detail page handler
-    let elementHandler (elemId: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let elementHandler (elemId: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /elements/{elementId} - Element detail requested", elemId)
             match ElementRegistry.getElement elemId registry with
@@ -227,8 +227,25 @@ module Handlers =
                     List.length elemWithRels.incomingRelations,
                     List.length elemWithRels.outgoingRelations
                 )
-                
-                let html = Views.Elements.elementPage webConfig elemWithRels
+
+                let governanceDocs = governanceRegistry.documents |> Map.toList |> List.map snd
+                let ownerDocs =
+                    governanceDocs
+                    |> List.filter (fun doc ->
+                        match Map.tryFind "owner" doc.metadata with
+                        | Some value -> value.Trim().Equals(elemId, StringComparison.OrdinalIgnoreCase)
+                        | None -> false
+                    )
+
+                let incomingGovernance =
+                    governanceDocs
+                    |> List.collect (fun doc ->
+                        doc.relations
+                        |> List.filter (fun rel -> rel.target.Equals(elemId, StringComparison.OrdinalIgnoreCase))
+                        |> List.map (fun rel -> doc, rel)
+                    )
+
+                let html = Views.Elements.elementPage webConfig elemWithRels ownerDocs incomingGovernance
                 htmlView html next ctx
             | None ->
                 logger.LogWarning("Element not found: {elementId}", elemId)

@@ -49,8 +49,21 @@ module Elements =
             if trimmed = "" then None else Some trimmed
         | None -> None
 
+    let private formatGovernanceRelationType (value: string) : string =
+        let trimmed = value.Trim()
+        if trimmed = "" then
+            "Relation"
+        else
+            let normalized = trimmed.Replace("_", " ").Replace("-", " ")
+            let spaced = System.Text.RegularExpressions.Regex.Replace(normalized, "([a-z])([A-Z])", "$1 $2")
+            System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(spaced)
+
     /// Element detail page
-    let elementPage (webConfig: WebUiConfig) (elemWithRels: ElementWithRelations) =
+    let elementPage
+        (webConfig: WebUiConfig)
+        (elemWithRels: ElementWithRelations)
+        (ownerDocs: GovernanceDocument list)
+        (incomingGovernance: (GovernanceDocument * GovernanceRelation) list) =
         let baseUrl = webConfig.BaseUrl
         let elem = elemWithRels.element
 
@@ -87,6 +100,46 @@ module Elements =
                         ul [_class "relation-list"] [
                             for (target, rel) in elemWithRels.outgoingRelations do
                                 relationItem target rel false
+                        ]
+                    ]
+                ]
+            else
+                []
+
+        let governanceOwnerSection =
+            if not (List.isEmpty ownerDocs) then
+                [
+                    div [_class "relations-section"] [
+                        h3 [] [encodedText "Governance Ownership"]
+                        ul [_class "relation-list"] [
+                            for doc in ownerDocs |> List.sortBy (fun d -> d.title) do
+                                li [_class "relation-item"] [
+                                    span [_class "relation-type governance-relation-type"] [encodedText "Owner"]
+                                    span [_class "governance-relation-label"] [encodedText "Governance"]
+                                    a [_href $"{baseUrl}governance/{doc.slug}"] [
+                                        encodedText doc.title
+                                    ]
+                                ]
+                        ]
+                    ]
+                ]
+            else
+                []
+
+        let governanceIncomingSection =
+            if not (List.isEmpty incomingGovernance) then
+                [
+                    div [_class "relations-section"] [
+                        h3 [] [encodedText "Governance Relations"]
+                        ul [_class "relation-list"] [
+                            for (doc, rel) in incomingGovernance |> List.sortBy (fun (d, _) -> d.title) do
+                                li [_class "relation-item"] [
+                                    span [_class "relation-type governance-relation-type"] [encodedText (formatGovernanceRelationType rel.relationType)]
+                                    span [_class "governance-relation-label"] [encodedText "Governance"]
+                                    a [_href $"{baseUrl}governance/{doc.slug}"] [
+                                        encodedText doc.title
+                                    ]
+                                ]
                         ]
                     ]
                 ]
@@ -223,6 +276,8 @@ module Elements =
 
                         yield! incomingSection
                         yield! outgoingSection
+                        yield! governanceOwnerSection
+                        yield! governanceIncomingSection
                     ]
                 ]
             ]

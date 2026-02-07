@@ -29,7 +29,7 @@ module Routes =
             route "/elements/relations/row" >=> Handlers.relationRowHandler webConfig logger
             routef "/elements/%s/edit" (fun elemId -> Handlers.elementEditHandler elemId registry webConfig logger)
             routef "/elements/%s/download" (fun elemId -> Handlers.elementDownloadHandler elemId registry logger)
-            routef "/elements/%s" (fun elemId -> Handlers.elementHandler elemId registry webConfig logger)
+            routef "/elements/%s" (fun elemId -> Handlers.elementHandler elemId registry governanceRegistry webConfig logger)
 
             // Diagram routes
             routef "/diagrams/layer/%s" (fun layer -> Handlers.layerDiagramCytoscapeHandler layer registry assets webConfig logger)
