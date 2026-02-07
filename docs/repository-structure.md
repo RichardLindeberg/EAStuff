@@ -39,10 +39,6 @@ EA Stuff/
 │   │   └── EAArchive.fsproj
 │   └── fsharp-server.Tests/        # F# server tests
 │
-├── examples/                       # Example files
-│   ├── invalid-missing-fields.md
-│   └── invalid-wrong-layer.md
-│
 ├── README.md                       # Main documentation
 └── requirements.txt                # Legacy file (unused)
 
