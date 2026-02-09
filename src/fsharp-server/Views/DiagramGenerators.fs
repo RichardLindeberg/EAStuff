@@ -405,13 +405,14 @@ module DiagramGenerators =
             doc.relations
             |> List.filter (fun rel -> elementIds.Contains(rel.target))
             |> List.map (fun rel ->
+                let relationLabel = ElementType.relationTypeToString rel.relationType
                 {
                     data =
-                        { id = sprintf "govrel_%s_%s_%s" doc.slug rel.target rel.relationType
+                        { id = sprintf "govrel_%s_%s_%s" doc.slug rel.target relationLabel
                           source = nodeId
                           target = rel.target
-                          label = rel.relationType
-                          relType = rel.relationType
+                          label = relationLabel
+                          relType = relationLabel
                           color = governanceEdgeColor
                           arrowType = "triangle"
                           lineStyle = "dashed"
@@ -456,13 +457,14 @@ module DiagramGenerators =
                 |> List.choose (fun rel ->
                     match Map.tryFind rel.target docIdToSlug with
                     | Some targetSlug ->
+                        let relationLabel = ElementType.relationTypeToString rel.relationType
                         Some {
                             data =
-                                { id = sprintf "govrel_%s_%s_%s" doc.slug targetSlug rel.relationType
+                                { id = sprintf "govrel_%s_%s_%s" doc.slug targetSlug relationLabel
                                   source = "gov-" + doc.slug
                                   target = "gov-" + targetSlug
-                                  label = rel.relationType
-                                  relType = rel.relationType
+                                  label = relationLabel
+                                  relType = relationLabel
                                   color = governanceEdgeColor
                                   arrowType = "triangle"
                                   lineStyle = "dashed"

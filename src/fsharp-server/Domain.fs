@@ -233,11 +233,16 @@ type GovernanceDocType =
     | Manual
     | Unknown of string
 
-/// Unified document kinds for repository content
-[<RequireQualifiedAccess>]
-type DocumentKind =
-    | Architecture of ElementType
-    | Governance of GovernanceDocType
+/// Helper functions for GovernanceDocType
+module GovernanceDocType =
+    let toConceptName (docType: GovernanceDocType) : string =
+        match docType with
+        | GovernanceDocType.Policy -> "GovernancePolicy"
+        | GovernanceDocType.Instruction -> "GovernanceInstruction"
+        | GovernanceDocType.Manual -> "GovernanceManual"
+        | GovernanceDocType.Unknown value -> value
+
+
 
 /// Unified relation entry between documents
 type DocumentRelation = {
@@ -245,24 +250,6 @@ type DocumentRelation = {
     targetId: string
     relationType: string
     description: string
-}
-
-/// Unified document model
-type Document = {
-    id: string
-    name: string
-    kind: DocumentKind
-    filePath: string
-    content: string
-    properties: Map<string, obj>
-    tags: string list
-    relations: DocumentRelation list
-}
-
-/// Relationship entry for governance docs
-type GovernanceRelation = {
-    relationType: string
-    target: string
 }
 
 /// Governance document metadata and content
@@ -273,10 +260,16 @@ type GovernanceDocument = {
     docType: GovernanceDocType
     filePath: string
     metadata: Map<string, string>
-    relations: GovernanceRelation list
+    relations: Relationship list
     content: string
     rawContent: string
 }
+
+/// Unified document kinds for repository content
+[<RequireQualifiedAccess>]
+type Document =
+    | Architecture of Element
+    | Governance of GovernanceDocument
 
 /// Governance document registry
 type GovernanceDocRegistry = {

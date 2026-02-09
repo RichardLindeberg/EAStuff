@@ -414,11 +414,16 @@ module ElementRegistry =
                 }
             
             // Check 3 & 4: ArchiMate rules validation (only if target exists)
-            match targetElementOpt with
-            | Some targetElem ->
+            let targetConceptOpt =
+                match targetElementOpt, targetGovernanceOpt with
+                | Some targetElem, _ -> Some (ElementType.elementTypeToConceptName targetElem.elementType)
+                | None, Some targetDoc -> Some (GovernanceDocType.toConceptName targetDoc.docType)
+                | None, None -> None
+
+            match targetConceptOpt with
+            | Some targetConcept ->
                 let sourceConcept = ElementType.elementTypeToConceptName elem.elementType
-                let targetConcept = ElementType.elementTypeToConceptName targetElem.elementType
-                
+
                 match ElementType.relationTypeToCode rel.relationType with
                 | Some relCode ->
                     match Map.tryFind (sourceConcept, targetConcept) rules with
@@ -479,7 +484,7 @@ module ElementRegistry =
                         message = $"Unrecognized relationship type '{relTypeStr}'"
                         severity = Severity.Warning
                     }
-            | None -> ()  // Skip ArchiMate rules for governance targets
+            | None -> ()  // Skip ArchiMate rules when no target concept is available
         
         // Check 5: Duplicate relationships
         let duplicates =
@@ -595,7 +600,7 @@ module ElementRegistry =
             logger.LogError("Elements directory does not exist: {elementsPath}", elementsPath)
 
         let elementIds = elements |> Map.keys |> Set.ofSeq
-        let allowedGovernanceRelations = set [ "implements"; "related" ]
+        let allowedGovernanceRelations = set [ RelationType.Composition; RelationType.Association ]
         let governanceResult =
             GovernanceRegistryLoader.loadDocuments
                 managementSystemPath

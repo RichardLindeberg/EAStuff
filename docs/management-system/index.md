@@ -38,7 +38,7 @@ effective_date:
 review_cycle:
 next_review:
 relationships:
-  - type: appliesTo
+  - type: association
     target:
   - type: ownedBy
     target:

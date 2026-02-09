@@ -80,7 +80,7 @@ relationships:
     - composition      # Part-of relationship
     - aggregation      # Combines elements
     - assignment       # Allocates responsibility
-    - realization      # Implements or fulfills
+    - realization      # composition or fulfills
   
   dependency:
     - serving          # Provides functionality

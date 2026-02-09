@@ -74,7 +74,7 @@ module GovernanceRegistryLoader =
             let text = value.ToString().Trim()
             if text = "" then None else Some text
 
-    let private parseGovernanceRelations (metadata: Map<string, obj>) : GovernanceRelation list =
+    let private parseGovernanceRelations (metadata: Map<string, obj>) : Relationship list =
         let tryGetRelations key =
             metadata
             |> Map.tryFind key
@@ -99,7 +99,11 @@ module GovernanceRegistryLoader =
                     let target = if dict.Contains("target") then getStringFromObj dict.["target"] else None
                     match relType, target with
                     | Some relTypeValue, Some targetValue ->
-                        Some { relationType = relTypeValue; target = targetValue }
+                        Some {
+                            relationType = ElementType.parseRelationType relTypeValue
+                            target = targetValue
+                            description = ""
+                        }
                     | _ -> None
                 | _ -> None
             )
@@ -177,7 +181,7 @@ module GovernanceRegistryLoader =
         (doc: GovernanceDocument)
         (elements: Map<string, Element>)
         (knownDocumentIds: Set<string>)
-        (allowedRelationTypes: Set<string>)
+        (allowedRelationTypes: Set<RelationType>)
         : ValidationError list =
         let errors = ResizeArray<ValidationError>()
         let docId = if String.IsNullOrWhiteSpace doc.docId then None else Some doc.docId
@@ -242,14 +246,16 @@ module GovernanceRegistryLoader =
             })
         else
             for relation in doc.relations do
-                if String.IsNullOrWhiteSpace relation.relationType then
+                match relation.relationType with
+                | RelationType.Unknown value when String.IsNullOrWhiteSpace value ->
                     errors.Add({
                         filePath = doc.filePath
                         elementId = docId
-                        errorType = ErrorType.InvalidRelationshipType relation.relationType
+                        errorType = ErrorType.InvalidRelationshipType value
                         message = "Relationship type is required for governance relations"
                         severity = Severity.Error
                     })
+                | _ -> ()
                 if String.IsNullOrWhiteSpace relation.target then
                     errors.Add({
                         filePath = doc.filePath
@@ -267,15 +273,25 @@ module GovernanceRegistryLoader =
                         severity = Severity.Error
                     })
                 else
-                    let normalized = relation.relationType.Trim().ToLowerInvariant()
-                    if not (Set.contains normalized allowedRelationTypes) then
+                    match relation.relationType with
+                    | RelationType.Unknown value ->
                         errors.Add({
                             filePath = doc.filePath
                             elementId = docId
-                            errorType = ErrorType.InvalidRelationshipType relation.relationType
-                            message = sprintf "Relationship type '%s' is not allowed for governance documents" relation.relationType
+                            errorType = ErrorType.InvalidRelationshipType value
+                            message = sprintf "Relationship type '%s' is not recognized" value
                             severity = Severity.Error
                         })
+                    | relationType ->
+                        if not (Set.contains relationType allowedRelationTypes) then
+                            let relationLabel = ElementType.relationTypeToString relationType
+                            errors.Add({
+                                filePath = doc.filePath
+                                elementId = docId
+                                errorType = ErrorType.InvalidRelationshipType relationLabel
+                                message = sprintf "Relationship type '%s' is not allowed for governance documents" relationLabel
+                                severity = Severity.Error
+                            })
 
         List.ofSeq errors
 
@@ -290,7 +306,7 @@ module GovernanceRegistryLoader =
         (managementSystemPath: string)
         (elements: Map<string, Element>)
         (elementIds: Set<string>)
-        (allowedRelationTypes: Set<string>)
+        (allowedRelationTypes: Set<RelationType>)
         (logger: ILogger)
         : GovernanceLoadResult =
         if Directory.Exists(managementSystemPath) then
@@ -330,7 +346,7 @@ module GovernanceRegistryLoader =
                         {
                             sourceId = doc.docId
                             targetId = rel.target
-                            relationType = rel.relationType.Trim().ToLowerInvariant()
+                            relationType = ElementType.relationTypeToString rel.relationType
                             description = ""
                         }
                     )

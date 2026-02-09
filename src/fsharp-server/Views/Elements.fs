@@ -49,21 +49,15 @@ module Elements =
             if trimmed = "" then None else Some trimmed
         | None -> None
 
-    let private formatGovernanceRelationType (value: string) : string =
-        let trimmed = value.Trim()
-        if trimmed = "" then
-            "Relation"
-        else
-            let normalized = trimmed.Replace("_", " ").Replace("-", " ")
-            let spaced = System.Text.RegularExpressions.Regex.Replace(normalized, "([a-z])([A-Z])", "$1 $2")
-            System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(spaced)
+    let private formatGovernanceRelationType (value: RelationType) : string =
+        ElementType.relationTypeToDisplayName value
 
     /// Element detail page
     let elementPage
         (webConfig: WebUiConfig)
         (elemWithRels: ElementWithRelations)
         (ownerDocs: GovernanceDocument list)
-        (incomingGovernance: (GovernanceDocument * GovernanceRelation) list) =
+        (incomingGovernance: (GovernanceDocument * Relationship) list) =
         let baseUrl = webConfig.BaseUrl
         let elem = elemWithRels.element
 

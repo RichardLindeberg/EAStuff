@@ -236,14 +236,8 @@ module Governance =
             $"{prefix} [{linkLabel}]({baseUrl}governance/{slug})"
         )
 
-    let private formatRelationType (value: string) : string =
-        let trimmed = value.Trim()
-        if trimmed = "" then
-            "Relation"
-        else
-            let normalized = trimmed.Replace("_", " ").Replace("-", " ")
-            let spaced = Regex.Replace(normalized, "([a-z])([A-Z])", "$1 $2")
-            CultureInfo.InvariantCulture.TextInfo.ToTitleCase(spaced)
+    let private formatRelationType (value: RelationType) : string =
+        ElementType.relationTypeToDisplayName value
 
     let documentPage (webConfig: WebUiConfig) (registry: ElementRegistry) (doc: GovernanceDocument) : XmlNode =
         let baseUrl = webConfig.BaseUrl

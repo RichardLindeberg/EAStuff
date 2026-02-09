@@ -64,6 +64,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ApplicationComponent">
@@ -129,6 +132,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ApplicationEvent">
@@ -194,6 +200,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ApplicationFunction">
@@ -259,6 +268,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ApplicationInteraction">
@@ -324,6 +336,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ApplicationInterface">
@@ -389,6 +404,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ApplicationProcess">
@@ -454,6 +472,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ApplicationService">
@@ -519,6 +540,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Artifact">
@@ -584,6 +608,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Assessment">
@@ -649,6 +676,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessActor">
@@ -714,6 +744,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessCollaboration">
@@ -779,6 +812,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessEvent">
@@ -844,6 +880,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessFunction">
@@ -909,6 +948,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessInteraction">
@@ -974,6 +1016,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessInterface">
@@ -1039,6 +1084,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessObject">
@@ -1104,6 +1152,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessProcess">
@@ -1169,6 +1220,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessRole">
@@ -1234,6 +1288,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="BusinessService">
@@ -1299,6 +1356,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Capability">
@@ -1364,6 +1424,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="fotv" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="CommunicationNetwork">
@@ -1429,6 +1492,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Constraint">
@@ -1494,6 +1560,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Contract">
@@ -1559,6 +1628,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="CourseOfAction">
@@ -1624,6 +1696,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="fotv" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="DataObject">
@@ -1689,6 +1764,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Deliverable">
@@ -1754,6 +1832,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Device">
@@ -1819,6 +1900,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="DistributionNetwork">
@@ -1884,6 +1968,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Driver">
@@ -1949,6 +2036,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Equipment">
@@ -2014,6 +2104,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Facility">
@@ -2079,6 +2172,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Gap">
@@ -2144,6 +2240,9 @@
         <target concept="Value" relations="o" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Goal">
@@ -2209,6 +2308,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Grouping">
@@ -2274,6 +2376,9 @@
         <target concept="Value" relations="cgnos" />
         <target concept="ValueStream" relations="cfgiorstv" />
         <target concept="WorkPackage" relations="cfgiost" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ImplementationEvent">
@@ -2339,6 +2444,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="fot" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Junction">
@@ -2404,6 +2512,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="fiortv" />
         <target concept="WorkPackage" relations="fiot" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Location">
@@ -2469,6 +2580,9 @@
         <target concept="Value" relations="cgno" />
         <target concept="ValueStream" relations="cgor" />
         <target concept="WorkPackage" relations="cgio" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Material">
@@ -2534,6 +2648,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Meaning">
@@ -2599,6 +2716,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Node">
@@ -2664,6 +2784,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Outcome">
@@ -2729,6 +2852,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Path">
@@ -2794,6 +2920,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Plateau">
@@ -2859,6 +2988,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="cgor" />
         <target concept="WorkPackage" relations="fot" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Principle">
@@ -2924,6 +3056,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Product">
@@ -2989,6 +3124,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Relationship">
@@ -3054,6 +3192,9 @@
         <target concept="Value" relations="o" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Representation">
@@ -3119,6 +3260,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Requirement">
@@ -3184,6 +3328,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Resource">
@@ -3249,6 +3396,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="fiotv" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Stakeholder">
@@ -3314,6 +3464,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="SystemSoftware">
@@ -3379,6 +3532,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="TechnologyCollaboration">
@@ -3444,6 +3600,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="io" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="TechnologyEvent">
@@ -3509,6 +3668,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="TechnologyFunction">
@@ -3574,6 +3736,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="TechnologyInteraction">
@@ -3639,6 +3804,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="TechnologyInterface">
@@ -3704,6 +3872,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="TechnologyProcess">
@@ -3769,6 +3940,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="TechnologyService">
@@ -3834,6 +4008,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="Value">
@@ -3899,6 +4076,9 @@
         <target concept="Value" relations="cgnos" />
         <target concept="ValueStream" relations="o" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="ValueStream">
@@ -3964,6 +4144,9 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="cfgostv" />
         <target concept="WorkPackage" relations="o" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
     </source>
 
     <source concept="WorkPackage">
@@ -4029,6 +4212,27 @@
         <target concept="Value" relations="no" />
         <target concept="ValueStream" relations="or" />
         <target concept="WorkPackage" relations="cfgost" />
+            <target concept="GovernancePolicy" relations="o" />
+        <target concept="GovernanceInstruction" relations="o" />
+        <target concept="GovernanceManual" relations="o" />
+    </source>
+
+    <source concept="GovernancePolicy">
+        <target concept="GovernancePolicy" relations="co" />
+        <target concept="GovernanceInstruction" relations="co" />
+        <target concept="GovernanceManual" relations="co" />
+    </source>
+
+    <source concept="GovernanceInstruction">
+        <target concept="GovernancePolicy" relations="co" />
+        <target concept="GovernanceInstruction" relations="co" />
+        <target concept="GovernanceManual" relations="co" />
+    </source>
+
+    <source concept="GovernanceManual">
+        <target concept="GovernancePolicy" relations="co" />
+        <target concept="GovernanceInstruction" relations="co" />
+        <target concept="GovernanceManual" relations="co" />
     </source>
 
 </relationships>
