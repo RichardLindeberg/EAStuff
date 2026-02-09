@@ -108,13 +108,12 @@ module Governance =
 
     let indexPage
         (webConfig: WebUiConfig)
-        (registry: GovernanceDocRegistry)
-        (elementRegistry: ElementRegistry)
+        (registry: ElementRegistry)
         (filteredDocuments: GovernanceDocument list)
         (filterValue: string option)
         (docTypeValue: string option)
         (reviewValue: string option) : XmlNode =
-        let allDocuments = registry.documents |> Map.toList |> List.map snd
+        let allDocuments = registry.governanceDocuments |> Map.toList |> List.map snd
         let docTypeOptions =
             allDocuments
             |> List.map (fun doc -> doc.docType)
@@ -209,7 +208,7 @@ module Governance =
                         ]
                     ]
                 ]
-                documentsPartial webConfig elementRegistry filteredDocuments
+                documentsPartial webConfig registry filteredDocuments
             ]
         ]
 
@@ -222,7 +221,7 @@ module Governance =
         else
             content
 
-    let private linkRelatedDocs (baseUrl: string) (governanceRegistry: GovernanceDocRegistry) (content: string) : string =
+    let private linkRelatedDocs (baseUrl: string) (registry: ElementRegistry) (content: string) : string =
         let pattern = "^\\s*[-*]\\s+Related\\s+[^:]+:\\s+([a-z0-9-]+)\\.md\\s*$"
         let regex = Regex(pattern, RegexOptions.IgnoreCase ||| RegexOptions.Multiline)
 
@@ -230,7 +229,7 @@ module Governance =
             let slug = m.Groups.[1].Value
             let prefix = m.Value.Substring(0, m.Value.IndexOf(':') + 1)
             let linkLabel =
-                governanceRegistry.documents
+                registry.governanceDocuments
                 |> Map.tryFind slug
                 |> Option.map (fun doc -> doc.title)
                 |> Option.defaultValue slug
@@ -246,7 +245,7 @@ module Governance =
             let spaced = Regex.Replace(normalized, "([a-z])([A-Z])", "$1 $2")
             CultureInfo.InvariantCulture.TextInfo.ToTitleCase(spaced)
 
-    let documentPage (webConfig: WebUiConfig) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (doc: GovernanceDocument) : XmlNode =
+    let documentPage (webConfig: WebUiConfig) (registry: ElementRegistry) (doc: GovernanceDocument) : XmlNode =
         let baseUrl = webConfig.BaseUrl
         let metadataOrder =
             [
@@ -306,7 +305,12 @@ module Governance =
                 | Some _ -> None
                 | None ->
                     let relationLabel = formatRelationType rel.relationType
-                    match Map.tryFind rel.target governanceRegistry.documents with
+                    let relatedDoc =
+                        registry.governanceDocuments
+                        |> Map.toList
+                        |> List.map snd
+                        |> List.tryFind (fun doc -> doc.docId.Equals(rel.target, StringComparison.OrdinalIgnoreCase))
+                    match relatedDoc with
                     | Some relatedDoc ->
                         let targetType = docTypeToString relatedDoc.docType
                         let targetLink = Some $"{baseUrl}governance/{relatedDoc.slug}"
@@ -361,7 +365,7 @@ module Governance =
                             let htmlContent =
                                 doc.content
                                 |> stripTitleHeading
-                                |> linkRelatedDocs baseUrl governanceRegistry
+                                |> linkRelatedDocs baseUrl registry
                                 |> markdownToHtml
                             div [_class "content-section"] [
                                 rawText htmlContent

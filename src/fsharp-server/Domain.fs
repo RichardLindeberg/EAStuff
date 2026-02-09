@@ -233,6 +233,32 @@ type GovernanceDocType =
     | Manual
     | Unknown of string
 
+/// Unified document kinds for repository content
+[<RequireQualifiedAccess>]
+type DocumentKind =
+    | Architecture of ElementType
+    | Governance of GovernanceDocType
+
+/// Unified relation entry between documents
+type DocumentRelation = {
+    sourceId: string
+    targetId: string
+    relationType: string
+    description: string
+}
+
+/// Unified document model
+type Document = {
+    id: string
+    name: string
+    kind: DocumentKind
+    filePath: string
+    content: string
+    properties: Map<string, obj>
+    tags: string list
+    relations: DocumentRelation list
+}
+
 /// Relationship entry for governance docs
 type GovernanceRelation = {
     relationType: string

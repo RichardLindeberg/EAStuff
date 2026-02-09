@@ -2,12 +2,41 @@ namespace EAArchive
 
 open System
 open System.Collections
+open System.Collections.Generic
 open System.IO
 open System.Text.RegularExpressions
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.Logging.Abstractions
+open YamlDotNet.Serialization
 
 module GovernanceRegistryLoader =
+
+    let private parseFrontmatter (content: string) : (Map<string, obj> * string) =
+        let lines = content.Split('\n')
+        if lines.Length > 0 && lines.[0].Trim() = "---" then
+            let mutable endIdx = -1
+            for i in 1 .. lines.Length - 1 do
+                if lines.[i].Trim() = "---" then
+                    endIdx <- i
+
+            if endIdx > 1 then
+                let yamlContent = String.concat "\n" lines.[1 .. endIdx - 1]
+                let markdownContent =
+                    if endIdx + 1 < lines.Length then
+                        String.concat "\n" lines.[endIdx + 1 ..]
+                    else
+                        ""
+
+                try
+                    let deserializer = DeserializerBuilder().Build()
+                    let data = deserializer.Deserialize<Dictionary<string, obj>>(yamlContent)
+                    (data |> Seq.map (fun kvp -> kvp.Key, kvp.Value) |> Map.ofSeq, markdownContent)
+                with
+                | _ -> (Map.empty, content)
+            else
+                (Map.empty, content)
+        else
+            (Map.empty, content)
 
     let private governanceIdPattern = Regex("^ms-(policy|instruction|manual)-\\d{3}-[a-z0-9-]+$", RegexOptions.IgnoreCase)
 
@@ -29,7 +58,15 @@ module GovernanceRegistryLoader =
             GovernanceDocType.Unknown "unknown"
 
     let private getString (key: string) (metadata: Map<string, obj>) : string option =
-        ElementRegistry.getString key metadata
+        metadata
+        |> Map.tryFind key
+        |> Option.bind (fun v ->
+            match v with
+            | :? string as s -> Some s
+            | _ ->
+                try Some (v.ToString())
+                with _ -> None
+        )
 
     let private getStringFromObj (value: obj) : string option =
         if isNull value then None
@@ -83,7 +120,7 @@ module GovernanceRegistryLoader =
     let private parseDocument (filePath: string) (content: string) : GovernanceDocument =
         let slug = Path.GetFileNameWithoutExtension(filePath)
         let docType = docTypeFromPath filePath
-        let metadataObj, contentWithoutMetadata = ElementRegistry.parseFrontmatter content
+        let metadataObj, contentWithoutMetadata = parseFrontmatter content
         let relations = parseGovernanceRelations metadataObj
         let metadata =
             metadataObj
@@ -138,7 +175,9 @@ module GovernanceRegistryLoader =
 
     let private validateDocument
         (doc: GovernanceDocument)
-        (elementRegistry: ElementRegistry)
+        (elements: Map<string, Element>)
+        (knownDocumentIds: Set<string>)
+        (allowedRelationTypes: Set<string>)
         : ValidationError list =
         let errors = ResizeArray<ValidationError>()
         let docId = if String.IsNullOrWhiteSpace doc.docId then None else Some doc.docId
@@ -171,7 +210,7 @@ module GovernanceRegistryLoader =
 
         match Map.tryFind "owner" doc.metadata |> Option.map (fun value -> value.Trim()) with
         | Some ownerId when ownerId <> "" ->
-            match Map.tryFind ownerId elementRegistry.elements with
+            match Map.tryFind ownerId elements with
             | Some elem ->
                 match elem.elementType with
                 | ElementType.Business BusinessElement.Role -> ()
@@ -219,22 +258,41 @@ module GovernanceRegistryLoader =
                         message = "Relationship target is required for governance relations"
                         severity = Severity.Error
                     })
-                elif not (Map.containsKey relation.target elementRegistry.elements) then
+                elif not (Set.contains relation.target knownDocumentIds) then
                     errors.Add({
                         filePath = doc.filePath
                         elementId = docId
                         errorType = ErrorType.RelationshipTargetNotFound (doc.docId, relation.target)
-                        message = sprintf "Relationship target '%s' was not found in ArchiMate elements" relation.target
+                        message = sprintf "Relationship target '%s' was not found in repository documents" relation.target
                         severity = Severity.Error
                     })
+                else
+                    let normalized = relation.relationType.Trim().ToLowerInvariant()
+                    if not (Set.contains normalized allowedRelationTypes) then
+                        errors.Add({
+                            filePath = doc.filePath
+                            elementId = docId
+                            errorType = ErrorType.InvalidRelationshipType relation.relationType
+                            message = sprintf "Relationship type '%s' is not allowed for governance documents" relation.relationType
+                            severity = Severity.Error
+                        })
 
         List.ofSeq errors
 
-    let createWithLoggerAndElements
+    type GovernanceLoadResult = {
+        documents: GovernanceDocument list
+        documentsByType: Map<GovernanceDocType, string list>
+        validationErrors: ValidationError list
+        relations: DocumentRelation list
+    }
+
+    let loadDocuments
         (managementSystemPath: string)
-        (elementRegistry: ElementRegistry)
+        (elements: Map<string, Element>)
+        (elementIds: Set<string>)
+        (allowedRelationTypes: Set<string>)
         (logger: ILogger)
-        : GovernanceDocRegistry =
+        : GovernanceLoadResult =
         if Directory.Exists(managementSystemPath) then
             let documents =
                 Directory.EnumerateFiles(managementSystemPath, "*.md", SearchOption.AllDirectories)
@@ -246,40 +304,52 @@ module GovernanceRegistryLoader =
                 )
                 |> Seq.toList
 
-            let docMap =
-                documents
-                |> List.fold (fun acc doc -> Map.add doc.slug doc acc) Map.empty
-
             let docsByType =
                 documents
                 |> List.groupBy (fun doc -> doc.docType)
                 |> List.map (fun (docType, docs) -> docType, docs |> List.map (fun doc -> doc.slug) |> List.sort)
                 |> Map.ofList
 
+            let documentIds =
+                documents
+                |> List.map (fun doc -> doc.docId)
+                |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+                |> Set.ofList
+
+            let knownDocumentIds = Set.union elementIds documentIds
+
             let validationErrors =
                 documents
-                |> List.collect (fun doc -> validateDocument doc elementRegistry)
+                |> List.collect (fun doc -> validateDocument doc elements knownDocumentIds allowedRelationTypes)
+
+            let relations =
+                documents
+                |> List.collect (fun doc ->
+                    doc.relations
+                    |> List.map (fun rel ->
+                        {
+                            sourceId = doc.docId
+                            targetId = rel.target
+                            relationType = rel.relationType.Trim().ToLowerInvariant()
+                            description = ""
+                        }
+                    )
+                )
 
             if not validationErrors.IsEmpty then
                 logger.LogWarning("Governance validation found {errorCount} errors", validationErrors.Length)
 
             {
-                documents = docMap
+                documents = documents
                 documentsByType = docsByType
-                managementSystemPath = managementSystemPath
                 validationErrors = validationErrors
+                relations = relations
             }
         else
             logger.LogWarning("Governance management system path not found: {path}", managementSystemPath)
             {
-                documents = Map.empty
+                documents = []
                 documentsByType = Map.empty
-                managementSystemPath = managementSystemPath
                 validationErrors = []
+                relations = []
             }
-
-    let create (managementSystemPath: string) (elementRegistry: ElementRegistry) : GovernanceDocRegistry =
-        createWithLoggerAndElements managementSystemPath elementRegistry (NullLogger.Instance)
-
-    let getValidationErrors (registry: GovernanceDocRegistry) : ValidationError list =
-        registry.validationErrors

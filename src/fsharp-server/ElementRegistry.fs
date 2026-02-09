@@ -13,9 +13,14 @@ type ElementRegistry = {
     elements: Map<string, Element>
     elementsByLayer: Map<Layer, string list>
     incomingRelations: Map<string, (string * RelationType * string) list> // target -> [(source, relType, desc)]
+    governanceDocuments: Map<string, GovernanceDocument>
+    governanceDocumentsByType: Map<GovernanceDocType, string list>
+    documentRelations: DocumentRelation list
     mutable validationErrors: ValidationError list
     validationErrorsLock: obj
     elementsPath: string
+    managementSystemPath: string
+    basePaths: string list
     relationshipRules: RelationshipRules
 }
 
@@ -381,8 +386,15 @@ module ElementRegistry =
             )
         
         for rel in elem.relationships do
-            // Check 1: Target element must exist
-            if not (Map.containsKey rel.target registry.elements) then
+            let targetElementOpt = Map.tryFind rel.target registry.elements
+            let targetGovernanceOpt =
+                registry.governanceDocuments
+                |> Map.toList
+                |> List.map snd
+                |> List.tryFind (fun doc -> doc.docId.Equals(rel.target, StringComparison.OrdinalIgnoreCase))
+
+            // Check 1: Target must exist in repository
+            if targetElementOpt.IsNone && targetGovernanceOpt.IsNone then
                 errors.Add {
                     filePath = filePath
                     elementId = Some elem.id
@@ -402,7 +414,7 @@ module ElementRegistry =
                 }
             
             // Check 3 & 4: ArchiMate rules validation (only if target exists)
-            match Map.tryFind rel.target registry.elements with
+            match targetElementOpt with
             | Some targetElem ->
                 let sourceConcept = ElementType.elementTypeToConceptName elem.elementType
                 let targetConcept = ElementType.elementTypeToConceptName targetElem.elementType
@@ -467,7 +479,7 @@ module ElementRegistry =
                         message = $"Unrecognized relationship type '{relTypeStr}'"
                         severity = Severity.Warning
                     }
-            | None -> ()  // Target not found error already added above
+            | None -> ()  // Skip ArchiMate rules for governance targets
         
         // Check 5: Duplicate relationships
         let duplicates =
@@ -488,7 +500,7 @@ module ElementRegistry =
         List.ofSeq errors
     
     /// Build the element registry from all markdown files
-    let createWithLogger (elementsPath: string) (relationsPath: string) (logger: ILogger) : ElementRegistry =
+    let createWithLogger (elementsPath: string) (relationsPath: string) (managementSystemPath: string) (logger: ILogger) : ElementRegistry =
         logger.LogInformation("Creating element registry from: {elementsPath}", elementsPath)
 
         let relationshipRules =
@@ -559,9 +571,14 @@ module ElementRegistry =
                 elements = elements
                 elementsByLayer = elementsByLayer
                 incomingRelations = incomingRelations
+                governanceDocuments = Map.empty
+                governanceDocumentsByType = Map.empty
+                documentRelations = []
                 validationErrors = []
                 validationErrorsLock = obj ()
                 elementsPath = elementsPath
+                managementSystemPath = managementSystemPath
+                basePaths = [ elementsPath; managementSystemPath ]
                 relationshipRules = relationshipRules
             }
             
@@ -576,19 +593,95 @@ module ElementRegistry =
             logger.LogInformation("Relationship validation found {warningCount} warnings", relationshipErrors.Length)
         else
             logger.LogError("Elements directory does not exist: {elementsPath}", elementsPath)
-        
+
+        let elementIds = elements |> Map.keys |> Set.ofSeq
+        let allowedGovernanceRelations = set [ "implements"; "related" ]
+        let governanceResult =
+            GovernanceRegistryLoader.loadDocuments
+                managementSystemPath
+                elements
+                elementIds
+                allowedGovernanceRelations
+                logger
+
+        validationErrors.AddRange(governanceResult.validationErrors)
+
+        let governanceDocuments =
+            governanceResult.documents
+            |> List.fold (fun acc doc -> Map.add doc.slug doc acc) Map.empty
+
+        let governanceIds =
+            governanceResult.documents
+            |> List.map (fun doc -> doc.docId)
+            |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+
+        let duplicateIds =
+            governanceIds
+            |> List.filter (fun id -> Map.containsKey id elements)
+
+        let duplicateGovernanceIds =
+            governanceIds
+            |> List.groupBy id
+            |> List.choose (fun (docId, items) -> if items.Length > 1 then Some docId else None)
+
+        if not duplicateIds.IsEmpty then
+            duplicateIds
+            |> List.iter (fun dupId ->
+                validationErrors.Add({
+                    filePath = managementSystemPath
+                    elementId = Some dupId
+                    errorType = ErrorType.Unknown "duplicate-id"
+                    message = sprintf "Duplicate ID '%s' appears in both architecture and governance documents" dupId
+                    severity = Severity.Error
+                })
+            )
+
+        if not duplicateGovernanceIds.IsEmpty then
+            duplicateGovernanceIds
+            |> List.iter (fun dupId ->
+                validationErrors.Add({
+                    filePath = managementSystemPath
+                    elementId = Some dupId
+                    errorType = ErrorType.Unknown "duplicate-governance-id"
+                    message = sprintf "Duplicate governance document ID '%s' detected" dupId
+                    severity = Severity.Error
+                })
+            )
+
+        let documentRelations =
+            let archimateRelations =
+                elements
+                |> Map.toList
+                |> List.collect (fun (sourceId, elem) ->
+                    elem.relationships
+                    |> List.map (fun rel ->
+                        {
+                            sourceId = sourceId
+                            targetId = rel.target
+                            relationType = ElementType.relationTypeToString rel.relationType
+                            description = rel.description
+                        }
+                    )
+                )
+            archimateRelations @ governanceResult.relations
+
         {
             elements = elements
             elementsByLayer = elementsByLayer
             incomingRelations = incomingRelations
+            governanceDocuments = governanceDocuments
+            governanceDocumentsByType = governanceResult.documentsByType
+            documentRelations = documentRelations
             validationErrors = List.ofSeq validationErrors
             validationErrorsLock = obj ()
             elementsPath = elementsPath
+            managementSystemPath = managementSystemPath
+            basePaths = [ elementsPath; managementSystemPath ]
             relationshipRules = relationshipRules
         }
 
-    let create (elementsPath: string) (relationsPath: string) : ElementRegistry =
-        createWithLogger elementsPath relationsPath (NullLogger.Instance)
+    let create (elementsPath: string) (relationsPath: string) (managementSystemPath: string) : ElementRegistry =
+        createWithLogger elementsPath relationsPath managementSystemPath (NullLogger.Instance)
 
     
     /// Get all validation errors

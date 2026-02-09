@@ -434,6 +434,13 @@ module DiagramGenerators =
 
     let private buildGovernanceDocsGraph (docs: GovernanceDocument list) (elementIds: Set<string>) : CytoscapeNode list * CytoscapeEdge list =
         let docSlugSet = docs |> List.map (fun doc -> doc.slug) |> Set.ofList
+        let docIdToSlug =
+            docs
+            |> List.choose (fun doc ->
+                if String.IsNullOrWhiteSpace doc.docId then None
+                else Some (doc.docId, doc.slug)
+            )
+            |> Map.ofList
 
         let nodes, edges =
             docs
@@ -441,6 +448,31 @@ module DiagramGenerators =
             |> List.fold (fun (nodesAcc: CytoscapeNode list, edgesAcc: CytoscapeEdge list) (docNodes, docEdges) ->
                 nodesAcc @ docNodes, edgesAcc @ docEdges
             ) ([], [])
+
+        let relationEdges =
+            docs
+            |> List.collect (fun doc ->
+                doc.relations
+                |> List.choose (fun rel ->
+                    match Map.tryFind rel.target docIdToSlug with
+                    | Some targetSlug ->
+                        Some {
+                            data =
+                                { id = sprintf "govrel_%s_%s_%s" doc.slug targetSlug rel.relationType
+                                  source = "gov-" + doc.slug
+                                  target = "gov-" + targetSlug
+                                  label = rel.relationType
+                                  relType = rel.relationType
+                                  color = governanceEdgeColor
+                                  arrowType = "triangle"
+                                  lineStyle = "dashed"
+                                  lineWidth = 1.5
+                                  kind = "governance" }
+                            classes = "governance-edge"
+                        }
+                    | None -> None
+                )
+            )
 
         let docEdges =
             docs
@@ -465,7 +497,7 @@ module DiagramGenerators =
                 )
             )
 
-        nodes, edges @ docEdges
+        nodes, edges @ relationEdges @ docEdges
 
     let buildCytoscapeDiagram
         (assets: DiagramAssetConfig)

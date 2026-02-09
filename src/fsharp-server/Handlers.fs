@@ -15,25 +15,25 @@ module Handlers =
     open HandlersHelpers
     
     /// Index/home page handler
-    let indexHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let indexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET / - Home page requested")
             let layerCounts = 
                 registry.elementsByLayer
                 |> Map.map (fun _ ids -> List.length ids)
             logger.LogDebug("Layer summary: {layerSummary}", layerCounts)
-            let html = Views.Index.indexPage webConfig registry governanceRegistry "index"
+            let html = Views.Index.indexPage webConfig registry "index"
             htmlView html next ctx
 
     /// Architecture index handler
-    let architectureIndexHandler (registry: ElementRegistry) (_governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let architectureIndexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /architecture - Architecture overview requested")
             let html = Views.Architecture.indexPage webConfig registry "architecture"
             htmlView html next ctx
 
     /// Governance system index handler
-    let governanceIndexHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceIndexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance - Governance index requested")
             let filterValue =
@@ -51,7 +51,7 @@ module Handlers =
                 | Ok value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim().ToLowerInvariant())
                 | _ -> None
 
-            let documents = governanceRegistry.documents |> Map.toList |> List.map snd
+            let documents = registry.governanceDocuments |> Map.toList |> List.map snd
             let tryGetMetadataValue (key: string) (metadata: Map<string, string>) : string option =
                 metadata
                 |> Map.tryFind key
@@ -126,16 +126,16 @@ module Handlers =
                 let partial = Views.Governance.documentsPartial webConfig registry filteredDocuments
                 htmlView partial next ctx
             else
-                let html = Views.Governance.indexPage webConfig governanceRegistry registry filteredDocuments filterValue docTypeValue reviewValue
+                let html = Views.Governance.indexPage webConfig registry filteredDocuments filterValue docTypeValue reviewValue
                 htmlView html next ctx
 
     /// Governance document detail handler
-    let governanceDocHandler (slug: string) (governanceRegistry: GovernanceDocRegistry) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceDocHandler (slug: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance/{slug} - Governance document requested", slug)
-            match Map.tryFind slug governanceRegistry.documents with
+            match Map.tryFind slug registry.governanceDocuments with
             | Some doc ->
-                let html = Views.Governance.documentPage webConfig registry governanceRegistry doc
+                let html = Views.Governance.documentPage webConfig registry doc
                 htmlView html next ctx
             | None ->
                 logger.LogWarning("Governance document not found: {slug}", slug)
@@ -205,7 +205,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element detail page handler
-    let elementHandler (elemId: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let elementHandler (elemId: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /elements/{elementId} - Element detail requested", elemId)
             match ElementRegistry.getElement elemId registry with
@@ -228,7 +228,7 @@ module Handlers =
                     List.length elemWithRels.outgoingRelations
                 )
 
-                let governanceDocs = governanceRegistry.documents |> Map.toList |> List.map snd
+                let governanceDocs = registry.governanceDocuments |> Map.toList |> List.map snd
                 let ownerDocs =
                     governanceDocs
                     |> List.filter (fun doc ->
@@ -587,8 +587,8 @@ module Handlers =
             let html = Views.Tags.tagsIndexPage webConfig tagIndex registry
             htmlView html next ctx
 
-    let private selectGovernanceDocs (elementIds: Set<string>) (governanceRegistry: GovernanceDocRegistry) : GovernanceDocument list =
-        governanceRegistry.documents
+    let private selectGovernanceDocs (elementIds: Set<string>) (registry: ElementRegistry) : GovernanceDocument list =
+        registry.governanceDocuments
         |> Map.toList
         |> List.map snd
         |> List.filter (fun doc ->
@@ -605,7 +605,7 @@ module Handlers =
         )
 
     /// Layer Cytoscape diagram handler
-    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/layer/{layer} - Cytoscape layer diagram requested", layer)
             match Layer.tryParse layer with
@@ -633,7 +633,7 @@ module Handlers =
 
                     let allElements = layerElements @ relatedElements
                     let elementIds = allElements |> List.map (fun e -> e.id) |> Set.ofList
-                    let governanceDocs = selectGovernanceDocs elementIds governanceRegistry
+                    let governanceDocs = selectGovernanceDocs elementIds registry
 
                     let data = buildCytoscapeDiagram assets allElements allRels governanceDocs
                     let view = Views.Diagrams.cytoscapeDiagramPage webConfig (sprintf "%s Layer" layerInfo.displayName) data
@@ -646,7 +646,7 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context Cytoscape diagram handler
-    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/context/{elementId}/cytoscape - Cytoscape context diagram requested", elemId)
             match ElementRegistry.getElement elemId registry with
@@ -708,7 +708,7 @@ module Handlers =
                     |> List.map (fun e -> e.id)
                     |> Set.ofList
 
-                let governanceDocs = selectGovernanceDocs elementIds governanceRegistry
+                let governanceDocs = selectGovernanceDocs elementIds registry
 
                 let data = buildCytoscapeDiagram assets elements rels governanceDocs
                 let title = sprintf "Context: %s (Depth %d)" elem.name depth
@@ -719,10 +719,10 @@ module Handlers =
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// Governance document Cytoscape diagram handler
-    let governanceDiagramCytoscapeHandler (slug: string) (governanceRegistry: GovernanceDocRegistry) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceDiagramCytoscapeHandler (slug: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/governance/{slug} - Cytoscape governance diagram requested", slug)
-            match Map.tryFind slug governanceRegistry.documents with
+            match Map.tryFind slug registry.governanceDocuments with
             | Some doc ->
                 let ownerId =
                     match Map.tryFind "owner" doc.metadata with
@@ -741,7 +741,7 @@ module Handlers =
                     |> Set.ofList
 
                 let governanceDocs =
-                    doc :: selectGovernanceDocs elementIds governanceRegistry
+                    doc :: selectGovernanceDocs elementIds registry
                     |> List.distinctBy (fun d -> d.slug)
 
                 let relatedElementIds =
@@ -789,12 +789,11 @@ module Handlers =
                 setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
     
     /// Validation errors API handler - list all errors
-    let validationErrorsHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (logger: ILogger) : HttpHandler =
+    let validationErrorsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/errors - Validation errors requested")
             let errors =
                 ElementRegistry.getValidationErrors registry
-                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
             logger.LogInformation("Returning {errorCount} validation errors", List.length errors)
             
             let errorsList =
@@ -812,13 +811,12 @@ module Handlers =
             json errorsList next ctx
     
     /// Validation errors by file handler
-    let fileValidationErrorsHandler (filePath: string) (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (logger: ILogger) : HttpHandler =
+    let fileValidationErrorsHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/file - Validation errors for file: {filePath}", filePath)
             let decodedPath = Uri.UnescapeDataString(filePath)
             let errors =
                 ElementRegistry.getValidationErrors registry
-                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
                 |> List.filter (fun err -> err.filePath = decodedPath)
             logger.LogInformation("File '{filePath}' has {errorCount} validation errors", decodedPath, List.length errors)
             
@@ -837,12 +835,11 @@ module Handlers =
             json errorsList next ctx
     
     /// Validation statistics handler
-    let validationStatsHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (logger: ILogger) : HttpHandler =
+    let validationStatsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/stats - Validation statistics requested")
             let errors =
                 ElementRegistry.getValidationErrors registry
-                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
             let errors_list = errors |> List.filter (fun e -> e.severity = Severity.Error)
             let warnings_list = errors |> List.filter (fun e -> e.severity = Severity.Warning)
             
@@ -860,14 +857,13 @@ module Handlers =
             json stats next ctx
     
     /// Validation page handler
-    let validationPageHandler (registry: ElementRegistry) (governanceRegistry: GovernanceDocRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let validationPageHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /validation - Validation page requested")
             let errors =
                 ElementRegistry.getValidationErrors registry
-                @ GovernanceRegistryLoader.getValidationErrors governanceRegistry
             logger.LogInformation("Displaying {errorCount} validation errors", List.length errors)
-            let html = Views.Validation.validationPage webConfig [ registry.elementsPath; governanceRegistry.managementSystemPath ] errors
+            let html = Views.Validation.validationPage webConfig registry.basePaths errors
             htmlView html next ctx
     
     /// Revalidate file handler
