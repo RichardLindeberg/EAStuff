@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-021-kyc-cdd-ongoing-monitoring
+name: KYC/CDD Ongoing Monitoring Manual (EU AMLR)
 owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -38,4 +39,5 @@ Compliance operations, onboarding teams, and relationship managers.
 ## Related Documents
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related instruction: ms-instruction-023-ongoing-kyc-refresh.md
+
 

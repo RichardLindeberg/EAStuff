@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-019-vendor-third-party
+name: Vendor and Third-Party Management Manual
 owner: bus-role-013-vendor-management
 approved_by: Chief Risk Officer
 status: Draft
@@ -38,4 +39,5 @@ Vendor management, procurement, risk, and technology teams.
 ## Related Documents
 - Related policy: ms-policy-019-third-party-risk.md
 - Related instruction: ms-instruction-019-third-party-due-diligence.md
+
 

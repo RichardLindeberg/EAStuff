@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-018-bcm-dr
+name: Business Continuity and Disaster Recovery Manual
 owner: bus-role-021-business-continuity-office
 approved_by: Chief Operating Officer
 status: Draft
@@ -38,4 +39,5 @@ Business continuity coordinators, technology operations, and service owners.
 ## Related Documents
 - Related policy: ms-policy-018-business-continuity-dr.md
 - Related instruction: ms-instruction-016-payment-exceptions.md
+
 

@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-022-pep-screening
+name: PEP Screening and Approval Instruction (EU AMLR)
 owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -42,4 +43,5 @@ Define steps for identifying, screening, and approving politically exposed perso
 - Related policy: ms-policy-011-aml-ctf.md
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related manual: ms-manual-022-pep-management.md
+
 

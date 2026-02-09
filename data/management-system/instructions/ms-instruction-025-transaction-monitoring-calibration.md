@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-025-transaction-monitoring-calibration
+name: Transaction Monitoring Calibration Instruction (EU AMLR)
 owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -40,4 +41,5 @@ Define how monitoring scenarios, thresholds, and typologies are calibrated to me
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related manual: ms-manual-024-transaction-monitoring-typologies.md
+
 

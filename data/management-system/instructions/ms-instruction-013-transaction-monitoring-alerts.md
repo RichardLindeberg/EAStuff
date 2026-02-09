@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-013-transaction-monitoring-alerts
+name: Transaction Monitoring Alert Handling Instruction
 owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -42,4 +43,5 @@ Provide steps for triaging, investigating, and resolving monitoring alerts.
 ## Related Documents
 - Related policy: ms-policy-013-sanctions-screening.md
 - Related manual: ms-manual-013-transaction-monitoring-sanctions.md
+
 

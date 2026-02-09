@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-policy-012-kyc-cdd
+name: KYC/CDD Policy
 owner: bus-role-004-chief-compliance-officer
 approved_by: Risk Committee
 status: Draft
@@ -49,4 +50,5 @@ All exceptions require compliance approval and documented mitigations.
 - Related manual: ms-manual-012-kyc-cdd-operations.md
 - Related manual: ms-manual-021-kyc-cdd-ongoing-monitoring.md
 - Related manual: ms-manual-022-pep-management.md
+
 

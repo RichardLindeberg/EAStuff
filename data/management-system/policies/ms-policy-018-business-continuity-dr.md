@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-policy-018-business-continuity-dr
+name: Business Continuity and Disaster Recovery Policy
 owner: bus-role-018-chief-operating-officer
 approved_by: Board of Directors
 status: Draft
@@ -39,4 +40,5 @@ Exceptions require executive approval and remediation plans.
 ## Related Documents
 - Related instruction: ms-instruction-016-payment-exceptions.md
 - Related manual: ms-manual-018-bcm-dr.md
+
 

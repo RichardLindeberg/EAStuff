@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-022-pep-management
+name: PEP Management Manual (EU AMLR)
 owner: bus-role-014-financial-crime-compliance
 approved_by: Chief Compliance Officer
 status: Draft
@@ -38,4 +39,5 @@ Financial crime operations, compliance, and relationship managers.
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related instruction: ms-instruction-022-pep-screening.md
+
 

@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-020-model-risk-management
+name: Model Risk Management Manual
 owner: bus-role-020-model-risk-management
 approved_by: Chief Risk Officer
 status: Draft
@@ -38,4 +39,5 @@ Model owners, data science teams, and validation staff.
 ## Related Documents
 - Related policy: ms-policy-020-model-risk-management.md
 - Related instruction: ms-instruction-021-model-validation.md
+
 

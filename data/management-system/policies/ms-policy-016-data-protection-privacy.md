@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-policy-016-data-protection-privacy
+name: Data Protection and Privacy Policy
 owner: bus-role-007-chief-privacy-officer
 approved_by: Risk Committee
 status: Draft
@@ -39,4 +40,5 @@ Exceptions require privacy impact assessment and approval.
 ## Related Documents
 - Related instruction: ms-instruction-019-third-party-due-diligence.md
 - Related manual: ms-manual-016-data-privacy-records.md
+
 

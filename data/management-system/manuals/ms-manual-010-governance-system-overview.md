@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-010-governance-system-overview
+name: Governance System Manual
 owner: bus-role-019-corporate-governance-office
 approved_by: Chief Operating Officer
 status: Draft
@@ -36,4 +37,5 @@ The governance system is the controlled set of policies, instructions, and manua
 ## Related Documents
 - Related policy: ms-policy-010-governance-framework.md
 - Related instruction: ms-instruction-010-policy-lifecycle.md
+
 

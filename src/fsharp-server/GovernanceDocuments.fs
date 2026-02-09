@@ -96,8 +96,7 @@ module GovernanceRegistryLoader =
             )
             |> Map.ofSeq
         let title =
-            getString "title" metadataObj
-            |> Option.orElseWith (fun () -> tryGetTitle contentWithoutMetadata)
+            getString "name" metadataObj
             |> Option.defaultValue slug
 
         let docId =
@@ -163,6 +162,7 @@ module GovernanceRegistryLoader =
                     severity = Severity.Error
                 })
 
+        errors.AddRange(validateRequiredField doc.filePath docId "name" "name" doc.metadata)
         errors.AddRange(validateRequiredField doc.filePath docId "owner" "owner" doc.metadata)
         errors.AddRange(validateRequiredField doc.filePath docId "approved_by" "approved_by" doc.metadata)
         errors.AddRange(validateRequiredField doc.filePath docId "status" "status" doc.metadata)

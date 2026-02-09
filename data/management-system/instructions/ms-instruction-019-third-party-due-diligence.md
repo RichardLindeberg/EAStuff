@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-019-third-party-due-diligence
+name: Third-Party Due Diligence Instruction
 owner: bus-role-013-vendor-management
 approved_by: Chief Risk Officer
 status: Draft
@@ -39,4 +40,5 @@ Provide steps for evaluating third-party risk before onboarding or renewal.
 ## Related Documents
 - Related policy: ms-policy-019-third-party-risk.md
 - Related manual: ms-manual-019-vendor-third-party.md
+
 

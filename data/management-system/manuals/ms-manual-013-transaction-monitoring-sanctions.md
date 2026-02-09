@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-013-transaction-monitoring-sanctions
+name: Transaction Monitoring and Sanctions Manual
 owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -38,4 +39,5 @@ Financial crime operations and payments teams.
 ## Related Documents
 - Related policy: ms-policy-013-sanctions-screening.md
 - Related instruction: ms-instruction-013-transaction-monitoring-alerts.md
+
 

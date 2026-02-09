@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-012-kyc-cdd-operations
+name: KYC/CDD Operations Manual
 owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -38,4 +39,5 @@ Onboarding teams, customer service, and compliance operations.
 ## Related Documents
 - Related policy: ms-policy-012-kyc-cdd.md
 - Related instruction: ms-instruction-011-kyc-onboarding.md
+
 

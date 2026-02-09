@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-020-dsar-requests
+name: Data Subject Access Request (DSAR) Instruction
 owner: bus-role-015-privacy-office
 approved_by: Chief Privacy Officer
 status: Draft
@@ -41,4 +42,5 @@ Provide a step-by-step process for handling data subject access requests in line
 ## Related Documents
 - Related policy: ms-policy-016-data-protection-privacy.md
 - Related manual: ms-manual-016-data-privacy-records.md
+
 

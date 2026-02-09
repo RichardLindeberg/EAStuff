@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-015-edd-review
+name: Enhanced Due Diligence Review Instruction
 owner: bus-role-009-compliance-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -39,4 +40,5 @@ Define steps to complete EDD for high-risk customers and transactions.
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related manual: ms-manual-011-aml-ctf-compliance.md
+
 

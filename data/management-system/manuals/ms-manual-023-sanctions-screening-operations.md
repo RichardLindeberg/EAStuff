@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-023-sanctions-screening-operations
+name: Sanctions Screening Operations Manual (EU AMLR)
 owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -35,4 +36,5 @@ Financial crime operations and compliance teams.
 ## Related Documents
 - Related policy: ms-policy-013-sanctions-screening.md
 - Related instruction: ms-instruction-024-sanctions-hit-escalation.md
+
 

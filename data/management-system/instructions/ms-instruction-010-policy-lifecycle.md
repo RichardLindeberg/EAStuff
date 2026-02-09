@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-010-policy-lifecycle
+name: Policy Lifecycle Instruction
 owner: bus-role-019-corporate-governance-office
 approved_by: Head of Risk and Compliance
 status: Draft
@@ -41,4 +42,5 @@ Applies to all new policies and material revisions to existing policies.
 ## Related Documents
 - Related policy: ms-policy-010-governance-framework.md
 - Related manual: ms-manual-010-governance-system-overview.md
+
 

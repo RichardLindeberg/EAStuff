@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-024-sanctions-hit-escalation
+name: Sanctions Hit Escalation Instruction (EU AMLR)
 owner: bus-role-010-financial-crime-operations
 approved_by: Chief Compliance Officer
 status: Draft
@@ -41,4 +42,5 @@ Provide steps for assessing and escalating potential sanctions hits in line with
 ## Related Documents
 - Related policy: ms-policy-013-sanctions-screening.md
 - Related manual: ms-manual-023-sanctions-screening-operations.md
+
 

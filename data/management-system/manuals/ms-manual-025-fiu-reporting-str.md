@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-025-fiu-reporting-str
+name: FIU Reporting and STR Manual (EU AMLR)
 owner: bus-role-014-financial-crime-compliance
 approved_by: Chief Compliance Officer
 status: Draft
@@ -35,4 +36,5 @@ Financial crime operations and compliance teams.
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related instruction: ms-instruction-014-sar-filing.md
+
 

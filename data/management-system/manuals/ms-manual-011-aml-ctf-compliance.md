@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-011-aml-ctf-compliance
+name: AML/CTF Compliance Manual
 owner: bus-role-014-financial-crime-compliance
 approved_by: Chief Compliance Officer
 status: Draft
@@ -38,4 +39,5 @@ Compliance, financial crime operations, and onboarding teams.
 ## Related Documents
 - Related policy: ms-policy-011-aml-ctf.md
 - Related instruction: ms-instruction-014-sar-filing.md
+
 

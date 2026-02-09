@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-manual-016-data-privacy-records
+name: Data Privacy and Records Management Manual
 owner: bus-role-015-privacy-office
 approved_by: Chief Privacy Officer
 status: Draft
@@ -38,4 +39,5 @@ Data owners, operations teams, and compliance staff.
 ## Related Documents
 - Related policy: ms-policy-016-data-protection-privacy.md
 - Related instruction: ms-instruction-019-third-party-due-diligence.md
+
 

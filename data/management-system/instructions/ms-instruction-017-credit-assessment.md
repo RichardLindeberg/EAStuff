@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-instruction-017-credit-assessment
+name: Credit Assessment Workflow Instruction
 owner: bus-role-012-credit-risk-department
 approved_by: Chief Risk Officer
 status: Draft
@@ -41,4 +42,5 @@ Define steps for assessing creditworthiness and documenting decisions.
 ## Related Documents
 - Related policy: ms-policy-015-credit-risk.md
 - Related manual: ms-manual-015-credit-risk-lending.md
+
 

@@ -1,5 +1,6 @@
----
+﻿---
 id: ms-policy-017-information-security
+name: Information Security Policy
 owner: bus-role-008-chief-information-security-officer
 approved_by: Risk Committee
 status: Draft
@@ -39,4 +40,5 @@ Exceptions require risk assessment and CISO approval.
 ## Related Documents
 - Related instruction: ms-instruction-018-fraud-case-investigation.md
 - Related manual: ms-manual-017-info-security-access.md
+
 
