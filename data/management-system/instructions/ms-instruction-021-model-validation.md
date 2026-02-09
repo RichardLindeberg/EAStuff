@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: str-capa-003-data-analytics-and-ai
+  - type: implements
+    target: ms-policy-020-model-risk-management
+  - type: related
+    target: ms-manual-020-model-risk-management
 ---
 # Model Validation and Monitoring Instruction
 
@@ -36,9 +40,5 @@ Provide steps for independent validation, approval, and ongoing monitoring of mo
 ## Outputs and Records
 - Validation report and approval record
 - Monitoring plan and thresholds
-
-## Related Documents
-- Related policy: ms-policy-020-model-risk-management.md
-- Related manual: ms-manual-020-model-risk-management.md
 
 

@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-014-transaction-monitoring-and-screening
   - type: appliesTo
     target: mot-reqt-015-suspicious-activity-reporting-sar
+  - type: implements
+    target: ms-policy-013-sanctions-screening
+  - type: related
+    target: ms-manual-023-sanctions-screening-operations
 ---
 # Sanctions Hit Escalation Instruction (EU AMLR)
 
@@ -38,9 +42,5 @@ Provide steps for assessing and escalating potential sanctions hits in line with
 ## Outputs and Records
 - Sanctions alert disposition record
 - Escalation evidence and decision log
-
-## Related Documents
-- Related policy: ms-policy-013-sanctions-screening.md
-- Related manual: ms-manual-023-sanctions-screening-operations.md
 
 

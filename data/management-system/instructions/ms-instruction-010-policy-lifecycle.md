@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: str-capa-009-regulatory-compliance-and-risk
+  - type: implements
+    target: ms-policy-010-governance-framework
+  - type: related
+    target: ms-manual-010-governance-system-overview
 ---
 # Policy Lifecycle Instruction
 
@@ -38,9 +42,5 @@ Applies to all new policies and material revisions to existing policies.
 - Approved policy document
 - Review and approval record
 - Publication notice
-
-## Related Documents
-- Related policy: ms-policy-010-governance-framework.md
-- Related manual: ms-manual-010-governance-system-overview.md
 
 

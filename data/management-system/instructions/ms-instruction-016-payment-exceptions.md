@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: bus-proc-008-payment-processing
+  - type: implements
+    target: ms-policy-013-sanctions-screening
+  - type: related
+    target: ms-manual-013-transaction-monitoring-sanctions
 ---
 # Payment Exceptions Handling Instruction
 
@@ -35,9 +39,5 @@ Provide steps for handling payment exceptions, rejects, and recalls.
 ## Outputs and Records
 - Exception resolution record
 - Customer notification log
-
-## Related Documents
-- Related policy: ms-policy-013-sanctions-screening.md
-- Related manual: ms-manual-013-transaction-monitoring-sanctions.md
 
 

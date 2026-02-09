@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-014-transaction-monitoring-and-screening
   - type: appliesTo
     target: bus-proc-008-payment-processing
+  - type: related
+    target: ms-policy-013-sanctions-screening
+  - type: implements
+    target: ms-instruction-013-transaction-monitoring-alerts
 ---
 # Transaction Monitoring and Sanctions Manual
 
@@ -35,9 +39,5 @@ Financial crime operations and payments teams.
 ## Reference Materials
 - Sanctions list sources
 - Monitoring scenario catalog
-
-## Related Documents
-- Related policy: ms-policy-013-sanctions-screening.md
-- Related instruction: ms-instruction-013-transaction-monitoring-alerts.md
 
 

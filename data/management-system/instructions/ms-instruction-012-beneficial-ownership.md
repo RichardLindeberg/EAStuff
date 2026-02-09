@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: bus-proc-002-beneficial-ownership-identification-proc
+  - type: implements
+    target: ms-policy-012-kyc-cdd
+  - type: related
+    target: ms-manual-012-kyc-cdd-operations
 ---
 # Beneficial Ownership Verification Instruction
 
@@ -35,9 +39,5 @@ Define the steps to identify and verify beneficial owners for legal entities.
 ## Outputs and Records
 - Beneficial owner register
 - Verification evidence and screening results
-
-## Related Documents
-- Related policy: ms-policy-012-kyc-cdd.md
-- Related manual: ms-manual-012-kyc-cdd-operations.md
 
 

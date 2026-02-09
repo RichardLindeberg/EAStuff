@@ -13,6 +13,10 @@ relationships:
     target: str-capa-005-digital-operational-resilience-capabilit
   - type: appliesTo
     target: str-vstr-003-secure-and-resilient-operations
+  - type: related
+    target: ms-instruction-018-fraud-case-investigation
+  - type: related
+    target: ms-manual-017-info-security-access
 ---
 # Information Security Policy
 
@@ -36,9 +40,5 @@ Define minimum security controls for systems, data, and access across the bank.
 
 ## Compliance and Exceptions
 Exceptions require risk assessment and CISO approval.
-
-## Related Documents
-- Related instruction: ms-instruction-018-fraud-case-investigation.md
-- Related manual: ms-manual-017-info-security-access.md
 
 

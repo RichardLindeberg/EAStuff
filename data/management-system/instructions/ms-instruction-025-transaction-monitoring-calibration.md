@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: implements
+    target: ms-policy-011-aml-ctf
+  - type: related
+    target: ms-manual-024-transaction-monitoring-typologies
 ---
 # Transaction Monitoring Calibration Instruction (EU AMLR)
 
@@ -37,9 +41,5 @@ Define how monitoring scenarios, thresholds, and typologies are calibrated to me
 ## Outputs and Records
 - Calibration decision record
 - Approved rule and threshold changes
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related manual: ms-manual-024-transaction-monitoring-typologies.md
 
 

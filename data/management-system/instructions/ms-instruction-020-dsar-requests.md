@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-001-gdpr-data-protection-compliance
   - type: appliesTo
     target: mot-reqt-007-data-security-and-privacy
+  - type: implements
+    target: ms-policy-016-data-protection-privacy
+  - type: related
+    target: ms-manual-016-data-privacy-records
 ---
 # Data Subject Access Request (DSAR) Instruction
 
@@ -38,9 +42,5 @@ Provide a step-by-step process for handling data subject access requests in line
 ## Outputs and Records
 - DSAR response package
 - Audit trail of review and delivery
-
-## Related Documents
-- Related policy: ms-policy-016-data-protection-privacy.md
-- Related manual: ms-manual-016-data-privacy-records.md
 
 

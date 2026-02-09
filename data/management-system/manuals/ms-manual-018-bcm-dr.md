@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-011-dora-digital-operational-resilience
   - type: appliesTo
     target: str-vstr-003-secure-and-resilient-operations
+  - type: related
+    target: ms-policy-018-business-continuity-dr
+  - type: implements
+    target: ms-instruction-016-payment-exceptions
 ---
 # Business Continuity and Disaster Recovery Manual
 
@@ -35,9 +39,5 @@ Business continuity coordinators, technology operations, and service owners.
 ## Reference Materials
 - Recovery plan templates
 - Critical service inventory
-
-## Related Documents
-- Related policy: ms-policy-018-business-continuity-dr.md
-- Related instruction: ms-instruction-016-payment-exceptions.md
 
 

@@ -296,15 +296,17 @@ module Governance =
         let relationItems =
             doc.relations
             |> List.map (fun rel ->
-                let targetLabel =
+                
+                let (targetLabel, targetType) =
                     match ElementRegistry.getElement rel.target registry with
-                    | Some elem -> elem.name
-                    | None -> rel.target
+                    | Some elem -> elem.name, (elementTypeAndSubTypeToString elem.elementType)
+                    | None -> rel.target, "Governance"
 
                 let relationLabel = formatRelationType rel.relationType
+                
                 li [_class "relation-item"] [
                     span [_class "relation-type governance-relation-type"] [encodedText relationLabel]
-                    span [_class "governance-relation-label"] [encodedText "Governance"]
+                    span [_class "governance-relation-label"] [encodedText targetType]
                     match ElementRegistry.getElement rel.target registry with
                     | Some _ ->
                         a [_href $"{baseUrl}elements/{rel.target}"] [

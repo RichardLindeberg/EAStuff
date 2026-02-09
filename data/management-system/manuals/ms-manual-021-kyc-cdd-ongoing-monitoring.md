@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-013-kyc-and-customer-identification
   - type: appliesTo
     target: mot-reqt-016-enhanced-due-diligence-edd
+  - type: related
+    target: ms-policy-012-kyc-cdd
+  - type: implements
+    target: ms-instruction-023-ongoing-kyc-refresh
 ---
 # KYC/CDD Ongoing Monitoring Manual (EU AMLR)
 
@@ -35,9 +39,5 @@ Compliance operations, onboarding teams, and relationship managers.
 ## Records
 - Review schedule and completion logs
 - Updated KYC evidence and risk rationale
-
-## Related Documents
-- Related policy: ms-policy-012-kyc-cdd.md
-- Related instruction: ms-instruction-023-ongoing-kyc-refresh.md
 
 

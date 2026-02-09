@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-011-dora-digital-operational-resilience
   - type: appliesTo
     target: str-capa-005-digital-operational-resilience-capabilit
+  - type: related
+    target: ms-instruction-016-payment-exceptions
+  - type: related
+    target: ms-manual-018-bcm-dr
 ---
 # Business Continuity and Disaster Recovery Policy
 
@@ -36,9 +40,5 @@ Ensure critical services continue through disruptions and recover within defined
 
 ## Compliance and Exceptions
 Exceptions require executive approval and remediation plans.
-
-## Related Documents
-- Related instruction: ms-instruction-016-payment-exceptions.md
-- Related manual: ms-manual-018-bcm-dr.md
 
 

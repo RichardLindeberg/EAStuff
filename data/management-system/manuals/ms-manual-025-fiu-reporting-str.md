@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: mot-reqt-015-suspicious-activity-reporting-sar
+  - type: related
+    target: ms-policy-011-aml-ctf
+  - type: implements
+    target: ms-instruction-014-sar-filing
 ---
 # FIU Reporting and STR Manual (EU AMLR)
 
@@ -32,9 +36,5 @@ Financial crime operations and compliance teams.
 ## Records
 - STR case files and submission logs
 - Evidence and approval records
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related instruction: ms-instruction-014-sar-filing.md
 
 

@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: str-capa-009-regulatory-compliance-and-risk
+  - type: related
+    target: ms-policy-010-governance-framework
+  - type: implements
+    target: ms-instruction-010-policy-lifecycle
 ---
 # Governance System Manual
 
@@ -33,9 +37,5 @@ The governance system is the controlled set of policies, instructions, and manua
 ## Reference Materials
 - Governance Framework Policy
 - Policy Lifecycle Instruction
-
-## Related Documents
-- Related policy: ms-policy-010-governance-framework.md
-- Related instruction: ms-instruction-010-policy-lifecycle.md
 
 

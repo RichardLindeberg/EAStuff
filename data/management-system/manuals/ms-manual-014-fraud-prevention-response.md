@@ -13,6 +13,10 @@ relationships:
     target: bus-proc-006-fraud-detection-process
   - type: appliesTo
     target: str-vstr-003-secure-and-resilient-operations
+  - type: related
+    target: ms-policy-014-fraud-risk-management
+  - type: implements
+    target: ms-instruction-018-fraud-case-investigation
 ---
 # Fraud Prevention and Response Manual
 
@@ -35,9 +39,5 @@ Fraud operations, security, and payments teams.
 ## Reference Materials
 - Fraud typology catalog
 - Investigation checklist
-
-## Related Documents
-- Related policy: ms-policy-014-fraud-risk-management.md
-- Related instruction: ms-instruction-018-fraud-case-investigation.md
 
 

@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: related
+    target: ms-policy-011-aml-ctf
+  - type: implements
+    target: ms-instruction-025-transaction-monitoring-calibration
 ---
 # Transaction Monitoring Typologies Manual (EU AMLR)
 
@@ -32,9 +36,5 @@ Financial crime analytics, compliance, and monitoring operations.
 ## Records
 - Typology library updates
 - Scenario validation results and approvals
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related instruction: ms-instruction-025-transaction-monitoring-calibration.md
 
 

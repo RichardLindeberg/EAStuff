@@ -13,6 +13,10 @@ relationships:
     target: str-vstr-003-secure-and-resilient-operations
   - type: appliesTo
     target: str-capa-009-regulatory-compliance-and-risk
+  - type: related
+    target: ms-policy-019-third-party-risk
+  - type: implements
+    target: ms-instruction-019-third-party-due-diligence
 ---
 # Vendor and Third-Party Management Manual
 
@@ -35,9 +39,5 @@ Vendor management, procurement, risk, and technology teams.
 ## Reference Materials
 - Vendor risk questionnaire
 - Contract clause checklist
-
-## Related Documents
-- Related policy: ms-policy-019-third-party-risk.md
-- Related instruction: ms-instruction-019-third-party-due-diligence.md
 
 

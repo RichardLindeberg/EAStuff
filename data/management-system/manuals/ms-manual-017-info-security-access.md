@@ -13,6 +13,10 @@ relationships:
     target: str-capa-005-digital-operational-resilience-capabilit
   - type: appliesTo
     target: mot-reqt-012-ict-incident-detection-and
+  - type: related
+    target: ms-policy-017-information-security
+  - type: implements
+    target: ms-instruction-018-fraud-case-investigation
 ---
 # Information Security and Access Control Manual
 
@@ -35,9 +39,5 @@ Technology teams, security operations, and application owners.
 ## Reference Materials
 - Access control matrix
 - Incident severity classification guide
-
-## Related Documents
-- Related policy: ms-policy-017-information-security.md
-- Related instruction: ms-instruction-018-fraud-case-investigation.md
 
 

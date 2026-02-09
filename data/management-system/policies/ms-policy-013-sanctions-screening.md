@@ -13,6 +13,16 @@ relationships:
     target: mot-reqt-014-transaction-monitoring-and-screening
   - type: appliesTo
     target: bus-proc-008-payment-processing
+  - type: related
+    target: ms-policy-011-aml-ctf
+  - type: related
+    target: ms-instruction-013-transaction-monitoring-alerts
+  - type: related
+    target: ms-instruction-024-sanctions-hit-escalation
+  - type: related
+    target: ms-manual-013-transaction-monitoring-sanctions
+  - type: related
+    target: ms-manual-023-sanctions-screening-operations
 ---
 # Sanctions Screening Policy
 
@@ -36,12 +46,5 @@ Ensure sanctions screening is performed on customers, counterparties, and transa
 
 ## Compliance and Exceptions
 No processing is permitted without screening clearance.
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related instruction: ms-instruction-013-transaction-monitoring-alerts.md
-- Related instruction: ms-instruction-024-sanctions-hit-escalation.md
-- Related manual: ms-manual-013-transaction-monitoring-sanctions.md
-- Related manual: ms-manual-023-sanctions-screening-operations.md
 
 

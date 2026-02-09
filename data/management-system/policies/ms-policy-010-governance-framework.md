@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: str-capa-009-regulatory-compliance-and-risk
+  - type: related
+    target: ms-instruction-010-policy-lifecycle
+  - type: related
+    target: ms-manual-010-governance-system-overview
 ---
 # Governance Framework Policy
 
@@ -33,9 +37,5 @@ Applies to all business units, subsidiaries, and material outsourced services.
 
 ## Compliance and Exceptions
 Exceptions require documented rationale, executive approval, and a remediation timeline.
-
-## Related Documents
-- Related instruction: ms-instruction-010-policy-lifecycle.md
-- Related manual: ms-manual-010-governance-system-overview.md
 
 

@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: str-vstr-003-secure-and-resilient-operations
+  - type: implements
+    target: ms-policy-019-third-party-risk
+  - type: related
+    target: ms-manual-019-vendor-third-party
 ---
 # Third-Party Due Diligence Instruction
 
@@ -36,9 +40,5 @@ Provide steps for evaluating third-party risk before onboarding or renewal.
 ## Outputs and Records
 - Due diligence report
 - Risk rating and mitigation plan
-
-## Related Documents
-- Related policy: ms-policy-019-third-party-risk.md
-- Related manual: ms-manual-019-vendor-third-party.md
 
 

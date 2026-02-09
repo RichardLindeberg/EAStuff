@@ -17,6 +17,38 @@ relationships:
     target: mot-reqt-015-suspicious-activity-reporting-sar
   - type: appliesTo
     target: mot-reqt-016-enhanced-due-diligence-edd
+  - type: related
+    target: ms-policy-012-kyc-cdd
+  - type: related
+    target: ms-policy-013-sanctions-screening
+  - type: related
+    target: ms-instruction-011-kyc-onboarding
+  - type: related
+    target: ms-instruction-012-beneficial-ownership
+  - type: related
+    target: ms-instruction-014-sar-filing
+  - type: related
+    target: ms-instruction-015-edd-review
+  - type: related
+    target: ms-instruction-022-pep-screening
+  - type: related
+    target: ms-instruction-023-ongoing-kyc-refresh
+  - type: related
+    target: ms-instruction-024-sanctions-hit-escalation
+  - type: related
+    target: ms-instruction-025-transaction-monitoring-calibration
+  - type: related
+    target: ms-manual-011-aml-ctf-compliance
+  - type: related
+    target: ms-manual-021-kyc-cdd-ongoing-monitoring
+  - type: related
+    target: ms-manual-022-pep-management
+  - type: related
+    target: ms-manual-023-sanctions-screening-operations
+  - type: related
+    target: ms-manual-024-transaction-monitoring-typologies
+  - type: related
+    target: ms-manual-025-fiu-reporting-str
 ---
 # AML/CTF Policy
 
@@ -45,23 +77,5 @@ Define the bank's AML/CTF obligations, risk appetite, and control expectations u
 
 ## Compliance and Exceptions
 Exceptions require documented rationale, compliance approval, and remediation timelines.
-
-## Related Documents
-- Related policy: ms-policy-012-kyc-cdd.md
-- Related policy: ms-policy-013-sanctions-screening.md
-- Related instruction: ms-instruction-011-kyc-onboarding.md
-- Related instruction: ms-instruction-012-beneficial-ownership.md
-- Related instruction: ms-instruction-014-sar-filing.md
-- Related instruction: ms-instruction-015-edd-review.md
-- Related instruction: ms-instruction-022-pep-screening.md
-- Related instruction: ms-instruction-023-ongoing-kyc-refresh.md
-- Related instruction: ms-instruction-024-sanctions-hit-escalation.md
-- Related instruction: ms-instruction-025-transaction-monitoring-calibration.md
-- Related manual: ms-manual-011-aml-ctf-compliance.md
-- Related manual: ms-manual-021-kyc-cdd-ongoing-monitoring.md
-- Related manual: ms-manual-022-pep-management.md
-- Related manual: ms-manual-023-sanctions-screening-operations.md
-- Related manual: ms-manual-024-transaction-monitoring-typologies.md
-- Related manual: ms-manual-025-fiu-reporting-str.md
 
 

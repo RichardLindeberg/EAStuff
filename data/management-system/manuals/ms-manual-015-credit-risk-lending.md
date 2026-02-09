@@ -13,6 +13,10 @@ relationships:
     target: bus-proc-004-credit-assessment-process
   - type: appliesTo
     target: bus-proc-007-loan-origination-process
+  - type: related
+    target: ms-policy-015-credit-risk
+  - type: implements
+    target: ms-instruction-017-credit-assessment
 ---
 # Credit Risk and Lending Manual
 
@@ -35,9 +39,5 @@ Credit risk analysts, underwriting teams, and lending operations.
 ## Reference Materials
 - Risk rating matrix
 - Approved product criteria
-
-## Related Documents
-- Related policy: ms-policy-015-credit-risk.md
-- Related instruction: ms-instruction-017-credit-assessment.md
 
 

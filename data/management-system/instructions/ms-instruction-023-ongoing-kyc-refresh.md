@@ -13,6 +13,12 @@ relationships:
     target: mot-reqt-013-kyc-and-customer-identification
   - type: appliesTo
     target: mot-reqt-016-enhanced-due-diligence-edd
+  - type: implements
+    target: ms-policy-012-kyc-cdd
+  - type: related
+    target: ms-instruction-015-edd-review
+  - type: related
+    target: ms-manual-021-kyc-cdd-ongoing-monitoring
 ---
 # Ongoing KYC Refresh Instruction (EU AMLR)
 
@@ -38,10 +44,5 @@ Define a consistent approach for periodic KYC refreshes and event-driven reviews
 ## Outputs and Records
 - Updated KYC profile and risk rating
 - Evidence log and remediation actions
-
-## Related Documents
-- Related policy: ms-policy-012-kyc-cdd.md
-- Related instruction: ms-instruction-015-edd-review.md
-- Related manual: ms-manual-021-kyc-cdd-ongoing-monitoring.md
 
 

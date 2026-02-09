@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-014-transaction-monitoring-and-screening
   - type: appliesTo
     target: mot-reqt-015-suspicious-activity-reporting-sar
+  - type: related
+    target: ms-policy-011-aml-ctf
+  - type: implements
+    target: ms-instruction-014-sar-filing
 ---
 # AML/CTF Compliance Manual
 
@@ -35,9 +39,5 @@ Compliance, financial crime operations, and onboarding teams.
 ## Reference Materials
 - Regulatory guidance summaries
 - AML typology and red-flag library
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related instruction: ms-instruction-014-sar-filing.md
 
 

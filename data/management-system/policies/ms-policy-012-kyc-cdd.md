@@ -15,6 +15,24 @@ relationships:
     target: mot-reqt-016-enhanced-due-diligence-edd
   - type: appliesTo
     target: bus-proc-001-account-management-process
+  - type: related
+    target: ms-policy-011-aml-ctf
+  - type: related
+    target: ms-instruction-011-kyc-onboarding
+  - type: related
+    target: ms-instruction-012-beneficial-ownership
+  - type: related
+    target: ms-instruction-015-edd-review
+  - type: related
+    target: ms-instruction-022-pep-screening
+  - type: related
+    target: ms-instruction-023-ongoing-kyc-refresh
+  - type: related
+    target: ms-manual-012-kyc-cdd-operations
+  - type: related
+    target: ms-manual-021-kyc-cdd-ongoing-monitoring
+  - type: related
+    target: ms-manual-022-pep-management
 ---
 # KYC/CDD Policy
 
@@ -39,16 +57,5 @@ Set mandatory standards for customer identification, verification, and risk clas
 
 ## Compliance and Exceptions
 All exceptions require compliance approval and documented mitigations.
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related instruction: ms-instruction-011-kyc-onboarding.md
-- Related instruction: ms-instruction-012-beneficial-ownership.md
-- Related instruction: ms-instruction-015-edd-review.md
-- Related instruction: ms-instruction-022-pep-screening.md
-- Related instruction: ms-instruction-023-ongoing-kyc-refresh.md
-- Related manual: ms-manual-012-kyc-cdd-operations.md
-- Related manual: ms-manual-021-kyc-cdd-ongoing-monitoring.md
-- Related manual: ms-manual-022-pep-management.md
 
 

@@ -13,6 +13,10 @@ relationships:
     target: bus-proc-001-account-management-process
   - type: appliesTo
     target: bus-proc-002-beneficial-ownership-identification-proc
+  - type: related
+    target: ms-policy-012-kyc-cdd
+  - type: implements
+    target: ms-instruction-011-kyc-onboarding
 ---
 # KYC/CDD Operations Manual
 
@@ -35,9 +39,5 @@ Onboarding teams, customer service, and compliance operations.
 ## Reference Materials
 - Approved identification document list
 - Risk rating matrix
-
-## Related Documents
-- Related policy: ms-policy-012-kyc-cdd.md
-- Related instruction: ms-instruction-011-kyc-onboarding.md
 
 

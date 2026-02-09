@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: bus-proc-006-fraud-detection-process
+  - type: implements
+    target: ms-policy-014-fraud-risk-management
+  - type: related
+    target: ms-manual-014-fraud-prevention-response
 ---
 # Fraud Case Investigation Instruction
 
@@ -35,9 +39,5 @@ Provide steps to investigate, document, and resolve fraud cases.
 ## Outputs and Records
 - Fraud investigation report
 - Customer communication record
-
-## Related Documents
-- Related policy: ms-policy-014-fraud-risk-management.md
-- Related manual: ms-manual-014-fraud-prevention-response.md
 
 

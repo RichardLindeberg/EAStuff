@@ -13,6 +13,10 @@ relationships:
     target: str-vstr-003-secure-and-resilient-operations
   - type: appliesTo
     target: str-capa-009-regulatory-compliance-and-risk
+  - type: related
+    target: ms-instruction-019-third-party-due-diligence
+  - type: related
+    target: ms-manual-019-vendor-third-party
 ---
 # Third-Party Risk Management Policy
 
@@ -36,9 +40,5 @@ Define third-party risk oversight for vendors, partners, and outsourced services
 
 ## Compliance and Exceptions
 Exceptions require CRO approval and documented mitigation.
-
-## Related Documents
-- Related instruction: ms-instruction-019-third-party-due-diligence.md
-- Related manual: ms-manual-019-vendor-third-party.md
 
 

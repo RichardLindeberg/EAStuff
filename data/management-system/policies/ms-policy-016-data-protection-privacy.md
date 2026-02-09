@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-001-gdpr-data-protection-compliance
   - type: appliesTo
     target: str-capa-002-customer-trust-and-data
+  - type: related
+    target: ms-instruction-019-third-party-due-diligence
+  - type: related
+    target: ms-manual-016-data-privacy-records
 ---
 # Data Protection and Privacy Policy
 
@@ -36,9 +40,5 @@ Establish requirements for lawful data processing, privacy controls, and custome
 
 ## Compliance and Exceptions
 Exceptions require privacy impact assessment and approval.
-
-## Related Documents
-- Related instruction: ms-instruction-019-third-party-due-diligence.md
-- Related manual: ms-manual-016-data-privacy-records.md
 
 

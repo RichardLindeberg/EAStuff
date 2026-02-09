@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: mot-reqt-015-suspicious-activity-reporting-sar
+  - type: implements
+    target: ms-policy-011-aml-ctf
+  - type: related
+    target: ms-manual-011-aml-ctf-compliance
 ---
 # SAR Filing Instruction
 
@@ -36,9 +40,5 @@ Define required steps for SAR investigation and reporting.
 ## Outputs and Records
 - SAR submission record
 - Investigation evidence and narrative
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related manual: ms-manual-011-aml-ctf-compliance.md
 
 

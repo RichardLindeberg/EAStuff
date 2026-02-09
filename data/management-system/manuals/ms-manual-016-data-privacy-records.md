@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-001-gdpr-data-protection-compliance
   - type: appliesTo
     target: str-capa-002-customer-trust-and-data
+  - type: related
+    target: ms-policy-016-data-protection-privacy
+  - type: implements
+    target: ms-instruction-019-third-party-due-diligence
 ---
 # Data Privacy and Records Management Manual
 
@@ -35,9 +39,5 @@ Data owners, operations teams, and compliance staff.
 ## Reference Materials
 - Data retention schedule
 - Privacy notice templates
-
-## Related Documents
-- Related policy: ms-policy-016-data-protection-privacy.md
-- Related instruction: ms-instruction-019-third-party-due-diligence.md
 
 

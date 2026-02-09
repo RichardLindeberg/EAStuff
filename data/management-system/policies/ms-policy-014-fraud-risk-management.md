@@ -13,6 +13,10 @@ relationships:
     target: bus-proc-006-fraud-detection-process
   - type: appliesTo
     target: str-vstr-003-secure-and-resilient-operations
+  - type: related
+    target: ms-instruction-018-fraud-case-investigation
+  - type: related
+    target: ms-manual-014-fraud-prevention-response
 ---
 # Fraud Risk Management Policy
 
@@ -36,9 +40,5 @@ Define fraud risk ownership, detection standards, and response expectations.
 
 ## Compliance and Exceptions
 Exceptions require approval from the fraud risk owner.
-
-## Related Documents
-- Related instruction: ms-instruction-018-fraud-case-investigation.md
-- Related manual: ms-manual-014-fraud-prevention-response.md
 
 

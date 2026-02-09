@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: related
+    target: ms-policy-013-sanctions-screening
+  - type: implements
+    target: ms-instruction-024-sanctions-hit-escalation
 ---
 # Sanctions Screening Operations Manual (EU AMLR)
 
@@ -32,9 +36,5 @@ Financial crime operations and compliance teams.
 ## Records
 - Sanctions alert logs and case files
 - Decision logs and audit trails
-
-## Related Documents
-- Related policy: ms-policy-013-sanctions-screening.md
-- Related instruction: ms-instruction-024-sanctions-hit-escalation.md
 
 

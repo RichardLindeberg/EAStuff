@@ -13,6 +13,10 @@ relationships:
     target: str-capa-003-data-analytics-and-ai
   - type: appliesTo
     target: str-capa-009-regulatory-compliance-and-risk
+  - type: related
+    target: ms-policy-020-model-risk-management
+  - type: implements
+    target: ms-instruction-021-model-validation
 ---
 # Model Risk Management Manual
 
@@ -35,9 +39,5 @@ Model owners, data science teams, and validation staff.
 ## Reference Materials
 - Model inventory template
 - Validation report checklist
-
-## Related Documents
-- Related policy: ms-policy-020-model-risk-management.md
-- Related instruction: ms-instruction-021-model-validation.md
 
 

@@ -11,6 +11,10 @@ next_review: 2027-02-07
 relationships:
   - type: appliesTo
     target: mot-reqt-016-enhanced-due-diligence-edd
+  - type: implements
+    target: ms-policy-011-aml-ctf
+  - type: related
+    target: ms-manual-011-aml-ctf-compliance
 ---
 # Enhanced Due Diligence Review Instruction
 
@@ -36,9 +40,5 @@ Define steps to complete EDD for high-risk customers and transactions.
 ## Outputs and Records
 - EDD assessment report
 - Evidence log and approvals
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related manual: ms-manual-011-aml-ctf-compliance.md
 
 

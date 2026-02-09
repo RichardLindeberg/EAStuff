@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-014-transaction-monitoring-and-screening
   - type: appliesTo
     target: bus-proc-006-fraud-detection-process
+  - type: implements
+    target: ms-policy-013-sanctions-screening
+  - type: related
+    target: ms-manual-013-transaction-monitoring-sanctions
 ---
 # Transaction Monitoring Alert Handling Instruction
 
@@ -39,9 +43,5 @@ Provide steps for triaging, investigating, and resolving monitoring alerts.
 ## Outputs and Records
 - Alert disposition record
 - Escalation notes and evidence
-
-## Related Documents
-- Related policy: ms-policy-013-sanctions-screening.md
-- Related manual: ms-manual-013-transaction-monitoring-sanctions.md
 
 

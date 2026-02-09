@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-013-kyc-and-customer-identification
   - type: appliesTo
     target: bus-proc-001-account-management-process
+  - type: implements
+    target: ms-policy-012-kyc-cdd
+  - type: related
+    target: ms-manual-012-kyc-cdd-operations
 ---
 # KYC Onboarding Instruction
 
@@ -41,9 +45,5 @@ Provide a step-by-step process for completing KYC onboarding and risk classifica
 - Verified customer profile
 - KYC checklist and screening results
 - Risk rating record
-
-## Related Documents
-- Related policy: ms-policy-012-kyc-cdd.md
-- Related manual: ms-manual-012-kyc-cdd-operations.md
 
 

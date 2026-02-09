@@ -13,6 +13,10 @@ relationships:
     target: str-capa-003-data-analytics-and-ai
   - type: appliesTo
     target: str-capa-009-regulatory-compliance-and-risk
+  - type: related
+    target: ms-instruction-021-model-validation
+  - type: related
+    target: ms-manual-020-model-risk-management
 ---
 # Model Risk Management Policy
 
@@ -36,9 +40,5 @@ Establish governance for development, validation, and monitoring of models used 
 
 ## Compliance and Exceptions
 Exceptions require CRO approval and documented compensating controls.
-
-## Related Documents
-- Related instruction: ms-instruction-021-model-validation.md
-- Related manual: ms-manual-020-model-risk-management.md
 
 

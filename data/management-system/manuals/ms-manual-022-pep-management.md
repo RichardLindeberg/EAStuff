@@ -13,6 +13,10 @@ relationships:
     target: mot-reqt-016-enhanced-due-diligence-edd
   - type: appliesTo
     target: mot-reqt-013-kyc-and-customer-identification
+  - type: related
+    target: ms-policy-011-aml-ctf
+  - type: implements
+    target: ms-instruction-022-pep-screening
 ---
 # PEP Management Manual (EU AMLR)
 
@@ -35,9 +39,5 @@ Financial crime operations, compliance, and relationship managers.
 ## Records
 - PEP assessment files and approvals
 - Monitoring plans and review outcomes
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related instruction: ms-instruction-022-pep-screening.md
 
 

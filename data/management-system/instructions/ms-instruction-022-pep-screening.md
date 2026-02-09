@@ -13,6 +13,12 @@ relationships:
     target: mot-reqt-013-kyc-and-customer-identification
   - type: appliesTo
     target: mot-reqt-016-enhanced-due-diligence-edd
+  - type: implements
+    target: ms-policy-011-aml-ctf
+  - type: implements
+    target: ms-policy-012-kyc-cdd
+  - type: related
+    target: ms-manual-022-pep-management
 ---
 # PEP Screening and Approval Instruction (EU AMLR)
 
@@ -38,10 +44,5 @@ Define steps for identifying, screening, and approving politically exposed perso
 ## Outputs and Records
 - PEP classification record
 - Approval evidence and monitoring plan
-
-## Related Documents
-- Related policy: ms-policy-011-aml-ctf.md
-- Related policy: ms-policy-012-kyc-cdd.md
-- Related manual: ms-manual-022-pep-management.md
 
 

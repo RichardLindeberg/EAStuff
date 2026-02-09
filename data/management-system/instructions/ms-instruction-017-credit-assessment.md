@@ -13,6 +13,10 @@ relationships:
     target: bus-proc-004-credit-assessment-process
   - type: appliesTo
     target: bus-proc-007-loan-origination-process
+  - type: implements
+    target: ms-policy-015-credit-risk
+  - type: related
+    target: ms-manual-015-credit-risk-lending
 ---
 # Credit Assessment Workflow Instruction
 
@@ -38,9 +42,5 @@ Define steps for assessing creditworthiness and documenting decisions.
 ## Outputs and Records
 - Credit assessment report
 - Decision record and approvals
-
-## Related Documents
-- Related policy: ms-policy-015-credit-risk.md
-- Related manual: ms-manual-015-credit-risk-lending.md
 
 

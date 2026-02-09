@@ -13,6 +13,10 @@ relationships:
     target: bus-proc-004-credit-assessment-process
   - type: appliesTo
     target: bus-proc-007-loan-origination-process
+  - type: related
+    target: ms-instruction-017-credit-assessment
+  - type: related
+    target: ms-manual-015-credit-risk-lending
 ---
 # Credit Risk Policy
 
@@ -36,9 +40,5 @@ Set credit risk appetite, underwriting standards, and portfolio monitoring expec
 
 ## Compliance and Exceptions
 All exceptions must be recorded and reviewed.
-
-## Related Documents
-- Related instruction: ms-instruction-017-credit-assessment.md
-- Related manual: ms-manual-015-credit-risk-lending.md
 
 
