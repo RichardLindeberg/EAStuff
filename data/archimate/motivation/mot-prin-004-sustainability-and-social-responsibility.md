@@ -1,8 +1,11 @@
 ---
 id: mot-prin-004-sustainability-and-social-responsibility
-name: Sustainability and Social Responsibility
-type: principle
-layer: motivation
+owner: Chief Sustainability Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: influence
   target: mot-drvr-004-nordic-sustainability-values-and
@@ -13,19 +16,20 @@ relationships:
 - type: association
   target: mot-reqt-008-transparent-customer-communication
   description: Realized through transparent reporting
-properties:
-  owner: Chief Sustainability Officer
-  status: active
-  criticality: high
-  last-updated: '2026-02-03'
-  legacy-id: mot-principle-004-sustainability
+name: Sustainability and Social Responsibility
 tags:
 - principle
 - sustainability
 - esg
 - social-responsibility
+archimate:
+  type: principle
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-principle-004-sustainability
 ---
-
 # Sustainability and Social Responsibility
 
 The bank is committed to environmental sustainability, social responsibility, and governance excellence as core business principles.

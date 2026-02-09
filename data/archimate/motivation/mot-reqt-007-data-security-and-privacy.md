@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-007-data-security-and-privacy
-name: Data Security and Privacy Protection
-type: requirement
-layer: motivation
+owner: Chief Information Security Officer
+status: ongoing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-005-customer-trust
@@ -16,19 +19,20 @@ relationships:
 - type: influence
   target: mot-reqt-012-ict-incident-detection-and
   description: Supports incident detection and response
-properties:
-  owner: Chief Information Security Officer
-  status: ongoing
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-007-data-security
+name: Data Security and Privacy Protection
 tags:
 - security
 - data-protection
 - risk-management
 - trust
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-requirement-007-data-security
 ---
-
 # Data Security and Privacy Protection
 
 All customer and operational data must be protected through industry-leading security practices and controls to prevent breaches and unauthorized access.

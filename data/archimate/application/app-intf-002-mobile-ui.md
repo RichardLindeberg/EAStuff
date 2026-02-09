@@ -1,8 +1,11 @@
 ---
 id: app-intf-002-mobile-ui
-name: Mobile User Interface
-type: application-interface
-layer: application
+owner: Mobile UX Team
+status: production
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: serving
   target: bus-role-001-account-holder
@@ -13,20 +16,21 @@ relationships:
 - type: realization
   target: mot-reqt-003-mobile-first-banking-design
   description: Implements mobile-first design
-properties:
-  owner: Mobile UX Team
-  status: production
-  criticality: high
-  technology: "React Native, Native UI components"
-  design-system: "Nordic Banking Mobile DS v2.0"
-  accessibility: "WCAG 2.1 AA compliant"
-  last-updated: "2026-02-03"
+name: Mobile User Interface
 tags:
 - mobile-interface
 - customer-facing
 - ux
+archimate:
+  type: application-interface
+  layer: application
+  criticality: high
+extensions:
+  properties:
+    technology: React Native, Native UI components
+    design-system: Nordic Banking Mobile DS v2.0
+    accessibility: WCAG 2.1 AA compliant
 ---
-
 # Mobile User Interface
 
 Native mobile user interface delivering intuitive, accessible banking experience on iOS and Android platforms.

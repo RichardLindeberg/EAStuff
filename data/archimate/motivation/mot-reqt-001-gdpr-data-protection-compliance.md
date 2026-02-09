@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-001-gdpr-data-protection-compliance
-name: GDPR Data Protection Compliance
-type: requirement
-layer: motivation
+owner: Chief Data Officer
+status: compliant
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -16,19 +19,20 @@ relationships:
 - type: influence
   target: mot-goal-005-customer-trust
   description: Supports customer trust building
-properties:
-  owner: Chief Data Officer
-  status: compliant
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-001-gdpr-compliance
+name: GDPR Data Protection Compliance
 tags:
 - gdpr
 - data-protection
 - compliance
 - regulatory
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-requirement-001-gdpr-compliance
 ---
-
 # GDPR Data Protection Compliance
 
 All customer personal data must be processed in compliance with GDPR requirements including data minimization, consent management, and individual rights fulfillment.

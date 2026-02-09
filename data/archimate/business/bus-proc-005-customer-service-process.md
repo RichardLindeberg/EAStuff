@@ -1,8 +1,11 @@
 ---
 id: bus-proc-005-customer-service-process
-name: Customer Service Process
-type: business-process
-layer: business
+owner: Customer Service Department
+status: active
+version: ''
+last_updated: '2025-12-01'
+review_cycle: annual
+next_review: '2026-12-01'
 relationships:
 - type: realization
   target: bus-srvc-006-customer-support-service
@@ -13,17 +16,18 @@ relationships:
 - type: access
   target: bus-objt-017-customer-data
   description: Accesses customer data
-properties:
-  owner: Customer Service Department
-  status: active
-  criticality: high
-  last-updated: '2025-12-01'
-  legacy-id: bus-proc-customer-service-001
+name: Customer Service Process
 tags:
 - customer-service
 - business-process
+archimate:
+  type: business-process
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-proc-customer-service-001
 ---
-
 # Customer Service Process
 
 End-to-end process for handling customer inquiries, issues, and requests.

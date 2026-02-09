@@ -1,8 +1,11 @@
 ---
 id: bus-objt-003-customer-account
-name: Customer Account
-type: business-object
-layer: business
+owner: Retail Banking Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-role-001-account-holder
@@ -13,18 +16,19 @@ relationships:
 - type: composition
   target: bus-objt-016-transaction
   description: Contains transactions
-properties:
-  owner: Retail Banking Division
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-customer-account-001
+name: Customer Account
 tags:
 - business-object
 - account
 - core-data
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-customer-account-001
 ---
-
 # Customer Account
 
 Core business object representing a customer's bank account.

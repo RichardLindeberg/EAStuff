@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-policy-016-data-protection-privacy
-name: Data Protection and Privacy Policy
 owner: bus-role-007-chief-privacy-officer
-approved_by: Risk Committee
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-001-gdpr-data-protection-compliance
-  - type: association
-    target: str-capa-002-customer-trust-and-data
-  - type: association
-    target: ms-instruction-019-third-party-due-diligence
-  - type: association
-    target: ms-manual-016-data-privacy-records
+- type: association
+  target: mot-reqt-001-gdpr-data-protection-compliance
+- type: association
+  target: str-capa-002-customer-trust-and-data
+- type: association
+  target: ms-instruction-019-third-party-due-diligence
+- type: association
+  target: ms-manual-016-data-privacy-records
+name: Data Protection and Privacy Policy
+governance:
+  approved_by: Risk Committee
+  effective_date: '2026-02-07'
 ---
 # Data Protection and Privacy Policy
 

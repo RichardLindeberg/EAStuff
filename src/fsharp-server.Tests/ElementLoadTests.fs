@@ -1,79 +1,80 @@
 namespace EAArchive.Tests
 
 open System
+open System.IO
 open Xunit
 open EAArchive
 open TestHelpers
 
 module ElementLoadTests =
+
+    let private buildArchimateContent (lines: string list) : string =
+        String.concat "\n" ([ "---" ] @ lines @ [ "---"; ""; "Content." ])
     
     [<Fact>]
-    let ``Parse error should be caught and reported`` () =
-        // Test with file that can't be read/doesn't exist
-        let nonExistentFile = "/invalid/path/does/not/exist.md"
-        
-        let (elemOpt, errors) = ElementRegistry.loadElementWithValidation nonExistentFile (
-            let loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(fun _ -> ())
-            loggerFactory.CreateLogger("Test")
-        )
-        
-        Assert.False(elemOpt.IsSome)
-        Assert.NotEmpty(errors)
-        Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "parse-error"))
+    let ``Invalid frontmatter should produce missing ID error`` () =
+        let content = "---\n: invalid\n---\nContent."
+        let repo, rootDir = createTempRepository [ ("test.md", content) ] []
+        let filePath = Path.Combine(rootDir, "archimate", "test.md")
+
+        try
+            let errors = repo.validationErrors |> List.filter (fun e -> e.filePath = filePath)
+            Assert.NotEmpty(errors)
+            Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "missing-id"))
+        finally
+            cleanupTempDirectory rootDir
     
     [<Fact>]
     let ``Valid element should load successfully`` () =
-        let content = """---
-id: bus-proc-001-customer-onboarding
-name: Customer Onboarding
-type: Business Process
-layer: business
----
+        let content = buildArchimateContent [
+            "id: bus-proc-001-customer-onboarding"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Customer Onboarding"
+            "archimate:"
+            "  type: business-process"
+            "  layer: business"
+        ]
 
-This is test content.
-"""
-        let tempFile = createTempFile content
-        
+        let repo, rootDir = createTempRepository [ ("test.md", content) ] []
+
         try
-            let (elemOpt, errors) = ElementRegistry.loadElementWithValidation tempFile (
-                let loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(fun _ -> ())
-                loggerFactory.CreateLogger("Test")
-            )
-            
-            Assert.NotNull(elemOpt)
-            Assert.Empty(errors)
-            
-            let elem = elemOpt.Value
-            Assert.Equal("bus-proc-001-customer-onboarding", elem.id)
-            Assert.Equal("Customer Onboarding", elem.name)
-            let elemTypeStr = ViewHelpers.elementTypeToString elem.elementType
-            Assert.Equal("Business Process", elemTypeStr)
-            let layer = ElementType.getLayer elem.elementType
-            Assert.Equal("Business", Layer.toString layer)
+            let doc = Map.find "bus-proc-001-customer-onboarding" repo.documents
+            Assert.Equal("Customer Onboarding", doc.title)
+            Assert.Equal(DocumentKind.Architecture, doc.kind)
+            Assert.True(doc.metadata.archimate.IsSome)
+            Assert.Empty(repo.validationErrors)
         finally
-            cleanupTempFile tempFile
+            cleanupTempDirectory rootDir
     
     [<Fact>]
     let ``Element with invalid layer in YAML should be loaded but have error`` () =
-        let content = """---
-id: elem-001
-name: Test Element
-type: Test Type
-layer: invalid-layer
----
+        let content = buildArchimateContent [
+            "id: elem-001-invalid"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Test Element"
+            "archimate:"
+            "  type: test-type"
+            "  layer: invalid-layer"
+        ]
 
-Content here.
-"""
-        let tempFile = createTempFile content
-        
+        let repo, rootDir = createTempRepository [ ("test.md", content) ] []
+        let filePath = Path.Combine(rootDir, "archimate", "test.md")
+
         try
-            let (elemOpt, errors) = ElementRegistry.loadElementWithValidation tempFile (
-                let loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(fun _ -> ())
-                loggerFactory.CreateLogger("Test")
-            )
-            
-            Assert.NotNull(elemOpt)
+            let errors = repo.validationErrors |> List.filter (fun e -> e.filePath = filePath)
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "invalid-layer"))
         finally
-            cleanupTempFile tempFile
+            cleanupTempDirectory rootDir

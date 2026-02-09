@@ -1,8 +1,11 @@
 ---
 id: str-vstr-002-operational-excellence-value-stream
-name: Operational Excellence Value Stream
-type: value-stream
-layer: strategy
+owner: Chief Operating Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: str-capa-008-process-automation-and-operational
@@ -13,19 +16,20 @@ relationships:
 - type: association
   target: mot-goal-004-operational-efficiency
   description: Supports operational efficiency goal
-properties:
-  owner: Chief Operating Officer
-  status: developing
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: str-vstr-operational-excellence-001
+name: Operational Excellence Value Stream
 tags:
 - value-stream
 - operations
 - efficiency
 - strategic
+archimate:
+  type: value-stream
+  layer: strategy
+  criticality: high
+extensions:
+  properties:
+    legacy-id: str-vstr-operational-excellence-001
 ---
-
 # Operational Excellence Value Stream
 
 Complete value stream for operational processes, from transaction processing through customer onboarding, focused on automation, cost reduction, and quality improvement.

@@ -1,8 +1,11 @@
 ---
 id: str-vstr-003-secure-and-resilient-operations
-name: Secure and Resilient Operations Value Stream
-type: value-stream
-layer: strategy
+owner: Chief Information Security Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: str-capa-005-digital-operational-resilience-capabilit
@@ -16,20 +19,21 @@ relationships:
 - type: association
   target: mot-goal-005-customer-trust
   description: Supports customer trust goal
-properties:
-  owner: Chief Information Security Officer
-  status: developing
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: str-vstr-secure-resilient-operations-001
+name: Secure and Resilient Operations Value Stream
 tags:
 - value-stream
 - security
 - resilience
 - compliance
 - strategic
+archimate:
+  type: value-stream
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: str-vstr-secure-resilient-operations-001
 ---
-
 # Secure and Resilient Operations Value Stream
 
 Complete value stream for protecting banking operations, detecting and responding to threats, and maintaining continuous service availability.

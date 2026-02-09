@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-009-modern-api-platform-and
-name: Modern API Platform and Architecture
-type: requirement
-layer: motivation
+owner: Chief Technology Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-006-open-banking-capability
@@ -10,19 +13,20 @@ relationships:
 - type: realization
   target: mot-prin-003-innovation-and-continuous-improvement
   description: Realizes innovation through API ecosystem
-properties:
-  owner: Chief Technology Officer
-  status: in-progress
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-009-api-platform
+name: Modern API Platform and Architecture
 tags:
 - apis
 - open-banking
 - integration
 - platform
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-009-api-platform
 ---
-
 # Modern API Platform and Architecture
 
 A comprehensive API platform must be developed to enable secure, regulated access to banking services by third parties and support ecosystem integration.

@@ -1,8 +1,11 @@
 ---
 id: bus-proc-001-account-management-process
-name: Account Management Process
-type: business-process
-layer: business
+owner: Retail Banking Operations
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: bus-srvc-001-account-service
@@ -13,18 +16,19 @@ relationships:
 - type: association
   target: bus-role-001-account-holder
   description: Performed by account holders
-properties:
-  owner: Retail Banking Operations
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-proc-account-management-001
+name: Account Management Process
 tags:
 - process
 - account-management
 - retail-banking
+archimate:
+  type: business-process
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-proc-account-management-001
 ---
-
 # Account Management Process
 
 End-to-end process for managing customer accounts throughout their lifecycle.

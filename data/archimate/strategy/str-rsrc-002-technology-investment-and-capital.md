@@ -1,8 +1,11 @@
 ---
 id: str-rsrc-002-technology-investment-and-capital
-name: Technology Investment and Capital Budget
-type: resource
-layer: strategy
+owner: Chief Financial Officer
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: serving
   target: str-capa-001-cloud-infrastructure-and-modern
@@ -13,20 +16,21 @@ relationships:
 - type: serving
   target: str-capa-005-digital-operational-resilience-capabilit
   description: Funds resilience infrastructure and tools
-properties:
-  owner: Chief Financial Officer
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: str-rsrc-technology-investment-001
+name: Technology Investment and Capital Budget
 tags:
 - resource
 - budget
 - investment
 - technology
 - strategic
+archimate:
+  type: resource
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: str-rsrc-technology-investment-001
 ---
-
 # Technology Investment and Capital Budget
 
 Critical financial resource allocating significant capital for technology modernization, cloud migration, and digital platform development over 2026-2028 period.

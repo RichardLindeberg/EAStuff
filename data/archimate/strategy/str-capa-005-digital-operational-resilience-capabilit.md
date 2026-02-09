@@ -1,8 +1,11 @@
 ---
 id: str-capa-005-digital-operational-resilience-capabilit
-name: Digital Operational Resilience Capability
-type: capability
-layer: strategy
+owner: Chief Information Security Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-004-operational-efficiency
@@ -13,21 +16,22 @@ relationships:
 - type: realization
   target: mot-reqt-012-ict-incident-detection-and
   description: Realizes ICT incident response requirement
-properties:
-  owner: Chief Information Security Officer
-  status: developing
-  criticality: critical
-  maturity-level: 2 - Repeatable
-  last-updated: '2026-02-02'
-  legacy-id: str-capa-operational-resilience-001
+name: Digital Operational Resilience Capability
 tags:
 - capability
 - resilience
 - cybersecurity
 - operational
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    maturity-level: 2 - Repeatable
+    legacy-id: str-capa-operational-resilience-001
 ---
-
 # Digital Operational Resilience Capability
 
 Strategic capability to maintain uninterrupted business operations, detect and respond to digital incidents, and ensure rapid recovery from disruptions.

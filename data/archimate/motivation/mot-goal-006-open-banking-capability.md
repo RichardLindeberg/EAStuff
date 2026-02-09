@@ -1,8 +1,11 @@
 ---
 id: mot-goal-006-open-banking-capability
-name: Open Banking Capability
-type: goal
-layer: motivation
+owner: Chief Technology Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-drvr-001-eu-and-nordic-regulatory
@@ -13,17 +16,16 @@ relationships:
 - type: influence
   target: mot-reqt-010-strategic-ecosystem-partnerships
   description: Enables ecosystem partnership opportunities
-properties:
-  owner: Chief Technology Officer
-  status: in-progress
-  criticality: high
-  last-updated: '2026-02-02'
+name: Open Banking Capability
 tags:
 - open-banking
 - ecosystem
 - innovation
+archimate:
+  type: goal
+  layer: motivation
+  criticality: high
 ---
-
 # Open Banking Capability
 
 Develop a modern API platform and ecosystem partnerships to enable open banking services and create new revenue opportunities.

@@ -1,8 +1,11 @@
 ---
 id: bus-objt-009-loan-application
-name: Loan Application
-type: business-object
-layer: business
+owner: Lending Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-proc-007-loan-origination-process
@@ -13,18 +16,19 @@ relationships:
 - type: association
   target: bus-objt-005-customer-object
   description: Related to customer
-properties:
-  owner: Lending Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-loan-application-001
+name: Loan Application
 tags:
 - business-object
 - lending
 - application
+archimate:
+  type: business-object
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-objt-loan-application-001
 ---
-
 # Loan Application
 
 Business object representing a customer's loan application.

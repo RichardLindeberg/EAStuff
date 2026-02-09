@@ -4,6 +4,7 @@ open System
 open System.Globalization
 open System.Text.RegularExpressions
 open EAArchive
+open EAArchive.DocumentQueries
 open EAArchive.ViewHelpers
 open Giraffe.ViewEngine
 open Htmx.HtmxAttrs
@@ -40,22 +41,21 @@ module Governance =
             if trimmed = "" then None else Some trimmed
         )
 
-    let private tryResolveOwner (registry: ElementRegistry) (ownerValue: string) : (string * string option) option =
+    let private tryResolveOwner (archimateLookup: Map<string, DocumentRecord>) (ownerValue: string) : (string * string option) option =
         if String.IsNullOrWhiteSpace ownerValue then None
         else
-            match ElementRegistry.getElement ownerValue registry with
-            | Some elem ->
-                let label = elem.name
-                Some (label, Some ownerValue)
-            | None ->
-                Some (ownerValue, None)
+            match Map.tryFind ownerValue archimateLookup with
+            | Some elem -> Some (elem.title, Some ownerValue)
+            | None -> Some (ownerValue, None)
 
-    let private buildDocCard (webConfig: WebUiConfig) (registry: ElementRegistry) (doc: GovernanceDocument) : XmlNode =
+    let private buildDocCard (webConfig: WebUiConfig) (archimateLookup: Map<string, DocumentRecord>) (doc: DocumentRecord) : XmlNode =
         let baseUrl = webConfig.BaseUrl
-        let owner = tryGetMetadataValue "owner" doc.metadata |> Option.defaultValue ""
+        let metadata = getGovernanceMetadataMap doc
+        let owner = tryGetMetadataValue "owner" metadata |> Option.defaultValue ""
+        let docType = getGovernanceDocType doc
 
         div [_class "element-card"] [
-            span [_class "element-type"] [encodedText (docTypeLabel doc.docType)]
+            span [_class "element-type"] [encodedText (docTypeLabel docType)]
             h3 [] [
                 a [_href $"{baseUrl}governance/{doc.slug}"] [
                     encodedText doc.title
@@ -63,7 +63,7 @@ module Governance =
             ]
             if owner <> "" then
                 let ownerLabel, ownerLink =
-                    match tryResolveOwner registry owner with
+                    match tryResolveOwner archimateLookup owner with
                     | Some (label, linkOpt) -> label, linkOpt
                     | None -> owner, None
 
@@ -77,7 +77,7 @@ module Governance =
                 ]
         ]
 
-    let private renderDocumentsSection (webConfig: WebUiConfig) (registry: ElementRegistry) (documents: GovernanceDocument list) : XmlNode list =
+    let private renderDocumentsSection (webConfig: WebUiConfig) (archimateLookup: Map<string, DocumentRecord>) (documents: DocumentRecord list) : XmlNode list =
         if List.isEmpty documents then
             [
                 div [_class "content-section"] [
@@ -87,7 +87,7 @@ module Governance =
         else
             let grouped =
                 documents
-                |> List.groupBy (fun doc -> doc.docType)
+                |> List.groupBy getGovernanceDocType
                 |> List.sortBy (fun (docType, _) -> docTypeOrder docType)
 
             [
@@ -98,25 +98,25 @@ module Governance =
                         h3 [] [encodedText $"{label} ({count})"]
                         div [_class "element-grid"] [
                             for doc in docs |> List.sortBy (fun d -> d.title) do
-                                buildDocCard webConfig registry doc
+                                buildDocCard webConfig archimateLookup doc
                         ]
                     ]
             ]
 
-    let documentsPartial (webConfig: WebUiConfig) (registry: ElementRegistry) (documents: GovernanceDocument list) : XmlNode =
-        div [_id "governance-documents"] (renderDocumentsSection webConfig registry documents)
+    let documentsPartial (webConfig: WebUiConfig) (archimateLookup: Map<string, DocumentRecord>) (documents: DocumentRecord list) : XmlNode =
+        div [_id "governance-documents"] (renderDocumentsSection webConfig archimateLookup documents)
 
     let indexPage
         (webConfig: WebUiConfig)
-        (registry: ElementRegistry)
-        (filteredDocuments: GovernanceDocument list)
+        (archimateLookup: Map<string, DocumentRecord>)
+        (documents: DocumentRecord list)
+        (filteredDocuments: DocumentRecord list)
         (filterValue: string option)
         (docTypeValue: string option)
         (reviewValue: string option) : XmlNode =
-        let allDocuments = registry.governanceDocuments |> Map.toList |> List.map snd
         let docTypeOptions =
-            allDocuments
-            |> List.map (fun doc -> doc.docType)
+            documents
+            |> List.map getGovernanceDocType
             |> List.distinct
             |> List.sortBy docTypeOrder
 
@@ -208,7 +208,7 @@ module Governance =
                         ]
                     ]
                 ]
-                documentsPartial webConfig registry filteredDocuments
+                documentsPartial webConfig archimateLookup filteredDocuments
             ]
         ]
 
@@ -221,7 +221,7 @@ module Governance =
         else
             content
 
-    let private linkRelatedDocs (baseUrl: string) (registry: ElementRegistry) (content: string) : string =
+    let private linkRelatedDocs (baseUrl: string) (governanceBySlug: Map<string, DocumentRecord>) (content: string) : string =
         let pattern = "^\\s*[-*]\\s+Related\\s+[^:]+:\\s+([a-z0-9-]+)\\.md\\s*$"
         let regex = Regex(pattern, RegexOptions.IgnoreCase ||| RegexOptions.Multiline)
 
@@ -229,7 +229,7 @@ module Governance =
             let slug = m.Groups.[1].Value
             let prefix = m.Value.Substring(0, m.Value.IndexOf(':') + 1)
             let linkLabel =
-                registry.governanceDocuments
+                governanceBySlug
                 |> Map.tryFind slug
                 |> Option.map (fun doc -> doc.title)
                 |> Option.defaultValue slug
@@ -239,33 +239,21 @@ module Governance =
     let private formatRelationType (value: RelationType) : string =
         ElementType.relationTypeToDisplayName value
 
-    let documentPage (webConfig: WebUiConfig) (registry: ElementRegistry) (doc: GovernanceDocument) : XmlNode =
+    let documentPage
+        (webConfig: WebUiConfig)
+        (archimateLookup: Map<string, DocumentRecord>)
+        (governanceById: Map<string, DocumentRecord>)
+        (governanceBySlug: Map<string, DocumentRecord>)
+        (detail: GovernanceDetailView) : XmlNode =
         let baseUrl = webConfig.BaseUrl
-        let metadataOrder =
-            [
-                "id", "Document ID"
-                "owner", "Owner"
-                "approved_by", "Approved by"
-                "status", "Status"
-                "version", "Version"
-                "effective_date", "Effective date"
-                "review_cycle", "Review cycle"
-                "next_review", "Next review"
-            ]
-
-        let metadataItems =
-            metadataOrder
-            |> List.choose (fun (key, label) ->
-                tryGetMetadataValue key doc.metadata
-                |> Option.map (fun value -> key, label, value)
-            )
+        let metadataItems = detail.metadataItems
 
         let metadataNodes =
             metadataItems
-            |> List.map (fun (key, label, value) ->
+            |> List.map (fun (label, value) ->
                 let valueNode =
-                    if key = "owner" then
-                        match tryResolveOwner registry value with
+                    if label = "Owner" then
+                        match tryResolveOwner archimateLookup value with
                         | Some (ownerLabel, Some ownerId) ->
                             a [_href $"{baseUrl}elements/{ownerId}"] [encodedText ownerLabel]
                         | Some (ownerLabel, None) -> encodedText ownerLabel
@@ -293,36 +281,21 @@ module Governance =
             ]
 
         let governanceRelationItems =
-            doc.relations
-            |> List.choose (fun rel ->
-                match ElementRegistry.getElement rel.target registry with
-                | Some _ -> None
-                | None ->
-                    let relationLabel = formatRelationType rel.relationType
-                    let relatedDoc =
-                        registry.governanceDocuments
-                        |> Map.toList
-                        |> List.map snd
-                        |> List.tryFind (fun doc -> doc.docId.Equals(rel.target, StringComparison.OrdinalIgnoreCase))
-                    match relatedDoc with
-                    | Some relatedDoc ->
-                        let targetType = docTypeToString relatedDoc.docType
-                        let targetLink = Some $"{baseUrl}governance/{relatedDoc.slug}"
-                        Some (buildRelationItem relationLabel targetType relatedDoc.title targetLink)
-                    | None ->
-                        Some (buildRelationItem relationLabel "Governance" rel.target None)
+            detail.governanceRelations
+            |> List.map (fun rel ->
+                let relationLabel = formatRelationType rel.relationType
+                let targetType = docTypeToString rel.docType
+                let targetLink = Some $"{baseUrl}governance/{rel.slug}"
+                buildRelationItem relationLabel targetType rel.title targetLink
             )
 
         let archimateRelationItems =
-            doc.relations
-            |> List.choose (fun rel ->
-                match ElementRegistry.getElement rel.target registry with
-                | Some elem ->
-                    let relationLabel = formatRelationType rel.relationType
-                    let targetType = elementTypeAndSubTypeToString elem.elementType
-                    let targetLink = Some $"{baseUrl}elements/{rel.target}"
-                    Some (buildRelationItem relationLabel targetType elem.name targetLink)
-                | None -> None
+            detail.archimateRelations
+            |> List.map (fun rel ->
+                let relationLabel = formatRelationType rel.relationType
+                let targetType = "Architecture"
+                let targetLink = Some $"{baseUrl}elements/{rel.relatedId}"
+                buildRelationItem relationLabel targetType rel.relatedName targetLink
             )
 
         let content = [
@@ -332,19 +305,19 @@ module Governance =
                     encodedText " / "
                     a [_href $"{baseUrl}governance"] [encodedText "Governance"]
                     encodedText " / "
-                    encodedText doc.title
+                    encodedText detail.title
                 ]
                 div [_class "element-detail"] [
                     div [_class "element-view"] [
-                        h2 [] [encodedText doc.title]
+                        h2 [] [encodedText detail.title]
                         div [_class "metadata"] [
                             div [_class "metadata-item"] [
                                 div [_class "metadata-label"] [encodedText "Type"]
-                                div [_class "metadata-value"] [encodedText (docTypeLabel doc.docType)]
+                                div [_class "metadata-value"] [encodedText (docTypeLabel detail.docType)]
                             ]
                             div [_class "metadata-item"] [
                                 div [_class "metadata-label"] [encodedText "Slug"]
-                                div [_class "metadata-value"] [encodedText doc.slug]
+                                div [_class "metadata-value"] [encodedText detail.slug]
                             ]
                         ]
                         if not (List.isEmpty metadataItems) then
@@ -355,11 +328,11 @@ module Governance =
                                 ]
                             ]
 
-                        if not (String.IsNullOrWhiteSpace doc.content) then
+                        if not (String.IsNullOrWhiteSpace detail.content) then
                             let htmlContent =
-                                doc.content
+                                detail.content
                                 |> stripTitleHeading
-                                |> linkRelatedDocs baseUrl registry
+                                |> linkRelatedDocs baseUrl governanceBySlug
                                 |> markdownToHtml
                             div [_class "content-section"] [
                                 rawText htmlContent
@@ -371,7 +344,7 @@ module Governance =
                             ]
                             div [_class "diagram-links"] [
                                 p [] [encodedText "View related architecture and governance links for this document:"]
-                                a [_href $"{baseUrl}diagrams/governance/{doc.slug}"; _class "diagram-link"; _target "_blank"; _rel "noopener"] [
+                                a [_href $"{baseUrl}diagrams/governance/{detail.slug}"; _class "diagram-link"; _target "_blank"; _rel "noopener"] [
                                     encodedText "Open governance diagram"
                                 ]
                             ]
@@ -393,4 +366,4 @@ module Governance =
             ]
         ]
 
-        htmlPage webConfig doc.title "governance" content
+        htmlPage webConfig detail.title "governance" content

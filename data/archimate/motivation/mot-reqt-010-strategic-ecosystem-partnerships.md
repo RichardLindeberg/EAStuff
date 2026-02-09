@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-010-strategic-ecosystem-partnerships
-name: Strategic Ecosystem Partnerships
-type: requirement
-layer: motivation
+owner: Chief Business Officer
+status: planning
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-006-open-banking-capability
@@ -10,19 +13,20 @@ relationships:
 - type: realization
   target: mot-prin-003-innovation-and-continuous-improvement
   description: Realizes innovation through partnerships
-properties:
-  owner: Chief Business Officer
-  status: planning
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-010-ecosystem-partnerships
+name: Strategic Ecosystem Partnerships
 tags:
 - partnerships
 - ecosystem
 - innovation
 - open-banking
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-010-ecosystem-partnerships
 ---
-
 # Strategic Ecosystem Partnerships
 
 The bank must establish partnerships with fintech companies, service providers, and complementary financial services to create ecosystem value.

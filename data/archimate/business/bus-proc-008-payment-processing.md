@@ -1,8 +1,11 @@
 ---
 id: bus-proc-008-payment-processing
-name: Payment Processing
-type: business-process
-layer: business
+owner: Payment Operations
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: bus-srvc-005-payment-service
@@ -16,19 +19,20 @@ relationships:
 - type: triggering
   target: bus-proc-006-fraud-detection-process
   description: Triggers fraud checks
-properties:
-  owner: Payment Operations
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-proc-payment-processing-001
+name: Payment Processing
 tags:
 - process
 - payments
 - transactions
 - critical-process
+archimate:
+  type: business-process
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-proc-payment-processing-001
 ---
-
 # Payment Processing
 
 Process for executing, validating, and settling customer payment transactions.

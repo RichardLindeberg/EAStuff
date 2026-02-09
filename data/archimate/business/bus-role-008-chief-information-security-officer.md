@@ -1,18 +1,20 @@
 ---
 id: bus-role-008-chief-information-security-officer
-name: Chief Information Security Officer
-type: business-role
-layer: business
+owner: Information Security
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Information Security
-  status: active
-  last-updated: '2026-02-07'
+name: Chief Information Security Officer
 tags:
 - role
 - security
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Chief Information Security Officer
 
 Role accountable for the information security program, policy governance, and security risk oversight.

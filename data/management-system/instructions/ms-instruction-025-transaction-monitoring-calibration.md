@@ -1,20 +1,22 @@
-﻿---
+---
 id: ms-instruction-025-transaction-monitoring-calibration
-name: Transaction Monitoring Calibration Instruction (EU AMLR)
 owner: bus-role-010-financial-crime-operations
-approved_by: Chief Compliance Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: composition
-    target: ms-policy-011-aml-ctf
-  - type: association
-    target: ms-manual-024-transaction-monitoring-typologies
+- type: association
+  target: mot-reqt-014-transaction-monitoring-and-screening
+- type: composition
+  target: ms-policy-011-aml-ctf
+- type: association
+  target: ms-manual-024-transaction-monitoring-typologies
+name: Transaction Monitoring Calibration Instruction (EU AMLR)
+governance:
+  approved_by: Chief Compliance Officer
+  effective_date: '2026-02-07'
 ---
 # Transaction Monitoring Calibration Instruction (EU AMLR)
 

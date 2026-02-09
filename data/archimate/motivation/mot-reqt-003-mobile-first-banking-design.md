@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-003-mobile-first-banking-design
-name: Mobile-First Banking Design
-type: requirement
-layer: motivation
+owner: Chief Digital Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-003-digital-banking-excellence
@@ -10,18 +13,19 @@ relationships:
 - type: realization
   target: mot-prin-001-customer-centric-banking
   description: Realizes customer-centric principle
-properties:
-  owner: Chief Digital Officer
-  status: in-progress
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-003-mobile-first-design
+name: Mobile-First Banking Design
 tags:
 - mobile
 - user-experience
 - digital
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-003-mobile-first-design
 ---
-
 # Mobile-First Banking Design
 
 Banking services must be designed with mobile as the primary interface, supporting both iOS and Android platforms with feature parity to web services.

@@ -1,8 +1,11 @@
 ---
 id: mot-drvr-001-eu-and-nordic-regulatory
-name: EU and Nordic Regulatory Requirements
-type: driver
-layer: motivation
+owner: ''
+status: ''
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-goal-002-regulatory-compliance
@@ -10,18 +13,21 @@ relationships:
 - type: influence
   target: mot-goal-006-open-banking-capability
   description: Drives open banking requirements
-properties:
-  source: External
-  urgency: critical
-  trend: increasing
-  last-updated: '2026-02-02'
-  legacy-id: mot-driver-001-eu-regulations
+name: EU and Nordic Regulatory Requirements
 tags:
 - regulatory
 - compliance
 - external-driver
+archimate:
+  type: driver
+  layer: motivation
+extensions:
+  properties:
+    source: External
+    urgency: critical
+    trend: increasing
+    legacy-id: mot-driver-001-eu-regulations
 ---
-
 # EU and Nordic Regulatory Requirements
 
 External regulatory pressures including GDPR, MiFID II, PSD2, Basel III, and local banking regulations in Sweden, Norway, and Denmark.

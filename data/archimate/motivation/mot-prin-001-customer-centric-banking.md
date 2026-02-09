@@ -1,8 +1,11 @@
 ---
 id: mot-prin-001-customer-centric-banking
-name: Customer-Centric Banking
-type: principle
-layer: motivation
+owner: Chief Customer Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: influence
   target: mot-drvr-002-market-digital-transformation-trends
@@ -22,18 +25,19 @@ relationships:
 - type: association
   target: mot-reqt-008-transparent-customer-communication
   description: Realized through transparent communication
-properties:
-  owner: Chief Customer Officer
-  status: active
-  criticality: high
-  last-updated: '2026-02-03'
-  legacy-id: mot-principle-001-customer-centricity
+name: Customer-Centric Banking
 tags:
 - principle
 - customer-focus
 - culture
+archimate:
+  type: principle
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-principle-001-customer-centricity
 ---
-
 # Customer-Centric Banking
 
 The bank places customer needs, preferences, and experience at the center of all business decisions and operations.

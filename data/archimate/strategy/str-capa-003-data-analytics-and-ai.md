@@ -1,8 +1,11 @@
 ---
 id: str-capa-003-data-analytics-and-ai
-name: Data Analytics and AI Capability
-type: capability
-layer: strategy
+owner: Chief Data Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-prin-005-data-driven-decision-making
@@ -10,21 +13,22 @@ relationships:
 - type: association
   target: str-capa-004-digital-banking-platform-capability
   description: Supports digital banking personalization
-properties:
-  owner: Chief Data Officer
-  status: developing
-  criticality: high
-  maturity-level: 2 - Repeatable
-  last-updated: '2026-02-02'
-  legacy-id: str-capa-data-analytics-001
+name: Data Analytics and AI Capability
 tags:
 - capability
 - data
 - analytics
 - ai
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: high
+extensions:
+  properties:
+    maturity-level: 2 - Repeatable
+    legacy-id: str-capa-data-analytics-001
 ---
-
 # Data Analytics and AI Capability
 
 Strategic capability to collect, analyze, and apply data and AI to drive business decisions, personalize customer experiences, and optimize operations.

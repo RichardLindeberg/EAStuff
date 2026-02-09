@@ -1,8 +1,11 @@
 ---
 id: bus-objt-002-business-account
-name: Business Account
-type: business-object
-layer: business
+owner: Corporate Banking Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-role-002-business-account-holder
@@ -13,18 +16,19 @@ relationships:
 - type: composition
   target: bus-objt-016-transaction
   description: Contains transactions
-properties:
-  owner: Corporate Banking Division
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-business-account-001
+name: Business Account
 tags:
 - business-object
 - corporate-account
 - business-banking
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-business-account-001
 ---
-
 # Business Account
 
 Business object representing corporate and commercial bank accounts.

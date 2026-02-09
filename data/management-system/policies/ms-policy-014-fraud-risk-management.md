@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-policy-014-fraud-risk-management
-name: Fraud Risk Management Policy
 owner: bus-role-005-fraud-prevention-department
-approved_by: Risk Committee
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: bus-proc-006-fraud-detection-process
-  - type: association
-    target: str-vstr-003-secure-and-resilient-operations
-  - type: association
-    target: ms-instruction-018-fraud-case-investigation
-  - type: association
-    target: ms-manual-014-fraud-prevention-response
+- type: association
+  target: bus-proc-006-fraud-detection-process
+- type: association
+  target: str-vstr-003-secure-and-resilient-operations
+- type: association
+  target: ms-instruction-018-fraud-case-investigation
+- type: association
+  target: ms-manual-014-fraud-prevention-response
+name: Fraud Risk Management Policy
+governance:
+  approved_by: Risk Committee
+  effective_date: '2026-02-07'
 ---
 # Fraud Risk Management Policy
 

@@ -1,8 +1,11 @@
 ---
 id: mot-goal-005-customer-trust
-name: Customer Trust
-type: goal
-layer: motivation
+owner: Chief Customer Officer
+status: ongoing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-drvr-004-nordic-sustainability-values-and
@@ -13,17 +16,16 @@ relationships:
 - type: association
   target: mot-reqt-008-transparent-customer-communication
   description: Requires transparent customer communication
-properties:
-  owner: Chief Customer Officer
-  status: ongoing
-  criticality: critical
-  last-updated: '2026-02-02'
+name: Customer Trust
 tags:
 - customer-trust
 - sustainability
 - corporate-responsibility
+archimate:
+  type: goal
+  layer: motivation
+  criticality: critical
 ---
-
 # Customer Trust
 
 Establish the bank as a trusted, transparent, and socially responsible financial partner through ethical practices and strong data protection.

@@ -1,8 +1,11 @@
 ---
 id: bus-objt-014-representative
-name: Representative
-type: business-object
-layer: business
+owner: Operations and Compliance
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: composition
   target: bus-objt-010-natural-person
@@ -16,19 +19,20 @@ relationships:
 - type: association
   target: bus-objt-004-customer-agreement
   description: May sign agreements on behalf of party
-properties:
-  owner: Operations and Compliance
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-representative-001
+name: Representative
 tags:
 - business-object
 - representation
 - authorization
 - corporate-governance
+archimate:
+  type: business-object
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-objt-representative-001
 ---
-
 # Representative
 
 Business object representing natural persons authorized to act, sign, and conduct business on behalf of legal entities or other parties.

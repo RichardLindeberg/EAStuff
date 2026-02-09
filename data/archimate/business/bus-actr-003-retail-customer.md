@@ -1,8 +1,11 @@
 ---
 id: bus-actr-003-retail-customer
-name: Retail Customer
-type: business-actor
-layer: business
+owner: Chief Customer Officer
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: assignment
   target: bus-role-001-account-holder
@@ -10,18 +13,19 @@ relationships:
 - type: access
   target: bus-objt-003-customer-account
   description: Accesses their accounts
-properties:
-  owner: Chief Customer Officer
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-actor-retail-customer-001
+name: Retail Customer
 tags:
 - customer
 - retail-banking
 - business-actor
+archimate:
+  type: business-actor
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-actor-retail-customer-001
 ---
-
 # Retail Customer
 
 Individual customers using the bank's retail banking services.

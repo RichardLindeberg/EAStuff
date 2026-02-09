@@ -1,27 +1,31 @@
 ---
 id: bus-actr-001-corporate-customer
-name: Corporate Customer
-type: business-actor
-layer: business
+owner: Chief Business Officer
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
-- type: assignment
-  target: bus-role-002-business-account-holder
-  description: Operates business accounts
-- type: access
-  target: bus-objt-002-business-account
-  description: Accesses corporate accounts
-properties:
-  owner: Chief Business Officer
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-actor-corporate-customer-001
+  - type: assignment
+    target: bus-role-002-business-account-holder
+    description: Operates business accounts
+  - type: access
+    target: bus-objt-002-business-account
+    description: Accesses corporate accounts
+name: Corporate Customer
 tags:
-- customer
-- corporate-banking
-- business-actor
+  - customer
+  - corporate-banking
+  - business-actor
+archimate:
+  type: business-actor
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-actor-corporate-customer-001
 ---
-
 # Corporate Customer
 
 Business entities and organizations using the bank's corporate banking services.

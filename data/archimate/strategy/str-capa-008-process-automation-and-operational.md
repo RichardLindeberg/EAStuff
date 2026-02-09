@@ -1,8 +1,11 @@
 ---
 id: str-capa-008-process-automation-and-operational
-name: Process Automation and Operational Excellence Capability
-type: capability
-layer: strategy
+owner: Chief Operating Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-004-operational-efficiency
@@ -10,21 +13,22 @@ relationships:
 - type: realization
   target: mot-reqt-005-process-automation-requirements
   description: Realizes process automation requirement
-properties:
-  owner: Chief Operating Officer
-  status: developing
-  criticality: high
-  maturity-level: 2 - Repeatable
-  last-updated: '2026-02-02'
-  legacy-id: str-capa-process-automation-001
+name: Process Automation and Operational Excellence Capability
 tags:
 - capability
 - automation
 - operational-excellence
 - efficiency
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: high
+extensions:
+  properties:
+    maturity-level: 2 - Repeatable
+    legacy-id: str-capa-process-automation-001
 ---
-
 # Process Automation and Operational Excellence Capability
 
 Strategic capability to identify, optimize, and automate operational processes to achieve efficiency, reduce costs, and improve consistency and quality.

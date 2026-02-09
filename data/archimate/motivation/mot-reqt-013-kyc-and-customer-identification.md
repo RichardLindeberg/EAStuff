@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-013-kyc-and-customer-identification
-name: KYC and Customer Identification Requirements
-type: requirement
-layer: motivation
+owner: Chief Compliance Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -10,12 +13,7 @@ relationships:
 - type: realization
   target: mot-prin-006-amlct-compliance-excellence
   description: Realizes AML/CT compliance principle
-properties:
-  owner: Chief Compliance Officer
-  status: active
-  criticality: critical
-  last-updated: '2026-02-03'
-  legacy-id: mot-requirement-013-kyc-compliance
+name: KYC and Customer Identification Requirements
 tags:
 - kyc
 - customer-due-diligence
@@ -23,8 +21,14 @@ tags:
 - aml
 - regulatory
 - onboarding
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-requirement-013-kyc-compliance
 ---
-
 # KYC and Customer Identification Requirements
 
 All customers must be properly identified, verified, and risk-assessed through comprehensive Know Your Customer (KYC) procedures in compliance with AML/CT regulations.

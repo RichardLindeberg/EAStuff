@@ -12,28 +12,48 @@ open Giraffe.ViewEngine
 module Handlers =
 
     open EAArchive.DiagramGenerators
+    open EAArchive.ViewHelpers
     open HandlersHelpers
+    open DocumentQueries
     
     /// Index/home page handler
-    let indexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let indexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET / - Home page requested")
-            let layerCounts = 
-                registry.elementsByLayer
-                |> Map.map (fun _ ids -> List.length ids)
+            let repo = repoService.Repository
+            let layerCounts =
+                getArchimateDocuments repo
+                |> List.groupBy getArchimateLayer
+                |> List.map (fun (layer, docs) -> layer, docs.Length)
+                |> Map.ofList
             logger.LogDebug("Layer summary: {layerSummary}", layerCounts)
-            let html = Views.Index.indexPage webConfig registry "index"
+            let html = Views.Index.indexPage webConfig "index"
             htmlView html next ctx
 
     /// Architecture index handler
-    let architectureIndexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let architectureIndexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /architecture - Architecture overview requested")
-            let html = Views.Architecture.indexPage webConfig registry "architecture"
+            let repo = repoService.Repository
+            let layerCounts =
+                getArchimateDocuments repo
+                |> List.groupBy getArchimateLayer
+                |> List.map (fun (layer, docs) -> layer, docs.Length)
+                |> Map.ofList
+
+            let layerCards =
+                Config.layerOrder
+                |> Map.toList
+                |> List.map (fun (layerKey, layerInfo) ->
+                    let count = Map.tryFind layerKey layerCounts |> Option.defaultValue 0
+                    layerKey, layerInfo, count
+                )
+
+            let html = Views.Architecture.indexPage webConfig layerCards "architecture"
             htmlView html next ctx
 
     /// Governance system index handler
-    let governanceIndexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceIndexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance - Governance index requested")
             let filterValue =
@@ -51,14 +71,12 @@ module Handlers =
                 | Ok value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim().ToLowerInvariant())
                 | _ -> None
 
-            let documents = registry.governanceDocuments |> Map.toList |> List.map snd
-            let tryGetMetadataValue (key: string) (metadata: Map<string, string>) : string option =
-                metadata
-                |> Map.tryFind key
-                |> Option.bind (fun value ->
-                    let trimmed = value.Trim()
-                    if trimmed = "" then None else Some trimmed
-                )
+            let repo = repoService.Repository
+            let documents = getGovernanceDocuments repo
+            let archimateLookup =
+                getArchimateDocuments repo
+                |> List.map (fun doc -> doc.id, doc)
+                |> Map.ofList
 
             let tryParseReviewDate (value: string) : DateTime option =
                 let trimmed = value.Trim()
@@ -71,16 +89,17 @@ module Handlers =
             let filteredDocuments =
                 documents
                 |> List.filter (fun doc ->
-                    let ownerId = tryGetMetadataValue "owner" doc.metadata |> Option.defaultValue ""
+                    let metadataMap = getGovernanceMetadataMap doc
+                    let ownerId = metadataMap |> Map.tryFind "owner" |> Option.defaultValue ""
                     let ownerLabel =
                         if String.IsNullOrWhiteSpace ownerId then ""
                         else
-                            match Map.tryFind ownerId registry.elements with
-                            | Some elem -> elem.name
+                            match Map.tryFind ownerId archimateLookup with
+                            | Some elem -> elem.title
                             | None -> ownerId
                     let reviewDate =
-                        tryGetMetadataValue "next_review" doc.metadata
-                        |> Option.orElseWith (fun () -> tryGetMetadataValue "next review" doc.metadata)
+                        metadataMap |> Map.tryFind "next_review"
+                        |> Option.orElseWith (fun () -> metadataMap |> Map.tryFind "next review")
                         |> Option.bind tryParseReviewDate
 
                     let nameMatches =
@@ -94,12 +113,7 @@ module Handlers =
                     let typeMatches =
                         match docTypeValue with
                         | Some value ->
-                            let docTypeValue =
-                                match doc.docType with
-                                | GovernanceDocType.Policy -> "policy"
-                                | GovernanceDocType.Instruction -> "instruction"
-                                | GovernanceDocType.Manual -> "manual"
-                                | GovernanceDocType.Unknown other -> other.Trim().ToLowerInvariant()
+                            let docTypeValue = docTypeToString (getGovernanceDocType doc)
                             docTypeValue = value
                         | None -> true
 
@@ -123,33 +137,51 @@ module Handlers =
 
             let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
             if isHxRequest then
-                let partial = Views.Governance.documentsPartial webConfig registry filteredDocuments
+                let partial = Views.Governance.documentsPartial webConfig archimateLookup filteredDocuments
                 htmlView partial next ctx
             else
-                let html = Views.Governance.indexPage webConfig registry filteredDocuments filterValue docTypeValue reviewValue
+                let html = Views.Governance.indexPage webConfig archimateLookup documents filteredDocuments filterValue docTypeValue reviewValue
                 htmlView html next ctx
 
     /// Governance document detail handler
-    let governanceDocHandler (slug: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceDocHandler (slug: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance/{slug} - Governance document requested", slug)
-            match Map.tryFind slug registry.governanceDocuments with
+            let repo = repoService.Repository
+            let archimateLookup =
+                getArchimateDocuments repo
+                |> List.map (fun doc -> doc.id, doc)
+                |> Map.ofList
+            let governanceById =
+                getGovernanceDocuments repo
+                |> List.map (fun doc -> doc.id, doc)
+                |> Map.ofList
+            let governanceBySlug =
+                getGovernanceDocuments repo
+                |> List.map (fun doc -> doc.slug, doc)
+                |> Map.ofList
+            match tryGetGovernanceBySlug repo slug with
             | Some doc ->
-                let html = Views.Governance.documentPage webConfig registry doc
+                let detail = createGovernanceDetail repo doc
+                let html = Views.Governance.documentPage webConfig archimateLookup governanceById governanceBySlug detail
                 htmlView html next ctx
             | None ->
                 logger.LogWarning("Governance document not found: {slug}", slug)
                 setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
     
     /// Layer page handler
-    let layerHandler (layer: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let layerHandler (layer: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /{layer} - Layer page requested", layer)
             match Layer.tryParse layer with
             | Some layerValue ->
                 match Map.tryFind layerValue Config.layerOrder with
                 | Some layerInfo ->
-                    let elements = ElementRegistry.getLayerElements layerValue registry
+                    let repo = repoService.Repository
+                    let elements =
+                        getArchimateDocuments repo
+                        |> List.filter (fun doc -> getArchimateLayer doc = layerValue)
+                        |> List.sortBy (fun doc -> doc.title)
                     let filterValue =
                         match ctx.GetQueryStringValue "filter" with
                         | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
@@ -162,7 +194,7 @@ module Handlers =
 
                     let subtypeOptions =
                         elements
-                        |> List.choose (fun elem -> ElementRegistry.getString "type" elem.properties)
+                        |> List.map getArchimateTypeValue
                         |> List.distinct
                         |> List.sort
 
@@ -171,15 +203,12 @@ module Handlers =
                         |> List.filter (fun elem ->
                             let nameMatches =
                                 match filterValue with
-                                | Some term -> elem.name.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                                | Some term -> elem.title.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
                                 | None -> true
 
                             let subtypeMatches =
                                 match subtypeValue with
-                                | Some subtype ->
-                                    match ElementRegistry.getString "type" elem.properties with
-                                    | Some value -> value.Equals(subtype, StringComparison.OrdinalIgnoreCase)
-                                    | None -> false
+                                | Some subtype -> getArchimateTypeValue elem = subtype
                                 | None -> true
 
                             nameMatches && subtypeMatches
@@ -187,15 +216,16 @@ module Handlers =
 
                     logger.LogInformation("Found {elementCount} elements in layer {layer}", List.length elements, layer)
                     elements |> List.iter (fun elem ->
-                        logger.LogDebug("  - {elementId}: {elementName}", elem.id, elem.name)
+                        logger.LogDebug("  - {elementId}: {elementName}", elem.id, elem.title)
                     )
                     let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
+                    let elementCards = filteredElements |> List.map (createArchimateCard repo)
                     if isHxRequest then
-                        let partial = Views.Layers.layerElementsPartial webConfig filteredElements registry
+                        let partial = Views.Layers.layerElementsPartial webConfig elementCards
                         htmlView partial next ctx
                     else
                         let layerKey = Layer.toKey layerValue
-                        let html = Views.Layers.layerPage webConfig layerKey layerInfo filteredElements registry filterValue subtypeOptions subtypeValue
+                        let html = Views.Layers.layerPage webConfig layerKey layerInfo elementCards filterValue subtypeOptions subtypeValue
                         htmlView html next ctx
                 | None -> 
                     logger.LogWarning("Layer not found: {layer}", layer)
@@ -205,77 +235,62 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element detail page handler
-    let elementHandler (elemId: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let elementHandler (elemId: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /elements/{elementId} - Element detail requested", elemId)
-            match ElementRegistry.getElement elemId registry with
-            | Some elem ->
-                logger.LogInformation("Found element: {elementId} ({elementName})", elemId, elem.name)
-                let incoming = ElementRegistry.getIncomingRelations elemId registry
-                let outgoing = elem.relationships
-                logger.LogInformation("  Incoming relations: {incomingCount}, Outgoing relations: {outgoingCount}", List.length incoming, List.length outgoing)
-                
-                if List.length outgoing > 0 then
-                    logger.LogInformation("  Outgoing targets:")
-                    outgoing |> List.iter (fun rel ->
-                        logger.LogInformation("    - {targetId}", rel.target)
-                    )
-                
-                let elemWithRels = ElementRegistry.withRelations elem registry
-                logger.LogInformation(
-                    "  After withRelations: incoming={incomingCount}, outgoing={outgoingCount}",
-                    List.length elemWithRels.incomingRelations,
-                    List.length elemWithRels.outgoingRelations
-                )
-
-                let governanceDocs = registry.governanceDocuments |> Map.toList |> List.map snd
-                let ownerDocs =
-                    governanceDocs
-                    |> List.filter (fun doc ->
-                        match Map.tryFind "owner" doc.metadata with
-                        | Some value -> value.Trim().Equals(elemId, StringComparison.OrdinalIgnoreCase)
-                        | None -> false
-                    )
-
-                let incomingGovernance =
-                    governanceDocs
-                    |> List.collect (fun doc ->
-                        doc.relations
-                        |> List.filter (fun rel -> rel.target.Equals(elemId, StringComparison.OrdinalIgnoreCase))
-                        |> List.map (fun rel -> doc, rel)
-                    )
-
-                let html = Views.Elements.elementPage webConfig elemWithRels ownerDocs incomingGovernance
+            let repo = repoService.Repository
+            match tryGetDocumentById repo elemId with
+            | Some doc when doc.kind = DocumentKind.Architecture ->
+                logger.LogInformation("Found element: {elementId} ({elementName})", elemId, doc.title)
+                let detail = createArchimateDetail repo doc
+                let html = Views.Elements.elementPage webConfig detail
                 htmlView html next ctx
+            | Some _ ->
+                logger.LogWarning("Element not found: {elementId}", elemId)
+                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
             | None ->
                 logger.LogWarning("Element not found: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// Element edit form partial handler
-    let elementEditHandler (elemId: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let elementEditHandler (elemId: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /elements/{elementId}/edit - Element edit form requested", elemId)
-            match ElementRegistry.getElement elemId registry with
-            | Some elem ->
-                let html = Views.Elements.elementEditFormPartial webConfig elem registry
+            let repo = repoService.Repository
+            match tryGetDocumentById repo elemId with
+            | Some doc when doc.kind = DocumentKind.Architecture ->
+                let editModel = createArchimateEdit doc
+                let elementOptions =
+                    getArchimateDocuments repo
+                    |> List.sortBy (fun d -> d.title)
+                    |> List.map (fun d -> d.id, d.title)
+                let html = Views.Elements.elementEditFormPartial webConfig editModel elementOptions
                 htmlView html next ctx
+            | Some _ ->
+                logger.LogWarning("Element not found: {elementId}", elemId)
+                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
             | None ->
                 logger.LogWarning("Element not found: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// New element form handler
-    let elementNewHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let elementNewHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             let layerValue =
                 match ctx.GetQueryStringValue "layer" with
                 | Ok value -> value
                 | Error _ -> ""
             logger.LogInformation("GET /elements/new - layer={layer}", layerValue)
-            let html = Views.Elements.elementNewFormPartial webConfig layerValue registry
+            let repo = repoService.Repository
+            let elementOptions =
+                getArchimateDocuments repo
+                |> List.sortBy (fun d -> d.title)
+                |> List.map (fun d -> d.id, d.title)
+            let html = Views.Elements.elementNewFormPartial webConfig layerValue elementOptions
             htmlView html next ctx
 
     /// Relation type options handler (HTMX)
-    let relationTypeOptionsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let relationTypeOptionsHandler (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             let normalizeConceptName (value: string) : string =
                 let parts = value.Split([| '-'; ' ' |], StringSplitOptions.RemoveEmptyEntries)
@@ -286,13 +301,6 @@ module Handlers =
                     else part.Substring(0, 1).ToUpperInvariant() + part.Substring(1)
                 )
                 |> String.Concat
-
-            let tryGetConceptName (elem: Element) : string =
-                match ElementRegistry.getString "type" elem.properties with
-                | Some typeValue when not (String.IsNullOrWhiteSpace typeValue) ->
-                    normalizeConceptName typeValue
-                | _ ->
-                    ElementType.elementTypeToConceptName elem.elementType
 
             let getValue (key: string) : string =
                 match ctx.GetQueryStringValue key with
@@ -326,12 +334,22 @@ module Handlers =
                 currentValue,
                 index
             )
+            let repo = repoService.Repository
+            let tryGetConceptName (doc: DocumentRecord) : string =
+                match doc.kind with
+                | DocumentKind.Architecture ->
+                    doc
+                    |> getArchimateElementType
+                    |> ElementType.elementTypeToConceptName
+                | DocumentKind.Governance ->
+                    getGovernanceDocType doc |> GovernanceDocType.toConceptName
+
             let allowedTypes =
-                match Map.tryFind sourceId registry.elements, Map.tryFind targetId registry.elements with
-                | Some sourceElem, Some targetElem ->
-                    let rules = registry.relationshipRules
-                    let sourceConcept = tryGetConceptName sourceElem
-                    let targetConcept = tryGetConceptName targetElem
+                match Map.tryFind sourceId repo.documents, Map.tryFind targetId repo.documents with
+                | Some sourceDoc, Some targetDoc ->
+                    let rules = repoService.RelationshipRules
+                    let sourceConcept = tryGetConceptName sourceDoc
+                    let targetConcept = tryGetConceptName targetDoc
                     logger.LogInformation("Relation lookup: sourceConcept={sourceConcept}, targetConcept={targetConcept}", sourceConcept, targetConcept)
                     match Map.tryFind (sourceConcept, targetConcept) rules with
                     | Some codes ->
@@ -340,14 +358,14 @@ module Handlers =
                         |> Set.toList
                         |> List.choose relationCodeToName
                     | None -> []
-                | None, Some targetElem ->
+                | None, Some targetDoc ->
                     if String.IsNullOrWhiteSpace sourceTypeOverride then
                         logger.LogWarning("Relation lookup failed: sourceId '{sourceId}' not found", sourceId)
                         []
                     else
-                        let rules = registry.relationshipRules
+                        let rules = repoService.RelationshipRules
                         let sourceConcept = normalizeConceptName sourceTypeOverride
-                        let targetConcept = tryGetConceptName targetElem
+                        let targetConcept = tryGetConceptName targetDoc
                         logger.LogInformation("Relation lookup (override): sourceConcept={sourceConcept}, targetConcept={targetConcept}", sourceConcept, targetConcept)
                         match Map.tryFind (sourceConcept, targetConcept) rules with
                         | Some codes ->
@@ -402,15 +420,13 @@ module Handlers =
             htmlView selectNode next ctx
 
     /// Element download handler
-    let elementDownloadHandler (elemId: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let elementDownloadHandler (elemId: string) (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             task {
                 logger.LogInformation("POST /elements/{elementId}/download - Element download requested", elemId)
-                match ElementRegistry.getElement elemId registry with
-                | None ->
-                    logger.LogWarning("Element not found: {elementId}", elemId)
-                    return! (setStatusCode 404 >=> text "Element not found") next ctx
-                | Some elem ->
+                let repo = repoService.Repository
+                match tryGetDocumentById repo elemId with
+                | Some doc when doc.kind = DocumentKind.Architecture ->
                     let! form = ctx.Request.ReadFormAsync()
 
                     let getRaw (key: string) : string =
@@ -422,10 +438,10 @@ module Handlers =
                     let getOrDefault (value: string) (fallback: string) : string =
                         if String.IsNullOrWhiteSpace value then fallback else value
 
-                    let defaultType = ElementRegistry.getString "type" elem.properties |> Option.defaultValue ""
-                    let defaultLayer = ElementRegistry.getString "layer" elem.properties |> Option.defaultValue ""
+                    let defaultType = getArchimateTypeValue doc
+                    let defaultLayer = getArchimateLayerValue doc
 
-                    let name = getOrDefault (getTrimmed "name") elem.name
+                    let name = getOrDefault (getTrimmed "name") doc.title
                     let elementType = getOrDefault (getTrimmed "type") defaultType
                     let layer = getOrDefault (getTrimmed "layer") defaultLayer
                     let content = getRaw "content"
@@ -433,7 +449,8 @@ module Handlers =
                     let rawId = getTrimmed "id"
                     let id =
                         if String.IsNullOrWhiteSpace rawId then
-                            generateElementId registry layer elementType name
+                            let existingIds = getArchimateDocuments repo |> List.map (fun d -> d.id)
+                            generateElementId existingIds layer elementType name
                         else
                             rawId
 
@@ -493,13 +510,17 @@ module Handlers =
                          >=> text markdown)
                             next
                             ctx
+                | _ ->
+                    logger.LogWarning("Element not found: {elementId}", elemId)
+                    return! (setStatusCode 404 >=> text "Element not found") next ctx
             }
 
     /// New element download handler
-    let elementNewDownloadHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let elementNewDownloadHandler (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             task {
                 logger.LogInformation("POST /elements/new/download - New element download requested")
+                let repo = repoService.Repository
                 let! form = ctx.Request.ReadFormAsync()
 
                 let getRaw (key: string) : string =
@@ -516,7 +537,8 @@ module Handlers =
                 let rawId = getTrimmed "id"
                 let id =
                     if String.IsNullOrWhiteSpace rawId then
-                        generateElementId registry layer elementType name
+                        let existingIds = getArchimateDocuments repo |> List.map (fun d -> d.id)
+                        generateElementId existingIds layer elementType name
                     else
                         rawId
 
@@ -579,61 +601,49 @@ module Handlers =
             }
     
     /// Tags index handler
-    let tagsIndexHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let tagsIndexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /tags - Tags index page requested")
-            let tagIndex = buildTagIndex registry
+            let repo = repoService.Repository
+            let tagIndex = buildTagIndex (getArchimateDocuments repo)
             logger.LogInformation("Found {tagCount} tags", Map.count tagIndex)
-            let html = Views.Tags.tagsIndexPage webConfig tagIndex registry
+            let html = Views.Tags.tagsIndexPage webConfig tagIndex
             htmlView html next ctx
 
-    let private selectGovernanceDocs (elementIds: Set<string>) (registry: ElementRegistry) : GovernanceDocument list =
-        registry.governanceDocuments
-        |> Map.toList
-        |> List.map snd
-        |> List.filter (fun doc ->
-            let ownerMatch =
-                match Map.tryFind "owner" doc.metadata with
-                | Some ownerId when elementIds.Contains(ownerId) -> true
-                | _ -> false
-
-            let relationMatch =
-                doc.relations
-                |> List.exists (fun rel -> elementIds.Contains(rel.target))
-
-            ownerMatch || relationMatch
-        )
-
     /// Layer Cytoscape diagram handler
-    let layerDiagramCytoscapeHandler (layer: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let layerDiagramCytoscapeHandler (layer: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/layer/{layer} - Cytoscape layer diagram requested", layer)
             match Layer.tryParse layer with
             | Some layerValue ->
                 match Map.tryFind layerValue Config.layerOrder with
                 | Some layerInfo ->
-                    let layerElements = ElementRegistry.getLayerElements layerValue registry
+                    let repo = repoService.Repository
+                    let layerElements =
+                        getArchimateDocuments repo
+                        |> List.filter (fun doc -> getArchimateLayer doc = layerValue)
 
                     let allRels =
-                        registry.elements
-                        |> Map.toList
-                        |> List.collect (fun (id, elem) ->
-                            if layerElements |> List.exists (fun le -> le.id = id) then
-                                elem.relationships |> List.map (fun rel -> (id, rel))
-                            else [])
+                        layerElements
+                        |> List.collect (fun doc ->
+                            doc.metadata.relationships
+                            |> List.map (fun rel -> (doc.id, rel))
+                        )
 
                     let relatedIds = allRels |> List.map (fun (_, rel) -> rel.target) |> Set.ofList
                     let relatedElements =
-                        registry.elements
-                        |> Map.toList
-                        |> List.choose (fun (id, elem) ->
-                            if Set.contains id relatedIds && not (layerElements |> List.exists (fun le -> le.id = id))
-                            then Some elem
-                            else None)
+                        relatedIds
+                        |> Set.toList
+                        |> List.choose (fun id ->
+                            match Map.tryFind id repo.documents with
+                            | Some doc when doc.kind = DocumentKind.Architecture ->
+                                if layerElements |> List.exists (fun le -> le.id = id) then None else Some doc
+                            | _ -> None
+                        )
 
                     let allElements = layerElements @ relatedElements
                     let elementIds = allElements |> List.map (fun e -> e.id) |> Set.ofList
-                    let governanceDocs = selectGovernanceDocs elementIds registry
+                    let governanceDocs = selectGovernanceDocs repo elementIds
 
                     let data = buildCytoscapeDiagram assets allElements allRels governanceDocs
                     let view = Views.Diagrams.cytoscapeDiagramPage webConfig (sprintf "%s Layer" layerInfo.displayName) data
@@ -646,11 +656,12 @@ module Handlers =
                 setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
     
     /// Element context Cytoscape diagram handler
-    let contextDiagramCytoscapeHandler (elemId: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let contextDiagramCytoscapeHandler (elemId: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/context/{elementId}/cytoscape - Cytoscape context diagram requested", elemId)
-            match ElementRegistry.getElement elemId registry with
-            | Some elem ->
+            let repo = repoService.Repository
+            match tryGetDocumentById repo elemId with
+            | Some elem when elem.kind = DocumentKind.Architecture ->
                 let depth = 
                     match ctx.GetQueryStringValue "depth" with
                     | Ok value -> 
@@ -662,7 +673,7 @@ module Handlers =
                 logger.LogInformation(
                     "Found element: {elementId} ({elementName}), generating Cytoscape context diagram with depth={depth}",
                     elemId,
-                    elem.name,
+                    elem.title,
                     depth
                 )
                 let rec collectNeighbors (currentIds: Set<string>) (currentDepth: int) : Set<string> =
@@ -672,18 +683,14 @@ module Handlers =
                             currentIds
                             |> Set.toList
                             |> List.collect (fun id ->
-                                match Map.tryFind id registry.elements with
-                                | Some elem ->
-                                    let outgoing = elem.relationships |> List.map (fun r -> r.target)
+                                match Map.tryFind id repo.documents with
+                                | Some doc when doc.kind = DocumentKind.Architecture ->
+                                    let outgoing = doc.metadata.relationships |> List.map (fun r -> r.target)
                                     let incoming =
-                                        registry.elements
-                                        |> Map.toList
-                                        |> List.choose (fun (srcId, srcElem) ->
-                                            if srcElem.relationships |> List.exists (fun r -> r.target = id)
-                                            then Some srcId
-                                            else None)
+                                        repo.relations
+                                        |> List.choose (fun rel -> if rel.targetId = id then Some rel.sourceId else None)
                                     outgoing @ incoming
-                                | None -> [])
+                                | _ -> [])
                             |> Set.ofList
 
                         let combined = Set.union currentIds nextIds
@@ -694,12 +701,15 @@ module Handlers =
                 let elements =
                     allNodeIds
                     |> Set.toList
-                    |> List.choose (fun id -> Map.tryFind id registry.elements)
+                    |> List.choose (fun id ->
+                        match Map.tryFind id repo.documents with
+                        | Some doc when doc.kind = DocumentKind.Architecture -> Some doc
+                        | _ -> None)
 
                 let rels =
                     elements
                     |> List.collect (fun elem ->
-                        elem.relationships
+                        elem.metadata.relationships
                         |> List.filter (fun rel -> Set.contains rel.target allNodeIds)
                         |> List.map (fun rel -> (elem.id, rel)))
 
@@ -708,29 +718,33 @@ module Handlers =
                     |> List.map (fun e -> e.id)
                     |> Set.ofList
 
-                let governanceDocs = selectGovernanceDocs elementIds registry
+                let governanceDocs = selectGovernanceDocs repo elementIds
 
                 let data = buildCytoscapeDiagram assets elements rels governanceDocs
-                let title = sprintf "Context: %s (Depth %d)" elem.name depth
+                let title = sprintf "Context: %s (Depth %d)" elem.title depth
                 let view = Views.Diagrams.cytoscapeDiagramPage webConfig title data
                 htmlView view next ctx
+            | Some _ ->
+                logger.LogWarning("Element not found for Cytoscape context diagram: {elementId}", elemId)
+                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
             | None ->
                 logger.LogWarning("Element not found for Cytoscape context diagram: {elementId}", elemId)
                 setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
 
     /// Governance document Cytoscape diagram handler
-    let governanceDiagramCytoscapeHandler (slug: string) (registry: ElementRegistry) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let governanceDiagramCytoscapeHandler (slug: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /diagrams/governance/{slug} - Cytoscape governance diagram requested", slug)
-            match Map.tryFind slug registry.governanceDocuments with
+            let repo = repoService.Repository
+            match tryGetGovernanceBySlug repo slug with
             | Some doc ->
                 let ownerId =
-                    match Map.tryFind "owner" doc.metadata with
+                    match doc.metadata.owner with
                     | Some value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim())
                     | _ -> None
 
                 let relationTargets =
-                    doc.relations
+                    doc.metadata.relationships
                     |> List.map (fun rel -> rel.target.Trim())
                     |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
 
@@ -741,19 +755,19 @@ module Handlers =
                     |> Set.ofList
 
                 let governanceDocs =
-                    doc :: selectGovernanceDocs elementIds registry
+                    doc :: selectGovernanceDocs repo elementIds
                     |> List.distinctBy (fun d -> d.slug)
 
                 let relatedElementIds =
                     governanceDocs
                     |> List.collect (fun governanceDoc ->
                         let ownerId =
-                            match Map.tryFind "owner" governanceDoc.metadata with
+                            match governanceDoc.metadata.owner with
                             | Some value when not (String.IsNullOrWhiteSpace value) -> [ value.Trim() ]
                             | _ -> []
 
                         let relationTargets =
-                            governanceDoc.relations
+                            governanceDoc.metadata.relationships
                             |> List.map (fun rel -> rel.target.Trim())
                             |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
 
@@ -766,7 +780,10 @@ module Handlers =
                 let elements =
                     allElementIds
                     |> Set.toList
-                    |> List.choose (fun id -> Map.tryFind id registry.elements)
+                    |> List.choose (fun id ->
+                        match Map.tryFind id repo.documents with
+                        | Some elem when elem.kind = DocumentKind.Architecture -> Some elem
+                        | _ -> None)
 
                 let validElementIds =
                     elements
@@ -776,7 +793,7 @@ module Handlers =
                 let rels =
                     elements
                     |> List.collect (fun elem ->
-                        elem.relationships
+                        elem.metadata.relationships
                         |> List.filter (fun rel -> Set.contains rel.target validElementIds)
                         |> List.map (fun rel -> (elem.id, rel)))
 
@@ -789,11 +806,10 @@ module Handlers =
                 setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
     
     /// Validation errors API handler - list all errors
-    let validationErrorsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let validationErrorsHandler (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/errors - Validation errors requested")
-            let errors =
-                ElementRegistry.getValidationErrors registry
+            let errors = repoService.Repository.validationErrors
             logger.LogInformation("Returning {errorCount} validation errors", List.length errors)
             
             let errorsList =
@@ -811,12 +827,12 @@ module Handlers =
             json errorsList next ctx
     
     /// Validation errors by file handler
-    let fileValidationErrorsHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let fileValidationErrorsHandler (filePath: string) (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/file - Validation errors for file: {filePath}", filePath)
             let decodedPath = Uri.UnescapeDataString(filePath)
             let errors =
-                ElementRegistry.getValidationErrors registry
+                repoService.Repository.validationErrors
                 |> List.filter (fun err -> err.filePath = decodedPath)
             logger.LogInformation("File '{filePath}' has {errorCount} validation errors", decodedPath, List.length errors)
             
@@ -835,11 +851,10 @@ module Handlers =
             json errorsList next ctx
     
     /// Validation statistics handler
-    let validationStatsHandler (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let validationStatsHandler (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /api/validation/stats - Validation statistics requested")
-            let errors =
-                ElementRegistry.getValidationErrors registry
+            let errors = repoService.Repository.validationErrors
             let errors_list = errors |> List.filter (fun e -> e.severity = Severity.Error)
             let warnings_list = errors |> List.filter (fun e -> e.severity = Severity.Warning)
             
@@ -857,22 +872,21 @@ module Handlers =
             json stats next ctx
     
     /// Validation page handler
-    let validationPageHandler (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let validationPageHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /validation - Validation page requested")
-            let errors =
-                ElementRegistry.getValidationErrors registry
+            let errors = repoService.Repository.validationErrors
             logger.LogInformation("Displaying {errorCount} validation errors", List.length errors)
-            let html = Views.Validation.validationPage webConfig registry.basePaths errors
+            let html = Views.Validation.validationPage webConfig repoService.BasePaths errors
             htmlView html next ctx
     
     /// Revalidate file handler
-    let revalidateFileHandler (filePath: string) (registry: ElementRegistry) (logger: ILogger) : HttpHandler =
+    let revalidateFileHandler (filePath: string) (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("POST /api/validation/revalidate - Revalidating file: {filePath}", filePath)
             let decodedPath = Uri.UnescapeDataString(filePath)
             let basePath =
-                registry.elementsPath
+                repoService.ElementsPath
                 |> Path.GetFullPath
                 |> fun path -> path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
 
@@ -890,8 +904,10 @@ module Handlers =
                 logger.LogWarning("Rejected revalidate path outside elements root: {requestedPath}", requestedPath)
                 (setStatusCode 400 >=> text "Invalid file path") next ctx
             else
-                ElementRegistry.revalidateFile requestedPath registry logger
-                let errors = ElementRegistry.getFileValidationErrors requestedPath registry
+                repoService.Reload()
+                let errors =
+                    repoService.Repository.validationErrors
+                    |> List.filter (fun err -> err.filePath = requestedPath)
 
                 let result = dict [
                     ("filePath", box requestedPath)
@@ -912,16 +928,20 @@ module Handlers =
                 json result next ctx
     
     /// Individual tag page handler
-    let tagHandler (tag: string) (registry: ElementRegistry) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    let tagHandler (tag: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /tags/{tag} - Tag page requested", tag)
-            let tagIndex = buildTagIndex registry
+            let repo = repoService.Repository
+            let archimateDocs = getArchimateDocuments repo
+            let tagIndex = buildTagIndex archimateDocs
             match Map.tryFind tag tagIndex with
             | Some elemIds ->
                 logger.LogInformation("Found {elementCount} elements with tag '{tag}'", List.length elemIds, tag)
                 let elements =
                     elemIds
-                    |> List.choose (fun id -> ElementRegistry.getElement id registry)
+                    |> List.choose (fun id -> tryGetDocumentById repo id)
+                    |> List.filter (fun doc -> doc.kind = DocumentKind.Architecture)
+                    |> List.map (createArchimateCard repo)
                     |> List.sortBy (fun e -> e.name)
                 let html = Views.Tags.tagPage webConfig tag elements
                 htmlView html next ctx

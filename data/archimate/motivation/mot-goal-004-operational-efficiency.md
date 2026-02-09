@@ -1,8 +1,11 @@
 ---
 id: mot-goal-004-operational-efficiency
-name: Operational Efficiency
-type: goal
-layer: motivation
+owner: Chief Operating Officer
+status: planning
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-drvr-003-cost-pressures-and-margin
@@ -19,17 +22,16 @@ relationships:
 - type: association
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Supports DORA compliance through resilience improvements
-properties:
-  owner: Chief Operating Officer
-  status: planning
-  criticality: high
-  last-updated: '2026-02-02'
+name: Operational Efficiency
 tags:
 - operational-efficiency
 - cost-reduction
 - process-optimization
+archimate:
+  type: goal
+  layer: motivation
+  criticality: high
 ---
-
 # Operational Efficiency
 
 Reduce operational costs and improve productivity through process automation, cloud migration, and modern technology infrastructure.

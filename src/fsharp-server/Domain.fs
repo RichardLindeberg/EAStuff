@@ -143,24 +143,6 @@ type Relationship = {
 /// Map of (sourceType, targetType) -> Set of allowed relationship code chars
 type RelationshipRules = Map<string * string, Set<char>>
 
-/// ArchiMate element core data
-type Element = {
-    id: string
-    name: string
-    elementType: ElementType
-    content: string
-    properties: Map<string, obj>
-    tags: string list
-    relationships: Relationship list
-}
-
-/// Element with computed relationship metadata
-type ElementWithRelations = {
-    element: Element
-    incomingRelations: (Element * Relationship) list
-    outgoingRelations: (Element * Relationship) list
-}
-
 /// Layer configuration and display information
 type LayerInfo = {
     displayName: string
@@ -242,6 +224,44 @@ module GovernanceDocType =
         | GovernanceDocType.Manual -> "GovernanceManual"
         | GovernanceDocType.Unknown value -> value
 
+/// Unified document kinds for the repository
+[<RequireQualifiedAccess>]
+type DocumentKind =
+    | Architecture
+    | Governance
+
+/// Governance-specific metadata
+type GovernanceMetadata = {
+    approvedBy: string
+    effectiveDate: string
+}
+
+/// ArchiMate-specific metadata
+type ArchimateMetadata = {
+    elementType: string
+    layer: Layer
+    layerValue: string
+    criticality: string option
+}
+
+/// Unified metadata model for all documents
+type DocumentMetaData = {
+    id: string
+    hasExplicitId: bool
+    hasExplicitName: bool
+    owner: string option
+    status: string option
+    version: string option
+    lastUpdated: string option
+    reviewCycle: string option
+    nextReview: string option
+    relationships: Relationship list
+    governance: GovernanceMetadata option
+    archimate: ArchimateMetadata option
+    extensions: Map<string, obj>
+    tags: string list
+}
+
 
 
 /// Unified relation entry between documents
@@ -252,30 +272,25 @@ type DocumentRelation = {
     description: string
 }
 
-/// Governance document metadata and content
-type GovernanceDocument = {
+/// Unified document record
+type DocumentRecord = {
+    id: string
     slug: string
-    docId: string
     title: string
-    docType: GovernanceDocType
     filePath: string
-    metadata: Map<string, string>
-    relations: Relationship list
+    kind: DocumentKind
+    metadata: DocumentMetaData
     content: string
     rawContent: string
 }
 
-/// Unified document kinds for repository content
-[<RequireQualifiedAccess>]
-type Document =
-    | Architecture of Element
-    | Governance of GovernanceDocument
-
-/// Governance document registry
-type GovernanceDocRegistry = {
-    documents: Map<string, GovernanceDocument>
-    documentsByType: Map<GovernanceDocType, string list>
-    managementSystemPath: string
+/// Unified document repository
+type DocumentRepository = {
+    documents: Map<string, DocumentRecord>
+    documentsByKind: Map<DocumentKind, string list>
+    documentsByLayer: Map<Layer, string list>
+    documentsByGovernanceType: Map<GovernanceDocType, string list>
+    relations: DocumentRelation list
     validationErrors: ValidationError list
 }
 

@@ -1,8 +1,11 @@
 ---
 id: app-comp-001-customer-portal
-name: Customer Portal
-type: application-component
-layer: application
+owner: IT Department
+status: production
+version: 2.1.0
+last_updated: '2026-01-15'
+review_cycle: annual
+next_review: '2027-01-15'
 relationships:
 - type: association
   target: bus-proc-005-customer-service-process
@@ -13,20 +16,20 @@ relationships:
 - type: association
   target: str-capa-010-online-services
   description: Realizes online services capability
-properties:
-  owner: IT Department
-  status: production
-  criticality: high
-  version: 2.1.0
-  lifecycle-phase: operate
-  last-updated: '2026-01-15'
-  legacy-id: app-comp-customer-portal-001
+name: Customer Portal
 tags:
 - customer-facing
 - web-application
 - public
+archimate:
+  type: application-component
+  layer: application
+  criticality: high
+extensions:
+  properties:
+    lifecycle-phase: operate
+    legacy-id: app-comp-customer-portal-001
 ---
-
 # Customer Portal
 
 The Customer Portal is the primary web-based application through which customers interact with our organization's services.

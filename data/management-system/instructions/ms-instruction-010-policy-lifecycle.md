@@ -1,20 +1,22 @@
-﻿---
+---
 id: ms-instruction-010-policy-lifecycle
-name: Policy Lifecycle Instruction
 owner: bus-role-019-corporate-governance-office
-approved_by: Head of Risk and Compliance
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: str-capa-009-regulatory-compliance-and-risk
-  - type: composition
-    target: ms-policy-010-governance-framework
-  - type: association
-    target: ms-manual-010-governance-system-overview
+- type: association
+  target: str-capa-009-regulatory-compliance-and-risk
+- type: composition
+  target: ms-policy-010-governance-framework
+- type: association
+  target: ms-manual-010-governance-system-overview
+name: Policy Lifecycle Instruction
+governance:
+  approved_by: Head of Risk and Compliance
+  effective_date: '2026-02-07'
 ---
 # Policy Lifecycle Instruction
 

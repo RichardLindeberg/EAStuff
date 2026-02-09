@@ -1,8 +1,11 @@
 ---
 id: str-rsrc-001-digital-talent-and-expertise
-name: Digital Talent and Expertise Resources
-type: resource
-layer: strategy
+owner: Chief Human Resources Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: serving
   target: str-capa-004-digital-banking-platform-capability
@@ -13,19 +16,20 @@ relationships:
 - type: serving
   target: str-capa-007-open-banking-ecosystem-capability
   description: Supports open banking ecosystem capability
-properties:
-  owner: Chief Human Resources Officer
-  status: developing
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: str-rsrc-digital-talent-001
+name: Digital Talent and Expertise Resources
 tags:
 - resource
 - talent
 - digital
 - strategic
+archimate:
+  type: resource
+  layer: strategy
+  criticality: high
+extensions:
+  properties:
+    legacy-id: str-rsrc-digital-talent-001
 ---
-
 # Digital Talent and Expertise Resources
 
 Critical resource of skilled digital talent including software engineers, data scientists, UX designers, and other technical expertise required to execute digital transformation.

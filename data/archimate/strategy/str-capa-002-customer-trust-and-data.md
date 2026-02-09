@@ -1,8 +1,11 @@
 ---
 id: str-capa-002-customer-trust-and-data
-name: Customer Trust and Data Privacy Capability
-type: capability
-layer: strategy
+owner: Chief Privacy Officer
+status: mature
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-005-customer-trust
@@ -13,21 +16,22 @@ relationships:
 - type: realization
   target: mot-reqt-008-transparent-customer-communication
   description: Realizes transparent communication requirement
-properties:
-  owner: Chief Privacy Officer
-  status: mature
-  criticality: critical
-  maturity-level: 3 - Defined
-  last-updated: '2026-02-02'
-  legacy-id: str-capa-customer-trust-001
+name: Customer Trust and Data Privacy Capability
 tags:
 - capability
 - trust
 - privacy
 - security
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    maturity-level: 3 - Defined
+    legacy-id: str-capa-customer-trust-001
 ---
-
 # Customer Trust and Data Privacy Capability
 
 Strategic capability to protect customer data, maintain privacy, and communicate transparently to build and maintain customer trust.

@@ -1,8 +1,11 @@
 ---
 id: bus-objt-001-beneficial-owner
-name: Beneficial Owner
-type: business-object
-layer: business
+owner: Compliance and AML
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: composition
   target: bus-objt-010-natural-person
@@ -13,19 +16,20 @@ relationships:
 - type: association
   target: bus-proc-002-beneficial-ownership-identification-proc
   description: Identified through BO identification process
-properties:
-  owner: Compliance and AML
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-beneficial-owner-001
+name: Beneficial Owner
 tags:
 - business-object
 - beneficial-ownership
 - compliance
 - aml-kyc
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-beneficial-owner-001
 ---
-
 # Beneficial Owner
 
 Business object representing natural persons who ultimately own or control a legal entity.

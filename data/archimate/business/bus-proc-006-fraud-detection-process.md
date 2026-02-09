@@ -1,8 +1,11 @@
 ---
 id: bus-proc-006-fraud-detection-process
-name: Fraud Detection Process
-type: business-process
-layer: business
+owner: Fraud Prevention Department
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: serving
   target: bus-proc-008-payment-processing
@@ -13,19 +16,20 @@ relationships:
 - type: access
   target: bus-objt-016-transaction
   description: Analyzes transactions
-properties:
-  owner: Fraud Prevention Department
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-proc-fraud-detection-001
+name: Fraud Detection Process
 tags:
 - process
 - security
 - fraud-prevention
 - risk-management
+archimate:
+  type: business-process
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-proc-fraud-detection-001
 ---
-
 # Fraud Detection Process
 
 Real-time process for detecting and preventing fraudulent transactions and activities.

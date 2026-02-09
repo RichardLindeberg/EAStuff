@@ -1,54 +1,56 @@
-﻿---
+---
 id: ms-policy-011-aml-ctf
-name: AML/CTF Policy
 owner: bus-role-004-chief-compliance-officer
-approved_by: Board of Directors
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-013-kyc-and-customer-identification
-  - type: association
-    target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: association
-    target: mot-reqt-015-suspicious-activity-reporting-sar
-  - type: association
-    target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: association
-    target: ms-policy-012-kyc-cdd
-  - type: association
-    target: ms-policy-013-sanctions-screening
-  - type: association
-    target: ms-instruction-011-kyc-onboarding
-  - type: association
-    target: ms-instruction-012-beneficial-ownership
-  - type: association
-    target: ms-instruction-014-sar-filing
-  - type: association
-    target: ms-instruction-015-edd-review
-  - type: association
-    target: ms-instruction-022-pep-screening
-  - type: association
-    target: ms-instruction-023-ongoing-kyc-refresh
-  - type: association
-    target: ms-instruction-024-sanctions-hit-escalation
-  - type: association
-    target: ms-instruction-025-transaction-monitoring-calibration
-  - type: association
-    target: ms-manual-011-aml-ctf-compliance
-  - type: association
-    target: ms-manual-021-kyc-cdd-ongoing-monitoring
-  - type: association
-    target: ms-manual-022-pep-management
-  - type: association
-    target: ms-manual-023-sanctions-screening-operations
-  - type: association
-    target: ms-manual-024-transaction-monitoring-typologies
-  - type: association
-    target: ms-manual-025-fiu-reporting-str
+- type: association
+  target: mot-reqt-013-kyc-and-customer-identification
+- type: association
+  target: mot-reqt-014-transaction-monitoring-and-screening
+- type: association
+  target: mot-reqt-015-suspicious-activity-reporting-sar
+- type: association
+  target: mot-reqt-016-enhanced-due-diligence-edd
+- type: association
+  target: ms-policy-012-kyc-cdd
+- type: association
+  target: ms-policy-013-sanctions-screening
+- type: association
+  target: ms-instruction-011-kyc-onboarding
+- type: association
+  target: ms-instruction-012-beneficial-ownership
+- type: association
+  target: ms-instruction-014-sar-filing
+- type: association
+  target: ms-instruction-015-edd-review
+- type: association
+  target: ms-instruction-022-pep-screening
+- type: association
+  target: ms-instruction-023-ongoing-kyc-refresh
+- type: association
+  target: ms-instruction-024-sanctions-hit-escalation
+- type: association
+  target: ms-instruction-025-transaction-monitoring-calibration
+- type: association
+  target: ms-manual-011-aml-ctf-compliance
+- type: association
+  target: ms-manual-021-kyc-cdd-ongoing-monitoring
+- type: association
+  target: ms-manual-022-pep-management
+- type: association
+  target: ms-manual-023-sanctions-screening-operations
+- type: association
+  target: ms-manual-024-transaction-monitoring-typologies
+- type: association
+  target: ms-manual-025-fiu-reporting-str
+name: AML/CTF Policy
+governance:
+  approved_by: Board of Directors
+  effective_date: '2026-02-07'
 ---
 # AML/CTF Policy
 

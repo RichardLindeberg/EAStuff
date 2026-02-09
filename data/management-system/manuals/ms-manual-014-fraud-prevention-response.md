@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-manual-014-fraud-prevention-response
-name: Fraud Prevention and Response Manual
 owner: bus-role-005-fraud-prevention-department
-approved_by: Chief Risk Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: bus-proc-006-fraud-detection-process
-  - type: association
-    target: str-vstr-003-secure-and-resilient-operations
-  - type: association
-    target: ms-policy-014-fraud-risk-management
-  - type: composition
-    target: ms-instruction-018-fraud-case-investigation
+- type: association
+  target: bus-proc-006-fraud-detection-process
+- type: association
+  target: str-vstr-003-secure-and-resilient-operations
+- type: association
+  target: ms-policy-014-fraud-risk-management
+- type: composition
+  target: ms-instruction-018-fraud-case-investigation
+name: Fraud Prevention and Response Manual
+governance:
+  approved_by: Chief Risk Officer
+  effective_date: '2026-02-07'
 ---
 # Fraud Prevention and Response Manual
 

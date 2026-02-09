@@ -1,8 +1,11 @@
 ---
 id: bus-objt-004-customer-agreement
-name: Customer Agreement
-type: business-object
-layer: business
+owner: Legal and Product Management
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-objt-011-party
@@ -19,19 +22,20 @@ relationships:
 - type: composition
   target: bus-objt-003-customer-account
   description: May establish account relationship
-properties:
-  owner: Legal and Product Management
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-customer-agreement-001
+name: Customer Agreement
 tags:
 - business-object
 - legal-agreement
 - contract
 - customer-relationship
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-customer-agreement-001
 ---
-
 # Customer Agreement
 
 Business object representing the contractual agreement that establishes and governs the banking relationship between the bank and a customer (party).

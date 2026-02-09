@@ -1,8 +1,11 @@
 ---
 id: app-intf-001-web-ui
-name: Web User Interface
-type: application-interface
-layer: application
+owner: Digital Experience Team
+status: production
+version: 3.2.0
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: serving
   target: bus-role-001-account-holder
@@ -13,20 +16,20 @@ relationships:
 - type: realization
   target: mot-reqt-003-mobile-first-banking-design
   description: Implements responsive design principles
-properties:
-  owner: Digital Experience Team
-  status: production
-  criticality: high
-  technology: React, TypeScript
-  version: "3.2.0"
-  lifecycle-phase: operate
-  last-updated: "2026-02-03"
+name: Web User Interface
 tags:
 - web-interface
 - customer-facing
 - responsive-design
+archimate:
+  type: application-interface
+  layer: application
+  criticality: high
+extensions:
+  properties:
+    technology: React, TypeScript
+    lifecycle-phase: operate
 ---
-
 # Web User Interface
 
 Modern responsive web interface for the customer portal providing seamless banking services across devices.

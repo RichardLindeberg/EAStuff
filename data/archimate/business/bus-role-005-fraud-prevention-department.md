@@ -1,18 +1,20 @@
 ---
 id: bus-role-005-fraud-prevention-department
-name: Fraud Prevention Department
-type: business-role
-layer: business
+owner: Risk Division
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Risk Division
-  status: active
-  last-updated: '2026-02-07'
+name: Fraud Prevention Department
 tags:
 - role
 - fraud
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Fraud Prevention Department
 
 Role responsible for fraud prevention strategy, detection processes, and response coordination.

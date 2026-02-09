@@ -1,8 +1,11 @@
 ---
 id: mot-goal-003-digital-banking-excellence
-name: Digital Banking Excellence
-type: goal
-layer: motivation
+owner: Chief Digital Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-drvr-002-market-digital-transformation-trends
@@ -13,17 +16,16 @@ relationships:
 - type: influence
   target: mot-reqt-004-seamless-omnichannel-user-experience
   description: Requires seamless user experience across channels
-properties:
-  owner: Chief Digital Officer
-  status: in-progress
-  criticality: high
-  last-updated: '2026-02-02'
+name: Digital Banking Excellence
 tags:
 - digital-transformation
 - customer-experience
 - innovation
+archimate:
+  type: goal
+  layer: motivation
+  criticality: high
 ---
-
 # Digital Banking Excellence
 
 Deliver world-class digital banking services through intuitive mobile and web platforms that meet customer expectations and competitive standards.

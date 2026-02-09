@@ -1,8 +1,11 @@
 ---
 id: str-capa-004-digital-banking-platform-capability
-name: Digital Banking Platform Capability
-type: capability
-layer: strategy
+owner: Chief Digital Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-003-digital-banking-excellence
@@ -13,20 +16,21 @@ relationships:
 - type: realization
   target: mot-reqt-004-seamless-omnichannel-user-experience
   description: Realizes seamless omnichannel UX requirement
-properties:
-  owner: Chief Digital Officer
-  status: developing
-  criticality: critical
-  maturity-level: 2 - Repeatable
-  last-updated: '2026-02-02'
-  legacy-id: str-capa-digital-banking-001
+name: Digital Banking Platform Capability
 tags:
 - capability
 - digital
 - customer-facing
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    maturity-level: 2 - Repeatable
+    legacy-id: str-capa-digital-banking-001
 ---
-
 # Digital Banking Platform Capability
 
 Strategic capability to deliver comprehensive digital banking services across mobile, web, and integrated channels with world-class user experience.

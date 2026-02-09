@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-012-ict-incident-detection-and
-name: ICT Incident Detection and Response
-type: requirement
-layer: motivation
+owner: Chief Information Security Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: mot-reqt-011-dora-digital-operational-resilience
@@ -10,19 +13,20 @@ relationships:
 - type: influence
   target: mot-reqt-007-data-security-and-privacy
   description: Complements data security controls
-properties:
-  owner: Chief Information Security Officer
-  status: in-progress
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-012-ict-incident-response
+name: ICT Incident Detection and Response
 tags:
 - dora
 - incident-response
 - cybersecurity
 - operational-resilience
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-requirement-012-ict-incident-response
 ---
-
 # ICT Incident Detection and Response
 
 Comprehensive capability to detect, classify, respond to, and report ICT incidents in compliance with DORA requirements.

@@ -1,8 +1,11 @@
 ---
 id: bus-colab-001-customer-support-team
-name: Customer Support Team
-type: business-collaboration
-layer: business
+owner: Head of Customer Service
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: aggregation
   target: bus-role-003-support-agent
@@ -16,19 +19,20 @@ relationships:
 - type: serving
   target: bus-srvc-006-customer-support-service
   description: Delivers customer support service
-properties:
-  owner: Head of Customer Service
-  status: active
-  criticality: high
-  team-size: "150+ members across Nordic markets"
-  operating-hours: "24/7 (tiered coverage)"
-  last-updated: "2026-02-03"
+name: Customer Support Team
 tags:
 - collaboration
 - customer-service
 - support-team
+archimate:
+  type: business-collaboration
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    team-size: 150+ members across Nordic markets
+    operating-hours: 24/7 (tiered coverage)
 ---
-
 # Customer Support Team
 
 Multi-disciplinary team collaboration providing customer support services across all Nordic markets and channels.

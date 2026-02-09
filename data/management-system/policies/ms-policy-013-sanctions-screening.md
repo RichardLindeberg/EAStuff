@@ -1,28 +1,30 @@
-﻿---
+---
 id: ms-policy-013-sanctions-screening
-name: Sanctions Screening Policy
 owner: bus-role-004-chief-compliance-officer
-approved_by: Risk Committee
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: association
-    target: bus-proc-008-payment-processing
-  - type: association
-    target: ms-policy-011-aml-ctf
-  - type: association
-    target: ms-instruction-013-transaction-monitoring-alerts
-  - type: association
-    target: ms-instruction-024-sanctions-hit-escalation
-  - type: association
-    target: ms-manual-013-transaction-monitoring-sanctions
-  - type: association
-    target: ms-manual-023-sanctions-screening-operations
+- type: association
+  target: mot-reqt-014-transaction-monitoring-and-screening
+- type: association
+  target: bus-proc-008-payment-processing
+- type: association
+  target: ms-policy-011-aml-ctf
+- type: association
+  target: ms-instruction-013-transaction-monitoring-alerts
+- type: association
+  target: ms-instruction-024-sanctions-hit-escalation
+- type: association
+  target: ms-manual-013-transaction-monitoring-sanctions
+- type: association
+  target: ms-manual-023-sanctions-screening-operations
+name: Sanctions Screening Policy
+governance:
+  approved_by: Risk Committee
+  effective_date: '2026-02-07'
 ---
 # Sanctions Screening Policy
 

@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-008-transparent-customer-communication
-name: Transparent Customer Communication
-type: requirement
-layer: motivation
+owner: Chief Customer Officer
+status: ongoing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-005-customer-trust
@@ -13,19 +16,20 @@ relationships:
 - type: realization
   target: mot-prin-004-sustainability-and-social-responsibility
   description: Realizes sustainability principle through transparency
-properties:
-  owner: Chief Customer Officer
-  status: ongoing
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-008-transparent-communication
+name: Transparent Customer Communication
 tags:
 - communication
 - transparency
 - customer-service
 - trust
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-008-transparent-communication
 ---
-
 # Transparent Customer Communication
 
 All customer communications regarding fees, terms, services, and changes must be clear, timely, and easily understandable.

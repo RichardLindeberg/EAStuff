@@ -1,8 +1,11 @@
 ---
 id: str-vstr-001-digital-customer-journey-value
-name: Digital Customer Journey Value Stream
-type: value-stream
-layer: strategy
+owner: Chief Customer Officer
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: str-capa-004-digital-banking-platform-capability
@@ -13,19 +16,20 @@ relationships:
 - type: association
   target: mot-goal-003-digital-banking-excellence
   description: Supports digital banking goal
-properties:
-  owner: Chief Customer Officer
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: str-vstr-digital-customer-journey-001
+name: Digital Customer Journey Value Stream
 tags:
 - value-stream
 - customer-journey
 - digital
 - strategic
+archimate:
+  type: value-stream
+  layer: strategy
+  criticality: high
+extensions:
+  properties:
+    legacy-id: str-vstr-digital-customer-journey-001
 ---
-
 # Digital Customer Journey Value Stream
 
 Complete value stream encompassing how customers discover, evaluate, onboard with, and engage with the bank through digital channels.

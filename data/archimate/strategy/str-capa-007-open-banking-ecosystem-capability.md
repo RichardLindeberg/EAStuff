@@ -1,8 +1,11 @@
 ---
 id: str-capa-007-open-banking-ecosystem-capability
-name: Open Banking Ecosystem Capability
-type: capability
-layer: strategy
+owner: Chief Technology Officer
+status: developing
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-006-open-banking-capability
@@ -13,21 +16,22 @@ relationships:
 - type: realization
   target: mot-reqt-010-strategic-ecosystem-partnerships
   description: Realizes ecosystem partnerships requirement
-properties:
-  owner: Chief Technology Officer
-  status: developing
-  criticality: high
-  maturity-level: 2 - Repeatable
-  last-updated: '2026-02-02'
-  legacy-id: str-capa-open-banking-ecosystem-001
+name: Open Banking Ecosystem Capability
 tags:
 - capability
 - open-banking
 - api
 - ecosystem
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: high
+extensions:
+  properties:
+    maturity-level: 2 - Repeatable
+    legacy-id: str-capa-open-banking-ecosystem-001
 ---
-
 # Open Banking Ecosystem Capability
 
 Strategic capability to expose banking services through secure APIs and participate in financial services ecosystems with partners and third parties.

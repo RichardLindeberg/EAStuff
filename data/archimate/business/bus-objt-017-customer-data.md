@@ -1,8 +1,11 @@
 ---
 id: bus-objt-017-customer-data
-name: Customer Data
-type: business-object
-layer: business
+owner: Chief Data Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: composition
   target: bus-objt-006-customer-profile
@@ -19,20 +22,21 @@ relationships:
 - type: association
   target: bus-actr-002-customer-service-representative
   description: Accessed by customer service representatives
-properties:
-  owner: Chief Data Officer
-  status: active
-  criticality: critical
-  data-classification: confidential-pii
-  retention-period: "per GDPR and banking regulations"
-  last-updated: "2026-02-03"
+name: Customer Data
 tags:
 - customer-data
 - business-object
 - pii
 - gdpr
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    data-classification: confidential-pii
+    retention-period: per GDPR and banking regulations
 ---
-
 # Customer Data
 
 Comprehensive collection of customer information used across banking operations, subject to strict data protection requirements.

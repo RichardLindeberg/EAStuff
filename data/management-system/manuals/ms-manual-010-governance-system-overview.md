@@ -1,20 +1,22 @@
-﻿---
+---
 id: ms-manual-010-governance-system-overview
-name: Governance System Manual
 owner: bus-role-019-corporate-governance-office
-approved_by: Chief Operating Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: str-capa-009-regulatory-compliance-and-risk
-  - type: association
-    target: ms-policy-010-governance-framework
-  - type: composition
-    target: ms-instruction-010-policy-lifecycle
+- type: association
+  target: str-capa-009-regulatory-compliance-and-risk
+- type: association
+  target: ms-policy-010-governance-framework
+- type: composition
+  target: ms-instruction-010-policy-lifecycle
+name: Governance System Manual
+governance:
+  approved_by: Chief Operating Officer
+  effective_date: '2026-02-07'
 ---
 # Governance System Manual
 

@@ -1,8 +1,6 @@
 namespace EAArchive.Views
 
 open System
-open System.Collections
-open System.Collections.Generic
 open System.Net
 open EAArchive
 open EAArchive.ViewHelpers
@@ -12,74 +10,32 @@ open Common
 
 module Elements =
 
-    let private getMetadataString (key: string) (metadata: Map<string, obj>) : string option =
-        ElementRegistry.getString key metadata
-
-    let private buildPropertiesMap (elem: Element) : Map<string, obj> =
-        elem.properties
-        |> Map.tryFind "properties"
-        |> Option.bind (fun value ->
-            match value with
-            | :? IDictionary as dict ->
-                dict
-                |> Seq.cast<obj>
-                |> Seq.choose (fun entry ->
-                    match entry with
-                    | :? KeyValuePair<obj, obj> as kvp ->
-                        match kvp.Key with
-                        | :? string as key -> Some (key, kvp.Value)
-                        | _ -> None
-                    | :? DictionaryEntry as de ->
-                        match de.Key with
-                        | :? string as key -> Some (key, de.Value)
-                        | _ -> None
-                    | _ -> None
-                )
-                |> Map.ofSeq
-                |> Some
-            | _ -> None
-        )
-        |> Option.defaultValue Map.empty
-
-    let private tryGetPropertyValue (propertiesMap: Map<string, obj>) (key: string) : string option =
-        match Map.tryFind key propertiesMap with
-        | Some value ->
-            let text = if isNull value then "" else value.ToString()
-            let trimmed = text.Trim()
-            if trimmed = "" then None else Some trimmed
-        | None -> None
-
     let private formatGovernanceRelationType (value: RelationType) : string =
         ElementType.relationTypeToDisplayName value
 
     /// Element detail page
-    let elementPage
-        (webConfig: WebUiConfig)
-        (elemWithRels: ElementWithRelations)
-        (ownerDocs: GovernanceDocument list)
-        (incomingGovernance: (GovernanceDocument * Relationship) list) =
+    let elementPage (webConfig: WebUiConfig) (detail: ArchimateDetailView) : XmlNode =
         let baseUrl = webConfig.BaseUrl
-        let elem = elemWithRels.element
 
-        let relationItem (related: Element) (rel: Relationship) (isIncoming: bool) =
+        let relationItem (related: ArchimateRelationView) (isIncoming: bool) =
             let relClass = if isIncoming then "incoming" else ""
             li [_class $"relation-item {relClass}"] [
-                span [_class "relation-type"] [encodedText (ElementType.relationTypeToDisplayName rel.relationType)]
-                a [_href $"{baseUrl}elements/{related.id}"] [
-                    encodedText related.name
+                span [_class "relation-type"] [encodedText (ElementType.relationTypeToDisplayName related.relationType)]
+                a [_href $"{baseUrl}elements/{related.relatedId}"] [
+                    encodedText related.relatedName
                 ]
-                if rel.description <> "" then
-                    div [_class "relation-description"] [encodedText rel.description]
+                if related.description <> "" then
+                    div [_class "relation-description"] [encodedText related.description]
             ]
 
         let incomingSection =
-            if not (List.isEmpty elemWithRels.incomingRelations) then
+            if not (List.isEmpty detail.incomingRelations) then
                 [
                     div [_class "relations-section"] [
                         h3 [] [encodedText "Incoming Relations"]
                         ul [_class "relation-list"] [
-                            for (source, rel) in elemWithRels.incomingRelations do
-                                relationItem source rel true
+                            for rel in detail.incomingRelations do
+                                relationItem rel true
                         ]
                     ]
                 ]
@@ -87,13 +43,13 @@ module Elements =
                 []
 
         let outgoingSection =
-            if not (List.isEmpty elemWithRels.outgoingRelations) then
+            if not (List.isEmpty detail.outgoingRelations) then
                 [
                     div [_class "relations-section"] [
                         h3 [] [encodedText "Outgoing Relations"]
                         ul [_class "relation-list"] [
-                            for (target, rel) in elemWithRels.outgoingRelations do
-                                relationItem target rel false
+                            for rel in detail.outgoingRelations do
+                                relationItem rel false
                         ]
                     ]
                 ]
@@ -101,12 +57,12 @@ module Elements =
                 []
 
         let governanceOwnerSection =
-            if not (List.isEmpty ownerDocs) then
+            if not (List.isEmpty detail.governanceOwners) then
                 [
                     div [_class "relations-section"] [
                         h3 [] [encodedText "Governance Ownership"]
                         ul [_class "relation-list"] [
-                            for doc in ownerDocs |> List.sortBy (fun d -> d.title) do
+                            for doc in detail.governanceOwners |> List.sortBy (fun d -> d.title) do
                                 li [_class "relation-item"] [
                                     span [_class "relation-type governance-relation-type"] [encodedText "Owner"]
                                     span [_class "governance-relation-label"] [encodedText (docTypeToString doc.docType)]
@@ -121,14 +77,14 @@ module Elements =
                 []
 
         let governanceIncomingSection =
-            if not (List.isEmpty incomingGovernance) then
+            if not (List.isEmpty detail.governanceIncoming) then
                 [
                     div [_class "relations-section"] [
                         h3 [] [encodedText "Governance Relations"]
                         ul [_class "relation-list"] [
-                            for (doc, rel) in incomingGovernance |> List.sortBy (fun (d, _) -> d.title) do
+                            for doc in detail.governanceIncoming |> List.sortBy (fun d -> d.title) do
                                 li [_class "relation-item"] [
-                                    span [_class "relation-type governance-relation-type"] [encodedText (formatGovernanceRelationType rel.relationType)]
+                                    span [_class "relation-type governance-relation-type"] [encodedText (formatGovernanceRelationType doc.relationType)]
                                     span [_class "governance-relation-label"] [encodedText (docTypeToString doc.docType)]
                                     a [_href $"{baseUrl}governance/{doc.slug}"] [
                                         encodedText doc.title
@@ -140,25 +96,6 @@ module Elements =
             else
                 []
 
-        let propertiesMap = buildPropertiesMap elem
-
-        let tryGetProperty (key: string) : string option =
-            tryGetPropertyValue propertiesMap key
-
-        let propertyItems =
-            [
-                ("owner", "Owner")
-                ("status", "Status")
-                ("criticality", "Criticality")
-                ("version", "Version")
-                ("lifecycle-phase", "Lifecycle phase")
-                ("last-updated", "Last updated")
-            ]
-            |> List.choose (fun (key, label) ->
-                tryGetProperty key
-                |> Option.map (fun value -> (label, value))
-            )
-
         let content = [
             div [_class "container"] [
                 div [_class "edit-toolbar"] [
@@ -168,7 +105,7 @@ module Elements =
 #if DEBUG
                         _hxExt "debug"
 #endif
-                        _hxGet $"{baseUrl}elements/{elem.id}/edit"
+                        _hxGet $"{baseUrl}elements/{detail.id}/edit"
                         _hxTarget "#swapthis"
                         _hxSwap "innerHTML"
                     ] [
@@ -176,7 +113,7 @@ module Elements =
                     ]
                 ]
 
-                let layerName = ElementType.getLayer elem.elementType
+                let layerName = detail.layer
                 let layerNameLower = Layer.toKey layerName
                 div [_class "breadcrumb"] [
                     a [_href $"{baseUrl}"] [encodedText "Home"]
@@ -188,7 +125,7 @@ module Elements =
                         |> Option.defaultValue (Layer.toString layerName)
                     )]
                     encodedText " / "
-                    encodedText elem.name
+                    encodedText detail.name
                 ]
 
                 div [
@@ -198,9 +135,9 @@ module Elements =
                     div [_id "edit-panel"; _class "edit-panel"] []
 
                     div [_class "element-view"] [
-                        h2 [] [encodedText elem.name]
+                        h2 [] [encodedText detail.name]
                         let elementTypeStr =
-                            match elem.elementType with
+                            match detail.elementType with
                             | ElementType.Strategy st -> sprintf "Strategy - %A" st
                             | ElementType.Motivation mt -> sprintf "Motivation - %A" mt
                             | ElementType.Business bt -> sprintf "Business - %A" bt
@@ -213,7 +150,7 @@ module Elements =
                         div [_class "metadata"] [
                             div [_class "metadata-item"] [
                                 div [_class "metadata-label"] [encodedText "ID"]
-                                div [_class "metadata-value"] [encodedText elem.id]
+                                div [_class "metadata-value"] [encodedText detail.id]
                             ]
                             div [_class "metadata-item"] [
                                 div [_class "metadata-label"] [encodedText "Type"]
@@ -224,11 +161,11 @@ module Elements =
                                 div [_class "metadata-value"] [encodedText (Layer.toString layerName)]
                             ]
                         ]
-                        if not (List.isEmpty propertyItems) then
+                        if not (List.isEmpty detail.properties) then
                             div [_class "properties-section"] [
                                 h3 [] [encodedText "Properties"]
                                 div [_class "metadata"] [
-                                    for (label, value) in propertyItems do
+                                    for (label, value) in detail.properties do
                                         div [_class "metadata-item"] [
                                             div [_class "metadata-label"] [encodedText label]
                                             div [_class "metadata-value"] [encodedText value]
@@ -236,9 +173,9 @@ module Elements =
                                 ]
                             ]
 
-                        if not (List.isEmpty elem.tags) then
+                        if not (List.isEmpty detail.tags) then
                             div [_class "tags"] [
-                                for tag in elem.tags do
+                                for tag in detail.tags do
                                     a [_href $"{baseUrl}tags/{tag}"; _class "tag"] [
                                         encodedText tag
                                     ]
@@ -250,20 +187,20 @@ module Elements =
                             ]
                             div [_class "diagram-links"] [
                                 p [] [encodedText "View this element's relationships in different depths:"]
-                                a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=1"; _class "diagram-link"] [
+                                a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=1"; _class "diagram-link"] [
                                     encodedText "Direct relationships (1 level)"
                                 ]
-                                a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=2"; _class "diagram-link"] [
+                                a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=2"; _class "diagram-link"] [
                                     encodedText "Extended relationships (2 levels)"
                                 ]
-                                a [_href $"{baseUrl}diagrams/context/{elem.id}?depth=3"; _class "diagram-link"] [
+                                a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=3"; _class "diagram-link"] [
                                     encodedText "Full relationships (3 levels)"
                                 ]
                             ]
                         ]
 
-                        if elem.content <> "" then
-                            let htmlContent = markdownToHtml elem.content
+                        if detail.content <> "" then
+                            let htmlContent = markdownToHtml detail.content
                             div [_class "content-section"] [
                                 rawText htmlContent
                             ]
@@ -277,19 +214,12 @@ module Elements =
             ]
         ]
 
-        htmlPage webConfig elem.name "element" content
+        htmlPage webConfig detail.name "element" content
 
-    let elementEditFormPartial (webConfig: WebUiConfig) (elem: Element) (registry: ElementRegistry) : XmlNode =
+    let elementEditFormPartial (webConfig: WebUiConfig) (elem: ArchimateEditView) (elementOptions: (string * string) list) : XmlNode =
         let baseUrl = webConfig.BaseUrl
-        let propertiesMap = buildPropertiesMap elem
         let propertyValue key =
-            tryGetPropertyValue propertiesMap key |> Option.defaultValue ""
-
-        let layerValue =
-            getMetadataString "layer" elem.properties |> Option.defaultValue ""
-
-        let typeValue =
-            getMetadataString "type" elem.properties |> Option.defaultValue ""
+            elem.properties |> Map.tryFind key |> Option.defaultValue ""
 
         let tagValue =
             if List.isEmpty elem.tags then "" else String.concat ", " elem.tags
@@ -317,7 +247,7 @@ module Elements =
 
         let layerOptions = Config.layerOptions
 
-        let typeOptions = Config.getTypeOptions layerValue
+        let typeOptions = Config.getTypeOptions elem.layerValue
 
         let statusOptions = ["draft"; "proposed"; "active"; "production"; "deprecated"; "retired"]
 
@@ -348,11 +278,11 @@ module Elements =
                             attr "hx-trigger" "change"
                             attr "hx-target" "#type"
                             attr "hx-include" "#type"
-                        ] (selectOptions layerValue layerOptions)
+                        ] (selectOptions elem.layerValue layerOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "type"] [encodedText "Type"]
-                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" typeValue typeOptions)
+                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" elem.typeValue typeOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "tags"] [encodedText "Tags (comma-separated)"]
@@ -391,8 +321,8 @@ module Elements =
                                 Relations.relationRowPartial webConfig elem.id 0 "" "" ""
                         ]
                         datalist [_id "element-id-list"] [
-                            for (_, elemValue) in registry.elements |> Map.toList |> List.sortBy (fun (_, e) -> e.name) do
-                                rawText $"<option value=\"{WebUtility.HtmlEncode elemValue.id}\">{WebUtility.HtmlEncode elemValue.name}</option>"
+                            for (elemId, elemName) in elementOptions do
+                                rawText $"<option value=\"{WebUtility.HtmlEncode elemId}\">{WebUtility.HtmlEncode elemName}</option>"
                         ]
                         button [
                             _type "button"
@@ -400,35 +330,27 @@ module Elements =
                             _hxGet $"{baseUrl}elements/relations/row"
                             _hxTarget "#relations-container"
                             _hxSwap "beforeend"
-                            attr "hx-vals" "js:{index: document.querySelectorAll('.relation-row').length, sourceId: document.getElementById('id').value}"
+                            _hxVals $"js:{{sourceId: '{elem.id}', index: document.querySelectorAll('.relation-row').length}}"
                         ] [
                             encodedText "Add relation"
                         ]
                     ]
-                ]
-                div [_class "form-row"] [
-                    label [_for "content"] [encodedText "Content (Markdown)"]
-                    textarea [_id "content"; _name "content"; _rows "18"; _class "edit-textarea"] [
-                        encodedText elem.content
+                    div [_class "form-row"] [
+                        label [_for "content"] [encodedText "Content"]
+                        textarea [_id "content"; _name "content"; _class "edit-textarea"; _rows "8"] [encodedText elem.content]
                     ]
-                ]
-                div [_class "form-actions"] [
-                    button [_type "submit"; _class "primary-button"] [encodedText "Download updated file"]
-                    button [
-                        _type "button"
-                        _class "secondary-button"
-                        attr "hx-on:click" "this.closest('.element-detail').classList.remove('is-editing');document.getElementById('edit-panel').innerHTML='';"
-                    ] [
-                        encodedText "Cancel"
-                    ]
+                    button [_type "submit"; _class "primary-button"] [encodedText "Download"]
                 ]
             ]
         ]
 
-    let elementNewFormPartial (webConfig: WebUiConfig) (layerValue: string) (registry: ElementRegistry) : XmlNode =
+    let elementNewFormPartial (webConfig: WebUiConfig) (layerValue: string) (elementOptions: (string * string) list) : XmlNode =
         let baseUrl = webConfig.BaseUrl
-        let emptyValue = ""
-        let tagValue = ""
+        let layerOptions = Config.layerOptions
+        let typeOptions = Config.getTypeOptions layerValue
+        let statusOptions = ["draft"; "proposed"; "active"; "production"; "deprecated"; "retired"]
+        let criticalityOptions = ["low"; "medium"; "high"; "critical"]
+        let lifecycleOptions = ["plan"; "design"; "build"; "operate"; "retire"]
 
         let selectOptions (currentValue: string) (options: string list) : XmlNode list =
             let normalized = currentValue.Trim()
@@ -448,26 +370,17 @@ module Elements =
             let placeholderOption = placeholderOptionNode placeholder (normalized = "")
             placeholderOption :: selectOptions currentValue options
 
-        let layerOptions = Config.layerOptions
-
-        let typeOptions = Config.getTypeOptions layerValue
-
-        let statusOptions = ["draft"; "proposed"; "active"; "production"; "deprecated"; "retired"]
-        let criticalityOptions = ["low"; "medium"; "high"; "critical"]
-        let lifecycleOptions = ["plan"; "design"; "build"; "operate"; "retire"]
-
-        div [_class "new-element-panel"] [
+        div [_id "new-element-panel"; _class "edit-panel"] [
             h3 [] [encodedText "New Element"]
             form [
                 _method "post"
                 _action $"{baseUrl}elements/new/download"
                 _class "edit-form"
             ] [
-                input [_type "hidden"; _id "id"; _name "id"; _value emptyValue]
                 div [_class "form-stack"] [
                     div [_class "form-row"] [
                         label [_for "name"] [encodedText "Name"]
-                        input [_type "text"; _id "name"; _name "name"; _value emptyValue; _class "edit-input"]
+                        input [_type "text"; _id "name"; _name "name"; _class "edit-input"]
                     ]
                     div [_class "form-row"] [
                         label [_for "layer"] [encodedText "Layer"]
@@ -478,50 +391,49 @@ module Elements =
                             attr "hx-get" $"{baseUrl}elements/types"
                             attr "hx-trigger" "change"
                             attr "hx-target" "#type"
-                            attr "hx-swap" "outerHTML"
                             attr "hx-include" "#type"
                         ] (selectOptions layerValue layerOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "type"] [encodedText "Type"]
-                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" emptyValue typeOptions)
+                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" "" typeOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "tags"] [encodedText "Tags (comma-separated)"]
-                        input [_type "text"; _id "tags"; _name "tags"; _value tagValue; _class "edit-input"]
+                        input [_type "text"; _id "tags"; _name "tags"; _class "edit-input"]
                     ]
                     div [_class "form-row"] [
                         label [_for "owner"] [encodedText "Owner"]
-                        input [_type "text"; _id "owner"; _name "owner"; _value emptyValue; _class "edit-input"]
+                        input [_type "text"; _id "owner"; _name "owner"; _class "edit-input"]
                     ]
                     div [_class "form-row"] [
                         label [_for "status"] [encodedText "Status"]
-                        select [_id "status"; _name "status"; _class "edit-input"] (selectOptions emptyValue statusOptions)
+                        select [_id "status"; _name "status"; _class "edit-input"] (selectOptions "" statusOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "criticality"] [encodedText "Criticality"]
-                        select [_id "criticality"; _name "criticality"; _class "edit-input"] (selectOptions emptyValue criticalityOptions)
+                        select [_id "criticality"; _name "criticality"; _class "edit-input"] (selectOptions "" criticalityOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "version"] [encodedText "Version"]
-                        input [_type "text"; _id "version"; _name "version"; _value emptyValue; _class "edit-input"]
+                        input [_type "text"; _id "version"; _name "version"; _class "edit-input"]
                     ]
                     div [_class "form-row"] [
                         label [_for "lifecycle-phase"] [encodedText "Lifecycle phase"]
-                        select [_id "lifecycle-phase"; _name "lifecycle-phase"; _class "edit-input"] (selectOptions emptyValue lifecycleOptions)
+                        select [_id "lifecycle-phase"; _name "lifecycle-phase"; _class "edit-input"] (selectOptions "" lifecycleOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "last-updated"] [encodedText "Last updated"]
-                        input [_type "text"; _id "last-updated"; _name "last-updated"; _value emptyValue; _class "edit-input"]
+                        input [_type "text"; _id "last-updated"; _name "last-updated"; _class "edit-input"]
                     ]
                     div [_class "form-row"] [
                         label [] [encodedText "Outgoing relations"]
                         div [_id "relations-container"] [
-                            Relations.relationRowPartial webConfig emptyValue 0 "" "" ""
+                            Relations.relationRowPartial webConfig "" 0 "" "" ""
                         ]
                         datalist [_id "element-id-list"] [
-                            for (_, elemValue) in registry.elements |> Map.toList |> List.sortBy (fun (_, e) -> e.name) do
-                                rawText $"<option value=\"{WebUtility.HtmlEncode elemValue.id}\">{WebUtility.HtmlEncode elemValue.name}</option>"
+                            for (elemId, elemName) in elementOptions do
+                                rawText $"<option value=\"{WebUtility.HtmlEncode elemId}\">{WebUtility.HtmlEncode elemName}</option>"
                         ]
                         button [
                             _type "button"
@@ -529,27 +441,16 @@ module Elements =
                             _hxGet $"{baseUrl}elements/relations/row"
                             _hxTarget "#relations-container"
                             _hxSwap "beforeend"
-                            attr "hx-vals" "js:{index: document.querySelectorAll('.relation-row').length, sourceId: ''}"
+                            _hxVals "js:{sourceId: '', index: document.querySelectorAll('.relation-row').length}"
                         ] [
                             encodedText "Add relation"
                         ]
                     ]
-                ]
-                div [_class "form-row"] [
-                    label [_for "content"] [encodedText "Content (Markdown)"]
-                    textarea [_id "content"; _name "content"; _rows "18"; _class "edit-textarea"] [
-                        encodedText emptyValue
+                    div [_class "form-row"] [
+                        label [_for "content"] [encodedText "Content"]
+                        textarea [_id "content"; _name "content"; _class "edit-textarea"; _rows "8"] []
                     ]
-                ]
-                div [_class "form-actions"] [
-                    button [_type "submit"; _class "primary-button"] [encodedText "Download new file"]
-                    button [
-                        _type "button"
-                        _class "secondary-button"
-                        attr "hx-on:click" "this.closest('.new-element-panel').innerHTML='';"
-                    ] [
-                        encodedText "Cancel"
-                    ]
+                    button [_type "submit"; _class "primary-button"] [encodedText "Download"]
                 ]
             ]
         ]

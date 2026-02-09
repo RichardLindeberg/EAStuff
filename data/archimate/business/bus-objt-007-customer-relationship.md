@@ -1,8 +1,11 @@
 ---
 id: bus-objt-007-customer-relationship
-name: Customer Relationship
-type: business-object
-layer: business
+owner: Relationship Management
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-objt-004-customer-agreement
@@ -13,18 +16,19 @@ relationships:
 - type: composition
   target: bus-objt-013-product-subscription
   description: Contains product subscriptions
-properties:
-  owner: Relationship Management
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-customer-relationship-001
+name: Customer Relationship
 tags:
 - business-object
 - customer-relationship
 - customer-lifecycle
+archimate:
+  type: business-object
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-objt-customer-relationship-001
 ---
-
 # Customer Relationship
 
 Business object representing the active relationship between the bank and a customer, established through a Customer Agreement.

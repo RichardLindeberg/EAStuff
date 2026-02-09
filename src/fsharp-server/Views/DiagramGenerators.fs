@@ -304,10 +304,11 @@ module DiagramGenerators =
         let options = JsonSerializerOptions(Encoder = JavaScriptEncoder.Default)
         JsonSerializer.Serialize(graph, options)
 
-    let private buildArchNodes (assets: DiagramAssetConfig) (elements: Element list) : CytoscapeNode list =
-        elements
-        |> List.map (fun elem ->
-            let elementTypeKey = elementTypeToKey elem.elementType
+    let private buildArchNodes (assets: DiagramAssetConfig) (documents: DocumentRecord list) : CytoscapeNode list =
+        documents
+        |> List.map (fun doc ->
+            let elementType = DocumentQueries.getArchimateElementType doc
+            let elementTypeKey = elementTypeToKey elementType
             let color = getArchimateColor elementTypeKey
             let shape = getNodeShape elementTypeKey
             let icon =
@@ -319,12 +320,12 @@ module DiagramGenerators =
                     | None -> ""
 
             let typeLabel = getElementTypeLabel elementTypeKey
-            let labelText = sprintf "[%s]\n%s" typeLabel elem.name
+            let labelText = sprintf "[%s]\n%s" typeLabel doc.title
             let classes = "arch-node " + elementTypeKey.Replace("-", "_") + " badge-label"
 
             {
                 data =
-                    { id = elem.id
+                    { id = doc.id
                       label = labelText
                       ``type`` = elementTypeKey
                       color = color
@@ -361,8 +362,9 @@ module DiagramGenerators =
             }
         )
 
-    let private buildGovernanceDocGraph (doc: GovernanceDocument) (elementIds: Set<string>) : CytoscapeNode list * CytoscapeEdge list =
-        let labelText = sprintf "[%s]\n%s" (getGovernanceDocTypeLabel doc.docType) doc.title
+    let private buildGovernanceDocGraph (doc: DocumentRecord) (elementIds: Set<string>) : CytoscapeNode list * CytoscapeEdge list =
+        let docType = DocumentQueries.getGovernanceDocType doc
+        let labelText = sprintf "[%s]\n%s" (getGovernanceDocTypeLabel docType) doc.title
         let nodeId = "gov-" + doc.slug
         let nodeData: CytoscapeNodeData =
             { id = nodeId
@@ -381,7 +383,7 @@ module DiagramGenerators =
             }
 
         let ownerEdges: CytoscapeEdge list =
-            match Map.tryFind "owner" doc.metadata with
+            match doc.metadata.owner with
             | Some ownerId when elementIds.Contains(ownerId) ->
                 [
                     {
@@ -402,7 +404,7 @@ module DiagramGenerators =
             | _ -> []
 
         let relationEdges: CytoscapeEdge list =
-            doc.relations
+            doc.metadata.relationships
             |> List.filter (fun rel -> elementIds.Contains(rel.target))
             |> List.map (fun rel ->
                 let relationLabel = ElementType.relationTypeToString rel.relationType
@@ -424,7 +426,7 @@ module DiagramGenerators =
 
         [ node ], ownerEdges @ relationEdges
 
-    let private getRelatedDocSlugs (doc: GovernanceDocument) : string list =
+    let private getRelatedDocSlugs (doc: DocumentRecord) : string list =
         let pattern = "^\\s*[-*]\\s+Related\\s+[^:]+:\\s+([a-z0-9-]+)\\.md\\s*$"
         let regex = Regex(pattern, RegexOptions.IgnoreCase ||| RegexOptions.Multiline)
         regex.Matches(doc.rawContent)
@@ -433,13 +435,13 @@ module DiagramGenerators =
         |> Seq.filter (fun value -> not (String.IsNullOrWhiteSpace value))
         |> Seq.toList
 
-    let private buildGovernanceDocsGraph (docs: GovernanceDocument list) (elementIds: Set<string>) : CytoscapeNode list * CytoscapeEdge list =
+    let private buildGovernanceDocsGraph (docs: DocumentRecord list) (elementIds: Set<string>) : CytoscapeNode list * CytoscapeEdge list =
         let docSlugSet = docs |> List.map (fun doc -> doc.slug) |> Set.ofList
         let docIdToSlug =
             docs
             |> List.choose (fun doc ->
-                if String.IsNullOrWhiteSpace doc.docId then None
-                else Some (doc.docId, doc.slug)
+                if String.IsNullOrWhiteSpace doc.id then None
+                else Some (doc.id, doc.slug)
             )
             |> Map.ofList
 
@@ -453,7 +455,7 @@ module DiagramGenerators =
         let relationEdges =
             docs
             |> List.collect (fun doc ->
-                doc.relations
+                doc.metadata.relationships
                 |> List.choose (fun rel ->
                     match Map.tryFind rel.target docIdToSlug with
                     | Some targetSlug ->
@@ -503,9 +505,9 @@ module DiagramGenerators =
 
     let buildCytoscapeDiagram
         (assets: DiagramAssetConfig)
-        (elements: Element list)
+        (elements: DocumentRecord list)
         (relationships: (string * Relationship) list)
-        (governanceDocs: GovernanceDocument list) : string =
+        (governanceDocs: DocumentRecord list) : string =
         let elementIds =
             elements
             |> List.map (fun elem -> elem.id)

@@ -1,8 +1,11 @@
 ---
 id: bus-role-003-support-agent
-name: Support Agent
-type: business-role
-layer: business
+owner: Customer Service Department
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: assignment
   target: bus-proc-005-customer-service-process
@@ -13,18 +16,19 @@ relationships:
 - type: access
   target: bus-objt-005-customer-object
   description: Accesses customer data
-properties:
-  owner: Customer Service Department
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-role-support-agent-001
+name: Support Agent
 tags:
 - role
 - internal-role
 - customer-service
+archimate:
+  type: business-role
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-role-support-agent-001
 ---
-
 # Support Agent
 
 Internal role for employees providing customer support services.

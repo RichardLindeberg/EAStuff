@@ -1,18 +1,20 @@
 ---
 id: bus-role-016-information-security
-name: Information Security
-type: business-role
-layer: business
+owner: Information Security
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Information Security
-  status: active
-  last-updated: '2026-02-07'
+name: Information Security
 tags:
 - role
 - security
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Information Security
 
 Role responsible for security operations, access governance, and security control execution.

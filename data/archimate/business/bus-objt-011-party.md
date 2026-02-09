@@ -1,8 +1,11 @@
 ---
 id: bus-objt-011-party
-name: Party
-type: business-object
-layer: business
+owner: Customer Data Management
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-objt-010-natural-person
@@ -10,18 +13,19 @@ relationships:
 - type: association
   target: bus-objt-008-legal-entity
   description: Can be a legal entity
-properties:
-  owner: Customer Data Management
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-party-001
+name: Party
 tags:
 - business-object
 - party-model
 - master-data
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-party-001
 ---
-
 # Party
 
 Abstract business object representing any entity that can enter into banking relationships - either a natural person (individual) or legal entity (organization).

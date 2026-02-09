@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-manual-015-credit-risk-lending
-name: Credit Risk and Lending Manual
 owner: bus-role-012-credit-risk-department
-approved_by: Chief Risk Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: bus-proc-004-credit-assessment-process
-  - type: association
-    target: bus-proc-007-loan-origination-process
-  - type: association
-    target: ms-policy-015-credit-risk
-  - type: composition
-    target: ms-instruction-017-credit-assessment
+- type: association
+  target: bus-proc-004-credit-assessment-process
+- type: association
+  target: bus-proc-007-loan-origination-process
+- type: association
+  target: ms-policy-015-credit-risk
+- type: composition
+  target: ms-instruction-017-credit-assessment
+name: Credit Risk and Lending Manual
+governance:
+  approved_by: Chief Risk Officer
+  effective_date: '2026-02-07'
 ---
 # Credit Risk and Lending Manual
 

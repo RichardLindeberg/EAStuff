@@ -1,24 +1,30 @@
 ---
 id: mot-drvr-002-market-digital-transformation-trends
-name: Market Digital Transformation Trends
-type: driver
-layer: motivation
+owner: ''
+status: ''
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-goal-003-digital-banking-excellence
   description: Drives digital banking enhancement
-properties:
-  source: External
-  urgency: high
-  trend: accelerating
-  last-updated: '2026-02-02'
-  legacy-id: mot-driver-002-digital-transformation
+name: Market Digital Transformation Trends
 tags:
 - market-trend
 - digital
 - customer-expectation
+archimate:
+  type: driver
+  layer: motivation
+extensions:
+  properties:
+    source: External
+    urgency: high
+    trend: accelerating
+    legacy-id: mot-driver-002-digital-transformation
 ---
-
 # Market Digital Transformation Trends
 
 Customer expectations and competitive pressures for digital-first banking services and modern technology experiences.

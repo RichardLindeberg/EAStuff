@@ -1,8 +1,11 @@
 ---
 id: bus-proc-002-beneficial-ownership-identification-proc
-name: Beneficial Ownership Identification Process
-type: business-process
-layer: business
+owner: Compliance and AML
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-objt-001-beneficial-owner
@@ -10,19 +13,20 @@ relationships:
 - type: access
   target: bus-objt-008-legal-entity
   description: For legal entity customers
-properties:
-  owner: Compliance and AML
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-proc-beneficial-ownership-identification-001
+name: Beneficial Ownership Identification Process
 tags:
 - process
 - beneficial-ownership
 - compliance
 - regulatory
+archimate:
+  type: business-process
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-proc-beneficial-ownership-identification-001
 ---
-
 # Beneficial Ownership Identification Process
 
 Process for identifying, verifying, and documenting beneficial owners of corporate customers in compliance with regulatory requirements (5AMLD, FinCEN, local regulations).

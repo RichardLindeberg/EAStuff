@@ -1,8 +1,11 @@
 ---
 id: str-capa-010-online-services
-name: Online Banking Services Capability
-type: capability
-layer: strategy
+owner: Head of Digital Banking
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: realization
   target: mot-goal-003-digital-banking-excellence
@@ -16,20 +19,21 @@ relationships:
 - type: association
   target: bus-actr-001-corporate-customer
   description: Serves corporate customer needs
-properties:
-  owner: Head of Digital Banking
-  status: active
-  criticality: critical
-  maturity-level: "4 - Managed"
-  investment-priority: high
-  last-updated: "2026-02-03"
+name: Online Banking Services Capability
 tags:
 - capability
 - online-banking
 - digital-services
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    maturity-level: 4 - Managed
+    investment-priority: high
 ---
-
 # Online Banking Services Capability
 
 Strategic capability to deliver comprehensive banking services through digital channels accessible 24/7 from anywhere.

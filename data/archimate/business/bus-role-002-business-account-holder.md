@@ -1,8 +1,11 @@
 ---
 id: bus-role-002-business-account-holder
-name: Business Account Holder
-type: business-role
-layer: business
+owner: Corporate Banking Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: assignment
   target: bus-proc-003-corporate-account-management-process
@@ -10,18 +13,19 @@ relationships:
 - type: serving
   target: bus-srvc-002-corporate-banking-service
   description: Uses corporate banking services
-properties:
-  owner: Corporate Banking Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-role-business-account-holder-001
+name: Business Account Holder
 tags:
 - role
 - corporate-role
 - business-banking
+archimate:
+  type: business-role
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-role-business-account-holder-001
 ---
-
 # Business Account Holder
 
 Role for authorized representatives managing corporate bank accounts.

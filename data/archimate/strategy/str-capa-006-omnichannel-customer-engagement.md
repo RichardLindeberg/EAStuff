@@ -1,8 +1,11 @@
 ---
 id: str-capa-006-omnichannel-customer-engagement
-name: Omnichannel Customer Engagement
-type: capability
-layer: strategy
+owner: Customer Experience Team
+status: developing
+version: ''
+last_updated: '2025-10-20'
+review_cycle: annual
+next_review: '2026-10-20'
 relationships:
 - type: association
   target: app-comp-001-customer-portal
@@ -10,19 +13,20 @@ relationships:
 - type: association
   target: app-comp-002-mobile-banking-app
   description: Realized through mobile application
-properties:
-  owner: Customer Experience Team
-  status: developing
-  criticality: high
-  maturity-level: 3 - Defined
-  last-updated: '2025-10-20'
-  legacy-id: str-capa-omnichannel-customer-001
+name: Omnichannel Customer Engagement
 tags:
 - capability
 - customer-engagement
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: high
+extensions:
+  properties:
+    maturity-level: 3 - Defined
+    legacy-id: str-capa-omnichannel-customer-001
 ---
-
 # Omnichannel Customer Engagement
 
 The organizational capability to provide consistent, integrated customer experiences across all interaction channels.

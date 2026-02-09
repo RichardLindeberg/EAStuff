@@ -9,7 +9,7 @@ open Common
 module Tags =
 
     /// Tags index page
-    let tagsIndexPage (webConfig: WebUiConfig) (tagIndex: Map<string, string list>) (registry: ElementRegistry) =
+    let tagsIndexPage (webConfig: WebUiConfig) (tagIndex: Map<string, string list>) =
         let baseUrl = webConfig.BaseUrl
         let tagCards =
             tagIndex
@@ -48,32 +48,20 @@ module Tags =
         htmlPage webConfig "Tags" "tags" content
 
     /// Tag detail page
-    let tagPage (webConfig: WebUiConfig) (tag: string) (elements: Element list) =
+    let tagPage (webConfig: WebUiConfig) (tag: string) (elements: ArchimateCard list) =
         let baseUrl = webConfig.BaseUrl
         let elementCards =
             elements
             |> List.sortBy (fun e -> e.name)
             |> List.map (fun elem ->
-                let description =
-                    elem.content.Split('\n')
-                    |> Array.filter (fun line ->
-                        let trimmed = line.Trim()
-                        trimmed <> "" && not (trimmed.StartsWith("#"))
-                    )
-                    |> Array.tryHead
-                    |> Option.map (fun line ->
-                        if line.Length > 150 then line.Substring(0, 150) + "..." else line
-                    )
-                    |> Option.defaultValue ""
-
                 div [_class "element-card"] [
-                    span [_class "element-type"] [encodedText (elementTypeToString elem.elementType)]
+                    span [_class "element-type"] [encodedText elem.elementTypeLabel]
                     h3 [] [
                         a [_href $"{baseUrl}elements/{elem.id}"] [
                             encodedText elem.name
                         ]
                     ]
-                    p [_class "element-description"] [encodedText description]
+                    p [_class "element-description"] [encodedText elem.description]
                 ]
             )
 

@@ -1,8 +1,11 @@
 ---
 id: mot-drvr-005-dora-digital-operational-resilience
-name: DORA Digital Operational Resilience Requirements
-type: driver
-layer: motivation
+owner: ''
+status: ''
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-goal-002-regulatory-compliance
@@ -10,19 +13,22 @@ relationships:
 - type: influence
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Drives DORA compliance requirement
-properties:
-  source: External
-  urgency: critical
-  trend: increasing
-  last-updated: '2026-02-02'
-  legacy-id: mot-driver-005-dora-regulations
+name: DORA Digital Operational Resilience Requirements
 tags:
 - regulatory
 - operational-resilience
 - cybersecurity
 - external-driver
+archimate:
+  type: driver
+  layer: motivation
+extensions:
+  properties:
+    source: External
+    urgency: critical
+    trend: increasing
+    legacy-id: mot-driver-005-dora-regulations
 ---
-
 # DORA Digital Operational Resilience Requirements
 
 EU Digital Operational Resilience Act (DORA) mandating financial institutions maintain robust operational resilience and cybersecurity practices.

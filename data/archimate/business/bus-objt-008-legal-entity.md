@@ -1,8 +1,11 @@
 ---
 id: bus-objt-008-legal-entity
-name: Legal Entity
-type: business-object
-layer: business
+owner: Customer Data Management
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: composition
   target: bus-objt-011-party
@@ -19,19 +22,20 @@ relationships:
 - type: association
   target: bus-objt-004-customer-agreement
   description: Signs agreements through representatives
-properties:
-  owner: Customer Data Management
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-legal-entity-001
+name: Legal Entity
 tags:
 - business-object
 - party-model
 - legal-entity
 - corporate
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-legal-entity-001
 ---
-
 # Legal Entity
 
 Business object representing organizations and corporate entities with legal status.

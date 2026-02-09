@@ -1,8 +1,11 @@
 ---
 id: mot-prin-002-regulatory-excellence-and-compliance
-name: Regulatory Excellence and Compliance
-type: principle
-layer: motivation
+owner: Chief Compliance Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: influence
   target: mot-drvr-001-eu-and-nordic-regulatory
@@ -22,19 +25,20 @@ relationships:
 - type: association
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Realized through DORA compliance
-properties:
-  owner: Chief Compliance Officer
-  status: active
-  criticality: critical
-  last-updated: '2026-02-03'
-  legacy-id: mot-principle-002-regulatory-excellence
+name: Regulatory Excellence and Compliance
 tags:
 - principle
 - compliance
 - risk-management
 - governance
+archimate:
+  type: principle
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-principle-002-regulatory-excellence
 ---
-
 # Regulatory Excellence and Compliance
 
 The bank exceeds regulatory requirements and maintains the highest standards of compliance and ethical conduct.

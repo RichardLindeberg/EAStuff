@@ -1,25 +1,31 @@
 ---
 id: mot-drvr-004-nordic-sustainability-values-and
-name: Nordic Sustainability Values and ESG Expectations
-type: driver
-layer: motivation
+owner: ''
+status: ''
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-goal-005-customer-trust
   description: Drives customer trust and responsibility
-properties:
-  source: External
-  urgency: high
-  trend: increasing
-  last-updated: '2026-02-02'
-  legacy-id: mot-driver-004-sustainability-values
+name: Nordic Sustainability Values and ESG Expectations
 tags:
 - sustainability
 - esg
 - customer-value
 - social-responsibility
+archimate:
+  type: driver
+  layer: motivation
+extensions:
+  properties:
+    source: External
+    urgency: high
+    trend: increasing
+    legacy-id: mot-driver-004-sustainability-values
 ---
-
 # Nordic Sustainability Values and ESG Expectations
 
 Strong customer and societal expectations for environmental, social, and governance responsibility in Nordic markets.

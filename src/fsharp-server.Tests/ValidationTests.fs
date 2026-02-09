@@ -572,6 +572,8 @@ Content here.
     let ``Registry should collect all validation errors`` () =
         let tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
         Directory.CreateDirectory(tempDir) |> ignore
+        let managementSystemPath = Path.Combine(tempDir, "management-system")
+        Directory.CreateDirectory(managementSystemPath) |> ignore
         
         try
             let validFile = Path.Combine(tempDir, "valid.md")
@@ -599,7 +601,7 @@ Content.
             
             let relationsPath = Path.Combine(tempDir, "relations.xml")
             File.WriteAllText(relationsPath, "<relations></relations>")
-            let registry = ElementRegistry.create tempDir relationsPath
+            let registry = ElementRegistry.create tempDir relationsPath managementSystemPath
             let allErrors = ElementRegistry.getValidationErrors registry
             
             Assert.NotEmpty(allErrors)
@@ -611,6 +613,8 @@ Content.
     let ``getFileValidationErrors should filter by file path`` () =
         let tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
         Directory.CreateDirectory(tempDir) |> ignore
+        let managementSystemPath = Path.Combine(tempDir, "management-system")
+        Directory.CreateDirectory(managementSystemPath) |> ignore
         
         try
             let file1 = Path.Combine(tempDir, "file1.md")
@@ -625,7 +629,7 @@ Content.
             
             let relationsPath = Path.Combine(tempDir, "relations.xml")
             File.WriteAllText(relationsPath, "<relations></relations>")
-            let registry = ElementRegistry.create tempDir relationsPath
+            let registry = ElementRegistry.create tempDir relationsPath managementSystemPath
             let fileErrors = ElementRegistry.getFileValidationErrors file1 registry
             
             Assert.NotEmpty(fileErrors)
@@ -637,6 +641,8 @@ Content.
     let ``getErrorsBySeverity should filter by severity`` () =
         let tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
         Directory.CreateDirectory(tempDir) |> ignore
+        let managementSystemPath = Path.Combine(tempDir, "management-system")
+        Directory.CreateDirectory(managementSystemPath) |> ignore
         
         try
             // Create a file with missing name (error) - ID format is correct
@@ -653,11 +659,11 @@ Content.
             
             let relationsPath = Path.Combine(tempDir, "relations.xml")
             File.WriteAllText(relationsPath, "<relations></relations>")
-            let registry = ElementRegistry.create tempDir relationsPath
-            let errors = ElementRegistry.getErrorsBySeverity "error" registry
+            let registry = ElementRegistry.create tempDir relationsPath managementSystemPath
+            let errors = ElementRegistry.getErrorsBySeverity Severity.Error registry
             
             // Should have at least one error for missing name
             Assert.NotEmpty(errors)
-            Assert.True(errors |> List.exists (fun e -> e.severity = "error"))
+            Assert.True(errors |> List.exists (fun e -> e.severity = Severity.Error))
         finally
             Directory.Delete(tempDir, true)

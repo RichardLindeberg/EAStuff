@@ -1,8 +1,11 @@
 ---
 id: bus-srvc-001-account-service
-name: Account Service
-type: business-service
-layer: business
+owner: Retail Banking Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-proc-001-account-management-process
@@ -10,18 +13,19 @@ relationships:
 - type: serving
   target: bus-role-001-account-holder
   description: Serves account holders
-properties:
-  owner: Retail Banking Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-svc-account-service-001
+name: Account Service
 tags:
 - service
 - retail-banking
 - account-management
+archimate:
+  type: business-service
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-svc-account-service-001
 ---
-
 # Account Service
 
 Business service providing account management capabilities to customers.

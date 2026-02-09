@@ -8,17 +8,15 @@ open Common
 module Architecture =
 
     /// Architecture overview page
-    let indexPage (webConfig: WebUiConfig) (registry: ElementRegistry) (currentPage: string) =
+    let indexPage (webConfig: WebUiConfig) (layerCards: (Layer * LayerInfo * int) list) (currentPage: string) =
         let baseUrl = webConfig.BaseUrl
-        let layerCards =
-            Config.layerOrder
-            |> Map.toList
-            |> List.sortBy (fun (_, layerInfo) -> layerInfo.order)
-            |> List.choose (fun (layerKey, layerInfo) ->
-                let layerKeyLower = Layer.toKey layerKey
-                let elements = ElementRegistry.getLayerElements layerKey registry
-                if List.isEmpty elements then None
+        let cards =
+            layerCards
+            |> List.sortBy (fun (_, layerInfo, _) -> layerInfo.order)
+            |> List.choose (fun (layerKey, layerInfo, count) ->
+                if count = 0 then None
                 else
+                    let layerKeyLower = Layer.toKey layerKey
                     Some (
                         div [_class "element-card"] [
                             h3 [] [
@@ -26,9 +24,7 @@ module Architecture =
                                     encodedText layerInfo.displayName
                                 ]
                             ]
-                            let elemCountStr =
-                                let count = List.length elements
-                                sprintf "%d element%s" count (pluralize count "" "s")
+                            let elemCountStr = sprintf "%d element%s" count (pluralize count "" "s")
                             p [_class "element-count"] [
                                 encodedText elemCountStr
                             ]
@@ -45,7 +41,7 @@ module Architecture =
                 p [_class "layer-description"] [
                     encodedText "Explore the enterprise architecture organized by ArchiMate layers, from strategic intent to technical implementation."
                 ]
-                div [_class "element-grid"] layerCards
+                div [_class "element-grid"] cards
             ]
         ]
 

@@ -1,8 +1,11 @@
 ---
 id: bus-objt-013-product-subscription
-name: Product Subscription
-type: business-object
-layer: business
+owner: Product Management
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-objt-007-customer-relationship
@@ -10,18 +13,19 @@ relationships:
 - type: association
   target: bus-objt-004-customer-agreement
   description: Authorized by agreement
-properties:
-  owner: Product Management
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-product-subscription-001
+name: Product Subscription
 tags:
 - business-object
 - product-subscription
 - product-holding
+archimate:
+  type: business-object
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-objt-product-subscription-001
 ---
-
 # Product Subscription
 
 Business object representing a customer's active subscription/holding of a specific banking product.

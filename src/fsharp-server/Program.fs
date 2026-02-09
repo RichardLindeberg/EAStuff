@@ -11,8 +11,8 @@ open Giraffe
 open EAArchive
 open EAArchive.DiagramGenerators
 
-let webApp (registry: ElementRegistry) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
-    Routes.createHandlers registry diagramAssets webConfig loggerFactory
+let webApp (repoService: DocumentRepositoryService) (diagramAssets: DiagramAssetConfig) (webConfig: WebUiConfig) (loggerFactory: ILoggerFactory) : HttpHandler =
+    Routes.createHandlers repoService diagramAssets webConfig loggerFactory
 
 [<EntryPoint>]
 let main args =
@@ -92,9 +92,11 @@ let main args =
                     )
                     |> ignore
 
-                    services.AddSingleton<ElementRegistry>(fun sp ->
+                    services.AddSingleton<DocumentRepositoryService>(fun sp ->
                         let config = sp.GetRequiredService<IConfiguration>()
-                        let logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("ElementRegistry")
+                        let logger =
+                            sp.GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("DocumentRepositoryService")
 
                         let configuredElementsPath = getRequired config "EAArchive:ElementsPath"
                         let configuredRelationsPath = getRequired config "EAArchive:RelationsPath"
@@ -111,18 +113,18 @@ let main args =
                         logger.LogInformation("Loading governance documents from: {managementSystemPath}", managementSystemPath)
                         logger.LogInformation("Management system path exists: {pathExists}", Directory.Exists(managementSystemPath))
 
-                        ElementRegistry.createWithLogger elementsPath relationsPath managementSystemPath logger
+                        DocumentRepositoryService(elementsPath, managementSystemPath, relationsPath, sp.GetRequiredService<ILoggerFactory>())
                     )
                     |> ignore
                 )
                 .Configure(fun app ->
-                    let registry = app.ApplicationServices.GetRequiredService<ElementRegistry>()
+                    let repoService = app.ApplicationServices.GetRequiredService<DocumentRepositoryService>()
                     let diagramAssets = app.ApplicationServices.GetRequiredService<DiagramAssetConfig>()
                     let webConfig = app.ApplicationServices.GetRequiredService<WebUiConfig>()
                     let loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>()
 
                     app.UseStaticFiles() |> ignore
-                    app.UseGiraffe(webApp registry diagramAssets webConfig loggerFactory)
+                    app.UseGiraffe(webApp repoService diagramAssets webConfig loggerFactory)
                 ) |> ignore
         )
         .Build()

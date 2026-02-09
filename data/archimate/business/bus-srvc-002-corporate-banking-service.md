@@ -1,8 +1,11 @@
 ---
 id: bus-srvc-002-corporate-banking-service
-name: Corporate Banking Service
-type: business-service
-layer: business
+owner: Corporate Banking Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-proc-003-corporate-account-management-process
@@ -10,18 +13,19 @@ relationships:
 - type: serving
   target: bus-role-002-business-account-holder
   description: Serves business customers
-properties:
-  owner: Corporate Banking Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-svc-corporate-banking-service-001
+name: Corporate Banking Service
 tags:
 - service
 - corporate-banking
 - business-banking
+archimate:
+  type: business-service
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-svc-corporate-banking-service-001
 ---
-
 # Corporate Banking Service
 
 Comprehensive business service for corporate and commercial customers.

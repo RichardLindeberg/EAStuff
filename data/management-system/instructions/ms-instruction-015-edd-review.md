@@ -1,20 +1,22 @@
-﻿---
+---
 id: ms-instruction-015-edd-review
-name: Enhanced Due Diligence Review Instruction
 owner: bus-role-009-compliance-operations
-approved_by: Chief Compliance Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: composition
-    target: ms-policy-011-aml-ctf
-  - type: association
-    target: ms-manual-011-aml-ctf-compliance
+- type: association
+  target: mot-reqt-016-enhanced-due-diligence-edd
+- type: composition
+  target: ms-policy-011-aml-ctf
+- type: association
+  target: ms-manual-011-aml-ctf-compliance
+name: Enhanced Due Diligence Review Instruction
+governance:
+  approved_by: Chief Compliance Officer
+  effective_date: '2026-02-07'
 ---
 # Enhanced Due Diligence Review Instruction
 

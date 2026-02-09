@@ -1,8 +1,11 @@
 ---
 id: tec-sysw-002-linux-operating-system
-name: Linux Operating System
-type: system-software
-layer: technology
+owner: Infrastructure Team
+status: production
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: serving
   target: tec-node-001-web-application-server
@@ -10,21 +13,22 @@ relationships:
 - type: serving
   target: tec-sysw-001-application-runtime
   description: Hosts application runtime environment
-properties:
-  owner: Infrastructure Team
-  status: production
-  criticality: critical
-  distribution: "Ubuntu Server 22.04 LTS"
-  kernel-version: "5.15 LTS"
-  hardening: "CIS Benchmark Level 1"
-  last-updated: "2026-02-03"
+name: Linux Operating System
 tags:
 - operating-system
 - linux
 - infrastructure
 - ubuntu
+archimate:
+  type: system-software
+  layer: technology
+  criticality: critical
+extensions:
+  properties:
+    distribution: Ubuntu Server 22.04 LTS
+    kernel-version: 5.15 LTS
+    hardening: CIS Benchmark Level 1
 ---
-
 # Linux Operating System
 
 Enterprise-grade Linux operating system providing secure, stable foundation for banking infrastructure.

@@ -1,8 +1,11 @@
 ---
 id: mot-prin-006-amlct-compliance-excellence
-name: AML/CT Compliance Excellence
-type: principle
-layer: motivation
+owner: Chief Compliance Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: influence
   target: mot-drvr-006-amlct-regulatory-requirements
@@ -22,12 +25,7 @@ relationships:
 - type: association
   target: mot-reqt-016-enhanced-due-diligence-edd
   description: Realized through enhanced due diligence
-properties:
-  owner: Chief Compliance Officer
-  status: active
-  criticality: critical
-  last-updated: '2026-02-03'
-  legacy-id: mot-principle-006-aml-ct-compliance
+name: AML/CT Compliance Excellence
 tags:
 - principle
 - compliance
@@ -35,8 +33,14 @@ tags:
 - counter-terrorism
 - risk-management
 - financial-crime
+archimate:
+  type: principle
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-principle-006-aml-ct-compliance
 ---
-
 # AML/CT Compliance Excellence
 
 We maintain the highest standards of anti-money laundering (AML) and counter-terrorism financing (CT) compliance, viewing financial crime prevention as a core responsibility to society and the financial system.

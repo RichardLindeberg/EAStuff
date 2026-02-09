@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-policy-018-business-continuity-dr
-name: Business Continuity and Disaster Recovery Policy
 owner: bus-role-018-chief-operating-officer
-approved_by: Board of Directors
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-011-dora-digital-operational-resilience
-  - type: association
-    target: str-capa-005-digital-operational-resilience-capabilit
-  - type: association
-    target: ms-instruction-016-payment-exceptions
-  - type: association
-    target: ms-manual-018-bcm-dr
+- type: association
+  target: mot-reqt-011-dora-digital-operational-resilience
+- type: association
+  target: str-capa-005-digital-operational-resilience-capabilit
+- type: association
+  target: ms-instruction-016-payment-exceptions
+- type: association
+  target: ms-manual-018-bcm-dr
+name: Business Continuity and Disaster Recovery Policy
+governance:
+  approved_by: Board of Directors
+  effective_date: '2026-02-07'
 ---
 # Business Continuity and Disaster Recovery Policy
 

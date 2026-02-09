@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-016-enhanced-due-diligence-edd
-name: Enhanced Due Diligence (EDD) Requirements
-type: requirement
-layer: motivation
+owner: Chief Compliance Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -10,12 +13,7 @@ relationships:
 - type: realization
   target: mot-prin-006-amlct-compliance-excellence
   description: Realizes AML/CT compliance principle
-properties:
-  owner: Chief Compliance Officer
-  status: active
-  criticality: high
-  last-updated: '2026-02-03'
-  legacy-id: mot-requirement-016-enhanced-due-diligence
+name: Enhanced Due Diligence (EDD) Requirements
 tags:
 - edd
 - enhanced-due-diligence
@@ -24,8 +22,14 @@ tags:
 - high-risk
 - pep
 - kyc
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-016-enhanced-due-diligence
 ---
-
 # Enhanced Due Diligence (EDD) Requirements
 
 High-risk customers, relationships, and transactions require enhanced due diligence measures beyond standard KYC to adequately assess and mitigate money laundering and terrorism financing risks.

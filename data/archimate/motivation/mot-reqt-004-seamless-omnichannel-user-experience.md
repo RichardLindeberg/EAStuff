@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-004-seamless-omnichannel-user-experience
-name: Seamless Omnichannel User Experience
-type: requirement
-layer: motivation
+owner: Chief Customer Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-003-digital-banking-excellence
@@ -10,18 +13,19 @@ relationships:
 - type: realization
   target: mot-prin-001-customer-centric-banking
   description: Realizes customer-centric principle
-properties:
-  owner: Chief Customer Officer
-  status: in-progress
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-004-seamless-ux
+name: Seamless Omnichannel User Experience
 tags:
 - omnichannel
 - user-experience
 - customer-journey
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-004-seamless-ux
 ---
-
 # Seamless Omnichannel User Experience
 
 Banking services must provide consistent, seamless experiences across all customer touchpoints: mobile app, web portal, branch, and customer service.

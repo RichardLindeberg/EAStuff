@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-policy-017-information-security
-name: Information Security Policy
 owner: bus-role-008-chief-information-security-officer
-approved_by: Risk Committee
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: str-capa-005-digital-operational-resilience-capabilit
-  - type: association
-    target: str-vstr-003-secure-and-resilient-operations
-  - type: association
-    target: ms-instruction-018-fraud-case-investigation
-  - type: association
-    target: ms-manual-017-info-security-access
+- type: association
+  target: str-capa-005-digital-operational-resilience-capabilit
+- type: association
+  target: str-vstr-003-secure-and-resilient-operations
+- type: association
+  target: ms-instruction-018-fraud-case-investigation
+- type: association
+  target: ms-manual-017-info-security-access
+name: Information Security Policy
+governance:
+  approved_by: Risk Committee
+  effective_date: '2026-02-07'
 ---
 # Information Security Policy
 

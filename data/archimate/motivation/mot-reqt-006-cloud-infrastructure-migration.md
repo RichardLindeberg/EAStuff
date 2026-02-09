@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-006-cloud-infrastructure-migration
-name: Cloud Infrastructure Migration
-type: requirement
-layer: motivation
+owner: Chief Technology Officer
+status: planning
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-004-operational-efficiency
@@ -10,19 +13,20 @@ relationships:
 - type: realization
   target: mot-prin-003-innovation-and-continuous-improvement
   description: Realizes innovation through modern infrastructure
-properties:
-  owner: Chief Technology Officer
-  status: planning
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-006-cloud-migration
+name: Cloud Infrastructure Migration
 tags:
 - cloud
 - infrastructure
 - modernization
 - scalability
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-006-cloud-migration
 ---
-
 # Modern Infrastructure and DevOps Modernization
 
 Core banking infrastructure must modernize to adopt cloud-native practices including containerization, infrastructure-as-code, and automated operations—deployed on secure on-premises infrastructure to ensure data sovereignty and operational independence.

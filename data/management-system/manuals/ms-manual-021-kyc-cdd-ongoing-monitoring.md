@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-manual-021-kyc-cdd-ongoing-monitoring
-name: KYC/CDD Ongoing Monitoring Manual (EU AMLR)
 owner: bus-role-009-compliance-operations
-approved_by: Chief Compliance Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-013-kyc-and-customer-identification
-  - type: association
-    target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: association
-    target: ms-policy-012-kyc-cdd
-  - type: composition
-    target: ms-instruction-023-ongoing-kyc-refresh
+- type: association
+  target: mot-reqt-013-kyc-and-customer-identification
+- type: association
+  target: mot-reqt-016-enhanced-due-diligence-edd
+- type: association
+  target: ms-policy-012-kyc-cdd
+- type: composition
+  target: ms-instruction-023-ongoing-kyc-refresh
+name: KYC/CDD Ongoing Monitoring Manual (EU AMLR)
+governance:
+  approved_by: Chief Compliance Officer
+  effective_date: '2026-02-07'
 ---
 # KYC/CDD Ongoing Monitoring Manual (EU AMLR)
 

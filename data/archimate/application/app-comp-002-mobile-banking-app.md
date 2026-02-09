@@ -1,8 +1,11 @@
 ---
 id: app-comp-002-mobile-banking-app
-name: Mobile Banking Application
-type: application-component
-layer: application
+owner: Mobile Development Team
+status: production
+version: 4.5.0
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: serving
   target: bus-role-001-account-holder
@@ -19,23 +22,23 @@ relationships:
 - type: composition
   target: app-intf-002-mobile-ui
   description: Contains mobile user interface
-properties:
-  owner: Mobile Development Team
-  status: production
-  criticality: critical
-  platforms: "iOS, Android"
-  version: "4.5.0"
-  technology: "React Native, Native modules"
-  lifecycle-phase: operate
-  users: "850,000+ active users"
-  last-updated: "2026-02-03"
+name: Mobile Banking Application
 tags:
 - mobile
 - customer-facing
 - digital-banking
 - omnichannel
+archimate:
+  type: application-component
+  layer: application
+  criticality: critical
+extensions:
+  properties:
+    platforms: iOS, Android
+    technology: React Native, Native modules
+    lifecycle-phase: operate
+    users: 850,000+ active users
 ---
-
 # Mobile Banking Application
 
 Native mobile banking application providing comprehensive banking services on iOS and Android devices across Nordic markets.

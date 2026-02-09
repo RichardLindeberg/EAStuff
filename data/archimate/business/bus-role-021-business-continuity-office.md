@@ -1,18 +1,20 @@
 ---
 id: bus-role-021-business-continuity-office
-name: Business Continuity Office
-type: business-role
-layer: business
+owner: Operations Division
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Operations Division
-  status: active
-  last-updated: '2026-02-07'
+name: Business Continuity Office
 tags:
 - role
 - continuity
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Business Continuity Office
 
 Role responsible for continuity planning, disaster recovery oversight, and resilience coordination.

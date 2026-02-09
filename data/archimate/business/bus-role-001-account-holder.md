@@ -1,8 +1,11 @@
 ---
 id: bus-role-001-account-holder
-name: Account Holder
-type: business-role
-layer: business
+owner: Retail Banking Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: assignment
   target: bus-proc-001-account-management-process
@@ -10,18 +13,19 @@ relationships:
 - type: serving
   target: bus-srvc-001-account-service
   description: Uses account services
-properties:
-  owner: Retail Banking Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-role-account-holder-001
+name: Account Holder
 tags:
 - role
 - customer-role
 - account-management
+archimate:
+  type: business-role
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-role-account-holder-001
 ---
-
 # Account Holder
 
 Role representing customers who hold one or more accounts with the bank.

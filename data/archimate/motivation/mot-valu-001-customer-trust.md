@@ -1,8 +1,11 @@
 ---
 id: mot-valu-001-customer-trust
-name: Customer Trust and Confidence
-type: value
-layer: motivation
+owner: Chief Executive Officer
+status: core-value
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: association
   target: mot-goal-005-customer-trust
@@ -13,19 +16,20 @@ relationships:
 - type: influence
   target: mot-reqt-007-data-security-and-privacy
   description: Requires strong data security
-properties:
-  owner: Chief Executive Officer
-  status: core-value
-  importance: critical
-  stakeholder-groups: "all customers, regulators, investors"
-  last-updated: "2026-02-03"
+name: Customer Trust and Confidence
 tags:
 - value
 - trust
 - strategic
 - nordic-values
+archimate:
+  type: value
+  layer: motivation
+extensions:
+  properties:
+    importance: critical
+    stakeholder-groups: all customers, regulators, investors
 ---
-
 # Customer Trust and Confidence
 
 Core value representing the bank's commitment to earning and maintaining customer trust through security, transparency, reliability, and ethical conduct.

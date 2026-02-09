@@ -1,130 +1,178 @@
 namespace EAArchive.Tests
 
 open System
+open System.IO
 open Xunit
 open EAArchive
 open TestHelpers
 
 module ElementRequiredFieldsTests =
+
+    let private buildArchimateContent (lines: string list) : string =
+        String.concat "\n" ([ "---" ] @ lines @ [ "---"; ""; "Content." ])
+
+    let private withArchimateErrors (lines: string list) (assertFn: ValidationError list -> unit) : unit =
+        let content = buildArchimateContent lines
+        let repo, rootDir = createTempRepository [ ("test.md", content) ] []
+        let filePath = Path.Combine(rootDir, "archimate", "test.md")
+
+        try
+            let errors = repo.validationErrors |> List.filter (fun e -> e.filePath = filePath)
+            assertFn errors
+        finally
+            cleanupTempDirectory rootDir
     
     [<Fact>]
     let ``Valid element with all required fields should have no errors`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-customer-onboarding")
-            ("name", box "Customer Onboarding")
-            ("type", box "Business Process")
-            ("layer", box "business")
+        let lines = [
+            "id: bus-proc-001-customer-onboarding"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Customer Onboarding"
+            "archimate:"
+            "  type: business-process"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
-            Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+
+        withArchimateErrors lines (fun errors -> Assert.Empty(errors))
     
     [<Fact>]
     let ``Element missing ID should produce error`` () =
-        let metadata = createMetadata [
-            ("name", box "Customer Onboarding")
-            ("type", box "Business Process")
-            ("layer", box "business")
+        let lines = [
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Customer Onboarding"
+            "archimate:"
+            "  type: business-process"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("missing-id", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Equal("error", ElementType.severityToString errors.[0].severity)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Element with empty ID should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "")
-            ("name", box "Customer Onboarding")
-            ("type", box "Business Process")
-            ("layer", box "business")
+        let lines = [
+            "id:"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Customer Onboarding"
+            "archimate:"
+            "  type: business-process"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("missing-id", ElementType.errorTypeToString errors.[0].errorType)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Element missing name should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing")
-            ("type", box "Business Process")
-            ("layer", box "business")
+        let lines = [
+            "id: bus-proc-001-order-processing"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "archimate:"
+            "  type: business-process"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Contains("name", errors.[0].message)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Element missing type should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing")
-            ("name", box "Customer Onboarding")
-            ("layer", box "business")
+        let lines = [
+            "id: bus-proc-001-order-processing"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Customer Onboarding"
+            "archimate:"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Contains("type", errors.[0].message)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Element missing layer should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing")
-            ("name", box "Customer Onboarding")
-            ("type", box "Business Process")
+        let lines = [
+            "id: bus-proc-001-order-processing"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Customer Onboarding"
+            "archimate:"
+            "  type: business-process"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Contains("layer", errors.[0].message)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Element with invalid layer should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing")
-            ("name", box "Customer Onboarding")
-            ("type", box "Business Process")
-            ("layer", box "invalid-layer")
+        let lines = [
+            "id: bus-proc-001-order-processing"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Customer Onboarding"
+            "archimate:"
+            "  type: business-process"
+            "  layer: invalid-layer"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("invalid-layer", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Equal("error", ElementType.severityToString errors.[0].severity)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Valid layers should not produce errors`` () =
@@ -137,72 +185,108 @@ module ElementRequiredFieldsTests =
             ("mot", "goal", "motivation", "mot-goal-001-revenue")
             ("imp", "work", "implementation", "imp-work-001-cloud-migration")
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            for (_, _, layer, id) in validCombos do
-                let metadata = createMetadata [
-                    ("id", box id)
-                    ("name", box "Test Element")
-                    ("type", box "Test Type")
-                    ("layer", box layer)
-                ]
-                let errors = ElementRegistry.validateElement tempFile metadata
-                Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+        for (_, _, layer, id) in validCombos do
+            let lines = [
+                sprintf "id: %s" id
+                "owner: bus-role-001-owner"
+                "status: active"
+                "version: 1.0"
+                "last_updated: 2026-01-01"
+                "review_cycle: annual"
+                "next_review: 2027-01-01"
+                "relationships: []"
+                "name: Test Element"
+                "archimate:"
+                "  type: test-type"
+                sprintf "  layer: %s" layer
+            ]
+
+            withArchimateErrors lines (fun errors -> Assert.Empty(errors))
 
     [<Fact>]
     let ``Multiple missing fields should produce multiple errors`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing")
+        let lines = [
+            "id: bus-proc-001-order-processing"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "archimate:"
+            "  type: test-type"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
-            Assert.Equal(3, List.length errors)
+
+        withArchimateErrors lines (fun errors ->
+            Assert.Equal(1, List.length errors)
             let errorTypes = errors |> List.map (fun e -> ElementType.errorTypeToString e.errorType)
             Assert.Contains("missing-required-field", errorTypes)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Validation errors should include file path`` () =
-        let metadata = createMetadata [
-            ("name", box "Test")
+        let lines = [
+            "name: Test"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "archimate:"
+            "  type: test-type"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
+
+        let content = buildArchimateContent lines
+        let repo, rootDir = createTempRepository [ ("test.md", content) ] []
+        let filePath = Path.Combine(rootDir, "archimate", "test.md")
+
         try
-            let errors = ElementRegistry.validateElement tempFile metadata
-            Assert.True(errors |> List.forall (fun e -> e.filePath = tempFile))
+            let errors = repo.validationErrors |> List.filter (fun e -> e.filePath = filePath)
+            Assert.True(errors |> List.forall (fun e -> e.filePath = filePath))
         finally
-            cleanupTempFile tempFile
+            cleanupTempDirectory rootDir
     
     [<Fact>]
     let ``Validation error should include element ID when present`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001")
-            ("type", box "Business Process")
+        let lines = [
+            "id: bus-proc-001"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "archimate:"
+            "  type: test-type"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.True(errors |> List.exists (fun e -> e.elementId = Some "bus-proc-001"))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``Errors without ID should have None for elementId`` () =
-        let metadata = createMetadata [
-            ("name", box "Test")
+        let lines = [
+            "name: Test"
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "archimate:"
+            "  type: test-type"
+            "  layer: business"
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+
+        withArchimateErrors lines (fun errors ->
             Assert.True(errors |> List.exists (fun e -> e.elementId.IsNone))
-        finally
-            cleanupTempFile tempFile
+        )

@@ -1,8 +1,11 @@
 ---
 id: mot-goal-001-digital-transformation-initiative
-name: Digital Transformation Initiative
-type: goal
-layer: motivation
+owner: Chief Digital Officer
+status: in-progress
+version: ''
+last_updated: '2025-11-15'
+review_cycle: annual
+next_review: '2026-11-15'
 relationships:
 - type: association
   target: mot-outc-001-improved-customer-experience
@@ -10,18 +13,19 @@ relationships:
 - type: association
   target: app-comp-001-customer-portal
   description: Drives customer portal development
-properties:
-  owner: Chief Digital Officer
-  status: in-progress
-  criticality: high
-  last-updated: '2025-11-15'
-  legacy-id: mot-goal-digital-transformation-001
+name: Digital Transformation Initiative
 tags:
 - strategic-goal
 - digital
 - transformation
+archimate:
+  type: goal
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-goal-digital-transformation-001
 ---
-
 # Digital Transformation Initiative
 
 Strategic goal to modernize business operations and customer interactions through digital technologies.

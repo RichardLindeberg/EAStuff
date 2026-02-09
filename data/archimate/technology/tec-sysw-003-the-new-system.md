@@ -1,19 +1,23 @@
 ---
 id: tec-sysw-003-the-new-system
+owner: IT dep
+status: draft
+version: '1'
+last_updated: '2026-02-05'
+review_cycle: annual
+next_review: '2027-02-05'
+relationships: []
 name: The New system
-type: system-software
-layer: technology
-properties:
-  owner: "IT dep"
-  status: "draft"
-  criticality: "medium"
-  version: 1
-  lifecycle-phase: "plan"
-  last-updated: 2026-02-05
 tags:
-  - IT
+- IT
+archimate:
+  type: system-software
+  layer: technology
+  criticality: medium
+extensions:
+  properties:
+    lifecycle-phase: plan
 ---
-
 # The New system
 
 Short description of tech 1

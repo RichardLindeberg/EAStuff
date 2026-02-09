@@ -1,20 +1,22 @@
-﻿---
+---
 id: ms-instruction-021-model-validation
-name: Model Validation and Monitoring Instruction
 owner: bus-role-020-model-risk-management
-approved_by: Chief Risk Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: str-capa-003-data-analytics-and-ai
-  - type: composition
-    target: ms-policy-020-model-risk-management
-  - type: association
-    target: ms-manual-020-model-risk-management
+- type: association
+  target: str-capa-003-data-analytics-and-ai
+- type: composition
+  target: ms-policy-020-model-risk-management
+- type: association
+  target: ms-manual-020-model-risk-management
+name: Model Validation and Monitoring Instruction
+governance:
+  approved_by: Chief Risk Officer
+  effective_date: '2026-02-07'
 ---
 # Model Validation and Monitoring Instruction
 

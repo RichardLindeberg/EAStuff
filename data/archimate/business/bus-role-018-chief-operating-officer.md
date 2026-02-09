@@ -1,18 +1,20 @@
 ---
 id: bus-role-018-chief-operating-officer
-name: Chief Operating Officer
-type: business-role
-layer: business
+owner: Operations Division
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Operations Division
-  status: active
-  last-updated: '2026-02-07'
+name: Chief Operating Officer
 tags:
 - role
 - operations
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Chief Operating Officer
 
 Role accountable for operational governance, resilience, and service delivery.

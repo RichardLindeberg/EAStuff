@@ -1,19 +1,21 @@
 ---
 id: bus-role-014-financial-crime-compliance
-name: Financial Crime Compliance
-type: business-role
-layer: business
+owner: Compliance Division
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Compliance Division
-  status: active
-  last-updated: '2026-02-07'
+name: Financial Crime Compliance
 tags:
 - role
 - aml
 - compliance
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Financial Crime Compliance
 
 Role responsible for AML/CTF policy oversight, control design, and regulatory reporting standards.

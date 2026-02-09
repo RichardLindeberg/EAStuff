@@ -1,8 +1,11 @@
 ---
 id: mot-outc-001-improved-customer-experience
-name: Improved Customer Experience
-type: outcome
-layer: motivation
+owner: Chief Experience Officer
+status: target
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: realization
   target: mot-goal-001-digital-transformation-initiative
@@ -13,19 +16,20 @@ relationships:
 - type: association
   target: mot-valu-001-customer-trust
   description: Contributes to customer trust value
-properties:
-  owner: Chief Experience Officer
-  status: target
-  measurement: "NPS, CSAT, Digital Adoption Rate, Service Usage"
-  target-date: "2027-12-31"
-  current-status: "in-progress"
-  last-updated: "2026-02-03"
+name: Improved Customer Experience
 tags:
 - outcome
 - customer-experience
 - strategic
+archimate:
+  type: outcome
+  layer: motivation
+extensions:
+  properties:
+    measurement: NPS, CSAT, Digital Adoption Rate, Service Usage
+    target-date: '2027-12-31'
+    current-status: in-progress
 ---
-
 # Improved Customer Experience
 
 Strategic outcome representing enhanced customer satisfaction, engagement, and loyalty through digital banking transformation.

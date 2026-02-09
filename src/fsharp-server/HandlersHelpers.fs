@@ -20,8 +20,40 @@ module HandlersHelpers =
         let data = Dictionary<string, obj>()
         data.Add("id", id)
         data.Add("name", name)
-        data.Add("type", elementType)
-        data.Add("layer", layer)
+
+        let normalizeKey (value: string) =
+            value.Trim().ToLowerInvariant().Replace(" ", "_").Replace("-", "_")
+
+        let propertyMap =
+            properties
+            |> List.fold (fun acc (key, value) -> Map.add (normalizeKey key) value acc) Map.empty
+
+        let tryGetProperty key =
+            propertyMap
+            |> Map.tryFind (normalizeKey key)
+            |> Option.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+
+        let sharedKeys = set [ "owner"; "status"; "version"; "last_updated"; "review_cycle"; "next_review" ]
+
+        let addSharedField key =
+            match tryGetProperty key with
+            | Some value -> data.Add(key, value)
+            | None -> ()
+
+        addSharedField "owner"
+        addSharedField "status"
+        addSharedField "version"
+        addSharedField "last_updated"
+        addSharedField "review_cycle"
+        addSharedField "next_review"
+
+        let archimate = Dictionary<string, obj>()
+        archimate.Add("type", elementType)
+        archimate.Add("layer", layer)
+        match tryGetProperty "criticality" with
+        | Some value -> archimate.Add("criticality", value)
+        | None -> ()
+        data.Add("archimate", archimate)
 
         if not (List.isEmpty relationships) then
             let relList = ResizeArray<obj>()
@@ -34,9 +66,21 @@ module HandlersHelpers =
                 relList.Add(rel :> obj)
             data.Add("relationships", relList)
 
-        if not (List.isEmpty properties) then
+        let extensionProps =
+            properties
+            |> List.choose (fun (key, value) ->
+                let normalized = normalizeKey key
+                if normalized = "criticality" || Set.contains normalized sharedKeys then
+                    None
+                elif String.IsNullOrWhiteSpace value then
+                    None
+                else
+                    Some (key, value)
+            )
+
+        if not (List.isEmpty extensionProps) then
             let props = Dictionary<string, obj>()
-            for (key, value) in properties do
+            for (key, value) in extensionProps do
                 props.Add(key, value)
             data.Add("properties", props)
 
@@ -136,14 +180,13 @@ module HandlersHelpers =
         else
             collapsed
 
-    let private nextSequence (registry: ElementRegistry) (layerCode: string) (typeCode: string) (namePart: string) : int =
+    let private nextSequence (existingIds: string list) (layerCode: string) (typeCode: string) (namePart: string) : int =
         let pattern =
             let escapedName = Regex.Escape(namePart)
             Regex($"^{layerCode}-{typeCode}-(\\d{{3}})-{escapedName}$")
 
-        registry.elements
-        |> Map.toSeq
-        |> Seq.choose (fun (elemId, _) ->
+        existingIds
+        |> Seq.choose (fun elemId ->
             let matchResult = pattern.Match(elemId)
             if matchResult.Success then
                 Some (Int32.Parse(matchResult.Groups.[1].Value))
@@ -153,7 +196,7 @@ module HandlersHelpers =
         |> Seq.fold (fun acc value -> max acc value) 0
         |> fun maxValue -> maxValue + 1
 
-    let generateElementId (registry: ElementRegistry) (layer: string) (typeValue: string) (name: string) : string =
+    let generateElementId (existingIds: string list) (layer: string) (typeValue: string) (name: string) : string =
         let layerKey = layer.Trim().ToLowerInvariant()
         let typeKey = typeValue.Trim().ToLowerInvariant()
         let layerCode = layerCodes |> Map.tryFind layerKey |> Option.defaultValue "unk"
@@ -161,7 +204,7 @@ module HandlersHelpers =
         let namePart =
             let sanitized = sanitizeName name
             if sanitized = "" then "new-element" else sanitized
-        let sequenceNumber = nextSequence registry layerCode typeCode namePart
+        let sequenceNumber = nextSequence existingIds layerCode typeCode namePart
         let sequenceText = sequenceNumber.ToString("000")
         $"{layerCode}-{typeCode}-{sequenceText}-{namePart}"
 
@@ -180,14 +223,14 @@ module HandlersHelpers =
         | 'f' -> Some "flow"
         | _ -> None
 
-    /// Build tag index from registry
-    let buildTagIndex (registry: ElementRegistry) : Map<string, string list> =
-        registry.elements
-        |> Map.fold (fun acc elemId elem ->
-            elem.tags
+    /// Build tag index from document list
+    let buildTagIndex (docs: DocumentRecord list) : Map<string, string list> =
+        docs
+        |> List.fold (fun acc doc ->
+            doc.metadata.tags
             |> List.fold (fun tagMap tag ->
                 match Map.tryFind tag tagMap with
-                | Some ids -> Map.add tag (elemId :: ids) tagMap
-                | None -> Map.add tag [elemId] tagMap
+                | Some ids -> Map.add tag (doc.id :: ids) tagMap
+                | None -> Map.add tag [doc.id] tagMap
             ) acc
         ) Map.empty

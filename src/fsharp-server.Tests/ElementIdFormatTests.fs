@@ -1,229 +1,133 @@
 namespace EAArchive.Tests
 
 open System
+open System.IO
 open Xunit
 open EAArchive
 open TestHelpers
 
 module ElementIdFormatTests =
+
+    let private buildArchimateContent (lines: string list) : string =
+        String.concat "\n" ([ "---" ] @ lines @ [ "---"; ""; "Content." ])
+
+    let private withArchimateErrors (lines: string list) (assertFn: ValidationError list -> unit) : unit =
+        let content = buildArchimateContent lines
+        let repo, rootDir = createTempRepository [ ("test.md", content) ] []
+        let filePath = Path.Combine(rootDir, "archimate", "test.md")
+
+        try
+            let errors = repo.validationErrors |> List.filter (fun e -> e.filePath = filePath)
+            assertFn errors
+        finally
+            cleanupTempDirectory rootDir
+
+    let private baseLines (idValue: string) : string list =
+        [
+            sprintf "id: %s" idValue
+            "owner: bus-role-001-owner"
+            "status: active"
+            "version: 1.0"
+            "last_updated: 2026-01-01"
+            "review_cycle: annual"
+            "next_review: 2027-01-01"
+            "relationships: []"
+            "name: Test"
+            "archimate:"
+            "  type: business-process"
+            "  layer: business"
+        ]
     
     [<Fact>]
     let ``Element with invalid ID format (missing descriptive-name) should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001")
-            ("name", box "Customer Onboarding")
-            ("type", box "Business Process")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-proc-001") (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("invalid-id-format", ElementType.errorTypeToString errors.[0].errorType)
             Assert.Equal("error", ElementType.severityToString errors.[0].severity)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with single word in descriptive name should be valid`` () =
-        let metadata = createMetadata [
-            ("id", box "str-capa-001-omnichannel")
-            ("name", box "Omnichannel")
-            ("type", box "Capability")
-            ("layer", box "strategy")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
-            Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+        let lines =
+            baseLines "str-capa-001-omnichannel"
+            |> List.map (fun line -> if line = "  layer: business" then "  layer: strategy" else line)
+
+        withArchimateErrors lines (fun errors -> Assert.Empty(errors))
     
     [<Fact>]
     let ``ID with multi-word descriptive-name should be valid`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-fulfillment-process")
-            ("name", box "Order Fulfillment Process")
-            ("type", box "Business Process")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-proc-001-order-fulfillment-process") (fun errors ->
             Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with numeric in descriptive-name should be valid`` () =
-        let metadata = createMetadata [
-            ("id", box "app-comp-001-crm-system-v2")
-            ("name", box "CRM System V2")
-            ("type", box "Application Component")
-            ("layer", box "application")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
-            Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+        let lines =
+            baseLines "app-comp-001-crm-system-v2"
+            |> List.map (fun line -> if line = "  layer: business" then "  layer: application" else line)
+
+        withArchimateErrors lines (fun errors -> Assert.Empty(errors))
     
     [<Fact>]
     let ``ID completely wrong format should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "completely-invalid")
-            ("name", box "Invalid")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "completely-invalid") (fun errors ->
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "invalid-id-format"))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with wrong layer code length should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing")
-            ("name", box "Test")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            // This should pass with correct bus code (3 chars)
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-proc-001-order-processing") (fun errors ->
             Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with 2-char layer code should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bu-proc-001-order-processing")
-            ("name", box "Test")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bu-proc-001-order-processing") (fun errors ->
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> e.message.Contains("Layer code")))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with invalid layer code should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "xyz-proc-001-order-processing")
-            ("name", box "Test")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "xyz-proc-001-order-processing") (fun errors ->
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> e.message.Contains("not valid")))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with wrong type code length should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-pro-001-order-processing")
-            ("name", box "Test")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-pro-001-order-processing") (fun errors ->
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> e.message.Contains("Type code")))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with invalid type code for layer should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-node-001-order-processing")
-            ("name", box "Test")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-node-001-order-processing") (fun errors ->
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> e.message.Contains("not valid for layer")))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with sequential number 000 should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-000-order-processing")
-            ("name", box "Test")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-proc-000-order-processing") (fun errors ->
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> e.message.Contains("must start at 001")))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with only 1 word in descriptive name is valid`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-processing")
-            ("name", box "Processing")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-proc-001-processing") (fun errors ->
             Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with 7 words in descriptive name should produce error`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing-system-management-feature-approval-workflow")
-            ("name", box "Test")
-            ("type", box "Test")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-proc-001-order-processing-system-management-feature-approval-workflow") (fun errors ->
             Assert.NotEmpty(errors)
             Assert.True(errors |> List.exists (fun e -> e.message.Contains("maximum is 6")))
-        finally
-            cleanupTempFile tempFile
+        )
     
     [<Fact>]
     let ``ID with invalid special characters should fail basic pattern`` () =
@@ -233,55 +137,38 @@ module ElementIdFormatTests =
             "bus-proc-001-order_processing"    // Underscore
             "bus-proc-001--order-processing"   // Double hyphen
         ]
-        let tempFile = createTempFile "test"
-        
-        try
-            for invalidId in invalidIds do
-                let metadata = createMetadata [
-                    ("id", box invalidId)
-                    ("name", box "Test")
-                    ("type", box "Test")
-                    ("layer", box "business")
-                ]
-                let errors = ElementRegistry.validateElement tempFile metadata
+        for invalidId in invalidIds do
+            withArchimateErrors (baseLines invalidId) (fun errors ->
                 Assert.NotEmpty(errors)
                 Assert.True(errors |> List.exists (fun e -> ElementType.errorTypeToString e.errorType = "invalid-id-format"))
-        finally
-            cleanupTempFile tempFile
+            )
     
     [<Fact>]
     let ``ID with all valid layer codes should pass`` () =
         let layerCodes = ["str"; "bus"; "app"; "tec"; "phy"; "mot"; "imp"]
         let typeCodes = ["capa"; "proc"; "comp"; "node"; "equi"; "goal"; "work"]
-        let tempFile = createTempFile "test"
-        
-        try
-            for (layer, typeCode) in List.zip layerCodes typeCodes do
-                let metadata = createMetadata [
-                    ("id", box $"{layer}-{typeCode}-001-test-element")
-                    ("name", box "Test")
-                    ("type", box "Test")
-                    ("layer", box (match layer with "str" -> "strategy" | "bus" -> "business" | "app" -> "application" | "tec" -> "technology" | "phy" -> "physical" | "mot" -> "motivation" | _ -> "implementation"))
-                ]
-                let errors = ElementRegistry.validateElement tempFile metadata
-                // Should only have no format errors for these valid combinations
+        for (layer, typeCode) in List.zip layerCodes typeCodes do
+            let layerValue =
+                match layer with
+                | "str" -> "strategy"
+                | "bus" -> "business"
+                | "app" -> "application"
+                | "tec" -> "technology"
+                | "phy" -> "physical"
+                | "mot" -> "motivation"
+                | _ -> "implementation"
+
+            let lines =
+                baseLines $"{layer}-{typeCode}-001-test-element"
+                |> List.map (fun line -> if line = "  layer: business" then $"  layer: {layerValue}" else line)
+
+            withArchimateErrors lines (fun errors ->
                 let formatErrors = errors |> List.filter (fun e -> ElementType.errorTypeToString e.errorType = "invalid-id-format")
                 Assert.Empty(formatErrors)
-        finally
-            cleanupTempFile tempFile
+            )
     
     [<Fact>]
     let ``Element with correct ID format should have no errors`` () =
-        let metadata = createMetadata [
-            ("id", box "bus-proc-001-customer-onboarding")
-            ("name", box "Customer Onboarding")
-            ("type", box "Business Process")
-            ("layer", box "business")
-        ]
-        let tempFile = createTempFile "test"
-        
-        try
-            let errors = ElementRegistry.validateElement tempFile metadata
+        withArchimateErrors (baseLines "bus-proc-001-customer-onboarding") (fun errors ->
             Assert.Empty(errors)
-        finally
-            cleanupTempFile tempFile
+        )

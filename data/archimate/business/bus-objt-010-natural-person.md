@@ -1,8 +1,11 @@
 ---
 id: bus-objt-010-natural-person
-name: Natural Person
-type: business-object
-layer: business
+owner: Customer Data Management
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: composition
   target: bus-objt-011-party
@@ -19,19 +22,20 @@ relationships:
 - type: association
   target: bus-objt-004-customer-agreement
   description: Can sign agreements
-properties:
-  owner: Customer Data Management
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-natural-person-001
+name: Natural Person
 tags:
 - business-object
 - party-model
 - natural-person
 - consumer
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-natural-person-001
 ---
-
 # Natural Person
 
 Business object representing an individual human being in banking relationships.

@@ -1,8 +1,11 @@
 ---
 id: bus-actr-002-customer-service-representative
-name: Customer Service Representative
-type: business-actor
-layer: business
+owner: Customer Service Department
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: assignment
   target: bus-role-003-support-agent
@@ -13,18 +16,19 @@ relationships:
 - type: access
   target: bus-objt-005-customer-object
   description: Views customer information
-properties:
-  owner: Customer Service Department
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-actor-csr-001
+name: Customer Service Representative
 tags:
 - employee
 - customer-service
 - business-actor
+archimate:
+  type: business-actor
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-actor-csr-001
 ---
-
 # Customer Service Representative
 
 Front-line employees who assist customers with inquiries, issues, and service requests.

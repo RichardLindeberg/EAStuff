@@ -1,8 +1,11 @@
 ---
 id: bus-srvc-005-payment-service
-name: Payment Service
-type: business-service
-layer: business
+owner: Payment Operations
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-proc-008-payment-processing
@@ -10,18 +13,19 @@ relationships:
 - type: serving
   target: bus-role-001-account-holder
   description: Serves customers
-properties:
-  owner: Payment Operations
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-svc-payment-service-001
+name: Payment Service
 tags:
 - service
 - payments
 - transactions
+archimate:
+  type: business-service
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-svc-payment-service-001
 ---
-
 # Payment Service
 
 Business service enabling customers to initiate and manage payment transactions.

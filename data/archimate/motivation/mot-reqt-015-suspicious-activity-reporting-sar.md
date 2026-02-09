@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-015-suspicious-activity-reporting-sar
-name: Suspicious Activity Reporting (SAR)
-type: requirement
-layer: motivation
+owner: Chief Compliance Officer / MLRO
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -10,12 +13,7 @@ relationships:
 - type: realization
   target: mot-prin-006-amlct-compliance-excellence
   description: Realizes AML/CT compliance principle
-properties:
-  owner: Chief Compliance Officer / MLRO
-  status: active
-  criticality: critical
-  last-updated: '2026-02-03'
-  legacy-id: mot-requirement-015-sar-reporting
+name: Suspicious Activity Reporting (SAR)
 tags:
 - sar
 - suspicious-activity
@@ -24,8 +22,14 @@ tags:
 - reporting
 - financial-crime
 - fiu
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-requirement-015-sar-reporting
 ---
-
 # Suspicious Activity Reporting (SAR)
 
 All suspicious activities indicating potential money laundering, terrorism financing, or other financial crimes must be promptly identified, investigated, and reported to the relevant Financial Intelligence Unit (FIU).

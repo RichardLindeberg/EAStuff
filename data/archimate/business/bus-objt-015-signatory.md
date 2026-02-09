@@ -1,8 +1,11 @@
 ---
 id: bus-objt-015-signatory
-name: Signatory
-type: business-object
-layer: business
+owner: Legal and Compliance
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: composition
   target: bus-objt-010-natural-person
@@ -13,19 +16,20 @@ relationships:
 - type: association
   target: bus-objt-004-customer-agreement
   description: Signs customer agreements
-properties:
-  owner: Legal and Compliance
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-signatory-001
+name: Signatory
 tags:
 - business-object
 - legal-authority
 - agreement
 - contract-execution
+archimate:
+  type: business-object
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-objt-signatory-001
 ---
-
 # Signatory
 
 Business object representing natural persons who have legal authority to sign agreements and contracts on behalf of a party.

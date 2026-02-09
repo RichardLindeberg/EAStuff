@@ -1,18 +1,20 @@
 ---
 id: bus-role-020-model-risk-management
-name: Model Risk Management
-type: business-role
-layer: business
+owner: Risk Division
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Risk Division
-  status: active
-  last-updated: '2026-02-07'
+name: Model Risk Management
 tags:
 - role
 - model-risk
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Model Risk Management
 
 Role responsible for model risk governance, validation oversight, and compliance monitoring.

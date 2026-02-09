@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-002-mifid-ii-investment-services
-name: MiFID II Investment Services Compliance
-type: requirement
-layer: motivation
+owner: Chief Compliance Officer
+status: compliant
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -10,19 +13,20 @@ relationships:
 - type: realization
   target: mot-prin-002-regulatory-excellence-and-compliance
   description: Realizes regulatory excellence principle
-properties:
-  owner: Chief Compliance Officer
-  status: compliant
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-002-mifid2-compliance
+name: MiFID II Investment Services Compliance
 tags:
 - mifid2
 - investment-services
 - compliance
 - regulatory
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-requirement-002-mifid2-compliance
 ---
-
 # MiFID II Investment Services Compliance
 
 Investment services must comply with MiFID II regulations ensuring investor protection, transparency, and fair market conduct.

@@ -1,20 +1,22 @@
-﻿---
+---
 id: ms-manual-023-sanctions-screening-operations
-name: Sanctions Screening Operations Manual (EU AMLR)
 owner: bus-role-010-financial-crime-operations
-approved_by: Chief Compliance Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: association
-    target: ms-policy-013-sanctions-screening
-  - type: composition
-    target: ms-instruction-024-sanctions-hit-escalation
+- type: association
+  target: mot-reqt-014-transaction-monitoring-and-screening
+- type: association
+  target: ms-policy-013-sanctions-screening
+- type: composition
+  target: ms-instruction-024-sanctions-hit-escalation
+name: Sanctions Screening Operations Manual (EU AMLR)
+governance:
+  approved_by: Chief Compliance Officer
+  effective_date: '2026-02-07'
 ---
 # Sanctions Screening Operations Manual (EU AMLR)
 

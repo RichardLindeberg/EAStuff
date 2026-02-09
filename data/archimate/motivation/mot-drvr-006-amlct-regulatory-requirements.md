@@ -1,18 +1,16 @@
 ---
 id: mot-drvr-006-amlct-regulatory-requirements
-name: AML/CT Regulatory Requirements
-type: driver
-layer: motivation
+owner: ''
+status: ''
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: influence
   target: mot-goal-002-regulatory-compliance
   description: Drives regulatory compliance and risk management
-properties:
-  source: External
-  urgency: critical
-  trend: increasing
-  last-updated: '2026-02-03'
-  legacy-id: mot-driver-006-aml-ct-regulations
+name: AML/CT Regulatory Requirements
 tags:
 - regulatory
 - compliance
@@ -20,8 +18,16 @@ tags:
 - counter-terrorism
 - external-driver
 - risk-management
+archimate:
+  type: driver
+  layer: motivation
+extensions:
+  properties:
+    source: External
+    urgency: critical
+    trend: increasing
+    legacy-id: mot-driver-006-aml-ct-regulations
 ---
-
 # AML/CT Regulatory Requirements
 
 External regulatory pressures from anti-money laundering (AML) and counter-terrorism (CT) financing legislation including EU AML Directives, local regulations, and international standards.

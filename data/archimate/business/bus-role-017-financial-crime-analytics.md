@@ -1,19 +1,21 @@
 ---
 id: bus-role-017-financial-crime-analytics
-name: Financial Crime Analytics
-type: business-role
-layer: business
+owner: Financial Crime Compliance
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Financial Crime Compliance
-  status: active
-  last-updated: '2026-02-07'
+name: Financial Crime Analytics
 tags:
 - role
 - aml
 - analytics
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Financial Crime Analytics
 
 Role responsible for typology analysis, scenario tuning, and monitoring effectiveness metrics.

@@ -1,8 +1,11 @@
 ---
 id: tec-sysw-001-application-runtime
-name: Application Runtime Environment
-type: system-software
-layer: technology
+owner: Platform Engineering Team
+status: production
+version: Multiple runtimes (Node.js 20 LTS, OpenJDK 17)
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: serving
   target: app-comp-001-customer-portal
@@ -13,21 +16,21 @@ relationships:
 - type: association
   target: tec-node-001-web-application-server
   description: Deployed on web application server
-properties:
-  owner: Platform Engineering Team
-  status: production
-  criticality: critical
-  technology: "Node.js, JVM, containerized microservices"
-  version: "Multiple runtimes (Node.js 20 LTS, OpenJDK 17)"
-  orchestration: "Kubernetes 1.28"
-  last-updated: "2026-02-03"
+name: Application Runtime Environment
 tags:
 - runtime
 - platform
 - middleware
 - infrastructure
+archimate:
+  type: system-software
+  layer: technology
+  criticality: critical
+extensions:
+  properties:
+    technology: Node.js, JVM, containerized microservices
+    orchestration: Kubernetes 1.28
 ---
-
 # Application Runtime Environment
 
 Containerized runtime platform providing execution environment for banking applications with high availability and scalability.

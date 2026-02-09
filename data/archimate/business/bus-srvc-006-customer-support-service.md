@@ -1,8 +1,11 @@
 ---
 id: bus-srvc-006-customer-support-service
-name: Customer Support Service
-type: business-service
-layer: business
+owner: Head of Customer Service
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: serving
   target: bus-role-001-account-holder
@@ -16,19 +19,20 @@ relationships:
 - type: realization
   target: mot-reqt-008-transparent-customer-communication
   description: Enables transparent communication
-properties:
-  owner: Head of Customer Service
-  status: active
-  criticality: high
-  service-level: "24/7 support (critical issues), business hours (general)"
-  channels: "phone, email, chat, video, portal"
-  last-updated: "2026-02-03"
+name: Customer Support Service
 tags:
 - customer-service
 - support
 - business-service
+archimate:
+  type: business-service
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    service-level: 24/7 support (critical issues), business hours (general)
+    channels: phone, email, chat, video, portal
 ---
-
 # Customer Support Service
 
 Comprehensive customer support service providing assistance, guidance, and issue resolution across multiple channels.

@@ -1,8 +1,11 @@
 ---
 id: mot-prin-005-data-driven-decision-making
-name: Data-Driven Decision Making
-type: principle
-layer: motivation
+owner: Chief Data Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: influence
   target: mot-goal-004-operational-efficiency
@@ -16,19 +19,20 @@ relationships:
 - type: association
   target: mot-reqt-007-data-security-and-privacy
   description: Realized through data security practices
-properties:
-  owner: Chief Data Officer
-  status: in-progress
-  criticality: high
-  last-updated: '2026-02-03'
-  legacy-id: mot-principle-005-data-driven
+name: Data-Driven Decision Making
 tags:
 - principle
 - data
 - analytics
 - decision-making
+archimate:
+  type: principle
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-principle-005-data-driven
 ---
-
 # Data-Driven Decision Making
 
 The bank makes business decisions based on accurate data, analytics, and evidence rather than intuition or historical practices.

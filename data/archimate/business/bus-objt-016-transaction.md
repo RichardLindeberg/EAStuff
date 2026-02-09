@@ -1,8 +1,11 @@
 ---
 id: bus-objt-016-transaction
-name: Transaction
-type: business-object
-layer: business
+owner: Operations Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: composition
   target: bus-objt-003-customer-account
@@ -13,19 +16,20 @@ relationships:
 - type: association
   target: bus-proc-006-fraud-detection-process
   description: Monitored for fraud
-properties:
-  owner: Operations Division
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-transaction-001
+name: Transaction
 tags:
 - business-object
 - transaction
 - payment
 - core-data
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-transaction-001
 ---
-
 # Transaction
 
 Business object representing a financial transaction.

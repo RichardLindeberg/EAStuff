@@ -1,8 +1,11 @@
 ---
 id: bus-proc-004-credit-assessment-process
-name: Credit Assessment Process
-type: business-process
-layer: business
+owner: Credit Risk Department
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: serving
   target: bus-proc-007-loan-origination-process
@@ -10,19 +13,20 @@ relationships:
 - type: access
   target: bus-objt-005-customer-object
   description: Analyzes customer data
-properties:
-  owner: Credit Risk Department
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-proc-credit-assessment-001
+name: Credit Assessment Process
 tags:
 - process
 - credit-risk
 - underwriting
 - risk-assessment
+archimate:
+  type: business-process
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-proc-credit-assessment-001
 ---
-
 # Credit Assessment Process
 
 Process for evaluating customer creditworthiness and determining lending terms.

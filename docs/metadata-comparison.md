@@ -210,6 +210,73 @@ Migrate frontmatter to the unified schema and remove compatibility paths.
 - Governance and element pages render the same information from typed metadata.
 - Legacy frontmatter is no longer required.
 
+## Implementation Status (Current)
+
+Completed in the codebase so far:
+
+- Completed: Added unified metadata and repository types.
+- Completed: Built a unified repository loader with compatibility mapping for current frontmatter.
+- Completed: Switched registry construction to the unified repository as the source of truth.
+- Completed: Unified validation (shared fields + domain-specific fields) is now derived from typed metadata.
+- Completed: Element frontmatter generation now emits the unified structure while preserving extensions.
+- Completed: Tests updated for the new registry signature and validation behavior.
+- Completed: Updated UI/view layers to consume `DocumentRepository` and typed metadata directly.
+- Completed: Migrated all content to the unified schema and removed compatibility parsing paths.
+- Completed: Removed legacy registries and adapters (ElementRegistry/GovernanceDocuments).
+
+## Plan: Retire `ElementRegistry`
+
+The goal is to move all application code to use `DocumentRepository` (and supporting typed models) directly, then remove `ElementRegistry` entirely.
+
+### Step 1: Introduce a repository service abstraction (Completed)
+
+- Create `DocumentRepositoryService` that loads and caches `DocumentRepository` and exposes accessors for:
+  - `getDocumentById`
+  - `getDocumentsByKind`
+  - `getDocumentsByLayer`
+  - `getGovernanceDocumentsByType`
+  - `getValidationErrors`
+- Register the service in DI and update `Program.fs` to inject it into handlers.
+
+### Step 2: Add typed query helpers (Completed)
+
+- Add helper functions to translate `DocumentRecord` into view models for:
+  - Architecture element pages
+  - Governance document pages
+  - Diagrams
+  - Validation views
+- Keep these helpers in a dedicated module (`DocumentQueries` or `DocumentViewModels`) to avoid handler-level logic duplication.
+
+### Step 3: Update handlers to use the repository (Completed)
+
+- Replace `ElementRegistry` usage in:
+  - `Handlers.fs`
+  - `Routes.fs`
+  - Diagram generators
+  - Validation endpoints
+- Ensure the URLs and query semantics remain identical.
+
+### Step 4: Update views to consume typed metadata (Completed)
+
+- Replace raw `Map<string, obj>` usage with typed `DocumentMetaData` fields.
+- Preserve current UI output and ordering (labels, metadata layouts, and relation lists).
+
+### Step 5: Replace diagram generators (Completed)
+
+- Build diagram nodes and edges from `DocumentRepository.relations` and `DocumentRecord` kinds.
+- Use `DocumentKind` to style governance vs architecture nodes.
+
+### Step 6: Delete adapters and legacy registries (Completed)
+
+- Remove any adapter code that maps `DocumentRepository` back into `Element`/`GovernanceDocument`.
+- Delete `ElementRegistry.fs` and `GovernanceDocuments.fs` once no references remain.
+
+### Step 7: Cleanup and verify (In Progress)
+
+- Update tests to use repository services directly.
+- Remove deprecated helper functions and old validation paths.
+- Run full test suite and validation pages for parity.
+
 
 
 ## References

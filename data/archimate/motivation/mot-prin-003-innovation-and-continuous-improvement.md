@@ -1,8 +1,11 @@
 ---
 id: mot-prin-003-innovation-and-continuous-improvement
-name: Innovation and Continuous Improvement
-type: principle
-layer: motivation
+owner: Chief Digital Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: influence
   target: mot-drvr-002-market-digital-transformation-trends
@@ -25,19 +28,20 @@ relationships:
 - type: association
   target: mot-reqt-009-modern-api-platform-and
   description: Realized through API platform development
-properties:
-  owner: Chief Digital Officer
-  status: active
-  criticality: high
-  last-updated: '2026-02-03'
-  legacy-id: mot-principle-003-innovation-culture
+name: Innovation and Continuous Improvement
 tags:
 - principle
 - innovation
 - culture
 - agility
+archimate:
+  type: principle
+  layer: motivation
+  criticality: high
+extensions:
+  properties:
+    legacy-id: mot-principle-003-innovation-culture
 ---
-
 # Innovation and Continuous Improvement
 
 The bank fosters a culture of innovation, experimentation, and continuous improvement to stay competitive and meet evolving customer needs.

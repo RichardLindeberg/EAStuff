@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-instruction-013-transaction-monitoring-alerts
-name: Transaction Monitoring Alert Handling Instruction
 owner: bus-role-010-financial-crime-operations
-approved_by: Chief Compliance Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: association
-    target: bus-proc-006-fraud-detection-process
-  - type: composition
-    target: ms-policy-013-sanctions-screening
-  - type: association
-    target: ms-manual-013-transaction-monitoring-sanctions
+- type: association
+  target: mot-reqt-014-transaction-monitoring-and-screening
+- type: association
+  target: bus-proc-006-fraud-detection-process
+- type: composition
+  target: ms-policy-013-sanctions-screening
+- type: association
+  target: ms-manual-013-transaction-monitoring-sanctions
+name: Transaction Monitoring Alert Handling Instruction
+governance:
+  approved_by: Chief Compliance Officer
+  effective_date: '2026-02-07'
 ---
 # Transaction Monitoring Alert Handling Instruction
 

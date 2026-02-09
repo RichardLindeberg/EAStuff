@@ -1,8 +1,11 @@
 ---
 id: str-capa-009-regulatory-compliance-and-risk
-name: Regulatory Compliance and Risk Management Capability
-type: capability
-layer: strategy
+owner: Chief Compliance Officer
+status: mature
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -16,21 +19,22 @@ relationships:
 - type: realization
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Realizes DORA compliance requirement
-properties:
-  owner: Chief Compliance Officer
-  status: mature
-  criticality: critical
-  maturity-level: 3 - Defined
-  last-updated: '2026-02-02'
-  legacy-id: str-capa-regulatory-excellence-001
+name: Regulatory Compliance and Risk Management Capability
 tags:
 - capability
 - compliance
 - risk
 - governance
 - strategic
+archimate:
+  type: capability
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    maturity-level: 3 - Defined
+    legacy-id: str-capa-regulatory-excellence-001
 ---
-
 # Regulatory Compliance and Risk Management Capability
 
 Strategic capability to maintain compliance with all applicable EU, Nordic, and local financial regulations while proactively managing regulatory risks.

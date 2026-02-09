@@ -1,20 +1,22 @@
-﻿---
+---
 id: ms-instruction-019-third-party-due-diligence
-name: Third-Party Due Diligence Instruction
 owner: bus-role-013-vendor-management
-approved_by: Chief Risk Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: str-vstr-003-secure-and-resilient-operations
-  - type: composition
-    target: ms-policy-019-third-party-risk
-  - type: association
-    target: ms-manual-019-vendor-third-party
+- type: association
+  target: str-vstr-003-secure-and-resilient-operations
+- type: composition
+  target: ms-policy-019-third-party-risk
+- type: association
+  target: ms-manual-019-vendor-third-party
+name: Third-Party Due Diligence Instruction
+governance:
+  approved_by: Chief Risk Officer
+  effective_date: '2026-02-07'
 ---
 # Third-Party Due Diligence Instruction
 

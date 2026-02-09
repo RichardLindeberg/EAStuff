@@ -1,8 +1,11 @@
 ---
 id: str-cact-001-digital-transformation-strategic-course
-name: Digital Transformation Strategic Course of Action
-type: course-of-action
-layer: strategy
+owner: Chief Digital Officer
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: str-capa-004-digital-banking-platform-capability
@@ -19,18 +22,19 @@ relationships:
 - type: association
   target: mot-goal-004-operational-efficiency
   description: Implements operational efficiency goal
-properties:
-  owner: Chief Digital Officer
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: str-cact-digital-transformation-roadmap-001
+name: Digital Transformation Strategic Course of Action
 tags:
 - strategy
 - transformation
 - roadmap
+archimate:
+  type: course-of-action
+  layer: strategy
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: str-cact-digital-transformation-roadmap-001
 ---
-
 # Digital Transformation Strategic Course of Action
 
 Strategic approach and roadmap for transforming the bank into a modern, digital-first financial institution while maintaining regulatory compliance and operational stability.

@@ -1,18 +1,20 @@
 ---
 id: bus-role-013-vendor-management
-name: Vendor Management
-type: business-role
-layer: business
+owner: Procurement
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Procurement
-  status: active
-  last-updated: '2026-02-07'
+name: Vendor Management
 tags:
 - role
 - third-party
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Vendor Management
 
 Role responsible for third-party onboarding, due diligence, and ongoing vendor oversight.

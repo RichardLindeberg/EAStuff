@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-manual-017-info-security-access
-name: Information Security and Access Control Manual
 owner: bus-role-016-information-security
-approved_by: Chief Information Security Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: str-capa-005-digital-operational-resilience-capabilit
-  - type: association
-    target: mot-reqt-012-ict-incident-detection-and
-  - type: association
-    target: ms-policy-017-information-security
-  - type: composition
-    target: ms-instruction-018-fraud-case-investigation
+- type: association
+  target: str-capa-005-digital-operational-resilience-capabilit
+- type: association
+  target: mot-reqt-012-ict-incident-detection-and
+- type: association
+  target: ms-policy-017-information-security
+- type: composition
+  target: ms-instruction-018-fraud-case-investigation
+name: Information Security and Access Control Manual
+governance:
+  approved_by: Chief Information Security Officer
+  effective_date: '2026-02-07'
 ---
 # Information Security and Access Control Manual
 

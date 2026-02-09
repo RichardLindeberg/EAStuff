@@ -1,8 +1,11 @@
 ---
 id: bus-proc-003-corporate-account-management-process
-name: Corporate Account Management Process
-type: business-process
-layer: business
+owner: Corporate Banking Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: bus-srvc-002-corporate-banking-service
@@ -13,18 +16,19 @@ relationships:
 - type: association
   target: bus-role-002-business-account-holder
   description: Performed by business account holders
-properties:
-  owner: Corporate Banking Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-proc-corporate-account-management-001
+name: Corporate Account Management Process
 tags:
 - process
 - corporate-banking
 - business-accounts
+archimate:
+  type: business-process
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-proc-corporate-account-management-001
 ---
-
 # Corporate Account Management Process
 
 Process for managing corporate and business banking accounts.

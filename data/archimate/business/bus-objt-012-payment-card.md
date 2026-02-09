@@ -1,8 +1,11 @@
 ---
 id: bus-objt-012-payment-card
-name: Payment Card
-type: business-object
-layer: business
+owner: Card Services Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-objt-003-customer-account
@@ -10,18 +13,19 @@ relationships:
 - type: association
   target: bus-proc-008-payment-processing
   description: Used for payments
-properties:
-  owner: Card Services Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-card-001
+name: Payment Card
 tags:
 - business-object
 - card
 - payment-instrument
+archimate:
+  type: business-object
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-objt-card-001
 ---
-
 # Payment Card
 
 Business object representing debit and credit cards.

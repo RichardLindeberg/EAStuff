@@ -1,18 +1,20 @@
 ---
 id: bus-role-012-credit-risk-department
-name: Credit Risk Department
-type: business-role
-layer: business
+owner: Risk Division
+status: active
+version: ''
+last_updated: '2026-02-07'
+review_cycle: annual
+next_review: '2027-02-07'
 relationships: []
-properties:
-  owner: Risk Division
-  status: active
-  last-updated: '2026-02-07'
+name: Credit Risk Department
 tags:
 - role
 - credit-risk
+archimate:
+  type: business-role
+  layer: business
 ---
-
 # Credit Risk Department
 
 Role responsible for credit risk assessment, policy adherence, and portfolio monitoring.

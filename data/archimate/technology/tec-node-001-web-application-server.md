@@ -1,8 +1,11 @@
 ---
 id: tec-node-001-web-application-server
-name: Web Application Server
-type: node
-layer: technology
+owner: Infrastructure Team
+status: production
+version: Ubuntu 22.04 LTS
+last_updated: '2026-01-10'
+review_cycle: annual
+next_review: '2027-01-10'
 relationships:
 - type: realization
   target: app-comp-001-customer-portal
@@ -13,21 +16,21 @@ relationships:
 - type: realization
   target: tec-sysw-002-linux-operating-system
   description: Runs on Linux operating system
-properties:
-  owner: Infrastructure Team
-  status: production
-  criticality: high
-  version: Ubuntu 22.04 LTS
-  lifecycle-phase: operate
-  cost: $500/month
-  last-updated: '2026-01-10'
-  legacy-id: tec-node-web-application-server-001
+name: Web Application Server
 tags:
 - infrastructure
 - web-server
 - production
+archimate:
+  type: node
+  layer: technology
+  criticality: high
+extensions:
+  properties:
+    lifecycle-phase: operate
+    cost: $500/month
+    legacy-id: tec-node-web-application-server-001
 ---
-
 # Web Application Server
 
 Primary server infrastructure hosting customer-facing web applications.

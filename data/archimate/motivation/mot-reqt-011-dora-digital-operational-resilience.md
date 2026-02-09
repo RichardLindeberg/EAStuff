@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-011-dora-digital-operational-resilience
-name: DORA Digital Operational Resilience Compliance
-type: requirement
-layer: motivation
+owner: Chief Information Security Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -19,20 +22,21 @@ relationships:
 - type: influence
   target: mot-reqt-012-ict-incident-detection-and
   description: Requires ICT incident response capabilities
-properties:
-  owner: Chief Information Security Officer
-  status: in-progress
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: mot-requirement-011-dora-compliance
+name: DORA Digital Operational Resilience Compliance
 tags:
 - dora
 - operational-resilience
 - compliance
 - regulatory
 - cybersecurity
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-requirement-011-dora-compliance
 ---
-
 # DORA Digital Operational Resilience Compliance
 
 All financial and operational systems must comply with EU Digital Operational Resilience Act (DORA) requirements for incident detection, reporting, and operational resilience.

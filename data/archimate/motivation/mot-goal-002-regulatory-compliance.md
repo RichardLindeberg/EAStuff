@@ -1,8 +1,11 @@
 ---
 id: mot-goal-002-regulatory-compliance
-name: Regulatory Compliance Excellence
-type: goal
-layer: motivation
+owner: Chief Compliance Officer
+status: in-progress
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: influence
   target: mot-drvr-001-eu-and-nordic-regulatory
@@ -34,17 +37,16 @@ relationships:
 - type: association
   target: mot-reqt-016-enhanced-due-diligence-edd
   description: Realizes enhanced due diligence requirements
-properties:
-  owner: Chief Compliance Officer
-  status: in-progress
-  criticality: critical
-  last-updated: '2026-02-02'
+name: Regulatory Compliance Excellence
 tags:
 - compliance
 - regulatory
 - risk-management
+archimate:
+  type: goal
+  layer: motivation
+  criticality: critical
 ---
-
 # Regulatory Compliance Excellence
 
 Ensure full compliance with EU and Nordic regulatory frameworks including GDPR, MiFID II, and local banking regulations.

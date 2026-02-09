@@ -1,8 +1,11 @@
 ---
 id: bus-srvc-003-customer-support-service
-name: Customer Support Service
-type: business-service
-layer: business
+owner: Customer Service Department
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: association
   target: bus-proc-005-customer-service-process
@@ -10,18 +13,19 @@ relationships:
 - type: association
   target: bus-role-003-support-agent
   description: Delivered by support agents
-properties:
-  owner: Customer Service Department
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-svc-customer-support-service-001
+name: Customer Support Service
 tags:
 - service
 - customer-service
 - support
+archimate:
+  type: business-service
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-svc-customer-support-service-001
 ---
-
 # Customer Support Service
 
 Multi-channel customer support service for inquiries and issue resolution.

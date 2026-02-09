@@ -1,8 +1,11 @@
 ---
 id: bus-proc-007-loan-origination-process
-name: Loan Origination Process
-type: business-process
-layer: business
+owner: Lending Division
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: realization
   target: bus-srvc-004-lending-service
@@ -16,19 +19,20 @@ relationships:
 - type: triggering
   target: bus-proc-004-credit-assessment-process
   description: Triggers credit evaluation
-properties:
-  owner: Lending Division
-  status: active
-  criticality: high
-  last-updated: '2026-02-02'
-  legacy-id: bus-proc-loan-origination-001
+name: Loan Origination Process
 tags:
 - process
 - lending
 - credit
 - origination
+archimate:
+  type: business-process
+  layer: business
+  criticality: high
+extensions:
+  properties:
+    legacy-id: bus-proc-loan-origination-001
 ---
-
 # Loan Origination Process
 
 End-to-end process for processing and approving loan applications.

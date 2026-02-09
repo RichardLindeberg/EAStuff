@@ -1,8 +1,11 @@
 ---
 id: bus-objt-006-customer-profile
-name: Customer Profile
-type: business-object
-layer: business
+owner: Customer Data Management
+status: active
+version: ''
+last_updated: '2026-02-02'
+review_cycle: annual
+next_review: '2027-02-02'
 relationships:
 - type: composition
   target: bus-objt-005-customer-object
@@ -10,18 +13,19 @@ relationships:
 - type: association
   target: bus-proc-001-account-management-process
   description: Updated by account management
-properties:
-  owner: Customer Data Management
-  status: active
-  criticality: critical
-  last-updated: '2026-02-02'
-  legacy-id: bus-objt-customer-profile-001
+name: Customer Profile
 tags:
 - business-object
 - customer-data
 - master-data
+archimate:
+  type: business-object
+  layer: business
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: bus-objt-customer-profile-001
 ---
-
 # Customer Profile
 
 Business object representing customer master data and profile information.

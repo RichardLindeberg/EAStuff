@@ -1,8 +1,11 @@
 ---
 id: mot-reqt-014-transaction-monitoring-and-screening
-name: Transaction Monitoring and Screening
-type: requirement
-layer: motivation
+owner: Chief Compliance Officer
+status: active
+version: ''
+last_updated: '2026-02-03'
+review_cycle: annual
+next_review: '2027-02-03'
 relationships:
 - type: realization
   target: mot-goal-002-regulatory-compliance
@@ -10,12 +13,7 @@ relationships:
 - type: realization
   target: mot-prin-006-amlct-compliance-excellence
   description: Realizes AML/CT compliance principle
-properties:
-  owner: Chief Compliance Officer
-  status: active
-  criticality: critical
-  last-updated: '2026-02-03'
-  legacy-id: mot-requirement-014-transaction-monitoring
+name: Transaction Monitoring and Screening
 tags:
 - transaction-monitoring
 - aml
@@ -23,8 +21,14 @@ tags:
 - sanctions-screening
 - real-time-monitoring
 - financial-crime
+archimate:
+  type: requirement
+  layer: motivation
+  criticality: critical
+extensions:
+  properties:
+    legacy-id: mot-requirement-014-transaction-monitoring
 ---
-
 # Transaction Monitoring and Screening
 
 All customer transactions must be monitored for suspicious patterns, screened against sanctions lists in real-time, checked for fraudulent behavior, and compared against expected activity based on customer profiles and KYC declarations to detect and prevent money laundering, terrorism financing, sanctions violations, and fraud.

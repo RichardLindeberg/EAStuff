@@ -1,22 +1,24 @@
-﻿---
+---
 id: ms-manual-022-pep-management
-name: PEP Management Manual (EU AMLR)
 owner: bus-role-014-financial-crime-compliance
-approved_by: Chief Compliance Officer
 status: Draft
-version: 0.1
-effective_date: 2026-02-07
+version: '0.1'
+last_updated: '2026-02-07'
 review_cycle: Annual
-next_review: 2027-02-07
+next_review: '2027-02-07'
 relationships:
-  - type: association
-    target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: association
-    target: mot-reqt-013-kyc-and-customer-identification
-  - type: association
-    target: ms-policy-011-aml-ctf
-  - type: composition
-    target: ms-instruction-022-pep-screening
+- type: association
+  target: mot-reqt-016-enhanced-due-diligence-edd
+- type: association
+  target: mot-reqt-013-kyc-and-customer-identification
+- type: association
+  target: ms-policy-011-aml-ctf
+- type: composition
+  target: ms-instruction-022-pep-screening
+name: PEP Management Manual (EU AMLR)
+governance:
+  approved_by: Chief Compliance Officer
+  effective_date: '2026-02-07'
 ---
 # PEP Management Manual (EU AMLR)
 

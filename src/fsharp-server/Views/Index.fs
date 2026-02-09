@@ -8,7 +8,7 @@ open Common
 module Index =
 
     /// Index page
-    let indexPage (webConfig: WebUiConfig) (_registry: ElementRegistry) (currentPage: string) =
+    let indexPage (webConfig: WebUiConfig) (currentPage: string) =
         let _ = webConfig.BaseUrl
 
         let content = [
