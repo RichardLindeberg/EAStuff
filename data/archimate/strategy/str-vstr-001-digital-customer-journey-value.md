@@ -4,13 +4,13 @@ name: Digital Customer Journey Value Stream
 type: value-stream
 layer: strategy
 relationships:
-- type: realization
+- type: association
   target: str-capa-004-digital-banking-platform-capability
   description: Realized through digital banking capability
-- type: realization
+- type: association
   target: str-capa-002-customer-trust-and-data
   description: Builds on customer trust capability
-- type: serving
+- type: association
   target: mot-goal-003-digital-banking-excellence
   description: Supports digital banking goal
 properties:

@@ -4,7 +4,7 @@ name: Payment Service
 type: business-service
 layer: business
 relationships:
-- type: realization
+- type: association
   target: bus-proc-008-payment-processing
   description: Realized by payment processing
 - type: serving

@@ -4,7 +4,7 @@ name: Corporate Banking Service
 type: business-service
 layer: business
 relationships:
-- type: realization
+- type: association
   target: bus-proc-003-corporate-account-management-process
   description: Realized by corporate account management
 - type: serving

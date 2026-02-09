@@ -7,7 +7,7 @@ relationships:
 - type: realization
   target: bus-srvc-006-customer-support-service
   description: Realizes customer support service
-- type: assignment
+- type: association
   target: bus-colab-001-customer-support-team
   description: Performed by support team
 - type: access

@@ -13,10 +13,10 @@ relationships:
 - type: composition
   target: bus-objt-016-transaction
   description: Contains transaction history
-- type: access
+- type: association
   target: bus-role-003-support-agent
   description: Accessed by support agents (restricted)
-- type: access
+- type: association
   target: bus-actr-002-customer-service-representative
   description: Accessed by customer service representatives
 properties:

@@ -4,10 +4,10 @@ name: Digital Transformation Initiative
 type: goal
 layer: motivation
 relationships:
-- type: realization
+- type: association
   target: mot-outc-001-improved-customer-experience
   description: Achieves improved customer experience
-- type: influence
+- type: association
   target: app-comp-001-customer-portal
   description: Drives customer portal development
 properties:

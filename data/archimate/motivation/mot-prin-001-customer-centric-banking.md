@@ -13,13 +13,13 @@ relationships:
 - type: influence
   target: mot-goal-005-customer-trust
   description: Supports customer trust goal
-- type: realization
+- type: association
   target: mot-reqt-003-mobile-first-banking-design
   description: Realized through mobile-first design
-- type: realization
+- type: association
   target: mot-reqt-004-seamless-omnichannel-user-experience
   description: Realized through seamless user experience
-- type: realization
+- type: association
   target: mot-reqt-008-transparent-customer-communication
   description: Realized through transparent communication
 properties:

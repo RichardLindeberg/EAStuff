@@ -10,7 +10,7 @@ relationships:
 - type: influence
   target: mot-goal-005-customer-trust
   description: Supports customer trust through responsible practices
-- type: realization
+- type: association
   target: mot-reqt-008-transparent-customer-communication
   description: Realized through transparent reporting
 properties:

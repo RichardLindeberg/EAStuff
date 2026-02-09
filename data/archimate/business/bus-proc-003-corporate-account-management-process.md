@@ -10,7 +10,7 @@ relationships:
 - type: access
   target: bus-objt-002-business-account
   description: Manages corporate accounts
-- type: assignment
+- type: association
   target: bus-role-002-business-account-holder
   description: Performed by business account holders
 properties:

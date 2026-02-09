@@ -7,7 +7,7 @@ relationships:
 - type: composition
   target: bus-objt-005-customer-object
   description: Contains customer master data
-- type: access
+- type: association
   target: bus-proc-001-account-management-process
   description: Updated by account management
 properties:

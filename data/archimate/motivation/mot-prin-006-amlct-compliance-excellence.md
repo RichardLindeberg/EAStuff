@@ -10,16 +10,16 @@ relationships:
 - type: influence
   target: mot-goal-002-regulatory-compliance
   description: Supports regulatory compliance goal
-- type: realization
+- type: association
   target: mot-reqt-013-kyc-and-customer-identification
   description: Realized through KYC compliance
-- type: realization
+- type: association
   target: mot-reqt-014-transaction-monitoring-and-screening
   description: Realized through transaction monitoring
-- type: realization
+- type: association
   target: mot-reqt-015-suspicious-activity-reporting-sar
   description: Realized through SAR reporting
-- type: realization
+- type: association
   target: mot-reqt-016-enhanced-due-diligence-edd
   description: Realized through enhanced due diligence
 properties:

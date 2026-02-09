@@ -13,7 +13,7 @@ relationships:
 - type: association
   target: bus-objt-001-beneficial-owner
   description: Can represent beneficial owner
-- type: access
+- type: association
   target: bus-objt-004-customer-agreement
   description: May sign agreements on behalf of party
 properties:

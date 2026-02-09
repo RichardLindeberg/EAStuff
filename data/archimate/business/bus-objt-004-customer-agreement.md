@@ -10,10 +10,10 @@ relationships:
 - type: association
   target: bus-objt-015-signatory
   description: Signed by authorized signatories
-- type: realization
+- type: association
   target: bus-objt-007-customer-relationship
   description: Establishes customer relationship
-- type: access
+- type: association
   target: bus-objt-013-product-subscription
   description: Grants access to products
 - type: composition

@@ -7,8 +7,10 @@ relationships:
 - type: realization
   target: app-comp-001-customer-portal
   description: Hosts customer portal application
+- type: realization
   target: tec-sysw-001-application-runtime
   description: Includes application runtime environment
+- type: realization
   target: tec-sysw-002-linux-operating-system
   description: Runs on Linux operating system
 properties:

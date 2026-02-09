@@ -4,7 +4,7 @@ name: Lending Service
 type: business-service
 layer: business
 relationships:
-- type: realization
+- type: association
   target: bus-proc-007-loan-origination-process
   description: Realized by loan origination process
 - type: serving

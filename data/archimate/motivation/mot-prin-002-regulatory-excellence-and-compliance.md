@@ -13,13 +13,13 @@ relationships:
 - type: influence
   target: mot-goal-002-regulatory-compliance
   description: Supports regulatory compliance goal
-- type: realization
+- type: association
   target: mot-reqt-001-gdpr-data-protection-compliance
   description: Realized through GDPR compliance
-- type: realization
+- type: association
   target: mot-reqt-002-mifid-ii-investment-services
   description: Realized through MiFID II compliance
-- type: realization
+- type: association
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Realized through DORA compliance
 properties:

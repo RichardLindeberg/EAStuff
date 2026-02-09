@@ -10,7 +10,7 @@ relationships:
 - type: association
   target: bus-objt-008-legal-entity
   description: Owns/controls legal entity
-- type: realization
+- type: association
   target: bus-proc-002-beneficial-ownership-identification-proc
   description: Identified through BO identification process
 properties:

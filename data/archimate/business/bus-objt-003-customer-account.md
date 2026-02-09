@@ -4,10 +4,10 @@ name: Customer Account
 type: business-object
 layer: business
 relationships:
-- type: access
+- type: association
   target: bus-role-001-account-holder
   description: Accessed by account holders
-- type: access
+- type: association
   target: bus-proc-001-account-management-process
   description: Managed by account management process
 - type: composition

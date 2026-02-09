@@ -7,7 +7,7 @@ relationships:
 - type: association
   target: bus-objt-003-customer-account
   description: Linked to account
-- type: access
+- type: association
   target: bus-proc-008-payment-processing
   description: Used for payments
 properties:

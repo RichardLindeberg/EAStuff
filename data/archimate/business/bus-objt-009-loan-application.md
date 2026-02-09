@@ -4,10 +4,10 @@ name: Loan Application
 type: business-object
 layer: business
 relationships:
-- type: access
+- type: association
   target: bus-proc-007-loan-origination-process
   description: Managed by loan origination
-- type: access
+- type: association
   target: bus-proc-004-credit-assessment-process
   description: Evaluated by credit assessment
 - type: association

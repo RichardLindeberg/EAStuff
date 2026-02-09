@@ -4,7 +4,7 @@ name: Beneficial Ownership Identification Process
 type: business-process
 layer: business
 relationships:
-- type: realization
+- type: association
   target: bus-objt-001-beneficial-owner
   description: Identifies beneficial owners
 - type: access

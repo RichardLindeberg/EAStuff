@@ -7,10 +7,10 @@ relationships:
 - type: influence
   target: mot-drvr-004-nordic-sustainability-values-and
   description: Aligned with Nordic sustainability values
-- type: realization
+- type: association
   target: mot-reqt-007-data-security-and-privacy
   description: Requires robust data security
-- type: realization
+- type: association
   target: mot-reqt-008-transparent-customer-communication
   description: Requires transparent customer communication
 properties:

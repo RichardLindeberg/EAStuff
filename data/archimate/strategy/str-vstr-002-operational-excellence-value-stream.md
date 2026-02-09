@@ -4,13 +4,13 @@ name: Operational Excellence Value Stream
 type: value-stream
 layer: strategy
 relationships:
-- type: realization
+- type: association
   target: str-capa-008-process-automation-and-operational
   description: Realized through process automation capability
-- type: realization
+- type: association
   target: str-capa-001-cloud-infrastructure-and-modern
   description: Realized through cloud infrastructure capability
-- type: serving
+- type: association
   target: mot-goal-004-operational-efficiency
   description: Supports operational efficiency goal
 properties:

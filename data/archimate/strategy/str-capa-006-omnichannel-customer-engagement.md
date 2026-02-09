@@ -4,10 +4,10 @@ name: Omnichannel Customer Engagement
 type: capability
 layer: strategy
 relationships:
-- type: realization
+- type: association
   target: app-comp-001-customer-portal
   description: Realized through customer portal
-- type: realization
+- type: association
   target: app-comp-002-mobile-banking-app
   description: Realized through mobile application
 properties:

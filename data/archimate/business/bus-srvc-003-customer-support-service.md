@@ -4,10 +4,10 @@ name: Customer Support Service
 type: business-service
 layer: business
 relationships:
-- type: realization
+- type: association
   target: bus-proc-005-customer-service-process
   description: Realized by customer service process
-- type: assignment
+- type: association
   target: bus-role-003-support-agent
   description: Delivered by support agents
 properties:

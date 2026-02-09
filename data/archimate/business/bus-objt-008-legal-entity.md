@@ -16,7 +16,7 @@ relationships:
 - type: composition
   target: bus-objt-010-natural-person
   description: Composed of natural persons
-- type: access
+- type: association
   target: bus-objt-004-customer-agreement
   description: Signs agreements through representatives
 properties:

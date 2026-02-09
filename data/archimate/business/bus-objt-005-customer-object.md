@@ -4,7 +4,7 @@ name: Customer Object
 type: business-object
 layer: business
 relationships:
-- type: assignment
+- type: association
   target: bus-proc-005-customer-service-process
 properties:
   owner: CEO

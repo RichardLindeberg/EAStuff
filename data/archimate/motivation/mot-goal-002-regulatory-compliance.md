@@ -13,25 +13,25 @@ relationships:
 - type: influence
   target: mot-drvr-006-amlct-regulatory-requirements
   description: Driven by AML/CT regulatory requirements
-- type: realization
+- type: association
   target: mot-reqt-001-gdpr-data-protection-compliance
   description: Realizes GDPR compliance requirement
-- type: realization
+- type: association
   target: mot-reqt-002-mifid-ii-investment-services
   description: Realizes MiFID II compliance requirement
-- type: realization
+- type: association
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Realizes DORA compliance requirement
-- type: realization
+- type: association
   target: mot-reqt-013-kyc-and-customer-identification
   description: Realizes KYC and customer identification requirements
-- type: realization
+- type: association
   target: mot-reqt-014-transaction-monitoring-and-screening
   description: Realizes transaction monitoring and screening requirements
-- type: realization
+- type: association
   target: mot-reqt-015-suspicious-activity-reporting-sar
   description: Realizes suspicious activity reporting requirements
-- type: realization
+- type: association
   target: mot-reqt-016-enhanced-due-diligence-edd
   description: Realizes enhanced due diligence requirements
 properties:

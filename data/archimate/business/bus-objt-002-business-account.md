@@ -4,10 +4,10 @@ name: Business Account
 type: business-object
 layer: business
 relationships:
-- type: access
+- type: association
   target: bus-role-002-business-account-holder
   description: Accessed by business account holders
-- type: access
+- type: association
   target: bus-proc-003-corporate-account-management-process
   description: Managed by corporate account management
 - type: composition

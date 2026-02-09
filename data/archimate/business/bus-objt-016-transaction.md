@@ -7,10 +7,10 @@ relationships:
 - type: composition
   target: bus-objt-003-customer-account
   description: Part of account history
-- type: access
+- type: association
   target: bus-proc-008-payment-processing
   description: Created by payment processing
-- type: access
+- type: association
   target: bus-proc-006-fraud-detection-process
   description: Monitored for fraud
 properties:

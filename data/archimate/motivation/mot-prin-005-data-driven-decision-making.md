@@ -10,10 +10,10 @@ relationships:
 - type: influence
   target: mot-goal-005-customer-trust
   description: Supports trust through data privacy
-- type: realization
+- type: association
   target: mot-reqt-001-gdpr-data-protection-compliance
   description: Realized through data governance
-- type: realization
+- type: association
   target: mot-reqt-007-data-security-and-privacy
   description: Realized through data security practices
 properties:

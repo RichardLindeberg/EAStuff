@@ -16,13 +16,13 @@ relationships:
 - type: influence
   target: mot-goal-004-operational-efficiency
   description: Supports operational efficiency
-- type: realization
+- type: association
   target: mot-reqt-005-process-automation-requirements
   description: Realized through process automation
-- type: realization
+- type: association
   target: mot-reqt-006-cloud-infrastructure-migration
   description: Realized through cloud technology adoption
-- type: realization
+- type: association
   target: mot-reqt-009-modern-api-platform-and
   description: Realized through API platform development
 properties:

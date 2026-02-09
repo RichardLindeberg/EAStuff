@@ -4,7 +4,7 @@ name: ICT Incident Detection and Response
 type: requirement
 layer: motivation
 relationships:
-- type: realization
+- type: association
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Required by DORA compliance
 - type: influence

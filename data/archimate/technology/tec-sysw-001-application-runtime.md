@@ -10,7 +10,7 @@ relationships:
 - type: serving
   target: app-comp-002-mobile-banking-app
   description: Provides backend runtime for mobile app
-- type: assignment
+- type: association
   target: tec-node-001-web-application-server
   description: Deployed on web application server
 properties:

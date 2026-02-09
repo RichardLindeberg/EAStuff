@@ -4,7 +4,7 @@ name: Account Service
 type: business-service
 layer: business
 relationships:
-- type: realization
+- type: association
   target: bus-proc-001-account-management-process
   description: Realized by account management process
 - type: serving

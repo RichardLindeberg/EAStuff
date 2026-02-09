@@ -10,13 +10,13 @@ relationships:
 - type: influence
   target: mot-drvr-005-dora-digital-operational-resilience
   description: Requires operational resilience and business continuity improvements
-- type: realization
+- type: association
   target: mot-reqt-005-process-automation-requirements
   description: Requires process automation
-- type: realization
+- type: association
   target: mot-reqt-006-cloud-infrastructure-migration
   description: Drives cloud infrastructure migration
-- type: realization
+- type: association
   target: mot-reqt-011-dora-digital-operational-resilience
   description: Supports DORA compliance through resilience improvements
 properties:

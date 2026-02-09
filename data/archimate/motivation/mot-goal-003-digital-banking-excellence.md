@@ -7,7 +7,7 @@ relationships:
 - type: influence
   target: mot-drvr-002-market-digital-transformation-trends
   description: Driven by market digital transformation trends
-- type: realization
+- type: association
   target: mot-reqt-003-mobile-first-banking-design
   description: Realizes mobile-first banking requirement
 - type: influence

@@ -16,7 +16,7 @@ relationships:
 - type: association
   target: bus-objt-015-signatory
   description: Can be signatory
-- type: access
+- type: association
   target: bus-objt-004-customer-agreement
   description: Can sign agreements
 properties:

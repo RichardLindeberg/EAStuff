@@ -10,10 +10,10 @@ relationships:
 - type: realization
   target: mot-reqt-004-seamless-omnichannel-user-experience
   description: Delivers seamless digital experience
-- type: serving
+- type: association
   target: bus-actr-003-retail-customer
   description: Serves retail customer needs
-- type: serving
+- type: association
   target: bus-actr-001-corporate-customer
   description: Serves corporate customer needs
 properties:

@@ -10,7 +10,7 @@ relationships:
 - type: access
   target: bus-objt-003-customer-account
   description: Manages account data
-- type: assignment
+- type: association
   target: bus-role-001-account-holder
   description: Performed by account holders
 properties:

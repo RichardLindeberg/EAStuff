@@ -4,19 +4,19 @@ name: Digital Transformation Strategic Course of Action
 type: course-of-action
 layer: strategy
 relationships:
-- type: influence
+- type: association
   target: str-capa-004-digital-banking-platform-capability
   description: Guides digital banking platform development
-- type: influence
+- type: association
   target: str-capa-001-cloud-infrastructure-and-modern
   description: Guides cloud migration strategy
-- type: influence
+- type: association
   target: str-capa-005-digital-operational-resilience-capabilit
   description: Guides resilience and security investments
-- type: serving
+- type: association
   target: mot-goal-003-digital-banking-excellence
   description: Implements digital banking goal
-- type: serving
+- type: association
   target: mot-goal-004-operational-efficiency
   description: Implements operational efficiency goal
 properties:

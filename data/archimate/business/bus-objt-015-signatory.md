@@ -10,7 +10,7 @@ relationships:
 - type: association
   target: bus-objt-014-representative
   description: May also be a representative
-- type: access
+- type: association
   target: bus-objt-004-customer-agreement
   description: Signs customer agreements
 properties:

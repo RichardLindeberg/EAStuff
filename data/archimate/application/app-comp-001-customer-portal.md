@@ -4,11 +4,13 @@ name: Customer Portal
 type: application-component
 layer: application
 relationships:
-- type: serving
+- type: association
   target: bus-proc-005-customer-service-process
   description: Provides customer-facing services
+- type: association
   target: app-intf-001-web-ui
   description: Contains web user interface
+- type: association
   target: str-capa-010-online-services
   description: Realizes online services capability
 properties:

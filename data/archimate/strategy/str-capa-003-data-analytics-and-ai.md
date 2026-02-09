@@ -7,7 +7,7 @@ relationships:
 - type: realization
   target: mot-prin-005-data-driven-decision-making
   description: Realizes data-driven decision making principle
-- type: influence
+- type: association
   target: str-capa-004-digital-banking-platform-capability
   description: Supports digital banking personalization
 properties:

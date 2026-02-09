@@ -4,16 +4,16 @@ name: Secure and Resilient Operations Value Stream
 type: value-stream
 layer: strategy
 relationships:
-- type: realization
+- type: association
   target: str-capa-005-digital-operational-resilience-capabilit
   description: Realized through resilience capability
-- type: realization
+- type: association
   target: str-capa-002-customer-trust-and-data
   description: Builds on customer trust capability
-- type: serving
+- type: association
   target: mot-goal-002-regulatory-compliance
   description: Supports regulatory compliance goal
-- type: serving
+- type: association
   target: mot-goal-005-customer-trust
   description: Supports customer trust goal
 properties:

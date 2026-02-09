@@ -7,7 +7,7 @@ relationships:
 - type: influence
   target: mot-drvr-001-eu-and-nordic-regulatory
   description: Driven by PSD2 and open banking regulations
-- type: realization
+- type: association
   target: mot-reqt-009-modern-api-platform-and
   description: Requires modern API platform
 - type: influence
