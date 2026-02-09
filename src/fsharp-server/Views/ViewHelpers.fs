@@ -55,6 +55,14 @@ module ViewHelpers =
         | ElementType.Implementation it -> sprintf "Implementation %A" it
         | ElementType.Unknown (layer, typeName) -> sprintf "%s %s" layer typeName
 
+    /// Convert GovernanceDocType to string for display
+    let docTypeToString (docType: GovernanceDocType) : string =
+        match docType with
+        | GovernanceDocType.Policy -> "policy"
+        | GovernanceDocType.Instruction -> "instruction"
+        | GovernanceDocType.Manual -> "manual"
+        | GovernanceDocType.Unknown value -> value.Trim().ToLowerInvariant()
+
     /// Convert ElementType to string for display with explicit subtype
     let elementTypeAndSubTypeToString (elementType: ElementType) : string =
         match elementType with

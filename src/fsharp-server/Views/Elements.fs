@@ -115,7 +115,7 @@ module Elements =
                             for doc in ownerDocs |> List.sortBy (fun d -> d.title) do
                                 li [_class "relation-item"] [
                                     span [_class "relation-type governance-relation-type"] [encodedText "Owner"]
-                                    span [_class "governance-relation-label"] [encodedText "Governance"]
+                                    span [_class "governance-relation-label"] [encodedText (docTypeToString doc.docType)]
                                     a [_href $"{baseUrl}governance/{doc.slug}"] [
                                         encodedText doc.title
                                     ]
@@ -135,7 +135,7 @@ module Elements =
                             for (doc, rel) in incomingGovernance |> List.sortBy (fun (d, _) -> d.title) do
                                 li [_class "relation-item"] [
                                     span [_class "relation-type governance-relation-type"] [encodedText (formatGovernanceRelationType rel.relationType)]
-                                    span [_class "governance-relation-label"] [encodedText "Governance"]
+                                    span [_class "governance-relation-label"] [encodedText (docTypeToString doc.docType)]
                                     a [_href $"{baseUrl}governance/{doc.slug}"] [
                                         encodedText doc.title
                                     ]

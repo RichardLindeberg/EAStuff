@@ -32,13 +32,6 @@ module Governance =
         | GovernanceDocType.Manual -> "Manuals"
         | GovernanceDocType.Unknown value -> value
 
-    let private docTypeFilterValue (docType: GovernanceDocType) : string =
-        match docType with
-        | GovernanceDocType.Policy -> "policy"
-        | GovernanceDocType.Instruction -> "instruction"
-        | GovernanceDocType.Manual -> "manual"
-        | GovernanceDocType.Unknown value -> value.Trim().ToLowerInvariant()
-
     let private tryGetMetadataValue (key: string) (metadata: Map<string, string>) : string option =
         metadata
         |> Map.tryFind key
@@ -153,7 +146,7 @@ module Governance =
             let optionNodes =
                 docTypeOptions
                 |> List.map (fun value ->
-                    let optionValue = docTypeFilterValue value
+                    let optionValue = docTypeToString value
                     optionNode optionValue (docTypeValue = Some optionValue)
                 )
 
@@ -293,28 +286,45 @@ module Governance =
                 ]
             )
 
-        let relationItems =
-            doc.relations
-            |> List.map (fun rel ->
-                
-                let (targetLabel, targetType) =
-                    match ElementRegistry.getElement rel.target registry with
-                    | Some elem -> elem.name, (elementTypeAndSubTypeToString elem.elementType)
-                    | None -> rel.target, "Governance"
+        let buildRelationItem (relationLabel: string) (targetType: string) (targetLabel: string) (targetLink: string option) : XmlNode =
+            li [_class "relation-item"] [
+                span [_class "relation-type governance-relation-type"] [encodedText relationLabel]
+                span [_class "governance-relation-label"] [encodedText targetType]
+                match targetLink with
+                | Some link ->
+                    a [_href link] [
+                        encodedText targetLabel
+                    ]
+                | None ->
+                    span [] [encodedText targetLabel]
+            ]
 
-                let relationLabel = formatRelationType rel.relationType
-                
-                li [_class "relation-item"] [
-                    span [_class "relation-type governance-relation-type"] [encodedText relationLabel]
-                    span [_class "governance-relation-label"] [encodedText targetType]
-                    match ElementRegistry.getElement rel.target registry with
-                    | Some _ ->
-                        a [_href $"{baseUrl}elements/{rel.target}"] [
-                            encodedText targetLabel
-                        ]
+        let governanceRelationItems =
+            doc.relations
+            |> List.choose (fun rel ->
+                match ElementRegistry.getElement rel.target registry with
+                | Some _ -> None
+                | None ->
+                    let relationLabel = formatRelationType rel.relationType
+                    match Map.tryFind rel.target governanceRegistry.documents with
+                    | Some relatedDoc ->
+                        let targetType = docTypeToString relatedDoc.docType
+                        let targetLink = Some $"{baseUrl}governance/{relatedDoc.slug}"
+                        Some (buildRelationItem relationLabel targetType relatedDoc.title targetLink)
                     | None ->
-                        span [] [encodedText targetLabel]
-                ]
+                        Some (buildRelationItem relationLabel "Governance" rel.target None)
+            )
+
+        let archimateRelationItems =
+            doc.relations
+            |> List.choose (fun rel ->
+                match ElementRegistry.getElement rel.target registry with
+                | Some elem ->
+                    let relationLabel = formatRelationType rel.relationType
+                    let targetType = elementTypeAndSubTypeToString elem.elementType
+                    let targetLink = Some $"{baseUrl}elements/{rel.target}"
+                    Some (buildRelationItem relationLabel targetType elem.name targetLink)
+                | None -> None
             )
 
         let content = [
@@ -339,6 +349,24 @@ module Governance =
                                 div [_class "metadata-value"] [encodedText doc.slug]
                             ]
                         ]
+                        if not (List.isEmpty metadataItems) then
+                            div [_class "properties-section"] [
+                                h3 [] [encodedText "Metadata"]
+                                div [_class "metadata"] [
+                                    yield! metadataNodes
+                                ]
+                            ]
+
+                        if not (String.IsNullOrWhiteSpace doc.content) then
+                            let htmlContent =
+                                doc.content
+                                |> stripTitleHeading
+                                |> linkRelatedDocs baseUrl governanceRegistry
+                                |> markdownToHtml
+                            div [_class "content-section"] [
+                                rawText htmlContent
+                            ]
+
                         div [_class "diagram-section"] [
                             div [_class "diagram-header"] [
                                 h3 [] [encodedText "Diagram"]
@@ -350,28 +378,17 @@ module Governance =
                                 ]
                             ]
                         ]
-                        if not (List.isEmpty metadataItems) then
-                            div [_class "properties-section"] [
-                                h3 [] [encodedText "Metadata"]
-                                div [_class "metadata"] [
-                                    yield! metadataNodes
-                                ]
-                            ]
 
-                        if not (List.isEmpty relationItems) then
+                        if not (List.isEmpty governanceRelationItems) then
                             div [_class "relations-section"] [
-                                h3 [] [encodedText "Relations"]
-                                ul [_class "relation-list"] relationItems
+                                h3 [] [encodedText "Governance Relations"]
+                                ul [_class "relation-list"] governanceRelationItems
                             ]
 
-                        if not (String.IsNullOrWhiteSpace doc.content) then
-                            let htmlContent =
-                                doc.content
-                                |> stripTitleHeading
-                                |> linkRelatedDocs baseUrl governanceRegistry
-                                |> markdownToHtml
-                            div [_class "content-section"] [
-                                rawText htmlContent
+                        if not (List.isEmpty archimateRelationItems) then
+                            div [_class "relations-section"] [
+                                h3 [] [encodedText "Architecture Relations"]
+                                ul [_class "relation-list"] archimateRelationItems
                             ]
                     ]
                 ]
