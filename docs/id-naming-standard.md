@@ -130,7 +130,7 @@ All element IDs must follow this standardized format:
 
 The descriptive name portion should be:
 
-- **Concise**: 2-4 words maximum
+- **Concise**: 1-6 words maximum
 - **Meaningful**: Clearly identifies the element
 - **Lowercase**: All characters in lowercase
 - **Hyphen-separated**: Use hyphens instead of spaces or underscores

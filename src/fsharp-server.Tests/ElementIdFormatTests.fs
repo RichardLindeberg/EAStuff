@@ -209,9 +209,9 @@ module ElementIdFormatTests =
             cleanupTempFile tempFile
     
     [<Fact>]
-    let ``ID with 5 words in descriptive name should produce error`` () =
+    let ``ID with 7 words in descriptive name should produce error`` () =
         let metadata = createMetadata [
-            ("id", box "bus-proc-001-order-processing-system-management-feature")
+            ("id", box "bus-proc-001-order-processing-system-management-feature-approval-workflow")
             ("name", box "Test")
             ("type", box "Test")
             ("layer", box "business")
@@ -221,7 +221,7 @@ module ElementIdFormatTests =
         try
             let errors = ElementRegistry.validateElement tempFile metadata
             Assert.NotEmpty(errors)
-            Assert.True(errors |> List.exists (fun e -> e.message.Contains("maximum is 4")))
+            Assert.True(errors |> List.exists (fun e -> e.message.Contains("maximum is 6")))
         finally
             cleanupTempFile tempFile
     

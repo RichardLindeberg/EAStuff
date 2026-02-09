@@ -276,7 +276,7 @@ module ElementRegistry =
                                 severity = Severity.Error
                             })
                     
-                    // Validate descriptive name (1-4 words, lowercase, hyphens only)
+                    // Validate descriptive name (1-6 words, lowercase, hyphens only)
                     if parts.Length >= 4 then
                         let descriptiveName = String.concat "-" (parts.[3..])
                         let wordCount = (parts.Length - 3)
@@ -289,12 +289,12 @@ module ElementRegistry =
                                 message = "Descriptive name must have at least 1 word"
                                 severity = Severity.Error
                             })
-                        elif wordCount > 4 then
+                        elif wordCount > 6 then
                             errors.Add({
                                 filePath = filePath
                                 elementId = id
                                 errorType = ErrorType.Unknown "invalid-id-format"
-                                message = sprintf "Descriptive name has %d words, maximum is 4" wordCount
+                                message = sprintf "Descriptive name has %d words, maximum is 6" wordCount
                                 severity = Severity.Error
                             })
                         
