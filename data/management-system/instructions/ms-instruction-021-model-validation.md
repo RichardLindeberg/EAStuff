@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: str-capa-003-data-analytics-and-ai
-  - type: implements
+  - type: composition
     target: ms-policy-020-model-risk-management
-  - type: related
+  - type: association
     target: ms-manual-020-model-risk-management
 ---
 # Model Validation and Monitoring Instruction

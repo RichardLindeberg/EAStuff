@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: bus-proc-008-payment-processing
-  - type: implements
+  - type: composition
     target: ms-policy-013-sanctions-screening
-  - type: related
+  - type: association
     target: ms-manual-013-transaction-monitoring-sanctions
 ---
 # Payment Exceptions Handling Instruction

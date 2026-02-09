@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: str-vstr-003-secure-and-resilient-operations
-  - type: appliesTo
+  - type: association
     target: str-capa-009-regulatory-compliance-and-risk
-  - type: related
+  - type: association
     target: ms-policy-019-third-party-risk
-  - type: implements
+  - type: composition
     target: ms-instruction-019-third-party-due-diligence
 ---
 # Vendor and Third-Party Management Manual

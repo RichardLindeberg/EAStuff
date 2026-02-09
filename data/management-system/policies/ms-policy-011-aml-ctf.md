@@ -9,45 +9,45 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-013-kyc-and-customer-identification
-  - type: appliesTo
+  - type: association
     target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: appliesTo
+  - type: association
     target: mot-reqt-015-suspicious-activity-reporting-sar
-  - type: appliesTo
+  - type: association
     target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: related
+  - type: association
     target: ms-policy-012-kyc-cdd
-  - type: related
+  - type: association
     target: ms-policy-013-sanctions-screening
-  - type: related
+  - type: association
     target: ms-instruction-011-kyc-onboarding
-  - type: related
+  - type: association
     target: ms-instruction-012-beneficial-ownership
-  - type: related
+  - type: association
     target: ms-instruction-014-sar-filing
-  - type: related
+  - type: association
     target: ms-instruction-015-edd-review
-  - type: related
+  - type: association
     target: ms-instruction-022-pep-screening
-  - type: related
+  - type: association
     target: ms-instruction-023-ongoing-kyc-refresh
-  - type: related
+  - type: association
     target: ms-instruction-024-sanctions-hit-escalation
-  - type: related
+  - type: association
     target: ms-instruction-025-transaction-monitoring-calibration
-  - type: related
+  - type: association
     target: ms-manual-011-aml-ctf-compliance
-  - type: related
+  - type: association
     target: ms-manual-021-kyc-cdd-ongoing-monitoring
-  - type: related
+  - type: association
     target: ms-manual-022-pep-management
-  - type: related
+  - type: association
     target: ms-manual-023-sanctions-screening-operations
-  - type: related
+  - type: association
     target: ms-manual-024-transaction-monitoring-typologies
-  - type: related
+  - type: association
     target: ms-manual-025-fiu-reporting-str
 ---
 # AML/CTF Policy

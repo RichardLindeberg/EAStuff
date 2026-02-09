@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: str-capa-009-regulatory-compliance-and-risk
-  - type: related
+  - type: association
     target: ms-instruction-010-policy-lifecycle
-  - type: related
+  - type: association
     target: ms-manual-010-governance-system-overview
 ---
 # Governance Framework Policy

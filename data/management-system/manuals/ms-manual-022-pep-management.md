@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: appliesTo
+  - type: association
     target: mot-reqt-013-kyc-and-customer-identification
-  - type: related
+  - type: association
     target: ms-policy-011-aml-ctf
-  - type: implements
+  - type: composition
     target: ms-instruction-022-pep-screening
 ---
 # PEP Management Manual (EU AMLR)

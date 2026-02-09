@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: bus-proc-006-fraud-detection-process
-  - type: appliesTo
+  - type: association
     target: str-vstr-003-secure-and-resilient-operations
-  - type: related
+  - type: association
     target: ms-policy-014-fraud-risk-management
-  - type: implements
+  - type: composition
     target: ms-instruction-018-fraud-case-investigation
 ---
 # Fraud Prevention and Response Manual

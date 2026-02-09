@@ -9,19 +9,19 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: appliesTo
+  - type: association
     target: bus-proc-008-payment-processing
-  - type: related
+  - type: association
     target: ms-policy-011-aml-ctf
-  - type: related
+  - type: association
     target: ms-instruction-013-transaction-monitoring-alerts
-  - type: related
+  - type: association
     target: ms-instruction-024-sanctions-hit-escalation
-  - type: related
+  - type: association
     target: ms-manual-013-transaction-monitoring-sanctions
-  - type: related
+  - type: association
     target: ms-manual-023-sanctions-screening-operations
 ---
 # Sanctions Screening Policy

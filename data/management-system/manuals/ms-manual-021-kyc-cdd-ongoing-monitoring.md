@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-013-kyc-and-customer-identification
-  - type: appliesTo
+  - type: association
     target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: related
+  - type: association
     target: ms-policy-012-kyc-cdd
-  - type: implements
+  - type: composition
     target: ms-instruction-023-ongoing-kyc-refresh
 ---
 # KYC/CDD Ongoing Monitoring Manual (EU AMLR)

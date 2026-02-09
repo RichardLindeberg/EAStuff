@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: bus-proc-006-fraud-detection-process
-  - type: implements
+  - type: composition
     target: ms-policy-014-fraud-risk-management
-  - type: related
+  - type: association
     target: ms-manual-014-fraud-prevention-response
 ---
 # Fraud Case Investigation Instruction

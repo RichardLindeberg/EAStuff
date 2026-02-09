@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: bus-proc-004-credit-assessment-process
-  - type: appliesTo
+  - type: association
     target: bus-proc-007-loan-origination-process
-  - type: implements
+  - type: composition
     target: ms-policy-015-credit-risk
-  - type: related
+  - type: association
     target: ms-manual-015-credit-risk-lending
 ---
 # Credit Assessment Workflow Instruction

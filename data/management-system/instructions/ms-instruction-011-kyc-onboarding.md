@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-013-kyc-and-customer-identification
-  - type: appliesTo
+  - type: association
     target: bus-proc-001-account-management-process
-  - type: implements
+  - type: composition
     target: ms-policy-012-kyc-cdd
-  - type: related
+  - type: association
     target: ms-manual-012-kyc-cdd-operations
 ---
 # KYC Onboarding Instruction

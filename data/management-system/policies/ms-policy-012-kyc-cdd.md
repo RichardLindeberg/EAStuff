@@ -9,29 +9,29 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-013-kyc-and-customer-identification
-  - type: appliesTo
+  - type: association
     target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: appliesTo
+  - type: association
     target: bus-proc-001-account-management-process
-  - type: related
+  - type: association
     target: ms-policy-011-aml-ctf
-  - type: related
+  - type: association
     target: ms-instruction-011-kyc-onboarding
-  - type: related
+  - type: association
     target: ms-instruction-012-beneficial-ownership
-  - type: related
+  - type: association
     target: ms-instruction-015-edd-review
-  - type: related
+  - type: association
     target: ms-instruction-022-pep-screening
-  - type: related
+  - type: association
     target: ms-instruction-023-ongoing-kyc-refresh
-  - type: related
+  - type: association
     target: ms-manual-012-kyc-cdd-operations
-  - type: related
+  - type: association
     target: ms-manual-021-kyc-cdd-ongoing-monitoring
-  - type: related
+  - type: association
     target: ms-manual-022-pep-management
 ---
 # KYC/CDD Policy

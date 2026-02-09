@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-015-suspicious-activity-reporting-sar
-  - type: related
+  - type: association
     target: ms-policy-011-aml-ctf
-  - type: implements
+  - type: composition
     target: ms-instruction-014-sar-filing
 ---
 # FIU Reporting and STR Manual (EU AMLR)

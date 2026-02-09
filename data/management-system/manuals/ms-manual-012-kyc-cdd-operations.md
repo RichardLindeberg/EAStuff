@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: bus-proc-001-account-management-process
-  - type: appliesTo
+  - type: association
     target: bus-proc-002-beneficial-ownership-identification-proc
-  - type: related
+  - type: association
     target: ms-policy-012-kyc-cdd
-  - type: implements
+  - type: composition
     target: ms-instruction-011-kyc-onboarding
 ---
 # KYC/CDD Operations Manual

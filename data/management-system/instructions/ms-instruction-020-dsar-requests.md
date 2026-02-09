@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-001-gdpr-data-protection-compliance
-  - type: appliesTo
+  - type: association
     target: mot-reqt-007-data-security-and-privacy
-  - type: implements
+  - type: composition
     target: ms-policy-016-data-protection-privacy
-  - type: related
+  - type: association
     target: ms-manual-016-data-privacy-records
 ---
 # Data Subject Access Request (DSAR) Instruction

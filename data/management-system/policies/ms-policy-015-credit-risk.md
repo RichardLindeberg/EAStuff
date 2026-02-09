@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: bus-proc-004-credit-assessment-process
-  - type: appliesTo
+  - type: association
     target: bus-proc-007-loan-origination-process
-  - type: related
+  - type: association
     target: ms-instruction-017-credit-assessment
-  - type: related
+  - type: association
     target: ms-manual-015-credit-risk-lending
 ---
 # Credit Risk Policy

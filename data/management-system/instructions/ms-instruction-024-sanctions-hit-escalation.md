@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-014-transaction-monitoring-and-screening
-  - type: appliesTo
+  - type: association
     target: mot-reqt-015-suspicious-activity-reporting-sar
-  - type: implements
+  - type: composition
     target: ms-policy-013-sanctions-screening
-  - type: related
+  - type: association
     target: ms-manual-023-sanctions-screening-operations
 ---
 # Sanctions Hit Escalation Instruction (EU AMLR)

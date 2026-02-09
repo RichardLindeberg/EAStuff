@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-016-enhanced-due-diligence-edd
-  - type: implements
+  - type: composition
     target: ms-policy-011-aml-ctf
-  - type: related
+  - type: association
     target: ms-manual-011-aml-ctf-compliance
 ---
 # Enhanced Due Diligence Review Instruction

@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: bus-proc-002-beneficial-ownership-identification-proc
-  - type: implements
+  - type: composition
     target: ms-policy-012-kyc-cdd
-  - type: related
+  - type: association
     target: ms-manual-012-kyc-cdd-operations
 ---
 # Beneficial Ownership Verification Instruction

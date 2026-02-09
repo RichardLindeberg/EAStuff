@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: str-capa-005-digital-operational-resilience-capabilit
-  - type: appliesTo
+  - type: association
     target: str-vstr-003-secure-and-resilient-operations
-  - type: related
+  - type: association
     target: ms-instruction-018-fraud-case-investigation
-  - type: related
+  - type: association
     target: ms-manual-017-info-security-access
 ---
 # Information Security Policy

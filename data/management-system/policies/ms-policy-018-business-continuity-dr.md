@@ -9,13 +9,13 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: mot-reqt-011-dora-digital-operational-resilience
-  - type: appliesTo
+  - type: association
     target: str-capa-005-digital-operational-resilience-capabilit
-  - type: related
+  - type: association
     target: ms-instruction-016-payment-exceptions
-  - type: related
+  - type: association
     target: ms-manual-018-bcm-dr
 ---
 # Business Continuity and Disaster Recovery Policy

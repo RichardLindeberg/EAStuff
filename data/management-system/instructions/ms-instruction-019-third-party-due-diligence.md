@@ -9,11 +9,11 @@ effective_date: 2026-02-07
 review_cycle: Annual
 next_review: 2027-02-07
 relationships:
-  - type: appliesTo
+  - type: association
     target: str-vstr-003-secure-and-resilient-operations
-  - type: implements
+  - type: composition
     target: ms-policy-019-third-party-risk
-  - type: related
+  - type: association
     target: ms-manual-019-vendor-third-party
 ---
 # Third-Party Due Diligence Instruction
