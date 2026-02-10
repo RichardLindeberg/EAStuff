@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: composition
-  target: bus-objt-005-customer-object
-  description: Contains customer master data
-- type: association
-  target: bus-proc-001-account-management-process
-  description: Updated by account management
+  - type: composition
+    target: bus-objt-005-customer-object
+    description: Contains customer master data
+  - type: association
+    target: bus-proc-001-account-management-process
+    description: Updated by account management
 name: Customer Profile
 tags:
-- business-object
-- customer-data
-- master-data
+  - business-object
+  - customer-data
+  - master-data
 archimate:
   type: business-object
   layer: business

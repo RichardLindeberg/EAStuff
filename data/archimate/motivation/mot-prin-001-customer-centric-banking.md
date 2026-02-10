@@ -7,29 +7,29 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: influence
-  target: mot-drvr-002-market-digital-transformation-trends
-  description: Influenced by customer digital expectations
-- type: influence
-  target: mot-goal-003-digital-banking-excellence
-  description: Supports digital banking excellence goal
-- type: influence
-  target: mot-goal-005-customer-trust
-  description: Supports customer trust goal
-- type: association
-  target: mot-reqt-003-mobile-first-banking-design
-  description: Realized through mobile-first design
-- type: association
-  target: mot-reqt-004-seamless-omnichannel-user-experience
-  description: Realized through seamless user experience
-- type: association
-  target: mot-reqt-008-transparent-customer-communication
-  description: Realized through transparent communication
+  - type: influence
+    target: mot-drvr-002-market-digital-transformation-trends
+    description: Influenced by customer digital expectations
+  - type: influence
+    target: mot-goal-003-digital-banking-excellence
+    description: Supports digital banking excellence goal
+  - type: influence
+    target: mot-goal-005-customer-trust
+    description: Supports customer trust goal
+  - type: association
+    target: mot-reqt-003-mobile-first-banking-design
+    description: Realized through mobile-first design
+  - type: association
+    target: mot-reqt-004-seamless-omnichannel-user-experience
+    description: Realized through seamless user experience
+  - type: association
+    target: mot-reqt-008-transparent-customer-communication
+    description: Realized through transparent communication
 name: Customer-Centric Banking
 tags:
-- principle
-- customer-focus
-- culture
+  - principle
+  - customer-focus
+  - culture
 archimate:
   type: principle
   layer: motivation

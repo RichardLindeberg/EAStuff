@@ -9,9 +9,9 @@ next_review: '2027-02-07'
 relationships: []
 name: Financial Crime Analytics
 tags:
-- role
-- aml
-- analytics
+  - role
+  - aml
+  - analytics
 archimate:
   type: business-role
   layer: business

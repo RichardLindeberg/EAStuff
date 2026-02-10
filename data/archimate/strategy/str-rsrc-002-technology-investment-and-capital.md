@@ -7,22 +7,22 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: serving
-  target: str-capa-001-cloud-infrastructure-and-modern
-  description: Funds cloud migration and modernization
-- type: serving
-  target: str-capa-004-digital-banking-platform-capability
-  description: Funds digital banking platform development
-- type: serving
-  target: str-capa-005-digital-operational-resilience-capabilit
-  description: Funds resilience infrastructure and tools
+  - type: serving
+    target: str-capa-001-cloud-infrastructure-and-modern
+    description: Funds cloud migration and modernization
+  - type: serving
+    target: str-capa-004-digital-banking-platform-capability
+    description: Funds digital banking platform development
+  - type: serving
+    target: str-capa-005-digital-operational-resilience-capabilit
+    description: Funds resilience infrastructure and tools
 name: Technology Investment and Capital Budget
 tags:
-- resource
-- budget
-- investment
-- technology
-- strategic
+  - resource
+  - budget
+  - investment
+  - technology
+  - strategic
 archimate:
   type: resource
   layer: strategy

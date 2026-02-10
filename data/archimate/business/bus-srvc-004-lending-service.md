@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-proc-007-loan-origination-process
-  description: Realized by loan origination process
-- type: serving
-  target: bus-role-001-account-holder
-  description: Serves customers
+  - type: association
+    target: bus-proc-007-loan-origination-process
+    description: Realized by loan origination process
+  - type: serving
+    target: bus-role-001-account-holder
+    description: Serves customers
 name: Lending Service
 tags:
-- service
-- lending
-- credit
+  - service
+  - lending
+  - credit
 archimate:
   type: business-service
   layer: business

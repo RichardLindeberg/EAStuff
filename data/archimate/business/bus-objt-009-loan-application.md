@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-proc-007-loan-origination-process
-  description: Managed by loan origination
-- type: association
-  target: bus-proc-004-credit-assessment-process
-  description: Evaluated by credit assessment
-- type: association
-  target: bus-objt-005-customer-object
-  description: Related to customer
+  - type: association
+    target: bus-proc-007-loan-origination-process
+    description: Managed by loan origination
+  - type: association
+    target: bus-proc-004-credit-assessment-process
+    description: Evaluated by credit assessment
+  - type: association
+    target: bus-objt-005-customer-object
+    description: Related to customer
 name: Loan Application
 tags:
-- business-object
-- lending
-- application
+  - business-object
+  - lending
+  - application
 archimate:
   type: business-object
   layer: business

@@ -7,24 +7,24 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-005-customer-trust
-  description: Required by customer trust goal
-- type: realization
-  target: mot-prin-005-data-driven-decision-making
-  description: Realizes data-driven principle through security
-- type: influence
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Core element of DORA compliance
-- type: influence
-  target: mot-reqt-012-ict-incident-detection-and
-  description: Supports incident detection and response
+  - type: realization
+    target: mot-goal-005-customer-trust
+    description: Required by customer trust goal
+  - type: realization
+    target: mot-prin-005-data-driven-decision-making
+    description: Realizes data-driven principle through security
+  - type: influence
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Core element of DORA compliance
+  - type: influence
+    target: mot-reqt-012-ict-incident-detection-and
+    description: Supports incident detection and response
 name: Data Security and Privacy Protection
 tags:
-- security
-- data-protection
-- risk-management
-- trust
+  - security
+  - data-protection
+  - risk-management
+  - trust
 archimate:
   type: requirement
   layer: motivation

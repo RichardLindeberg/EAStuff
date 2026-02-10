@@ -7,27 +7,27 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: composition
-  target: bus-objt-006-customer-profile
-  description: Contains customer profile information
-- type: composition
-  target: bus-objt-003-customer-account
-  description: Contains account data
-- type: composition
-  target: bus-objt-016-transaction
-  description: Contains transaction history
-- type: association
-  target: bus-role-003-support-agent
-  description: Accessed by support agents (restricted)
-- type: association
-  target: bus-actr-002-customer-service-representative
-  description: Accessed by customer service representatives
+  - type: composition
+    target: bus-objt-006-customer-profile
+    description: Contains customer profile information
+  - type: composition
+    target: bus-objt-003-customer-account
+    description: Contains account data
+  - type: composition
+    target: bus-objt-016-transaction
+    description: Contains transaction history
+  - type: association
+    target: bus-role-003-support-agent
+    description: Accessed by support agents (restricted)
+  - type: association
+    target: bus-actr-002-customer-service-representative
+    description: Accessed by customer service representatives
 name: Customer Data
 tags:
-- customer-data
-- business-object
-- pii
-- gdpr
+  - customer-data
+  - business-object
+  - pii
+  - gdpr
 archimate:
   type: business-object
   layer: business

@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Chief Operating Officer
 tags:
-- role
-- operations
+  - role
+  - operations
 archimate:
   type: business-role
   layer: business

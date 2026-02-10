@@ -7,22 +7,22 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-005-customer-trust
-  description: Realizes customer trust goal
-- type: realization
-  target: mot-reqt-007-data-security-and-privacy
-  description: Realizes data security requirement
-- type: realization
-  target: mot-reqt-008-transparent-customer-communication
-  description: Realizes transparent communication requirement
+  - type: realization
+    target: mot-goal-005-customer-trust
+    description: Realizes customer trust goal
+  - type: realization
+    target: mot-reqt-007-data-security-and-privacy
+    description: Realizes data security requirement
+  - type: realization
+    target: mot-reqt-008-transparent-customer-communication
+    description: Realizes transparent communication requirement
 name: Customer Trust and Data Privacy Capability
 tags:
-- capability
-- trust
-- privacy
-- security
-- strategic
+  - capability
+  - trust
+  - privacy
+  - security
+  - strategic
 archimate:
   type: capability
   layer: strategy

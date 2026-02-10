@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: bus-srvc-001-account-service
-  description: Realizes account service
-- type: access
-  target: bus-objt-003-customer-account
-  description: Manages account data
-- type: association
-  target: bus-role-001-account-holder
-  description: Performed by account holders
+  - type: realization
+    target: bus-srvc-001-account-service
+    description: Realizes account service
+  - type: access
+    target: bus-objt-003-customer-account
+    description: Manages account data
+  - type: association
+    target: bus-role-001-account-holder
+    description: Performed by account holders
 name: Account Management Process
 tags:
-- process
-- account-management
-- retail-banking
+  - process
+  - account-management
+  - retail-banking
 archimate:
   type: business-process
   layer: business

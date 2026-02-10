@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: composition
-  target: bus-objt-003-customer-account
-  description: Part of account history
-- type: association
-  target: bus-proc-008-payment-processing
-  description: Created by payment processing
-- type: association
-  target: bus-proc-006-fraud-detection-process
-  description: Monitored for fraud
+  - type: composition
+    target: bus-objt-003-customer-account
+    description: Part of account history
+  - type: association
+    target: bus-proc-008-payment-processing
+    description: Created by payment processing
+  - type: association
+    target: bus-proc-006-fraud-detection-process
+    description: Monitored for fraud
 name: Transaction
 tags:
-- business-object
-- transaction
-- payment
-- core-data
+  - business-object
+  - transaction
+  - payment
+  - core-data
 archimate:
   type: business-object
   layer: business

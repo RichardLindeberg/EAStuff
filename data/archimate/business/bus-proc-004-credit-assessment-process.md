@@ -7,18 +7,18 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: serving
-  target: bus-proc-007-loan-origination-process
-  description: Supports loan decisions
-- type: access
-  target: bus-objt-005-customer-object
-  description: Analyzes customer data
+  - type: serving
+    target: bus-proc-007-loan-origination-process
+    description: Supports loan decisions
+  - type: access
+    target: bus-objt-005-customer-object
+    description: Analyzes customer data
 name: Credit Assessment Process
 tags:
-- process
-- credit-risk
-- underwriting
-- risk-assessment
+  - process
+  - credit-risk
+  - underwriting
+  - risk-assessment
 archimate:
   type: business-process
   layer: business

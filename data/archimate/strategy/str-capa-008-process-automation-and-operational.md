@@ -7,19 +7,19 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-004-operational-efficiency
-  description: Realizes operational efficiency goal
-- type: realization
-  target: mot-reqt-005-process-automation-requirements
-  description: Realizes process automation requirement
+  - type: realization
+    target: mot-goal-004-operational-efficiency
+    description: Realizes operational efficiency goal
+  - type: realization
+    target: mot-reqt-005-process-automation-requirements
+    description: Realizes process automation requirement
 name: Process Automation and Operational Excellence Capability
 tags:
-- capability
-- automation
-- operational-excellence
-- efficiency
-- strategic
+  - capability
+  - automation
+  - operational-excellence
+  - efficiency
+  - strategic
 archimate:
   type: capability
   layer: strategy

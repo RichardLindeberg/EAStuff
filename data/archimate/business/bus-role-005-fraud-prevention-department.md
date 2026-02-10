@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Fraud Prevention Department
 tags:
-- role
-- fraud
+  - role
+  - fraud
 archimate:
   type: business-role
   layer: business

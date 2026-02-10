@@ -7,15 +7,15 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-goal-005-customer-trust
-  description: Drives customer trust and responsibility
+  - type: influence
+    target: mot-goal-005-customer-trust
+    description: Drives customer trust and responsibility
 name: Nordic Sustainability Values and ESG Expectations
 tags:
-- sustainability
-- esg
-- customer-value
-- social-responsibility
+  - sustainability
+  - esg
+  - customer-value
+  - social-responsibility
 archimate:
   type: driver
   layer: motivation

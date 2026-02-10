@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Model Risk Management
 tags:
-- role
-- model-risk
+  - role
+  - model-risk
 archimate:
   type: business-role
   layer: business

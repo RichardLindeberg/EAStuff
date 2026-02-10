@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-016-enhanced-due-diligence-edd
-- type: association
-  target: mot-reqt-013-kyc-and-customer-identification
-- type: association
-  target: ms-policy-011-aml-ctf
-- type: composition
-  target: ms-instruction-022-pep-screening
+  - type: association
+    target: mot-reqt-016-enhanced-due-diligence-edd
+  - type: association
+    target: mot-reqt-013-kyc-and-customer-identification
+  - type: association
+    target: ms-policy-011-aml-ctf
+  - type: composition
+    target: ms-instruction-022-pep-screening
 name: PEP Management Manual (EU AMLR)
 governance:
   approved_by: Chief Compliance Officer

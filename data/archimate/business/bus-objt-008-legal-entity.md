@@ -7,27 +7,27 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: composition
-  target: bus-objt-011-party
-  description: Is a type of party
-- type: association
-  target: bus-objt-001-beneficial-owner
-  description: Has beneficial owners
-- type: association
-  target: bus-objt-014-representative
-  description: Has representatives
-- type: composition
-  target: bus-objt-010-natural-person
-  description: Composed of natural persons
-- type: association
-  target: bus-objt-004-customer-agreement
-  description: Signs agreements through representatives
+  - type: composition
+    target: bus-objt-011-party
+    description: Is a type of party
+  - type: association
+    target: bus-objt-001-beneficial-owner
+    description: Has beneficial owners
+  - type: association
+    target: bus-objt-014-representative
+    description: Has representatives
+  - type: composition
+    target: bus-objt-010-natural-person
+    description: Composed of natural persons
+  - type: association
+    target: bus-objt-004-customer-agreement
+    description: Signs agreements through representatives
 name: Legal Entity
 tags:
-- business-object
-- party-model
-- legal-entity
-- corporate
+  - business-object
+  - party-model
+  - legal-entity
+  - corporate
 archimate:
   type: business-object
   layer: business

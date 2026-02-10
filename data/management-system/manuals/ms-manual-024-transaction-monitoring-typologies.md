@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-- type: association
-  target: ms-policy-011-aml-ctf
-- type: composition
-  target: ms-instruction-025-transaction-monitoring-calibration
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: association
+    target: ms-policy-011-aml-ctf
+  - type: composition
+    target: ms-instruction-025-transaction-monitoring-calibration
 name: Transaction Monitoring Typologies Manual (EU AMLR)
 governance:
   approved_by: Chief Compliance Officer

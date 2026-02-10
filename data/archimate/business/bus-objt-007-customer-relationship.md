@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-objt-004-customer-agreement
-  description: Established by agreement
-- type: association
-  target: bus-objt-011-party
-  description: Is with customer party
-- type: composition
-  target: bus-objt-013-product-subscription
-  description: Contains product subscriptions
+  - type: association
+    target: bus-objt-004-customer-agreement
+    description: Established by agreement
+  - type: association
+    target: bus-objt-011-party
+    description: Is with customer party
+  - type: composition
+    target: bus-objt-013-product-subscription
+    description: Contains product subscriptions
 name: Customer Relationship
 tags:
-- business-object
-- customer-relationship
-- customer-lifecycle
+  - business-object
+  - customer-relationship
+  - customer-lifecycle
 archimate:
   type: business-object
   layer: business

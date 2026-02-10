@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: assignment
-  target: bus-proc-005-customer-service-process
-  description: Executes customer service
-- type: serving
-  target: bus-srvc-003-customer-support-service
-  description: Provides support services
-- type: access
-  target: bus-objt-005-customer-object
-  description: Accesses customer data
+  - type: assignment
+    target: bus-proc-005-customer-service-process
+    description: Executes customer service
+  - type: serving
+    target: bus-srvc-003-customer-support-service
+    description: Provides support services
+  - type: access
+    target: bus-objt-005-customer-object
+    description: Accesses customer data
 name: Support Agent
 tags:
-- role
-- internal-role
-- customer-service
+  - role
+  - internal-role
+  - customer-service
 archimate:
   type: business-role
   layer: business

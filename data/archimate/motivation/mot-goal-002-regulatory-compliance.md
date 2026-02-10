@@ -7,41 +7,41 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-drvr-001-eu-and-nordic-regulatory
-  description: Driven by regulatory requirements
-- type: influence
-  target: mot-drvr-005-dora-digital-operational-resilience
-  description: Driven by DORA operational resilience requirements
-- type: influence
-  target: mot-drvr-006-amlct-regulatory-requirements
-  description: Driven by AML/CT regulatory requirements
-- type: association
-  target: mot-reqt-001-gdpr-data-protection-compliance
-  description: Realizes GDPR compliance requirement
-- type: association
-  target: mot-reqt-002-mifid-ii-investment-services
-  description: Realizes MiFID II compliance requirement
-- type: association
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Realizes DORA compliance requirement
-- type: association
-  target: mot-reqt-013-kyc-and-customer-identification
-  description: Realizes KYC and customer identification requirements
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-  description: Realizes transaction monitoring and screening requirements
-- type: association
-  target: mot-reqt-015-suspicious-activity-reporting-sar
-  description: Realizes suspicious activity reporting requirements
-- type: association
-  target: mot-reqt-016-enhanced-due-diligence-edd
-  description: Realizes enhanced due diligence requirements
+  - type: influence
+    target: mot-drvr-001-eu-and-nordic-regulatory
+    description: Driven by regulatory requirements
+  - type: influence
+    target: mot-drvr-005-dora-digital-operational-resilience
+    description: Driven by DORA operational resilience requirements
+  - type: influence
+    target: mot-drvr-006-amlct-regulatory-requirements
+    description: Driven by AML/CT regulatory requirements
+  - type: association
+    target: mot-reqt-001-gdpr-data-protection-compliance
+    description: Realizes GDPR compliance requirement
+  - type: association
+    target: mot-reqt-002-mifid-ii-investment-services
+    description: Realizes MiFID II compliance requirement
+  - type: association
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Realizes DORA compliance requirement
+  - type: association
+    target: mot-reqt-013-kyc-and-customer-identification
+    description: Realizes KYC and customer identification requirements
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+    description: Realizes transaction monitoring and screening requirements
+  - type: association
+    target: mot-reqt-015-suspicious-activity-reporting-sar
+    description: Realizes suspicious activity reporting requirements
+  - type: association
+    target: mot-reqt-016-enhanced-due-diligence-edd
+    description: Realizes enhanced due diligence requirements
 name: Regulatory Compliance Excellence
 tags:
-- compliance
-- regulatory
-- risk-management
+  - compliance
+  - regulatory
+  - risk-management
 archimate:
   type: goal
   layer: motivation

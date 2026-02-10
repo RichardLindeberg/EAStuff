@@ -7,30 +7,30 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: influence
-  target: mot-drvr-001-eu-and-nordic-regulatory
-  description: Influenced by EU regulatory requirements
-- type: influence
-  target: mot-drvr-005-dora-digital-operational-resilience
-  description: Influenced by DORA regulations
-- type: influence
-  target: mot-goal-002-regulatory-compliance
-  description: Supports regulatory compliance goal
-- type: association
-  target: mot-reqt-001-gdpr-data-protection-compliance
-  description: Realized through GDPR compliance
-- type: association
-  target: mot-reqt-002-mifid-ii-investment-services
-  description: Realized through MiFID II compliance
-- type: association
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Realized through DORA compliance
+  - type: influence
+    target: mot-drvr-001-eu-and-nordic-regulatory
+    description: Influenced by EU regulatory requirements
+  - type: influence
+    target: mot-drvr-005-dora-digital-operational-resilience
+    description: Influenced by DORA regulations
+  - type: influence
+    target: mot-goal-002-regulatory-compliance
+    description: Supports regulatory compliance goal
+  - type: association
+    target: mot-reqt-001-gdpr-data-protection-compliance
+    description: Realized through GDPR compliance
+  - type: association
+    target: mot-reqt-002-mifid-ii-investment-services
+    description: Realized through MiFID II compliance
+  - type: association
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Realized through DORA compliance
 name: Regulatory Excellence and Compliance
 tags:
-- principle
-- compliance
-- risk-management
-- governance
+  - principle
+  - compliance
+  - risk-management
+  - governance
 archimate:
   type: principle
   layer: motivation

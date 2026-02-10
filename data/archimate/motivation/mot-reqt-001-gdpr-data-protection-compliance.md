@@ -7,24 +7,24 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Required by regulatory compliance goal
-- type: realization
-  target: mot-prin-002-regulatory-excellence-and-compliance
-  description: Realizes regulatory excellence principle
-- type: realization
-  target: mot-prin-005-data-driven-decision-making
-  description: Realizes data-driven principle through governance
-- type: influence
-  target: mot-goal-005-customer-trust
-  description: Supports customer trust building
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Required by regulatory compliance goal
+  - type: realization
+    target: mot-prin-002-regulatory-excellence-and-compliance
+    description: Realizes regulatory excellence principle
+  - type: realization
+    target: mot-prin-005-data-driven-decision-making
+    description: Realizes data-driven principle through governance
+  - type: influence
+    target: mot-goal-005-customer-trust
+    description: Supports customer trust building
 name: GDPR Data Protection Compliance
 tags:
-- gdpr
-- data-protection
-- compliance
-- regulatory
+  - gdpr
+  - data-protection
+  - compliance
+  - regulatory
 archimate:
   type: requirement
   layer: motivation

@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-proc-005-customer-service-process
-  description: Realized by customer service process
-- type: association
-  target: bus-role-003-support-agent
-  description: Delivered by support agents
+  - type: association
+    target: bus-proc-005-customer-service-process
+    description: Realized by customer service process
+  - type: association
+    target: bus-role-003-support-agent
+    description: Delivered by support agents
 name: Customer Support Service
 tags:
-- service
-- customer-service
-- support
+  - service
+  - customer-service
+  - support
 archimate:
   type: business-service
   layer: business

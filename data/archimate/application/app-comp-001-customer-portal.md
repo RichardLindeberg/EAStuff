@@ -7,20 +7,20 @@ last_updated: '2026-01-15'
 review_cycle: annual
 next_review: '2027-01-15'
 relationships:
-- type: association
-  target: bus-proc-005-customer-service-process
-  description: Provides customer-facing services
-- type: association
-  target: app-intf-001-web-ui
-  description: Contains web user interface
-- type: association
-  target: str-capa-010-online-services
-  description: Realizes online services capability
+  - type: association
+    target: bus-proc-005-customer-service-process
+    description: Provides customer-facing services
+  - type: association
+    target: app-intf-001-web-ui
+    description: Contains web user interface
+  - type: association
+    target: str-capa-010-online-services
+    description: Realizes online services capability
 name: Customer Portal
 tags:
-- customer-facing
-- web-application
-- public
+  - customer-facing
+  - web-application
+  - public
 archimate:
   type: application-component
   layer: application

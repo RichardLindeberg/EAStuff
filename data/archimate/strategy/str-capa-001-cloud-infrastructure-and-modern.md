@@ -7,19 +7,19 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-004-operational-efficiency
-  description: Realizes operational efficiency goal
-- type: realization
-  target: mot-reqt-006-cloud-infrastructure-migration
-  description: Realizes cloud migration requirement
+  - type: realization
+    target: mot-goal-004-operational-efficiency
+    description: Realizes operational efficiency goal
+  - type: realization
+    target: mot-reqt-006-cloud-infrastructure-migration
+    description: Realizes cloud migration requirement
 name: Cloud Infrastructure and Modern Architecture Capability
 tags:
-- capability
-- cloud
-- infrastructure
-- modernization
-- strategic
+  - capability
+  - cloud
+  - infrastructure
+  - modernization
+  - strategic
 archimate:
   type: capability
   layer: strategy

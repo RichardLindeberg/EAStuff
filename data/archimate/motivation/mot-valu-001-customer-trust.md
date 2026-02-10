@@ -7,21 +7,21 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: association
-  target: mot-goal-005-customer-trust
-  description: Supports customer trust goal
-- type: association
-  target: mot-prin-001-customer-centric-banking
-  description: Underlies customer-centric principle
-- type: influence
-  target: mot-reqt-007-data-security-and-privacy
-  description: Requires strong data security
+  - type: association
+    target: mot-goal-005-customer-trust
+    description: Supports customer trust goal
+  - type: association
+    target: mot-prin-001-customer-centric-banking
+    description: Underlies customer-centric principle
+  - type: influence
+    target: mot-reqt-007-data-security-and-privacy
+    description: Requires strong data security
 name: Customer Trust and Confidence
 tags:
-- value
-- trust
-- strategic
-- nordic-values
+  - value
+  - trust
+  - strategic
+  - nordic-values
 archimate:
   type: value
   layer: motivation

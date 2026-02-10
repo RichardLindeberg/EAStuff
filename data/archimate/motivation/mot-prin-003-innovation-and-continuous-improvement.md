@@ -7,33 +7,33 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: influence
-  target: mot-drvr-002-market-digital-transformation-trends
-  description: Influenced by digital transformation trends
-- type: influence
-  target: mot-drvr-003-cost-pressures-and-margin
-  description: Influenced by need for efficiency innovation
-- type: influence
-  target: mot-goal-003-digital-banking-excellence
-  description: Supports digital banking excellence
-- type: influence
-  target: mot-goal-004-operational-efficiency
-  description: Supports operational efficiency
-- type: association
-  target: mot-reqt-005-process-automation-requirements
-  description: Realized through process automation
-- type: association
-  target: mot-reqt-006-cloud-infrastructure-migration
-  description: Realized through cloud technology adoption
-- type: association
-  target: mot-reqt-009-modern-api-platform-and
-  description: Realized through API platform development
+  - type: influence
+    target: mot-drvr-002-market-digital-transformation-trends
+    description: Influenced by digital transformation trends
+  - type: influence
+    target: mot-drvr-003-cost-pressures-and-margin
+    description: Influenced by need for efficiency innovation
+  - type: influence
+    target: mot-goal-003-digital-banking-excellence
+    description: Supports digital banking excellence
+  - type: influence
+    target: mot-goal-004-operational-efficiency
+    description: Supports operational efficiency
+  - type: association
+    target: mot-reqt-005-process-automation-requirements
+    description: Realized through process automation
+  - type: association
+    target: mot-reqt-006-cloud-infrastructure-migration
+    description: Realized through cloud technology adoption
+  - type: association
+    target: mot-reqt-009-modern-api-platform-and
+    description: Realized through API platform development
 name: Innovation and Continuous Improvement
 tags:
-- principle
-- innovation
-- culture
-- agility
+  - principle
+  - innovation
+  - culture
+  - agility
 archimate:
   type: principle
   layer: motivation

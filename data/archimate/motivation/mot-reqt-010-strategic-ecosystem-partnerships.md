@@ -7,18 +7,18 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-006-open-banking-capability
-  description: Required by open banking goal
-- type: realization
-  target: mot-prin-003-innovation-and-continuous-improvement
-  description: Realizes innovation through partnerships
+  - type: realization
+    target: mot-goal-006-open-banking-capability
+    description: Required by open banking goal
+  - type: realization
+    target: mot-prin-003-innovation-and-continuous-improvement
+    description: Realizes innovation through partnerships
 name: Strategic Ecosystem Partnerships
 tags:
-- partnerships
-- ecosystem
-- innovation
-- open-banking
+  - partnerships
+  - ecosystem
+  - innovation
+  - open-banking
 archimate:
   type: requirement
   layer: motivation

@@ -7,17 +7,17 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: influence
-  target: mot-goal-002-regulatory-compliance
-  description: Drives regulatory compliance and risk management
+  - type: influence
+    target: mot-goal-002-regulatory-compliance
+    description: Drives regulatory compliance and risk management
 name: AML/CT Regulatory Requirements
 tags:
-- regulatory
-- compliance
-- aml
-- counter-terrorism
-- external-driver
-- risk-management
+  - regulatory
+  - compliance
+  - aml
+  - counter-terrorism
+  - external-driver
+  - risk-management
 archimate:
   type: driver
   layer: motivation

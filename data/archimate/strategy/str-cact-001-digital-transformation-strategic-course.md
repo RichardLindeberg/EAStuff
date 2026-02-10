@@ -7,26 +7,26 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: str-capa-004-digital-banking-platform-capability
-  description: Guides digital banking platform development
-- type: association
-  target: str-capa-001-cloud-infrastructure-and-modern
-  description: Guides cloud migration strategy
-- type: association
-  target: str-capa-005-digital-operational-resilience-capabilit
-  description: Guides resilience and security investments
-- type: association
-  target: mot-goal-003-digital-banking-excellence
-  description: Implements digital banking goal
-- type: association
-  target: mot-goal-004-operational-efficiency
-  description: Implements operational efficiency goal
+  - type: association
+    target: str-capa-004-digital-banking-platform-capability
+    description: Guides digital banking platform development
+  - type: association
+    target: str-capa-001-cloud-infrastructure-and-modern
+    description: Guides cloud migration strategy
+  - type: association
+    target: str-capa-005-digital-operational-resilience-capabilit
+    description: Guides resilience and security investments
+  - type: association
+    target: mot-goal-003-digital-banking-excellence
+    description: Implements digital banking goal
+  - type: association
+    target: mot-goal-004-operational-efficiency
+    description: Implements operational efficiency goal
 name: Digital Transformation Strategic Course of Action
 tags:
-- strategy
-- transformation
-- roadmap
+  - strategy
+  - transformation
+  - roadmap
 archimate:
   type: course-of-action
   layer: strategy

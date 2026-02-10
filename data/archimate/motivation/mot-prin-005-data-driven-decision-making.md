@@ -7,24 +7,24 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: influence
-  target: mot-goal-004-operational-efficiency
-  description: Supports efficiency through data insights
-- type: influence
-  target: mot-goal-005-customer-trust
-  description: Supports trust through data privacy
-- type: association
-  target: mot-reqt-001-gdpr-data-protection-compliance
-  description: Realized through data governance
-- type: association
-  target: mot-reqt-007-data-security-and-privacy
-  description: Realized through data security practices
+  - type: influence
+    target: mot-goal-004-operational-efficiency
+    description: Supports efficiency through data insights
+  - type: influence
+    target: mot-goal-005-customer-trust
+    description: Supports trust through data privacy
+  - type: association
+    target: mot-reqt-001-gdpr-data-protection-compliance
+    description: Realized through data governance
+  - type: association
+    target: mot-reqt-007-data-security-and-privacy
+    description: Realized through data security practices
 name: Data-Driven Decision Making
 tags:
-- principle
-- data
-- analytics
-- decision-making
+  - principle
+  - data
+  - analytics
+  - decision-making
 archimate:
   type: principle
   layer: motivation

@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: bus-proc-002-beneficial-ownership-identification-proc
-- type: composition
-  target: ms-policy-012-kyc-cdd
-- type: association
-  target: ms-manual-012-kyc-cdd-operations
+  - type: association
+    target: bus-proc-002-beneficial-ownership-identification-proc
+  - type: composition
+    target: ms-policy-012-kyc-cdd
+  - type: association
+    target: ms-manual-012-kyc-cdd-operations
 name: Beneficial Ownership Verification Instruction
 governance:
   approved_by: Chief Compliance Officer

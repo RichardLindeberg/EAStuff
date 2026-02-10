@@ -7,20 +7,20 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: realization
-  target: mot-goal-001-digital-transformation-initiative
-  description: Desired outcome of digital transformation
-- type: realization
-  target: mot-goal-003-digital-banking-excellence
-  description: Result of digital banking excellence
-- type: association
-  target: mot-valu-001-customer-trust
-  description: Contributes to customer trust value
+  - type: realization
+    target: mot-goal-001-digital-transformation-initiative
+    description: Desired outcome of digital transformation
+  - type: realization
+    target: mot-goal-003-digital-banking-excellence
+    description: Result of digital banking excellence
+  - type: association
+    target: mot-valu-001-customer-trust
+    description: Contributes to customer trust value
 name: Improved Customer Experience
 tags:
-- outcome
-- customer-experience
-- strategic
+  - outcome
+  - customer-experience
+  - strategic
 archimate:
   type: outcome
   layer: motivation

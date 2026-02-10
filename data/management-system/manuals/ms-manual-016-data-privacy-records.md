@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-001-gdpr-data-protection-compliance
-- type: association
-  target: str-capa-002-customer-trust-and-data
-- type: association
-  target: ms-policy-016-data-protection-privacy
-- type: composition
-  target: ms-instruction-019-third-party-due-diligence
+  - type: association
+    target: mot-reqt-001-gdpr-data-protection-compliance
+  - type: association
+    target: str-capa-002-customer-trust-and-data
+  - type: association
+    target: ms-policy-016-data-protection-privacy
+  - type: composition
+    target: ms-instruction-019-third-party-due-diligence
 name: Data Privacy and Records Management Manual
 governance:
   approved_by: Chief Privacy Officer

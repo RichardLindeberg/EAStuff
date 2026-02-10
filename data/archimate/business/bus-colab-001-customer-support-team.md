@@ -7,23 +7,23 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: aggregation
-  target: bus-role-003-support-agent
-  description: Composed of support agents
-- type: aggregation
-  target: bus-actr-002-customer-service-representative
-  description: Includes customer service representatives
-- type: assignment
-  target: bus-proc-005-customer-service-process
-  description: Executes customer service process
-- type: serving
-  target: bus-srvc-006-customer-support-service
-  description: Delivers customer support service
+  - type: aggregation
+    target: bus-role-003-support-agent
+    description: Composed of support agents
+  - type: aggregation
+    target: bus-actr-002-customer-service-representative
+    description: Includes customer service representatives
+  - type: assignment
+    target: bus-proc-005-customer-service-process
+    description: Executes customer service process
+  - type: serving
+    target: bus-srvc-006-customer-support-service
+    description: Delivers customer support service
 name: Customer Support Team
 tags:
-- collaboration
-- customer-service
-- support-team
+  - collaboration
+  - customer-service
+  - support-team
 archimate:
   type: business-collaboration
   layer: business

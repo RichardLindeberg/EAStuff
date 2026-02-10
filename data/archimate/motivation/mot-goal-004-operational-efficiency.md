@@ -7,26 +7,26 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-drvr-003-cost-pressures-and-margin
-  description: Driven by cost pressures and margin compression
-- type: influence
-  target: mot-drvr-005-dora-digital-operational-resilience
-  description: Requires operational resilience and business continuity improvements
-- type: association
-  target: mot-reqt-005-process-automation-requirements
-  description: Requires process automation
-- type: association
-  target: mot-reqt-006-cloud-infrastructure-migration
-  description: Drives cloud infrastructure migration
-- type: association
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Supports DORA compliance through resilience improvements
+  - type: influence
+    target: mot-drvr-003-cost-pressures-and-margin
+    description: Driven by cost pressures and margin compression
+  - type: influence
+    target: mot-drvr-005-dora-digital-operational-resilience
+    description: Requires operational resilience and business continuity improvements
+  - type: association
+    target: mot-reqt-005-process-automation-requirements
+    description: Requires process automation
+  - type: association
+    target: mot-reqt-006-cloud-infrastructure-migration
+    description: Drives cloud infrastructure migration
+  - type: association
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Supports DORA compliance through resilience improvements
 name: Operational Efficiency
 tags:
-- operational-efficiency
-- cost-reduction
-- process-optimization
+  - operational-efficiency
+  - cost-reduction
+  - process-optimization
 archimate:
   type: goal
   layer: motivation

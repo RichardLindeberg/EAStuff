@@ -7,18 +7,18 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Required by regulatory compliance goal
-- type: realization
-  target: mot-prin-002-regulatory-excellence-and-compliance
-  description: Realizes regulatory excellence principle
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Required by regulatory compliance goal
+  - type: realization
+    target: mot-prin-002-regulatory-excellence-and-compliance
+    description: Realizes regulatory excellence principle
 name: MiFID II Investment Services Compliance
 tags:
-- mifid2
-- investment-services
-- compliance
-- regulatory
+  - mifid2
+  - investment-services
+  - compliance
+  - regulatory
 archimate:
   type: requirement
   layer: motivation

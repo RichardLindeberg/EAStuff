@@ -7,20 +7,20 @@ last_updated: '2026-01-10'
 review_cycle: annual
 next_review: '2027-01-10'
 relationships:
-- type: realization
-  target: app-comp-001-customer-portal
-  description: Hosts customer portal application
-- type: realization
-  target: tec-sysw-001-application-runtime
-  description: Includes application runtime environment
-- type: realization
-  target: tec-sysw-002-linux-operating-system
-  description: Runs on Linux operating system
+  - type: realization
+    target: app-comp-001-customer-portal
+    description: Hosts customer portal application
+  - type: realization
+    target: tec-sysw-001-application-runtime
+    description: Includes application runtime environment
+  - type: realization
+    target: tec-sysw-002-linux-operating-system
+    description: Runs on Linux operating system
 name: Web Application Server
 tags:
-- infrastructure
-- web-server
-- production
+  - infrastructure
+  - web-server
+  - production
 archimate:
   type: node
   layer: technology

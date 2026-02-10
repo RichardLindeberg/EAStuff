@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-drvr-004-nordic-sustainability-values-and
-  description: Aligned with Nordic sustainability values
-- type: association
-  target: mot-reqt-007-data-security-and-privacy
-  description: Requires robust data security
-- type: association
-  target: mot-reqt-008-transparent-customer-communication
-  description: Requires transparent customer communication
+  - type: influence
+    target: mot-drvr-004-nordic-sustainability-values-and
+    description: Aligned with Nordic sustainability values
+  - type: association
+    target: mot-reqt-007-data-security-and-privacy
+    description: Requires robust data security
+  - type: association
+    target: mot-reqt-008-transparent-customer-communication
+    description: Requires transparent customer communication
 name: Customer Trust
 tags:
-- customer-trust
-- sustainability
-- corporate-responsibility
+  - customer-trust
+  - sustainability
+  - corporate-responsibility
 archimate:
   type: goal
   layer: motivation

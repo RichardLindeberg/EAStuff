@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-role-002-business-account-holder
-  description: Accessed by business account holders
-- type: association
-  target: bus-proc-003-corporate-account-management-process
-  description: Managed by corporate account management
-- type: composition
-  target: bus-objt-016-transaction
-  description: Contains transactions
+  - type: association
+    target: bus-role-002-business-account-holder
+    description: Accessed by business account holders
+  - type: association
+    target: bus-proc-003-corporate-account-management-process
+    description: Managed by corporate account management
+  - type: composition
+    target: bus-objt-016-transaction
+    description: Contains transactions
 name: Business Account
 tags:
-- business-object
-- corporate-account
-- business-banking
+  - business-object
+  - corporate-account
+  - business-banking
 archimate:
   type: business-object
   layer: business

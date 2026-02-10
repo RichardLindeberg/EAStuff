@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-proc-008-payment-processing
-  description: Realized by payment processing
-- type: serving
-  target: bus-role-001-account-holder
-  description: Serves customers
+  - type: association
+    target: bus-proc-008-payment-processing
+    description: Realized by payment processing
+  - type: serving
+    target: bus-role-001-account-holder
+    description: Serves customers
 name: Payment Service
 tags:
-- service
-- payments
-- transactions
+  - service
+  - payments
+  - transactions
 archimate:
   type: business-service
   layer: business

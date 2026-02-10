@@ -7,20 +7,20 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-- type: association
-  target: bus-proc-008-payment-processing
-- type: association
-  target: ms-policy-011-aml-ctf
-- type: association
-  target: ms-instruction-013-transaction-monitoring-alerts
-- type: association
-  target: ms-instruction-024-sanctions-hit-escalation
-- type: association
-  target: ms-manual-013-transaction-monitoring-sanctions
-- type: association
-  target: ms-manual-023-sanctions-screening-operations
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: association
+    target: bus-proc-008-payment-processing
+  - type: association
+    target: ms-policy-011-aml-ctf
+  - type: association
+    target: ms-instruction-013-transaction-monitoring-alerts
+  - type: association
+    target: ms-instruction-024-sanctions-hit-escalation
+  - type: association
+    target: ms-manual-013-transaction-monitoring-sanctions
+  - type: association
+    target: ms-manual-023-sanctions-screening-operations
 name: Sanctions Screening Policy
 governance:
   approved_by: Risk Committee

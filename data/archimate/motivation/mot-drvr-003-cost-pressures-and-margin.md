@@ -7,14 +7,14 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-goal-004-operational-efficiency
-  description: Drives operational efficiency improvements
+  - type: influence
+    target: mot-goal-004-operational-efficiency
+    description: Drives operational efficiency improvements
 name: Cost Pressures and Margin Compression
 tags:
-- financial-pressure
-- cost-management
-- market-trend
+  - financial-pressure
+  - cost-management
+  - market-trend
 archimate:
   type: driver
   layer: motivation

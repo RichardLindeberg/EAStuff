@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Chief Risk Officer
 tags:
-- role
-- risk
+  - role
+  - risk
 archimate:
   type: business-role
   layer: business

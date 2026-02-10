@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-004-operational-efficiency
-  description: Required by operational efficiency goal
-- type: realization
-  target: mot-prin-003-innovation-and-continuous-improvement
-  description: Realizes innovation principle
+  - type: realization
+    target: mot-goal-004-operational-efficiency
+    description: Required by operational efficiency goal
+  - type: realization
+    target: mot-prin-003-innovation-and-continuous-improvement
+    description: Realizes innovation principle
 name: Process Automation Requirements
 tags:
-- automation
-- operational-efficiency
-- process-improvement
+  - automation
+  - operational-efficiency
+  - process-improvement
 archimate:
   type: requirement
   layer: motivation

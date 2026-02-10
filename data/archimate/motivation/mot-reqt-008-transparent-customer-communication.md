@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-005-customer-trust
-  description: Required by customer trust goal
-- type: realization
-  target: mot-prin-001-customer-centric-banking
-  description: Realizes customer-centric principle
-- type: realization
-  target: mot-prin-004-sustainability-and-social-responsibility
-  description: Realizes sustainability principle through transparency
+  - type: realization
+    target: mot-goal-005-customer-trust
+    description: Required by customer trust goal
+  - type: realization
+    target: mot-prin-001-customer-centric-banking
+    description: Realizes customer-centric principle
+  - type: realization
+    target: mot-prin-004-sustainability-and-social-responsibility
+    description: Realizes sustainability principle through transparency
 name: Transparent Customer Communication
 tags:
-- communication
-- transparency
-- customer-service
-- trust
+  - communication
+  - transparency
+  - customer-service
+  - trust
 archimate:
   type: requirement
   layer: motivation

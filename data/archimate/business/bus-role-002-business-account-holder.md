@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: assignment
-  target: bus-proc-003-corporate-account-management-process
-  description: Manages corporate accounts
-- type: serving
-  target: bus-srvc-002-corporate-banking-service
-  description: Uses corporate banking services
+  - type: assignment
+    target: bus-proc-003-corporate-account-management-process
+    description: Manages corporate accounts
+  - type: serving
+    target: bus-srvc-002-corporate-banking-service
+    description: Uses corporate banking services
 name: Business Account Holder
 tags:
-- role
-- corporate-role
-- business-banking
+  - role
+  - corporate-role
+  - business-banking
 archimate:
   type: business-role
   layer: business

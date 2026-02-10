@@ -7,23 +7,23 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: serving
-  target: bus-role-001-account-holder
-  description: Provides support to account holders
-- type: serving
-  target: bus-actr-003-retail-customer
-  description: Provides support to retail customers
-- type: serving
-  target: bus-actr-001-corporate-customer
-  description: Provides support to corporate customers
-- type: realization
-  target: mot-reqt-008-transparent-customer-communication
-  description: Enables transparent communication
+  - type: serving
+    target: bus-role-001-account-holder
+    description: Provides support to account holders
+  - type: serving
+    target: bus-actr-003-retail-customer
+    description: Provides support to retail customers
+  - type: serving
+    target: bus-actr-001-corporate-customer
+    description: Provides support to corporate customers
+  - type: realization
+    target: mot-reqt-008-transparent-customer-communication
+    description: Enables transparent communication
 name: Customer Support Service
 tags:
-- customer-service
-- support
-- business-service
+  - customer-service
+  - support
+  - business-service
 archimate:
   type: business-service
   layer: business

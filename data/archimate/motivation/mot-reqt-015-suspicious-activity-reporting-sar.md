@@ -7,21 +7,21 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Legal obligation for AML/CT compliance
-- type: realization
-  target: mot-prin-006-amlct-compliance-excellence
-  description: Realizes AML/CT compliance principle
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Legal obligation for AML/CT compliance
+  - type: realization
+    target: mot-prin-006-amlct-compliance-excellence
+    description: Realizes AML/CT compliance principle
 name: Suspicious Activity Reporting (SAR)
 tags:
-- sar
-- suspicious-activity
-- aml
-- compliance
-- reporting
-- financial-crime
-- fiu
+  - sar
+  - suspicious-activity
+  - aml
+  - compliance
+  - reporting
+  - financial-crime
+  - fiu
 archimate:
   type: requirement
   layer: motivation

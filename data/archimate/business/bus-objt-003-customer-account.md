@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-role-001-account-holder
-  description: Accessed by account holders
-- type: association
-  target: bus-proc-001-account-management-process
-  description: Managed by account management process
-- type: composition
-  target: bus-objt-016-transaction
-  description: Contains transactions
+  - type: association
+    target: bus-role-001-account-holder
+    description: Accessed by account holders
+  - type: association
+    target: bus-proc-001-account-management-process
+    description: Managed by account management process
+  - type: composition
+    target: bus-objt-016-transaction
+    description: Contains transactions
 name: Customer Account
 tags:
-- business-object
-- account
-- core-data
+  - business-object
+  - account
+  - core-data
 archimate:
   type: business-object
   layer: business

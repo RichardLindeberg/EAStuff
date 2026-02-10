@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: str-capa-009-regulatory-compliance-and-risk
-- type: association
-  target: ms-policy-010-governance-framework
-- type: composition
-  target: ms-instruction-010-policy-lifecycle
+  - type: association
+    target: str-capa-009-regulatory-compliance-and-risk
+  - type: association
+    target: ms-policy-010-governance-framework
+  - type: composition
+    target: ms-instruction-010-policy-lifecycle
 name: Governance System Manual
 governance:
   approved_by: Chief Operating Officer

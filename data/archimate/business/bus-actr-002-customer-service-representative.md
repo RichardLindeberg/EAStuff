@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: assignment
-  target: bus-role-003-support-agent
-  description: Performs support role
-- type: assignment
-  target: bus-proc-005-customer-service-process
-  description: Executes customer service process
-- type: access
-  target: bus-objt-005-customer-object
-  description: Views customer information
+  - type: assignment
+    target: bus-role-003-support-agent
+    description: Performs support role
+  - type: assignment
+    target: bus-proc-005-customer-service-process
+    description: Executes customer service process
+  - type: access
+    target: bus-objt-005-customer-object
+    description: Views customer information
 name: Customer Service Representative
 tags:
-- employee
-- customer-service
-- business-actor
+  - employee
+  - customer-service
+  - business-actor
 archimate:
   type: business-actor
   layer: business

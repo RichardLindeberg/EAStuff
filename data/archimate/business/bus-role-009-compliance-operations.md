@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Compliance Operations
 tags:
-- role
-- compliance
+  - role
+  - compliance
 archimate:
   type: business-role
   layer: business

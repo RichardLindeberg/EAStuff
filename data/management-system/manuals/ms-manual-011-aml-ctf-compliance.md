@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-- type: association
-  target: mot-reqt-015-suspicious-activity-reporting-sar
-- type: association
-  target: ms-policy-011-aml-ctf
-- type: composition
-  target: ms-instruction-014-sar-filing
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: association
+    target: mot-reqt-015-suspicious-activity-reporting-sar
+  - type: association
+    target: ms-policy-011-aml-ctf
+  - type: composition
+    target: ms-instruction-014-sar-filing
 name: AML/CTF Compliance Manual
 governance:
   approved_by: Chief Compliance Officer

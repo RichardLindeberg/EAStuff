@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: str-vstr-003-secure-and-resilient-operations
-- type: composition
-  target: ms-policy-019-third-party-risk
-- type: association
-  target: ms-manual-019-vendor-third-party
+  - type: association
+    target: str-vstr-003-secure-and-resilient-operations
+  - type: composition
+    target: ms-policy-019-third-party-risk
+  - type: association
+    target: ms-manual-019-vendor-third-party
 name: Third-Party Due Diligence Instruction
 governance:
   approved_by: Chief Risk Officer

@@ -7,12 +7,12 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-proc-005-customer-service-process
+  - type: association
+    target: bus-proc-005-customer-service-process
 name: Customer Object
 tags:
-- Customer
-- Data
+  - Customer
+  - Data
 archimate:
   type: business-object
   layer: business

@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: assignment
-  target: bus-proc-001-account-management-process
-  description: Manages accounts
-- type: serving
-  target: bus-srvc-001-account-service
-  description: Uses account services
+  - type: assignment
+    target: bus-proc-001-account-management-process
+    description: Manages accounts
+  - type: serving
+    target: bus-srvc-001-account-service
+    description: Uses account services
 name: Account Holder
 tags:
-- role
-- customer-role
-- account-management
+  - role
+  - customer-role
+  - account-management
 archimate:
   type: business-role
   layer: business

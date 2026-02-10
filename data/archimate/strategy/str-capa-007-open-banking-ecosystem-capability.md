@@ -7,22 +7,22 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-006-open-banking-capability
-  description: Realizes open banking goal
-- type: realization
-  target: mot-reqt-009-modern-api-platform-and
-  description: Realizes modern API platform requirement
-- type: realization
-  target: mot-reqt-010-strategic-ecosystem-partnerships
-  description: Realizes ecosystem partnerships requirement
+  - type: realization
+    target: mot-goal-006-open-banking-capability
+    description: Realizes open banking goal
+  - type: realization
+    target: mot-reqt-009-modern-api-platform-and
+    description: Realizes modern API platform requirement
+  - type: realization
+    target: mot-reqt-010-strategic-ecosystem-partnerships
+    description: Realizes ecosystem partnerships requirement
 name: Open Banking Ecosystem Capability
 tags:
-- capability
-- open-banking
-- api
-- ecosystem
-- strategic
+  - capability
+  - open-banking
+  - api
+  - ecosystem
+  - strategic
 archimate:
   type: capability
   layer: strategy

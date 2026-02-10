@@ -7,24 +7,24 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: realization
-  target: mot-goal-003-digital-banking-excellence
-  description: Enables digital banking excellence
-- type: realization
-  target: mot-reqt-004-seamless-omnichannel-user-experience
-  description: Delivers seamless digital experience
-- type: association
-  target: bus-actr-003-retail-customer
-  description: Serves retail customer needs
-- type: association
-  target: bus-actr-001-corporate-customer
-  description: Serves corporate customer needs
+  - type: realization
+    target: mot-goal-003-digital-banking-excellence
+    description: Enables digital banking excellence
+  - type: realization
+    target: mot-reqt-004-seamless-omnichannel-user-experience
+    description: Delivers seamless digital experience
+  - type: association
+    target: bus-actr-003-retail-customer
+    description: Serves retail customer needs
+  - type: association
+    target: bus-actr-001-corporate-customer
+    description: Serves corporate customer needs
 name: Online Banking Services Capability
 tags:
-- capability
-- online-banking
-- digital-services
-- strategic
+  - capability
+  - online-banking
+  - digital-services
+  - strategic
 archimate:
   type: capability
   layer: strategy

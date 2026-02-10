@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: serving
-  target: str-capa-004-digital-banking-platform-capability
-  description: Supports digital banking platform capability
-- type: serving
-  target: str-capa-003-data-analytics-and-ai
-  description: Supports data analytics and AI capability
-- type: serving
-  target: str-capa-007-open-banking-ecosystem-capability
-  description: Supports open banking ecosystem capability
+  - type: serving
+    target: str-capa-004-digital-banking-platform-capability
+    description: Supports digital banking platform capability
+  - type: serving
+    target: str-capa-003-data-analytics-and-ai
+    description: Supports data analytics and AI capability
+  - type: serving
+    target: str-capa-007-open-banking-ecosystem-capability
+    description: Supports open banking ecosystem capability
 name: Digital Talent and Expertise Resources
 tags:
-- resource
-- talent
-- digital
-- strategic
+  - resource
+  - talent
+  - digital
+  - strategic
 archimate:
   type: resource
   layer: strategy

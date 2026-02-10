@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Chief Privacy Officer
 tags:
-- role
-- privacy
+  - role
+  - privacy
 archimate:
   type: business-role
   layer: business

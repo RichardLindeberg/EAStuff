@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-goal-002-regulatory-compliance
-  description: Drives regulatory compliance goal
-- type: influence
-  target: mot-goal-006-open-banking-capability
-  description: Drives open banking requirements
+  - type: influence
+    target: mot-goal-002-regulatory-compliance
+    description: Drives regulatory compliance goal
+  - type: influence
+    target: mot-goal-006-open-banking-capability
+    description: Drives open banking requirements
 name: EU and Nordic Regulatory Requirements
 tags:
-- regulatory
-- compliance
-- external-driver
+  - regulatory
+  - compliance
+  - external-driver
 archimate:
   type: driver
   layer: motivation

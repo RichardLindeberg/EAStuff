@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: bus-srvc-002-corporate-banking-service
-  description: Realizes corporate banking services
-- type: access
-  target: bus-objt-002-business-account
-  description: Manages corporate accounts
-- type: association
-  target: bus-role-002-business-account-holder
-  description: Performed by business account holders
+  - type: realization
+    target: bus-srvc-002-corporate-banking-service
+    description: Realizes corporate banking services
+  - type: access
+    target: bus-objt-002-business-account
+    description: Manages corporate accounts
+  - type: association
+    target: bus-role-002-business-account-holder
+    description: Performed by business account holders
 name: Corporate Account Management Process
 tags:
-- process
-- corporate-banking
-- business-accounts
+  - process
+  - corporate-banking
+  - business-accounts
 archimate:
   type: business-process
   layer: business

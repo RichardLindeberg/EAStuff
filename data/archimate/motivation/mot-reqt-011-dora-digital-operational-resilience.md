@@ -7,28 +7,28 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Required by regulatory compliance goal
-- type: realization
-  target: mot-prin-002-regulatory-excellence-and-compliance
-  description: Realizes regulatory excellence principle
-- type: influence
-  target: mot-goal-004-operational-efficiency
-  description: Requires operational resilience and business continuity
-- type: influence
-  target: mot-reqt-007-data-security-and-privacy
-  description: Complements data security requirements
-- type: influence
-  target: mot-reqt-012-ict-incident-detection-and
-  description: Requires ICT incident response capabilities
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Required by regulatory compliance goal
+  - type: realization
+    target: mot-prin-002-regulatory-excellence-and-compliance
+    description: Realizes regulatory excellence principle
+  - type: influence
+    target: mot-goal-004-operational-efficiency
+    description: Requires operational resilience and business continuity
+  - type: influence
+    target: mot-reqt-007-data-security-and-privacy
+    description: Complements data security requirements
+  - type: influence
+    target: mot-reqt-012-ict-incident-detection-and
+    description: Requires ICT incident response capabilities
 name: DORA Digital Operational Resilience Compliance
 tags:
-- dora
-- operational-resilience
-- compliance
-- regulatory
-- cybersecurity
+  - dora
+  - operational-resilience
+  - compliance
+  - regulatory
+  - cybersecurity
 archimate:
   type: requirement
   layer: motivation

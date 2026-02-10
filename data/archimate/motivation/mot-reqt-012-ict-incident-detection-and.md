@@ -7,18 +7,18 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Required by DORA compliance
-- type: influence
-  target: mot-reqt-007-data-security-and-privacy
-  description: Complements data security controls
+  - type: association
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Required by DORA compliance
+  - type: influence
+    target: mot-reqt-007-data-security-and-privacy
+    description: Complements data security controls
 name: ICT Incident Detection and Response
 tags:
-- dora
-- incident-response
-- cybersecurity
-- operational-resilience
+  - dora
+  - incident-response
+  - cybersecurity
+  - operational-resilience
 archimate:
   type: requirement
   layer: motivation

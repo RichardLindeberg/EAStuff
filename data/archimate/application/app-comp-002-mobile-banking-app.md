@@ -7,27 +7,27 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: serving
-  target: bus-role-001-account-holder
-  description: Provides mobile banking services
-- type: serving
-  target: bus-actr-003-retail-customer
-  description: Serves retail customer mobile needs
-- type: realization
-  target: mot-reqt-003-mobile-first-banking-design
-  description: Implements mobile-first design requirement
-- type: realization
-  target: str-capa-006-omnichannel-customer-engagement
-  description: Realizes omnichannel capability
-- type: composition
-  target: app-intf-002-mobile-ui
-  description: Contains mobile user interface
+  - type: serving
+    target: bus-role-001-account-holder
+    description: Provides mobile banking services
+  - type: serving
+    target: bus-actr-003-retail-customer
+    description: Serves retail customer mobile needs
+  - type: realization
+    target: mot-reqt-003-mobile-first-banking-design
+    description: Implements mobile-first design requirement
+  - type: realization
+    target: str-capa-006-omnichannel-customer-engagement
+    description: Realizes omnichannel capability
+  - type: composition
+    target: app-intf-002-mobile-ui
+    description: Contains mobile user interface
 name: Mobile Banking Application
 tags:
-- mobile
-- customer-facing
-- digital-banking
-- omnichannel
+  - mobile
+  - customer-facing
+  - digital-banking
+  - omnichannel
 archimate:
   type: application-component
   layer: application

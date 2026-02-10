@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Credit Risk Department
 tags:
-- role
-- credit-risk
+  - role
+  - credit-risk
 archimate:
   type: business-role
   layer: business

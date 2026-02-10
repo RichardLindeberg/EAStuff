@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-001-gdpr-data-protection-compliance
-- type: association
-  target: str-capa-002-customer-trust-and-data
-- type: association
-  target: ms-instruction-019-third-party-due-diligence
-- type: association
-  target: ms-manual-016-data-privacy-records
+  - type: association
+    target: mot-reqt-001-gdpr-data-protection-compliance
+  - type: association
+    target: str-capa-002-customer-trust-and-data
+  - type: association
+    target: ms-instruction-019-third-party-due-diligence
+  - type: association
+    target: ms-manual-016-data-privacy-records
 name: Data Protection and Privacy Policy
 governance:
   approved_by: Risk Committee

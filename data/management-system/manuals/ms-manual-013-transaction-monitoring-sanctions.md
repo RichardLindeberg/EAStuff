@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-- type: association
-  target: bus-proc-008-payment-processing
-- type: association
-  target: ms-policy-013-sanctions-screening
-- type: composition
-  target: ms-instruction-013-transaction-monitoring-alerts
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: association
+    target: bus-proc-008-payment-processing
+  - type: association
+    target: ms-policy-013-sanctions-screening
+  - type: composition
+    target: ms-instruction-013-transaction-monitoring-alerts
 name: Transaction Monitoring and Sanctions Manual
 governance:
   approved_by: Chief Compliance Officer

@@ -7,27 +7,27 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: composition
-  target: bus-objt-011-party
-  description: Is a type of party
-- type: association
-  target: bus-objt-001-beneficial-owner
-  description: Can be beneficial owner
-- type: association
-  target: bus-objt-014-representative
-  description: Can be representative
-- type: association
-  target: bus-objt-015-signatory
-  description: Can be signatory
-- type: association
-  target: bus-objt-004-customer-agreement
-  description: Can sign agreements
+  - type: composition
+    target: bus-objt-011-party
+    description: Is a type of party
+  - type: association
+    target: bus-objt-001-beneficial-owner
+    description: Can be beneficial owner
+  - type: association
+    target: bus-objt-014-representative
+    description: Can be representative
+  - type: association
+    target: bus-objt-015-signatory
+    description: Can be signatory
+  - type: association
+    target: bus-objt-004-customer-agreement
+    description: Can sign agreements
 name: Natural Person
 tags:
-- business-object
-- party-model
-- natural-person
-- consumer
+  - business-object
+  - party-model
+  - natural-person
+  - consumer
 archimate:
   type: business-object
   layer: business

@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-objt-003-customer-account
-  description: Linked to account
-- type: association
-  target: bus-proc-008-payment-processing
-  description: Used for payments
+  - type: association
+    target: bus-objt-003-customer-account
+    description: Linked to account
+  - type: association
+    target: bus-proc-008-payment-processing
+    description: Used for payments
 name: Payment Card
 tags:
-- business-object
-- card
-- payment-instrument
+  - business-object
+  - card
+  - payment-instrument
 archimate:
   type: business-object
   layer: business

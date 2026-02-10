@@ -7,22 +7,22 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-004-operational-efficiency
-  description: Realizes operational efficiency goal
-- type: realization
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Realizes DORA compliance requirement
-- type: realization
-  target: mot-reqt-012-ict-incident-detection-and
-  description: Realizes ICT incident response requirement
+  - type: realization
+    target: mot-goal-004-operational-efficiency
+    description: Realizes operational efficiency goal
+  - type: realization
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Realizes DORA compliance requirement
+  - type: realization
+    target: mot-reqt-012-ict-incident-detection-and
+    description: Realizes ICT incident response requirement
 name: Digital Operational Resilience Capability
 tags:
-- capability
-- resilience
-- cybersecurity
-- operational
-- strategic
+  - capability
+  - resilience
+  - cybersecurity
+  - operational
+  - strategic
 archimate:
   type: capability
   layer: strategy

@@ -9,9 +9,9 @@ next_review: '2027-02-07'
 relationships: []
 name: Financial Crime Operations
 tags:
-- role
-- aml
-- financial-crime
+  - role
+  - aml
+  - financial-crime
 archimate:
   type: business-role
   layer: business

@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-proc-001-account-management-process
-  description: Realized by account management process
-- type: serving
-  target: bus-role-001-account-holder
-  description: Serves account holders
+  - type: association
+    target: bus-proc-001-account-management-process
+    description: Realized by account management process
+  - type: serving
+    target: bus-role-001-account-holder
+    description: Serves account holders
 name: Account Service
 tags:
-- service
-- retail-banking
-- account-management
+  - service
+  - retail-banking
+  - account-management
 archimate:
   type: business-service
   layer: business

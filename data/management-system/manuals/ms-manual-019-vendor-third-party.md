@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: str-vstr-003-secure-and-resilient-operations
-- type: association
-  target: str-capa-009-regulatory-compliance-and-risk
-- type: association
-  target: ms-policy-019-third-party-risk
-- type: composition
-  target: ms-instruction-019-third-party-due-diligence
+  - type: association
+    target: str-vstr-003-secure-and-resilient-operations
+  - type: association
+    target: str-capa-009-regulatory-compliance-and-risk
+  - type: association
+    target: ms-policy-019-third-party-risk
+  - type: composition
+    target: ms-instruction-019-third-party-due-diligence
 name: Vendor and Third-Party Management Manual
 governance:
   approved_by: Chief Risk Officer

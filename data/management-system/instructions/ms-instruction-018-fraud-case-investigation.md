@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: bus-proc-006-fraud-detection-process
-- type: composition
-  target: ms-policy-014-fraud-risk-management
-- type: association
-  target: ms-manual-014-fraud-prevention-response
+  - type: association
+    target: bus-proc-006-fraud-detection-process
+  - type: composition
+    target: ms-policy-014-fraud-risk-management
+  - type: association
+    target: ms-manual-014-fraud-prevention-response
 name: Fraud Case Investigation Instruction
 governance:
   approved_by: Chief Risk Officer

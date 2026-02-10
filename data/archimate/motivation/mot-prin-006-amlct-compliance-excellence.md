@@ -7,32 +7,32 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: influence
-  target: mot-drvr-006-amlct-regulatory-requirements
-  description: Influenced by AML/CT regulatory requirements
-- type: influence
-  target: mot-goal-002-regulatory-compliance
-  description: Supports regulatory compliance goal
-- type: association
-  target: mot-reqt-013-kyc-and-customer-identification
-  description: Realized through KYC compliance
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-  description: Realized through transaction monitoring
-- type: association
-  target: mot-reqt-015-suspicious-activity-reporting-sar
-  description: Realized through SAR reporting
-- type: association
-  target: mot-reqt-016-enhanced-due-diligence-edd
-  description: Realized through enhanced due diligence
+  - type: influence
+    target: mot-drvr-006-amlct-regulatory-requirements
+    description: Influenced by AML/CT regulatory requirements
+  - type: influence
+    target: mot-goal-002-regulatory-compliance
+    description: Supports regulatory compliance goal
+  - type: association
+    target: mot-reqt-013-kyc-and-customer-identification
+    description: Realized through KYC compliance
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+    description: Realized through transaction monitoring
+  - type: association
+    target: mot-reqt-015-suspicious-activity-reporting-sar
+    description: Realized through SAR reporting
+  - type: association
+    target: mot-reqt-016-enhanced-due-diligence-edd
+    description: Realized through enhanced due diligence
 name: AML/CT Compliance Excellence
 tags:
-- principle
-- compliance
-- aml
-- counter-terrorism
-- risk-management
-- financial-crime
+  - principle
+  - compliance
+  - aml
+  - counter-terrorism
+  - risk-management
+  - financial-crime
 archimate:
   type: principle
   layer: motivation

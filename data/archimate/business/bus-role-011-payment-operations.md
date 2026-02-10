@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Payment Operations
 tags:
-- role
-- payments
+  - role
+  - payments
 archimate:
   type: business-role
   layer: business

@@ -7,18 +7,18 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: serving
-  target: tec-node-001-web-application-server
-  description: Provides OS for web application server
-- type: serving
-  target: tec-sysw-001-application-runtime
-  description: Hosts application runtime environment
+  - type: serving
+    target: tec-node-001-web-application-server
+    description: Provides OS for web application server
+  - type: serving
+    target: tec-sysw-001-application-runtime
+    description: Hosts application runtime environment
 name: Linux Operating System
 tags:
-- operating-system
-- linux
-- infrastructure
-- ubuntu
+  - operating-system
+  - linux
+  - infrastructure
+  - ubuntu
 archimate:
   type: system-software
   layer: technology

@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: str-capa-009-regulatory-compliance-and-risk
-- type: composition
-  target: ms-policy-010-governance-framework
-- type: association
-  target: ms-manual-010-governance-system-overview
+  - type: association
+    target: str-capa-009-regulatory-compliance-and-risk
+  - type: composition
+    target: ms-policy-010-governance-framework
+  - type: association
+    target: ms-manual-010-governance-system-overview
 name: Policy Lifecycle Instruction
 governance:
   approved_by: Head of Risk and Compliance

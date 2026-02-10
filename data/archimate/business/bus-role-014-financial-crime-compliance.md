@@ -9,9 +9,9 @@ next_review: '2027-02-07'
 relationships: []
 name: Financial Crime Compliance
 tags:
-- role
-- aml
-- compliance
+  - role
+  - aml
+  - compliance
 archimate:
   type: business-role
   layer: business

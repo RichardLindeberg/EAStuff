@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Business Continuity Office
 tags:
-- role
-- continuity
+  - role
+  - continuity
 archimate:
   type: business-role
   layer: business

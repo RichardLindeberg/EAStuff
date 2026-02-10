@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: str-capa-005-digital-operational-resilience-capabilit
-- type: association
-  target: mot-reqt-012-ict-incident-detection-and
-- type: association
-  target: ms-policy-017-information-security
-- type: composition
-  target: ms-instruction-018-fraud-case-investigation
+  - type: association
+    target: str-capa-005-digital-operational-resilience-capabilit
+  - type: association
+    target: mot-reqt-012-ict-incident-detection-and
+  - type: association
+    target: ms-policy-017-information-security
+  - type: composition
+    target: ms-instruction-018-fraud-case-investigation
 name: Information Security and Access Control Manual
 governance:
   approved_by: Chief Information Security Officer

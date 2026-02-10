@@ -7,17 +7,17 @@ last_updated: '2025-11-15'
 review_cycle: annual
 next_review: '2026-11-15'
 relationships:
-- type: association
-  target: mot-outc-001-improved-customer-experience
-  description: Achieves improved customer experience
-- type: association
-  target: app-comp-001-customer-portal
-  description: Drives customer portal development
+  - type: association
+    target: mot-outc-001-improved-customer-experience
+    description: Achieves improved customer experience
+  - type: association
+    target: app-comp-001-customer-portal
+    description: Drives customer portal development
 name: Digital Transformation Initiative
 tags:
-- strategic-goal
-- digital
-- transformation
+  - strategic-goal
+  - digital
+  - transformation
 archimate:
   type: goal
   layer: motivation

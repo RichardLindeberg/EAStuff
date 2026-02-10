@@ -7,24 +7,24 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: composition
-  target: bus-objt-010-natural-person
-  description: Is always a natural person
-- type: association
-  target: bus-objt-008-legal-entity
-  description: Represents legal entity
-- type: association
-  target: bus-objt-001-beneficial-owner
-  description: Can represent beneficial owner
-- type: association
-  target: bus-objt-004-customer-agreement
-  description: May sign agreements on behalf of party
+  - type: composition
+    target: bus-objt-010-natural-person
+    description: Is always a natural person
+  - type: association
+    target: bus-objt-008-legal-entity
+    description: Represents legal entity
+  - type: association
+    target: bus-objt-001-beneficial-owner
+    description: Can represent beneficial owner
+  - type: association
+    target: bus-objt-004-customer-agreement
+    description: May sign agreements on behalf of party
 name: Representative
 tags:
-- business-object
-- representation
-- authorization
-- corporate-governance
+  - business-object
+  - representation
+  - authorization
+  - corporate-governance
 archimate:
   type: business-object
   layer: business

@@ -7,25 +7,25 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Realizes regulatory compliance goal
-- type: realization
-  target: mot-reqt-001-gdpr-data-protection-compliance
-  description: Realizes GDPR compliance requirement
-- type: realization
-  target: mot-reqt-002-mifid-ii-investment-services
-  description: Realizes MiFID II compliance requirement
-- type: realization
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Realizes DORA compliance requirement
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Realizes regulatory compliance goal
+  - type: realization
+    target: mot-reqt-001-gdpr-data-protection-compliance
+    description: Realizes GDPR compliance requirement
+  - type: realization
+    target: mot-reqt-002-mifid-ii-investment-services
+    description: Realizes MiFID II compliance requirement
+  - type: realization
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Realizes DORA compliance requirement
 name: Regulatory Compliance and Risk Management Capability
 tags:
-- capability
-- compliance
-- risk
-- governance
-- strategic
+  - capability
+  - compliance
+  - risk
+  - governance
+  - strategic
 archimate:
   type: capability
   layer: strategy

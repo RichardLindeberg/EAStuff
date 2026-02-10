@@ -7,27 +7,27 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-objt-011-party
-  description: Entered into by party
-- type: association
-  target: bus-objt-015-signatory
-  description: Signed by authorized signatories
-- type: association
-  target: bus-objt-007-customer-relationship
-  description: Establishes customer relationship
-- type: association
-  target: bus-objt-013-product-subscription
-  description: Grants access to products
-- type: composition
-  target: bus-objt-003-customer-account
-  description: May establish account relationship
+  - type: association
+    target: bus-objt-011-party
+    description: Entered into by party
+  - type: association
+    target: bus-objt-015-signatory
+    description: Signed by authorized signatories
+  - type: association
+    target: bus-objt-007-customer-relationship
+    description: Establishes customer relationship
+  - type: association
+    target: bus-objt-013-product-subscription
+    description: Grants access to products
+  - type: composition
+    target: bus-objt-003-customer-account
+    description: May establish account relationship
 name: Customer Agreement
 tags:
-- business-object
-- legal-agreement
-- contract
-- customer-relationship
+  - business-object
+  - legal-agreement
+  - contract
+  - customer-relationship
 archimate:
   type: business-object
   layer: business

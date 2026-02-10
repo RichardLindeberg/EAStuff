@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-003-digital-banking-excellence
-  description: Supports digital banking excellence goal
-- type: realization
-  target: mot-reqt-003-mobile-first-banking-design
-  description: Realizes mobile-first design requirement
-- type: realization
-  target: mot-reqt-004-seamless-omnichannel-user-experience
-  description: Realizes seamless omnichannel UX requirement
+  - type: realization
+    target: mot-goal-003-digital-banking-excellence
+    description: Supports digital banking excellence goal
+  - type: realization
+    target: mot-reqt-003-mobile-first-banking-design
+    description: Realizes mobile-first design requirement
+  - type: realization
+    target: mot-reqt-004-seamless-omnichannel-user-experience
+    description: Realizes seamless omnichannel UX requirement
 name: Digital Banking Platform Capability
 tags:
-- capability
-- digital
-- customer-facing
-- strategic
+  - capability
+  - digital
+  - customer-facing
+  - strategic
 archimate:
   type: capability
   layer: strategy

@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: serving
-  target: bus-proc-008-payment-processing
-  description: Protects payment processing
-- type: serving
-  target: bus-proc-001-account-management-process
-  description: Protects account operations
-- type: access
-  target: bus-objt-016-transaction
-  description: Analyzes transactions
+  - type: serving
+    target: bus-proc-008-payment-processing
+    description: Protects payment processing
+  - type: serving
+    target: bus-proc-001-account-management-process
+    description: Protects account operations
+  - type: access
+    target: bus-objt-016-transaction
+    description: Analyzes transactions
 name: Fraud Detection Process
 tags:
-- process
-- security
-- fraud-prevention
-- risk-management
+  - process
+  - security
+  - fraud-prevention
+  - risk-management
 archimate:
   type: business-process
   layer: business

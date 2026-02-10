@@ -7,20 +7,20 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Core requirement for AML/CT compliance
-- type: realization
-  target: mot-prin-006-amlct-compliance-excellence
-  description: Realizes AML/CT compliance principle
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Core requirement for AML/CT compliance
+  - type: realization
+    target: mot-prin-006-amlct-compliance-excellence
+    description: Realizes AML/CT compliance principle
 name: Transaction Monitoring and Screening
 tags:
-- transaction-monitoring
-- aml
-- compliance
-- sanctions-screening
-- real-time-monitoring
-- financial-crime
+  - transaction-monitoring
+  - aml
+  - compliance
+  - sanctions-screening
+  - real-time-monitoring
+  - financial-crime
 archimate:
   type: requirement
   layer: motivation

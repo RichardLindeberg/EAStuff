@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-003-digital-banking-excellence
-  description: Required by digital banking goal
-- type: realization
-  target: mot-prin-001-customer-centric-banking
-  description: Realizes customer-centric principle
+  - type: realization
+    target: mot-goal-003-digital-banking-excellence
+    description: Required by digital banking goal
+  - type: realization
+    target: mot-prin-001-customer-centric-banking
+    description: Realizes customer-centric principle
 name: Mobile-First Banking Design
 tags:
-- mobile
-- user-experience
-- digital
+  - mobile
+  - user-experience
+  - digital
 archimate:
   type: requirement
   layer: motivation

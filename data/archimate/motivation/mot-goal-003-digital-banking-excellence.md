@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-drvr-002-market-digital-transformation-trends
-  description: Driven by market digital transformation trends
-- type: association
-  target: mot-reqt-003-mobile-first-banking-design
-  description: Realizes mobile-first banking requirement
-- type: influence
-  target: mot-reqt-004-seamless-omnichannel-user-experience
-  description: Requires seamless user experience across channels
+  - type: influence
+    target: mot-drvr-002-market-digital-transformation-trends
+    description: Driven by market digital transformation trends
+  - type: association
+    target: mot-reqt-003-mobile-first-banking-design
+    description: Realizes mobile-first banking requirement
+  - type: influence
+    target: mot-reqt-004-seamless-omnichannel-user-experience
+    description: Requires seamless user experience across channels
 name: Digital Banking Excellence
 tags:
-- digital-transformation
-- customer-experience
-- innovation
+  - digital-transformation
+  - customer-experience
+  - innovation
 archimate:
   type: goal
   layer: motivation

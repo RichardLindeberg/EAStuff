@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: composition
-  target: bus-objt-010-natural-person
-  description: Is always a natural person
-- type: association
-  target: bus-objt-014-representative
-  description: May also be a representative
-- type: association
-  target: bus-objt-004-customer-agreement
-  description: Signs customer agreements
+  - type: composition
+    target: bus-objt-010-natural-person
+    description: Is always a natural person
+  - type: association
+    target: bus-objt-014-representative
+    description: May also be a representative
+  - type: association
+    target: bus-objt-004-customer-agreement
+    description: Signs customer agreements
 name: Signatory
 tags:
-- business-object
-- legal-authority
-- agreement
-- contract-execution
+  - business-object
+  - legal-authority
+  - agreement
+  - contract-execution
 archimate:
   type: business-object
   layer: business

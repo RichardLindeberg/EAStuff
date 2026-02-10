@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Vendor Management
 tags:
-- role
-- third-party
+  - role
+  - third-party
 archimate:
   type: business-role
   layer: business

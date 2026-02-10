@@ -7,18 +7,18 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-objt-001-beneficial-owner
-  description: Identifies beneficial owners
-- type: access
-  target: bus-objt-008-legal-entity
-  description: For legal entity customers
+  - type: association
+    target: bus-objt-001-beneficial-owner
+    description: Identifies beneficial owners
+  - type: access
+    target: bus-objt-008-legal-entity
+    description: For legal entity customers
 name: Beneficial Ownership Identification Process
 tags:
-- process
-- beneficial-ownership
-- compliance
-- regulatory
+  - process
+  - beneficial-ownership
+  - compliance
+  - regulatory
 archimate:
   type: business-process
   layer: business

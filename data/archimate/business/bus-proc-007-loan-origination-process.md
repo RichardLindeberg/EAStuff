@@ -7,24 +7,24 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: bus-srvc-004-lending-service
-  description: Realizes lending services
-- type: access
-  target: bus-objt-009-loan-application
-  description: Manages loan applications
-- type: access
-  target: bus-objt-005-customer-object
-  description: Accesses customer data
-- type: triggering
-  target: bus-proc-004-credit-assessment-process
-  description: Triggers credit evaluation
+  - type: realization
+    target: bus-srvc-004-lending-service
+    description: Realizes lending services
+  - type: access
+    target: bus-objt-009-loan-application
+    description: Manages loan applications
+  - type: access
+    target: bus-objt-005-customer-object
+    description: Accesses customer data
+  - type: triggering
+    target: bus-proc-004-credit-assessment-process
+    description: Triggers credit evaluation
 name: Loan Origination Process
 tags:
-- process
-- lending
-- credit
-- origination
+  - process
+  - lending
+  - credit
+  - origination
 archimate:
   type: business-process
   layer: business

@@ -7,18 +7,18 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-goal-004-operational-efficiency
-  description: Required by operational efficiency goal
-- type: realization
-  target: mot-prin-003-innovation-and-continuous-improvement
-  description: Realizes innovation through modern infrastructure
+  - type: realization
+    target: mot-goal-004-operational-efficiency
+    description: Required by operational efficiency goal
+  - type: realization
+    target: mot-prin-003-innovation-and-continuous-improvement
+    description: Realizes innovation through modern infrastructure
 name: Cloud Infrastructure Migration
 tags:
-- cloud
-- infrastructure
-- modernization
-- scalability
+  - cloud
+  - infrastructure
+  - modernization
+  - scalability
 archimate:
   type: requirement
   layer: motivation

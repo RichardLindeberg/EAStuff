@@ -7,14 +7,14 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-goal-003-digital-banking-excellence
-  description: Drives digital banking enhancement
+  - type: influence
+    target: mot-goal-003-digital-banking-excellence
+    description: Drives digital banking enhancement
 name: Market Digital Transformation Trends
 tags:
-- market-trend
-- digital
-- customer-expectation
+  - market-trend
+  - digital
+  - customer-expectation
 archimate:
   type: driver
   layer: motivation

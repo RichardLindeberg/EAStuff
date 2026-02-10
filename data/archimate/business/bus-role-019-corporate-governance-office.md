@@ -9,8 +9,8 @@ next_review: '2027-02-07'
 relationships: []
 name: Corporate Governance Office
 tags:
-- role
-- governance
+  - role
+  - governance
 archimate:
   type: business-role
   layer: business

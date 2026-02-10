@@ -7,19 +7,19 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: mot-prin-005-data-driven-decision-making
-  description: Realizes data-driven decision making principle
-- type: association
-  target: str-capa-004-digital-banking-platform-capability
-  description: Supports digital banking personalization
+  - type: realization
+    target: mot-prin-005-data-driven-decision-making
+    description: Realizes data-driven decision making principle
+  - type: association
+    target: str-capa-004-digital-banking-platform-capability
+    description: Supports digital banking personalization
 name: Data Analytics and AI Capability
 tags:
-- capability
-- data
-- analytics
-- ai
-- strategic
+  - capability
+  - data
+  - analytics
+  - ai
+  - strategic
 archimate:
   type: capability
   layer: strategy

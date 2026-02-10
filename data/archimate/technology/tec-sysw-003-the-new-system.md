@@ -9,7 +9,7 @@ next_review: '2027-02-05'
 relationships: []
 name: The New system
 tags:
-- IT
+  - IT
 archimate:
   type: system-software
   layer: technology

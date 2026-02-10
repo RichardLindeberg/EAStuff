@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: str-capa-003-data-analytics-and-ai
-- type: association
-  target: str-capa-009-regulatory-compliance-and-risk
-- type: association
-  target: ms-policy-020-model-risk-management
-- type: composition
-  target: ms-instruction-021-model-validation
+  - type: association
+    target: str-capa-003-data-analytics-and-ai
+  - type: association
+    target: str-capa-009-regulatory-compliance-and-risk
+  - type: association
+    target: ms-policy-020-model-risk-management
+  - type: composition
+    target: ms-instruction-021-model-validation
 name: Model Risk Management Manual
 governance:
   approved_by: Chief Risk Officer

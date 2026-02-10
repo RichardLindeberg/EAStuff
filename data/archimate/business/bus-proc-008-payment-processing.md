@@ -7,24 +7,24 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: realization
-  target: bus-srvc-005-payment-service
-  description: Realizes payment services
-- type: access
-  target: bus-objt-016-transaction
-  description: Creates transaction records
-- type: access
-  target: bus-objt-003-customer-account
-  description: Debits and credits accounts
-- type: triggering
-  target: bus-proc-006-fraud-detection-process
-  description: Triggers fraud checks
+  - type: realization
+    target: bus-srvc-005-payment-service
+    description: Realizes payment services
+  - type: access
+    target: bus-objt-016-transaction
+    description: Creates transaction records
+  - type: access
+    target: bus-objt-003-customer-account
+    description: Debits and credits accounts
+  - type: triggering
+    target: bus-proc-006-fraud-detection-process
+    description: Triggers fraud checks
 name: Payment Processing
 tags:
-- process
-- payments
-- transactions
-- critical-process
+  - process
+  - payments
+  - transactions
+  - critical-process
 archimate:
   type: business-process
   layer: business

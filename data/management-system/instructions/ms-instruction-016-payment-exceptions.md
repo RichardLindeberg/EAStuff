@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: bus-proc-008-payment-processing
-- type: composition
-  target: ms-policy-013-sanctions-screening
-- type: association
-  target: ms-manual-013-transaction-monitoring-sanctions
+  - type: association
+    target: bus-proc-008-payment-processing
+  - type: composition
+    target: ms-policy-013-sanctions-screening
+  - type: association
+    target: ms-manual-013-transaction-monitoring-sanctions
 name: Payment Exceptions Handling Instruction
 governance:
   approved_by: Head of Payments

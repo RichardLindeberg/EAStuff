@@ -7,21 +7,21 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Risk-based requirement for high-risk customers and situations
-- type: realization
-  target: mot-prin-006-amlct-compliance-excellence
-  description: Realizes AML/CT compliance principle
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Risk-based requirement for high-risk customers and situations
+  - type: realization
+    target: mot-prin-006-amlct-compliance-excellence
+    description: Realizes AML/CT compliance principle
 name: Enhanced Due Diligence (EDD) Requirements
 tags:
-- edd
-- enhanced-due-diligence
-- aml
-- compliance
-- high-risk
-- pep
-- kyc
+  - edd
+  - enhanced-due-diligence
+  - aml
+  - compliance
+  - high-risk
+  - pep
+  - kyc
 archimate:
   type: requirement
   layer: motivation

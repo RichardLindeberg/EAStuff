@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-- type: composition
-  target: ms-policy-011-aml-ctf
-- type: association
-  target: ms-manual-024-transaction-monitoring-typologies
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: composition
+    target: ms-policy-011-aml-ctf
+  - type: association
+    target: ms-manual-024-transaction-monitoring-typologies
 name: Transaction Monitoring Calibration Instruction (EU AMLR)
 governance:
   approved_by: Chief Compliance Officer

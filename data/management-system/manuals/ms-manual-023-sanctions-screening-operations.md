@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-- type: association
-  target: ms-policy-013-sanctions-screening
-- type: composition
-  target: ms-instruction-024-sanctions-hit-escalation
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: association
+    target: ms-policy-013-sanctions-screening
+  - type: composition
+    target: ms-instruction-024-sanctions-hit-escalation
 name: Sanctions Screening Operations Manual (EU AMLR)
 governance:
   approved_by: Chief Compliance Officer

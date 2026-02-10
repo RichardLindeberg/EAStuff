@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-objt-010-natural-person
-  description: Can be a natural person
-- type: association
-  target: bus-objt-008-legal-entity
-  description: Can be a legal entity
+  - type: association
+    target: bus-objt-010-natural-person
+    description: Can be a natural person
+  - type: association
+    target: bus-objt-008-legal-entity
+    description: Can be a legal entity
 name: Party
 tags:
-- business-object
-- party-model
-- master-data
+  - business-object
+  - party-model
+  - master-data
 archimate:
   type: business-object
   layer: business

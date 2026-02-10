@@ -7,18 +7,18 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-goal-002-regulatory-compliance
-  description: Drives regulatory compliance goal
-- type: influence
-  target: mot-reqt-011-dora-digital-operational-resilience
-  description: Drives DORA compliance requirement
+  - type: influence
+    target: mot-goal-002-regulatory-compliance
+    description: Drives regulatory compliance goal
+  - type: influence
+    target: mot-reqt-011-dora-digital-operational-resilience
+    description: Drives DORA compliance requirement
 name: DORA Digital Operational Resilience Requirements
 tags:
-- regulatory
-- operational-resilience
-- cybersecurity
-- external-driver
+  - regulatory
+  - operational-resilience
+  - cybersecurity
+  - external-driver
 archimate:
   type: driver
   layer: motivation

@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: bus-proc-001-account-management-process
-- type: association
-  target: bus-proc-002-beneficial-ownership-identification-proc
-- type: association
-  target: ms-policy-012-kyc-cdd
-- type: composition
-  target: ms-instruction-011-kyc-onboarding
+  - type: association
+    target: bus-proc-001-account-management-process
+  - type: association
+    target: bus-proc-002-beneficial-ownership-identification-proc
+  - type: association
+    target: ms-policy-012-kyc-cdd
+  - type: composition
+    target: ms-instruction-011-kyc-onboarding
 name: KYC/CDD Operations Manual
 governance:
   approved_by: Chief Compliance Officer

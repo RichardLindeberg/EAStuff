@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-objt-007-customer-relationship
-  description: Part of customer relationship
-- type: association
-  target: bus-objt-004-customer-agreement
-  description: Authorized by agreement
+  - type: association
+    target: bus-objt-007-customer-relationship
+    description: Part of customer relationship
+  - type: association
+    target: bus-objt-004-customer-agreement
+    description: Authorized by agreement
 name: Product Subscription
 tags:
-- business-object
-- product-subscription
-- product-holding
+  - business-object
+  - product-subscription
+  - product-holding
 archimate:
   type: business-object
   layer: business

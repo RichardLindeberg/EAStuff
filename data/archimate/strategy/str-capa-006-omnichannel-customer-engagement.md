@@ -7,17 +7,17 @@ last_updated: '2025-10-20'
 review_cycle: annual
 next_review: '2026-10-20'
 relationships:
-- type: association
-  target: app-comp-001-customer-portal
-  description: Realized through customer portal
-- type: association
-  target: app-comp-002-mobile-banking-app
-  description: Realized through mobile application
+  - type: association
+    target: app-comp-001-customer-portal
+    description: Realized through customer portal
+  - type: association
+    target: app-comp-002-mobile-banking-app
+    description: Realized through mobile application
 name: Omnichannel Customer Engagement
 tags:
-- capability
-- customer-engagement
-- strategic
+  - capability
+  - customer-engagement
+  - strategic
 archimate:
   type: capability
   layer: strategy

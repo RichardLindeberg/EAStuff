@@ -7,25 +7,25 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: str-capa-005-digital-operational-resilience-capabilit
-  description: Realized through resilience capability
-- type: association
-  target: str-capa-002-customer-trust-and-data
-  description: Builds on customer trust capability
-- type: association
-  target: mot-goal-002-regulatory-compliance
-  description: Supports regulatory compliance goal
-- type: association
-  target: mot-goal-005-customer-trust
-  description: Supports customer trust goal
+  - type: association
+    target: str-capa-005-digital-operational-resilience-capabilit
+    description: Realized through resilience capability
+  - type: association
+    target: str-capa-002-customer-trust-and-data
+    description: Builds on customer trust capability
+  - type: association
+    target: mot-goal-002-regulatory-compliance
+    description: Supports regulatory compliance goal
+  - type: association
+    target: mot-goal-005-customer-trust
+    description: Supports customer trust goal
 name: Secure and Resilient Operations Value Stream
 tags:
-- value-stream
-- security
-- resilience
-- compliance
-- strategic
+  - value-stream
+  - security
+  - resilience
+  - compliance
+  - strategic
 archimate:
   type: value-stream
   layer: strategy

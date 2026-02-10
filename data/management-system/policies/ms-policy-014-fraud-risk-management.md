@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: bus-proc-006-fraud-detection-process
-- type: association
-  target: str-vstr-003-secure-and-resilient-operations
-- type: association
-  target: ms-instruction-018-fraud-case-investigation
-- type: association
-  target: ms-manual-014-fraud-prevention-response
+  - type: association
+    target: bus-proc-006-fraud-detection-process
+  - type: association
+    target: str-vstr-003-secure-and-resilient-operations
+  - type: association
+    target: ms-instruction-018-fraud-case-investigation
+  - type: association
+    target: ms-manual-014-fraud-prevention-response
 name: Fraud Risk Management Policy
 governance:
   approved_by: Risk Committee

@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: assignment
-  target: bus-role-001-account-holder
-  description: Can be an account holder
-- type: access
-  target: bus-objt-003-customer-account
-  description: Accesses their accounts
+  - type: assignment
+    target: bus-role-001-account-holder
+    description: Can be an account holder
+  - type: access
+    target: bus-objt-003-customer-account
+    description: Accesses their accounts
 name: Retail Customer
 tags:
-- customer
-- retail-banking
-- business-actor
+  - customer
+  - retail-banking
+  - business-actor
 archimate:
   type: business-actor
   layer: business

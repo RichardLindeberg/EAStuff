@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: bus-proc-006-fraud-detection-process
-- type: association
-  target: str-vstr-003-secure-and-resilient-operations
-- type: association
-  target: ms-policy-014-fraud-risk-management
-- type: composition
-  target: ms-instruction-018-fraud-case-investigation
+  - type: association
+    target: bus-proc-006-fraud-detection-process
+  - type: association
+    target: str-vstr-003-secure-and-resilient-operations
+  - type: association
+    target: ms-policy-014-fraud-risk-management
+  - type: composition
+    target: ms-instruction-018-fraud-case-investigation
 name: Fraud Prevention and Response Manual
 governance:
   approved_by: Chief Risk Officer

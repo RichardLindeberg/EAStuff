@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: str-capa-008-process-automation-and-operational
-  description: Realized through process automation capability
-- type: association
-  target: str-capa-001-cloud-infrastructure-and-modern
-  description: Realized through cloud infrastructure capability
-- type: association
-  target: mot-goal-004-operational-efficiency
-  description: Supports operational efficiency goal
+  - type: association
+    target: str-capa-008-process-automation-and-operational
+    description: Realized through process automation capability
+  - type: association
+    target: str-capa-001-cloud-infrastructure-and-modern
+    description: Realized through cloud infrastructure capability
+  - type: association
+    target: mot-goal-004-operational-efficiency
+    description: Supports operational efficiency goal
 name: Operational Excellence Value Stream
 tags:
-- value-stream
-- operations
-- efficiency
-- strategic
+  - value-stream
+  - operations
+  - efficiency
+  - strategic
 archimate:
   type: value-stream
   layer: strategy

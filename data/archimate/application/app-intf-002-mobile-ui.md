@@ -7,20 +7,20 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: serving
-  target: bus-role-001-account-holder
-  description: Provides mobile interface for account holders
-- type: serving
-  target: bus-actr-003-retail-customer
-  description: Provides mobile interface for customers
-- type: realization
-  target: mot-reqt-003-mobile-first-banking-design
-  description: Implements mobile-first design
+  - type: serving
+    target: bus-role-001-account-holder
+    description: Provides mobile interface for account holders
+  - type: serving
+    target: bus-actr-003-retail-customer
+    description: Provides mobile interface for customers
+  - type: realization
+    target: mot-reqt-003-mobile-first-banking-design
+    description: Implements mobile-first design
 name: Mobile User Interface
 tags:
-- mobile-interface
-- customer-facing
-- ux
+  - mobile-interface
+  - customer-facing
+  - ux
 archimate:
   type: application-interface
   layer: application

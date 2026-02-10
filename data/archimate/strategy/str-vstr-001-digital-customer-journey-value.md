@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: str-capa-004-digital-banking-platform-capability
-  description: Realized through digital banking capability
-- type: association
-  target: str-capa-002-customer-trust-and-data
-  description: Builds on customer trust capability
-- type: association
-  target: mot-goal-003-digital-banking-excellence
-  description: Supports digital banking goal
+  - type: association
+    target: str-capa-004-digital-banking-platform-capability
+    description: Realized through digital banking capability
+  - type: association
+    target: str-capa-002-customer-trust-and-data
+    description: Builds on customer trust capability
+  - type: association
+    target: mot-goal-003-digital-banking-excellence
+    description: Supports digital banking goal
 name: Digital Customer Journey Value Stream
 tags:
-- value-stream
-- customer-journey
-- digital
-- strategic
+  - value-stream
+  - customer-journey
+  - digital
+  - strategic
 archimate:
   type: value-stream
   layer: strategy

@@ -7,19 +7,19 @@ last_updated: '2025-12-01'
 review_cycle: annual
 next_review: '2026-12-01'
 relationships:
-- type: realization
-  target: bus-srvc-006-customer-support-service
-  description: Realizes customer support service
-- type: association
-  target: bus-colab-001-customer-support-team
-  description: Performed by support team
-- type: access
-  target: bus-objt-017-customer-data
-  description: Accesses customer data
+  - type: realization
+    target: bus-srvc-006-customer-support-service
+    description: Realizes customer support service
+  - type: association
+    target: bus-colab-001-customer-support-team
+    description: Performed by support team
+  - type: access
+    target: bus-objt-017-customer-data
+    description: Accesses customer data
 name: Customer Service Process
 tags:
-- customer-service
-- business-process
+  - customer-service
+  - business-process
 archimate:
   type: business-process
   layer: business

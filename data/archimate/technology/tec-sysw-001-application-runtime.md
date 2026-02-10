@@ -7,21 +7,21 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: serving
-  target: app-comp-001-customer-portal
-  description: Provides runtime environment for portal
-- type: serving
-  target: app-comp-002-mobile-banking-app
-  description: Provides backend runtime for mobile app
-- type: association
-  target: tec-node-001-web-application-server
-  description: Deployed on web application server
+  - type: serving
+    target: app-comp-001-customer-portal
+    description: Provides runtime environment for portal
+  - type: serving
+    target: app-comp-002-mobile-banking-app
+    description: Provides backend runtime for mobile app
+  - type: association
+    target: tec-node-001-web-application-server
+    description: Deployed on web application server
 name: Application Runtime Environment
 tags:
-- runtime
-- platform
-- middleware
-- infrastructure
+  - runtime
+  - platform
+  - middleware
+  - infrastructure
 archimate:
   type: system-software
   layer: technology

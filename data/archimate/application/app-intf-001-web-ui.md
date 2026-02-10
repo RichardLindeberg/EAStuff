@@ -7,20 +7,20 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: serving
-  target: bus-role-001-account-holder
-  description: Provides interface for account holders
-- type: serving
-  target: bus-actr-003-retail-customer
-  description: Provides interface for retail customers
-- type: realization
-  target: mot-reqt-003-mobile-first-banking-design
-  description: Implements responsive design principles
+  - type: serving
+    target: bus-role-001-account-holder
+    description: Provides interface for account holders
+  - type: serving
+    target: bus-actr-003-retail-customer
+    description: Provides interface for retail customers
+  - type: realization
+    target: mot-reqt-003-mobile-first-banking-design
+    description: Implements responsive design principles
 name: Web User Interface
 tags:
-- web-interface
-- customer-facing
-- responsive-design
+  - web-interface
+  - customer-facing
+  - responsive-design
 archimate:
   type: application-interface
   layer: application

@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-011-dora-digital-operational-resilience
-- type: association
-  target: str-vstr-003-secure-and-resilient-operations
-- type: association
-  target: ms-policy-018-business-continuity-dr
-- type: composition
-  target: ms-instruction-016-payment-exceptions
+  - type: association
+    target: mot-reqt-011-dora-digital-operational-resilience
+  - type: association
+    target: str-vstr-003-secure-and-resilient-operations
+  - type: association
+    target: ms-policy-018-business-continuity-dr
+  - type: composition
+    target: ms-instruction-016-payment-exceptions
 name: Business Continuity and Disaster Recovery Manual
 governance:
   approved_by: Chief Operating Officer

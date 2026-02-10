@@ -7,20 +7,20 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: influence
-  target: mot-drvr-001-eu-and-nordic-regulatory
-  description: Driven by PSD2 and open banking regulations
-- type: association
-  target: mot-reqt-009-modern-api-platform-and
-  description: Requires modern API platform
-- type: influence
-  target: mot-reqt-010-strategic-ecosystem-partnerships
-  description: Enables ecosystem partnership opportunities
+  - type: influence
+    target: mot-drvr-001-eu-and-nordic-regulatory
+    description: Driven by PSD2 and open banking regulations
+  - type: association
+    target: mot-reqt-009-modern-api-platform-and
+    description: Requires modern API platform
+  - type: influence
+    target: mot-reqt-010-strategic-ecosystem-partnerships
+    description: Enables ecosystem partnership opportunities
 name: Open Banking Capability
 tags:
-- open-banking
-- ecosystem
-- innovation
+  - open-banking
+  - ecosystem
+  - innovation
 archimate:
   type: goal
   layer: motivation

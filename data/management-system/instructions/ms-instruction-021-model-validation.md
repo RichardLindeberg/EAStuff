@@ -7,12 +7,12 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: str-capa-003-data-analytics-and-ai
-- type: composition
-  target: ms-policy-020-model-risk-management
-- type: association
-  target: ms-manual-020-model-risk-management
+  - type: association
+    target: str-capa-003-data-analytics-and-ai
+  - type: composition
+    target: ms-policy-020-model-risk-management
+  - type: association
+    target: ms-manual-020-model-risk-management
 name: Model Validation and Monitoring Instruction
 governance:
   approved_by: Chief Risk Officer

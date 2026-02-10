@@ -7,21 +7,21 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: composition
-  target: bus-objt-010-natural-person
-  description: Is always a natural person
-- type: association
-  target: bus-objt-008-legal-entity
-  description: Owns/controls legal entity
-- type: association
-  target: bus-proc-002-beneficial-ownership-identification-proc
-  description: Identified through BO identification process
+  - type: composition
+    target: bus-objt-010-natural-person
+    description: Is always a natural person
+  - type: association
+    target: bus-objt-008-legal-entity
+    description: Owns/controls legal entity
+  - type: association
+    target: bus-proc-002-beneficial-ownership-identification-proc
+    description: Identified through BO identification process
 name: Beneficial Owner
 tags:
-- business-object
-- beneficial-ownership
-- compliance
-- aml-kyc
+  - business-object
+  - beneficial-ownership
+  - compliance
+  - aml-kyc
 archimate:
   type: business-object
   layer: business

@@ -7,17 +7,17 @@ last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'
 relationships:
-- type: association
-  target: bus-proc-003-corporate-account-management-process
-  description: Realized by corporate account management
-- type: serving
-  target: bus-role-002-business-account-holder
-  description: Serves business customers
+  - type: association
+    target: bus-proc-003-corporate-account-management-process
+    description: Realized by corporate account management
+  - type: serving
+    target: bus-role-002-business-account-holder
+    description: Serves business customers
 name: Corporate Banking Service
 tags:
-- service
-- corporate-banking
-- business-banking
+  - service
+  - corporate-banking
+  - business-banking
 archimate:
   type: business-service
   layer: business

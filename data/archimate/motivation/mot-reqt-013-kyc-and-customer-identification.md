@@ -7,20 +7,20 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: realization
-  target: mot-goal-002-regulatory-compliance
-  description: Required by regulatory compliance and financial crime prevention
-- type: realization
-  target: mot-prin-006-amlct-compliance-excellence
-  description: Realizes AML/CT compliance principle
+  - type: realization
+    target: mot-goal-002-regulatory-compliance
+    description: Required by regulatory compliance and financial crime prevention
+  - type: realization
+    target: mot-prin-006-amlct-compliance-excellence
+    description: Realizes AML/CT compliance principle
 name: KYC and Customer Identification Requirements
 tags:
-- kyc
-- customer-due-diligence
-- compliance
-- aml
-- regulatory
-- onboarding
+  - kyc
+  - customer-due-diligence
+  - compliance
+  - aml
+  - regulatory
+  - onboarding
 archimate:
   type: requirement
   layer: motivation

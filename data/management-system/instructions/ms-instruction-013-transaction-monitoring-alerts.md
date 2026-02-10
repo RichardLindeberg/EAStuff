@@ -7,14 +7,14 @@ last_updated: '2026-02-07'
 review_cycle: Annual
 next_review: '2027-02-07'
 relationships:
-- type: association
-  target: mot-reqt-014-transaction-monitoring-and-screening
-- type: association
-  target: bus-proc-006-fraud-detection-process
-- type: composition
-  target: ms-policy-013-sanctions-screening
-- type: association
-  target: ms-manual-013-transaction-monitoring-sanctions
+  - type: association
+    target: mot-reqt-014-transaction-monitoring-and-screening
+  - type: association
+    target: bus-proc-006-fraud-detection-process
+  - type: composition
+    target: ms-policy-013-sanctions-screening
+  - type: association
+    target: ms-manual-013-transaction-monitoring-sanctions
 name: Transaction Monitoring Alert Handling Instruction
 governance:
   approved_by: Chief Compliance Officer

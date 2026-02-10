@@ -7,21 +7,21 @@ last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
 relationships:
-- type: influence
-  target: mot-drvr-004-nordic-sustainability-values-and
-  description: Influenced by Nordic sustainability values
-- type: influence
-  target: mot-goal-005-customer-trust
-  description: Supports customer trust through responsible practices
-- type: association
-  target: mot-reqt-008-transparent-customer-communication
-  description: Realized through transparent reporting
+  - type: influence
+    target: mot-drvr-004-nordic-sustainability-values-and
+    description: Influenced by Nordic sustainability values
+  - type: influence
+    target: mot-goal-005-customer-trust
+    description: Supports customer trust through responsible practices
+  - type: association
+    target: mot-reqt-008-transparent-customer-communication
+    description: Realized through transparent reporting
 name: Sustainability and Social Responsibility
 tags:
-- principle
-- sustainability
-- esg
-- social-responsibility
+  - principle
+  - sustainability
+  - esg
+  - social-responsibility
 archimate:
   type: principle
   layer: motivation
