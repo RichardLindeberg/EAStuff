@@ -3,6 +3,7 @@ namespace EAArchive
 open System
 
 // Lightweight fallback YAML sketch with explicit shape.
+[<RequireQualifiedAccess>]
 type SimpleYaml =
     | Value of string
     | Map of Map<string, SimpleYaml>
@@ -76,15 +77,15 @@ module SimpleYaml =
                                 match afterHeader with
                                 | nextLine :: _ when nextLine.Trim().StartsWith("-") ->
                                     let listItems, remainingAfter = parseList childIndent afterHeader
-                                    let updated = Map.add key (List listItems) acc
+                                    let updated = Map.add key (SimpleYaml.List listItems) acc
                                     loop updated remainingAfter
                                 | _ ->
                                     let childMap, remainingAfter = parseMap childIndent afterHeader
-                                    let updated = Map.add key (Map childMap) acc
+                                    let updated = Map.add key (SimpleYaml.Map childMap) acc
                                     loop updated remainingAfter
                             else
                                 match tryParseKeyValue trimmed with
-                                | Some (k, v) -> loop (Map.add k (Value v) acc) tail
+                                | Some (k, v) -> loop (Map.add k (SimpleYaml.Value v) acc) tail
                                 | None -> loop acc tail
 
             loop Map.empty remaining
@@ -108,16 +109,16 @@ module SimpleYaml =
                                 let itemText = trimmed.TrimStart('-').Trim()
                                 if itemText = "" then
                                     let itemMap, remainingAfter = parseMap (currentIndent + 2) tail
-                                    loop (Map itemMap :: acc) remainingAfter
+                                    loop (SimpleYaml.Map itemMap :: acc) remainingAfter
                                 else
                                     match tryParseKeyValue itemText with
                                     | Some (k, v) ->
-                                        let baseMap = Map.add k (Value v) Map.empty
+                                        let baseMap = Map.add k (SimpleYaml.Value v) Map.empty
                                         let extraMap, remainingAfter = parseMap (currentIndent + 2) tail
                                         let merged = mergeMaps baseMap extraMap
-                                        loop (Map merged :: acc) remainingAfter
+                                        loop (SimpleYaml.Map merged :: acc) remainingAfter
                                     | None ->
-                                        loop (Value itemText :: acc) tail
+                                        loop (SimpleYaml.Value itemText :: acc) tail
                             else
                                 List.rev acc, rest
 

@@ -8,6 +8,7 @@
   <ItemGroup>
     <compile Include="SimpleYaml.fs" />
     <Compile Include="Domain.fs" />
+    
     <Compile Include="DocumentRepository.fs" />
     <Compile Include="DocumentRepositoryService.fs" />
     <Compile Include="Views\ViewHelpers.fs" />
@@ -35,7 +36,6 @@
     <PackageReference Include="Giraffe" Version="8.2.0" />
     <PackageReference Include="Giraffe.ViewEngine" Version="1.4.0" />
     <PackageReference Include="Giraffe.ViewEngine.Htmx" Version="2.0.8" />
-    <PackageReference Include="YamlDotNet" Version="16.3.0" />
     <PackageReference Include="Markdig" Version="0.44.0" />
     <PackageReference Include="HtmlSanitizer" Version="9.0.892" />
   </ItemGroup>

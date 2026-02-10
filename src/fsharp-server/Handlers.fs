@@ -15,6 +15,16 @@ module Handlers =
     open EAArchive.ViewHelpers
     open HandlersHelpers
     open DocumentQueries
+
+    let private isArchitecture (doc: DocumentRecord) : bool =
+        match doc with
+        | ArchitectureDoc _ -> true
+        | GovernanceDoc _ -> false
+
+    let private isGovernance (doc: DocumentRecord) : bool =
+        match doc with
+        | GovernanceDoc _ -> true
+        | ArchitectureDoc _ -> false
     
     /// Index/home page handler
     let indexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
@@ -209,7 +219,7 @@ module Handlers =
             logger.LogInformation("GET /elements/{elementId} - Element detail requested", elemId)
             let repo = repoService.Repository
             match tryGetDocumentById repo elemId with
-            | Some doc when doc.kind = DocumentKind.Architecture ->
+            | Some doc when isArchitecture doc ->
                 logger.LogInformation("Found element: {elementId} ({elementName})", elemId, doc.title)
                 let detail = createArchimateDetail repo doc
                 let html = Views.Elements.elementPage webConfig detail
@@ -227,7 +237,7 @@ module Handlers =
             logger.LogInformation("GET /elements/{elementId}/edit - Element edit form requested", elemId)
             let repo = repoService.Repository
             match tryGetDocumentById repo elemId with
-            | Some doc when doc.kind = DocumentKind.Architecture ->
+            | Some doc when isArchitecture doc ->
                 let editModel = createArchimateEdit doc
                 let elementOptions =
                     getArchimateDocuments repo
@@ -309,12 +319,12 @@ module Handlers =
             )
             let repo = repoService.Repository
             let tryGetConceptName (doc: DocumentRecord) : string =
-                match doc.kind with
-                | DocumentKind.Architecture ->
+                match doc with
+                | ArchitectureDoc _ ->
                     doc
                     |> getArchimateElementType
                     |> ElementType.elementTypeToConceptName
-                | DocumentKind.Governance ->
+                | GovernanceDoc _ ->
                     getGovernanceDocType doc |> GovernanceDocType.toConceptName
 
             let allowedTypes =
@@ -399,7 +409,7 @@ module Handlers =
                 logger.LogInformation("POST /elements/{elementId}/download - Element download requested", elemId)
                 let repo = repoService.Repository
                 match tryGetDocumentById repo elemId with
-                | Some doc when doc.kind = DocumentKind.Architecture ->
+                | Some doc when isArchitecture doc ->
                     let! form = ctx.Request.ReadFormAsync()
 
                     let getRaw (key: string) : string =
@@ -604,7 +614,7 @@ module Handlers =
                 let allRels =
                     layerElements
                     |> List.collect (fun doc ->
-                        doc.metadata.relationships
+                        doc.relationships
                         |> List.map (fun rel -> (doc.id, rel))
                     )
 
@@ -614,7 +624,7 @@ module Handlers =
                     |> Set.toList
                     |> List.choose (fun id ->
                         match Map.tryFind id repo.documents with
-                        | Some doc when doc.kind = DocumentKind.Architecture ->
+                        | Some doc when isArchitecture doc ->
                             if layerElements |> List.exists (fun le -> le.id = id) then None else Some doc
                         | _ -> None
                     )
@@ -634,7 +644,7 @@ module Handlers =
             logger.LogInformation("GET /diagrams/context/{elementId}/cytoscape - Cytoscape context diagram requested", elemId)
             let repo = repoService.Repository
             match tryGetDocumentById repo elemId with
-            | Some elem when elem.kind = DocumentKind.Architecture ->
+            | Some elem when isArchitecture elem ->
                 let depth = 
                     match ctx.GetQueryStringValue "depth" with
                     | Ok value -> 
@@ -657,8 +667,8 @@ module Handlers =
                             |> Set.toList
                             |> List.collect (fun id ->
                                 match Map.tryFind id repo.documents with
-                                | Some doc when doc.kind = DocumentKind.Architecture ->
-                                    let outgoing = doc.metadata.relationships |> List.map (fun r -> r.target)
+                                | Some doc when isArchitecture doc ->
+                                    let outgoing = doc.relationships |> List.map (fun r -> r.target)
                                     let incoming =
                                         repo.relations
                                         |> List.choose (fun rel -> if rel.targetId = id then Some rel.sourceId else None)
@@ -676,13 +686,13 @@ module Handlers =
                     |> Set.toList
                     |> List.choose (fun id ->
                         match Map.tryFind id repo.documents with
-                        | Some doc when doc.kind = DocumentKind.Architecture -> Some doc
+                        | Some doc when isArchitecture doc -> Some doc
                         | _ -> None)
 
                 let rels =
                     elements
                     |> List.collect (fun elem ->
-                        elem.metadata.relationships
+                        elem.relationships
                         |> List.filter (fun rel -> Set.contains rel.target allNodeIds)
                         |> List.map (fun rel -> (elem.id, rel)))
 
@@ -712,12 +722,12 @@ module Handlers =
             match tryGetGovernanceBySlug repo slug with
             | Some doc ->
                 let ownerId =
-                    match doc.metadata.owner with
+                    match doc.owner with
                     | Some value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim())
                     | _ -> None
 
                 let relationTargets =
-                    doc.metadata.relationships
+                    doc.relationships
                     |> List.map (fun rel -> rel.target.Trim())
                     |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
 
@@ -735,12 +745,12 @@ module Handlers =
                     governanceDocs
                     |> List.collect (fun governanceDoc ->
                         let ownerId =
-                            match governanceDoc.metadata.owner with
+                            match governanceDoc.owner with
                             | Some value when not (String.IsNullOrWhiteSpace value) -> [ value.Trim() ]
                             | _ -> []
 
                         let relationTargets =
-                            governanceDoc.metadata.relationships
+                            governanceDoc.relationships
                             |> List.map (fun rel -> rel.target.Trim())
                             |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
 
@@ -755,7 +765,7 @@ module Handlers =
                     |> Set.toList
                     |> List.choose (fun id ->
                         match Map.tryFind id repo.documents with
-                        | Some elem when elem.kind = DocumentKind.Architecture -> Some elem
+                        | Some elem when isArchitecture elem -> Some elem
                         | _ -> None)
 
                 let validElementIds =
@@ -766,7 +776,7 @@ module Handlers =
                 let rels =
                     elements
                     |> List.collect (fun elem ->
-                        elem.metadata.relationships
+                        elem.relationships
                         |> List.filter (fun rel -> Set.contains rel.target validElementIds)
                         |> List.map (fun rel -> (elem.id, rel)))
 
@@ -913,7 +923,7 @@ module Handlers =
                 let elements =
                     elemIds
                     |> List.choose (fun id -> tryGetDocumentById repo id)
-                    |> List.filter (fun doc -> doc.kind = DocumentKind.Architecture)
+                    |> List.filter isArchitecture
                     |> List.map (createArchimateCard repo)
                     |> List.sortBy (fun e -> e.name)
                 let html = Views.Tags.tagPage webConfig tag elements

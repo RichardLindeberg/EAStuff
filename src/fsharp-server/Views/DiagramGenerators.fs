@@ -383,7 +383,7 @@ module DiagramGenerators =
             }
 
         let ownerEdges: CytoscapeEdge list =
-            match doc.metadata.owner with
+            match doc.owner with
             | Some ownerId when elementIds.Contains(ownerId) ->
                 [
                     {
@@ -404,7 +404,7 @@ module DiagramGenerators =
             | _ -> []
 
         let relationEdges: CytoscapeEdge list =
-            doc.metadata.relationships
+            doc.relationships
             |> List.filter (fun rel -> elementIds.Contains(rel.target))
             |> List.map (fun rel ->
                 let relationLabel = ElementType.relationTypeToString rel.relationType
@@ -455,7 +455,7 @@ module DiagramGenerators =
         let relationEdges =
             docs
             |> List.collect (fun doc ->
-                doc.metadata.relationships
+                doc.relationships
                 |> List.choose (fun rel ->
                     match Map.tryFind rel.target docIdToSlug with
                     | Some targetSlug ->

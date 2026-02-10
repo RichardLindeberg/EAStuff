@@ -149,8 +149,6 @@ type LayerInfo = {
     order: int
 }
 
-
-
 /// Governance document types
 [<RequireQualifiedAccess>]
 type GovernanceDocType =
@@ -187,24 +185,13 @@ type ArchimateMetadata = {
     criticality: string option
 }
 
-/// Unified metadata model for all documents
-type DocumentMetaData = {
-    id: string
-    hasExplicitId: bool
-    hasExplicitName: bool
-    owner: string option
-    status: string option
-    version: string option
-    lastUpdated: string option
-    reviewCycle: string option
-    nextReview: string option
-    relationships: Relationship list
-    governance: GovernanceMetadata option
-    archimate: ArchimateMetadata option
-    extensions: Map<string, obj>
-    tags: string list
-}
 
+
+
+[<RequireQualifiedAccess>]
+type DocumentMetaData = 
+    | ArchiMateMetaData of  ArchimateMetadata
+    | GovernanceDocMetaData of  GovernanceMetadata
 
 
 /// Unified relation entry between documents
@@ -220,12 +207,29 @@ type DocumentRecord = {
     id: string
     slug: string
     title: string
+    owner: string option
+    status: string option
+    version: string option
+    lastUpdated: string option
+    reviewCycle: string option
+    nextReview: string option
+    relationships: Relationship list
+    tags: string list
     filePath: string
-    kind: DocumentKind
     metadata: DocumentMetaData
     content: string
     rawContent: string
 }
+
+let (|ArchitectureDoc|GovernanceDoc|) (doc: DocumentRecord) =
+    match doc.metadata with
+    | DocumentMetaData.ArchiMateMetaData metadata -> ArchitectureDoc metadata
+    | DocumentMetaData.GovernanceDocMetaData metadata -> GovernanceDoc metadata
+
+let getDocumentKind (doc: DocumentRecord) : DocumentKind =
+    match doc with
+    | ArchitectureDoc _ -> DocumentKind.Architecture
+    | GovernanceDoc _ -> DocumentKind.Governance
 
 /// Unified document repository
 type DocumentRepository = {

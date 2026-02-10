@@ -46,8 +46,8 @@ module ElementLoadTests =
         try
             let doc = Map.find "bus-proc-001-customer-onboarding" repo.documents
             Assert.Equal("Customer Onboarding", doc.title)
-            Assert.Equal(DocumentKind.Architecture, doc.kind)
-            Assert.True(doc.metadata.archimate.IsSome)
+            Assert.True(match doc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false)
+            Assert.True(match doc.metadata with | DocumentMetaData.ArchiMateMetaData _ -> true | _ -> false)
             Assert.Empty(repo.validationErrors)
         finally
             cleanupTempDirectory rootDir

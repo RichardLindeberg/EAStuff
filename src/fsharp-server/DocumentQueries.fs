@@ -1,8 +1,6 @@
 namespace EAArchive
 
 open System
-open System.Collections
-open System.Collections.Generic
 open System.IO
 
 module DocumentQueries =
@@ -31,13 +29,13 @@ module DocumentQueries =
         repo.documents
         |> Map.toList
         |> List.map snd
-        |> List.filter (fun doc -> doc.kind = DocumentKind.Architecture)
+        |> List.filter (fun doc -> match doc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false)
 
     let getGovernanceDocuments (repo: DocumentRepository) : DocumentRecord list =
         repo.documents
         |> Map.toList
         |> List.map snd
-        |> List.filter (fun doc -> doc.kind = DocumentKind.Governance)
+        |> List.filter (fun doc -> match doc with | GovernanceDoc _ -> true | ArchitectureDoc _ -> false)
 
     let tryGetDocumentById (repo: DocumentRepository) (docId: string) : DocumentRecord option =
         Map.tryFind docId repo.documents
@@ -46,42 +44,28 @@ module DocumentQueries =
         repo.documents
         |> Map.toList
         |> List.map snd
-        |> List.tryFind (fun doc -> doc.kind = DocumentKind.Governance && doc.slug = slug)
+        |> List.tryFind (fun doc ->
+            match doc with
+            | GovernanceDoc _ -> doc.slug = slug
+            | ArchitectureDoc _ -> false)
 
-    let private tryGetPropertiesMap (extensions: Map<string, obj>) : Map<string, obj> =
-        match Map.tryFind "properties" extensions with
-        | Some (:? Map<string, obj> as props) -> props
-        | Some (:? IDictionary as dict) ->
-            dict
-            |> Seq.cast<obj>
-            |> Seq.choose (fun entry ->
-                match entry with
-                | :? DictionaryEntry as de ->
-                    match de.Key with
-                    | :? string as key -> Some (key, de.Value)
-                    | _ -> None
-                | :? KeyValuePair<obj, obj> as kvp ->
-                    match kvp.Key with
-                    | :? string as key -> Some (key, kvp.Value)
-                    | _ -> None
-                | _ -> None
-            )
-            |> Map.ofSeq
-        | _ -> Map.empty
+    let private tryGetArchimateMetadata (doc: DocumentRecord) : ArchimateMetadata option =
+        match doc.metadata with
+        | DocumentMetaData.ArchiMateMetaData metadata -> Some metadata
+        | _ -> None
 
-    let private objToString (value: obj) : string option =
-        if isNull value then None
-        else
-            let text = value.ToString().Trim()
-            if text = "" then None else Some text
+    let private tryGetGovernanceMetadata (doc: DocumentRecord) : GovernanceMetadata option =
+        match doc.metadata with
+        | DocumentMetaData.GovernanceDocMetaData metadata -> Some metadata
+        | _ -> None
 
     let getArchimateTypeValue (doc: DocumentRecord) : string =
-        doc.metadata.archimate
+        tryGetArchimateMetadata doc
         |> Option.map (fun archimate -> archimate.elementType)
         |> Option.defaultValue "unknown"
 
     let getArchimateLayerValue (doc: DocumentRecord) : string =
-        doc.metadata.archimate
+        tryGetArchimateMetadata doc
         |> Option.map (fun archimate -> archimate.layerValue)
         |> Option.defaultValue "unknown"
 
@@ -99,25 +83,18 @@ module DocumentQueries =
     let getArchimateProperties (doc: DocumentRecord) : Map<string, string> =
         let sharedValues =
             [
-                "owner", doc.metadata.owner
-                "status", doc.metadata.status
-                "version", doc.metadata.version
-                "last-updated", doc.metadata.lastUpdated
-                "criticality", doc.metadata.archimate |> Option.bind (fun archimate -> archimate.criticality)
-                "review-cycle", doc.metadata.reviewCycle
-                "next-review", doc.metadata.nextReview
+                "owner", doc.owner
+                "status", doc.status
+                "version", doc.version
+                "last-updated", doc.lastUpdated
+                "criticality", tryGetArchimateMetadata doc |> Option.bind (fun archimate -> archimate.criticality)
+                "review-cycle", doc.reviewCycle
+                "next-review", doc.nextReview
             ]
             |> List.choose (fun (key, valueOpt) -> valueOpt |> Option.map (fun value -> key, value))
             |> Map.ofList
 
-        let extensionValues =
-            tryGetPropertiesMap doc.metadata.extensions
-            |> Map.toList
-            |> List.choose (fun (key, value) -> objToString value |> Option.map (fun text -> key, text))
-            |> Map.ofList
-
         sharedValues
-        |> Map.fold (fun acc key value -> Map.add key value acc) extensionValues
 
     let getArchimatePropertyValue (doc: DocumentRecord) (key: string) : string option =
         getArchimateProperties doc |> Map.tryFind key
@@ -125,8 +102,8 @@ module DocumentQueries =
     let getGovernanceMetadataMap (doc: DocumentRecord) : Map<string, string> =
         let governanceFields =
             [
-                "approved_by", doc.metadata.governance |> Option.map (fun g -> g.approvedBy)
-                "effective_date", doc.metadata.governance |> Option.map (fun g -> g.effectiveDate)
+                "approved_by", tryGetGovernanceMetadata doc |> Option.map (fun g -> g.approvedBy)
+                "effective_date", tryGetGovernanceMetadata doc |> Option.map (fun g -> g.effectiveDate)
             ]
             |> List.choose (fun (key, valueOpt) -> valueOpt |> Option.map (fun value -> key, value))
             |> Map.ofList
@@ -134,12 +111,12 @@ module DocumentQueries =
         let sharedFields =
             [
                 "id", Some doc.id
-                "owner", doc.metadata.owner
-                "status", doc.metadata.status
-                "version", doc.metadata.version
-                "last_updated", doc.metadata.lastUpdated
-                "review_cycle", doc.metadata.reviewCycle
-                "next_review", doc.metadata.nextReview
+                "owner", doc.owner
+                "status", doc.status
+                "version", doc.version
+                "last_updated", doc.lastUpdated
+                "review_cycle", doc.reviewCycle
+                "next_review", doc.nextReview
             ]
             |> List.choose (fun (key, valueOpt) -> valueOpt |> Option.map (fun value -> key, value))
             |> Map.ofList
@@ -153,23 +130,24 @@ module DocumentQueries =
             if rel.targetId <> docId then None
             else
                 match Map.tryFind rel.sourceId repo.documents with
-                | Some sourceDoc when sourceDoc.kind = DocumentKind.Architecture ->
+                | Some sourceDoc when (match sourceDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) ->
                     Some (sourceDoc, { target = rel.targetId; relationType = ElementType.parseRelationType rel.relationType; description = rel.description })
                 | _ -> None
         )
 
     let getOutgoingArchimateRelations (repo: DocumentRepository) (doc: DocumentRecord) : (DocumentRecord * Relationship) list =
-        doc.metadata.relationships
+        doc.relationships
         |> List.choose (fun rel ->
             match Map.tryFind rel.target repo.documents with
-            | Some targetDoc when targetDoc.kind = DocumentKind.Architecture -> Some (targetDoc, rel)
+            | Some targetDoc when (match targetDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) ->
+                Some (targetDoc, rel)
             | _ -> None
         )
 
     let getGovernanceOwnerDocs (repo: DocumentRepository) (elementId: string) : DocumentRecord list =
         getGovernanceDocuments repo
         |> List.filter (fun doc ->
-            match doc.metadata.owner with
+            match doc.owner with
             | Some ownerId -> ownerId.Equals(elementId, StringComparison.OrdinalIgnoreCase)
             | None -> false
         )
@@ -177,7 +155,7 @@ module DocumentQueries =
     let getIncomingGovernanceRelations (repo: DocumentRepository) (elementId: string) : (DocumentRecord * Relationship) list =
         getGovernanceDocuments repo
         |> List.collect (fun doc ->
-            doc.metadata.relationships
+            doc.relationships
             |> List.filter (fun rel -> rel.target.Equals(elementId, StringComparison.OrdinalIgnoreCase))
             |> List.map (fun rel -> doc, rel)
         )
@@ -186,12 +164,12 @@ module DocumentQueries =
         getGovernanceDocuments repo
         |> List.filter (fun doc ->
             let ownerMatch =
-                match doc.metadata.owner with
+                match doc.owner with
                 | Some ownerId -> elementIds.Contains(ownerId)
                 | None -> false
 
             let relationMatch =
-                doc.metadata.relationships
+                doc.relationships
                 |> List.exists (fun rel -> elementIds.Contains(rel.target))
 
             ownerMatch || relationMatch
@@ -200,7 +178,7 @@ module DocumentQueries =
     let buildTagIndex (docs: DocumentRecord list) : Map<string, string list> =
         docs
         |> List.fold (fun acc doc ->
-            doc.metadata.tags
+            doc.tags
             |> List.fold (fun tagMap tag ->
                 match Map.tryFind tag tagMap with
                 | Some ids -> Map.add tag (doc.id :: ids) tagMap
@@ -222,10 +200,10 @@ module DocumentQueries =
 
         let incomingCount = getIncomingArchimateRelations repo doc.id |> List.length
         let outgoingCount =
-            doc.metadata.relationships
+            doc.relationships
             |> List.filter (fun rel ->
                 match Map.tryFind rel.target repo.documents with
-                | Some targetDoc when targetDoc.kind = DocumentKind.Architecture -> true
+                | Some targetDoc when (match targetDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) -> true
                 | _ -> false
             )
             |> List.length
@@ -306,7 +284,7 @@ module DocumentQueries =
             name = doc.title
             elementType = elementType
             content = doc.content
-            tags = doc.metadata.tags
+            tags = doc.tags
             properties = properties
             incomingRelations = incoming
             outgoingRelations = outgoing
@@ -320,15 +298,15 @@ module DocumentQueries =
             name = doc.title
             typeValue = getArchimateTypeValue doc
             layerValue = getArchimateLayerValue doc
-            tags = doc.metadata.tags
+            tags = doc.tags
             properties = getArchimateProperties doc
-            relationships = doc.metadata.relationships
+            relationships = doc.relationships
             content = doc.content
         }
 
     let createGovernanceCard (archimateLookup: Map<string, DocumentRecord>) (doc: DocumentRecord) : GovernanceCardView =
         let ownerLabel, ownerId =
-            match doc.metadata.owner with
+            match doc.owner with
             | Some ownerValue when not (String.IsNullOrWhiteSpace ownerValue) ->
                 match Map.tryFind ownerValue archimateLookup with
                 | Some elem -> Some elem.title, Some ownerValue
@@ -370,10 +348,10 @@ module DocumentQueries =
             |> Map.ofList
 
         let archimateRelations =
-            doc.metadata.relationships
+            doc.relationships
             |> List.choose (fun rel ->
                 match Map.tryFind rel.target repo.documents with
-                | Some target when target.kind = DocumentKind.Architecture ->
+                | Some target when (match target with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) ->
                     Some {
                         relatedId = target.id
                         relatedName = target.title
@@ -384,7 +362,7 @@ module DocumentQueries =
             )
 
         let governanceRelations =
-            doc.metadata.relationships
+            doc.relationships
             |> List.choose (fun rel ->
                 match Map.tryFind rel.target governanceLookup with
                 | Some target ->

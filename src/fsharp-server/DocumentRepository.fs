@@ -1,16 +1,13 @@
 namespace EAArchive
 
 open System
-open System.Collections
-open System.Collections.Generic
 open System.IO
 open System.Text.RegularExpressions
 open Microsoft.Extensions.Logging
-open YamlDotNet.Serialization
 
 
 module DocumentRepositoryLoader =
-    let getHeaderAndContent (content: string) : Result<string * string, string> =
+    let private getHeaderAndContent (content: string) : Result<string * string, string> =
             let getSeparatorRow fromIndex =
                 try
                     let a = (content.IndexOf("---", fromIndex, StringComparison.Ordinal)) 
@@ -39,24 +36,12 @@ module DocumentRepositoryLoader =
                 | Error e -> Error e
             | Error e -> Error e
             
-                
-
-            
-            
     let private parseFrontmatter (content: string) =
         let ht = getHeaderAndContent content
         ht
         |> Result.map (fun (header, body) ->
             (SimpleYaml.parse header), body
             )
-
-                     
-                    
-        
-       
-           
-
-
 
     let private normalizeKey (value: string) : string =
         value.Trim().ToLowerInvariant().Replace(" ", "_").Replace("-", "_")
@@ -79,11 +64,6 @@ module DocumentRepositoryLoader =
         let text = value.Trim()
         if text = "" then None else Some text
 
-    let rec private toObj (value: SimpleYaml) : obj =
-        match value with
-        | SimpleYaml.Value s -> box s
-        | SimpleYaml.Map map -> map |> Map.map (fun _ item -> toObj item) |> box
-        | SimpleYaml.List items -> items |> List.map toObj |> box
 
     let private tryGetValue (key: string) (metadata: Map<string, SimpleYaml>) : SimpleYaml option =
         metadata |> Map.tryFind (normalizeKey key)
@@ -187,168 +167,116 @@ module DocumentRepositoryLoader =
 
     let private governanceIdPattern = Regex("^ms-(policy|instruction|manual)-\\d{3}-[a-z0-9-]+$", RegexOptions.IgnoreCase)
 
-    let private knownExtensionKeys =
-        set [
-            "id"
-            "name"
-            "owner"
-            "status"
-            "version"
-            "last_updated"
-            "review_cycle"
-            "next_review"
-            "relationships"
-            "tags"
-            "governance"
-            "archimate"
-            "extensions"
-        ]
 
-    let private buildExtensions (metadata: Map<string, SimpleYaml>) : Map<string, obj> =
-        let normalized = normalizeMetadata metadata
-        let extensionsSection =
-            tryGetMap "extensions" normalized
-            |> Option.defaultValue Map.empty
-
-        let extras =
-            normalized
-            |> Map.filter (fun key _ -> not (Set.contains key knownExtensionKeys))
-
-        let baseMap = extensionsSection |> Map.map (fun _ value -> toObj value)
-        let extrasMap = extras |> Map.map (fun _ value -> toObj value)
-
-        extrasMap
-        |> Map.fold (fun acc key value ->
-            if Map.containsKey key acc then acc else Map.add key value acc
-        ) baseMap
-
-    let private parseArchimateMetadata (metadata: Map<string, SimpleYaml>) : ArchimateMetadata option =
+    let private parseArchimateMetadata (metadata: Map<string, SimpleYaml>) : ArchimateMetadata * bool =
         let archimateSection =
             tryGetMap "archimate" metadata
             |> Option.map normalizeMetadata
-            |> Option.defaultValue Map.empty
 
-        let typeValue = tryGetStringFromMap "type" archimateSection
-        let layerValue = tryGetStringFromMap "layer" archimateSection
-
-        match typeValue, layerValue with
-        | Some typeValue, Some layerValue ->
-            let criticality = tryGetStringFromMap "criticality" archimateSection
-            Some {
+        match archimateSection with
+        | Some section ->
+            let typeValue = tryGetStringFromMap "type" section |> Option.defaultValue ""
+            let layerValue = tryGetStringFromMap "layer" section |> Option.defaultValue ""
+            let criticality = tryGetStringFromMap "criticality" section
+            {
                 elementType = typeValue
                 layerValue = layerValue
                 criticality = criticality
-            }
-        | _ -> None
+            }, true
+        | None ->
+            {
+                elementType = ""
+                layerValue = ""
+                criticality = None
+            }, false
 
-    let private parseGovernanceMetadata (metadata: Map<string, SimpleYaml>) : GovernanceMetadata option =
+    let private parseGovernanceMetadata (metadata: Map<string, SimpleYaml>) : GovernanceMetadata * bool =
         let governanceSection =
             tryGetMap "governance" metadata
             |> Option.map normalizeMetadata
-            |> Option.defaultValue Map.empty
 
-        let approvedBy = tryGetStringFromMap "approved_by" governanceSection
-        let effectiveDate = tryGetStringFromMap "effective_date" governanceSection
-
-        match approvedBy, effectiveDate with
-        | Some approvedBy, Some effectiveDate ->
-            Some {
+        match governanceSection with
+        | Some section ->
+            let approvedBy = tryGetStringFromMap "approved_by" section |> Option.defaultValue ""
+            let effectiveDate = tryGetStringFromMap "effective_date" section |> Option.defaultValue ""
+            {
                 approvedBy = approvedBy
                 effectiveDate = effectiveDate
-            }
-        | _ -> None
+            }, true
+        | None ->
+            {
+                approvedBy = ""
+                effectiveDate = ""
+            }, false
 
-    let private buildDocumentMetadata
-        (idValue: string)
-        (hasExplicitId: bool)
-        (hasExplicitName: bool)
-        (metadata: Map<string, SimpleYaml>)
-        (relationships: Relationship list)
-        (governance: GovernanceMetadata option)
-        (archimate: ArchimateMetadata option)
-        (tags: string list)
-        : DocumentMetaData =
+    type ParsedDocument = {
+        document: DocumentRecord
+        hasExplicitId: bool
+        hasExplicitName: bool
+        hasArchimateSection: bool
+        hasGovernanceSection: bool
+    }
+
+    let private parseDocument
+        (filePath: string)
+        (content: string)
+        (parseMetadata: Map<string, SimpleYaml> -> DocumentMetaData * bool * bool)
+        : ParsedDocument =
+        let slug = Path.GetFileNameWithoutExtension(filePath)
+        let metadataRaw, contentWithoutMetadata =
+            match parseFrontmatter content with
+            | Error e -> failwithf "Error parsing frontmatter in file %s: %s" filePath e
+            | Ok (metadataRaw, contentWithoutMetadata) -> metadataRaw, contentWithoutMetadata
+        let metadata = normalizeMetadata metadataRaw
+        let relationships = parseRelationships metadata
+        let tags = parseTags metadata
+
+        let nameValue = tryGetString "name" metadata
+        let idValue = tryGetString "id" metadata
+        let hasExplicitId = idValue |> Option.isSome
+        let hasExplicitName = nameValue |> Option.isSome
+        let docMetadata, hasArchimateSection, hasGovernanceSection = parseMetadata metadata
+
+        let document =
+            {
+                id = idValue |> Option.defaultValue slug
+                slug = slug
+                title = nameValue |> Option.defaultValue slug
+                owner = tryGetString "owner" metadata
+                status = tryGetString "status" metadata
+                version = tryGetString "version" metadata
+                lastUpdated = tryGetString "last_updated" metadata
+                reviewCycle = tryGetString "review_cycle" metadata
+                nextReview = tryGetString "next_review" metadata
+                relationships = relationships
+                tags = tags
+                filePath = filePath
+                metadata = docMetadata
+                content = contentWithoutMetadata.Trim()
+                rawContent = content
+            }
+
         {
-            id = idValue
+            document = document
             hasExplicitId = hasExplicitId
             hasExplicitName = hasExplicitName
-            owner = tryGetString "owner" metadata
-            status = tryGetString "status" metadata
-            version = tryGetString "version" metadata
-            lastUpdated = tryGetString "last_updated" metadata
-            reviewCycle = tryGetString "review_cycle" metadata
-            nextReview = tryGetString "next_review" metadata
-            relationships = relationships
-            governance = governance
-            archimate = archimate
-            extensions = buildExtensions metadata
-            tags = tags
+            hasArchimateSection = hasArchimateSection
+            hasGovernanceSection = hasGovernanceSection
         }
 
-    let private parseArchitectureDocument (filePath: string) (content: string) : DocumentRecord =
-        let slug = Path.GetFileNameWithoutExtension(filePath)
+    let private parseArchitectureDocument (filePath: string) (content: string) : ParsedDocument =
+        let parseSpecific metadata =
+            let archimate, hasArchimateSection = parseArchimateMetadata metadata
+            DocumentMetaData.ArchiMateMetaData archimate, hasArchimateSection, false
 
-        
+        parseDocument filePath content parseSpecific
 
-        let metadataRaw, contentWithoutMetadata = 
-            match parseFrontmatter content with
-            | Error e -> failwithf "Error parsing frontmatter in file %s: %s" filePath e
-            | Ok (metadataRaw, contentWithoutMetadata) -> metadataRaw, contentWithoutMetadata
-        let metadata = normalizeMetadata metadataRaw
-        let relationships = parseRelationships metadata
-        let tags = parseTags metadata
+    let private parseGovernanceDocument (filePath: string) (content: string) : ParsedDocument =
+        let parseSpecific metadata =
+            let governance, hasGovernanceSection = parseGovernanceMetadata metadata
+            DocumentMetaData.GovernanceDocMetaData governance, false, hasGovernanceSection
 
-        let name = tryGetString "name" metadata |> Option.defaultValue slug
-        let idValue = tryGetString "id" metadata |> Option.defaultValue slug
-        let hasExplicitId = tryGetString "id" metadata |> Option.isSome
-        let hasExplicitName = tryGetString "name" metadata |> Option.isSome
-        let governance = None
-        let archimate = parseArchimateMetadata metadata
-
-        let documentMetadata =
-            buildDocumentMetadata idValue hasExplicitId hasExplicitName metadata relationships governance archimate tags
-
-        {
-            id = idValue
-            slug = slug
-            title = name
-            filePath = filePath
-            kind = DocumentKind.Architecture
-            metadata = documentMetadata
-            content = contentWithoutMetadata.Trim()
-            rawContent = content
-        }
-
-    let private parseGovernanceDocument (filePath: string) (content: string) : DocumentRecord =
-        let slug = Path.GetFileNameWithoutExtension(filePath)
-        let metadataRaw, contentWithoutMetadata = 
-            match parseFrontmatter content with
-            | Error e -> failwithf "Error parsing frontmatter in file %s: %s" filePath e
-            | Ok (metadataRaw, contentWithoutMetadata) -> metadataRaw, contentWithoutMetadata
-        let metadata = normalizeMetadata metadataRaw
-        let relationships = parseRelationships metadata
-        let tags = parseTags metadata
-
-        let title = tryGetString "name" metadata |> Option.defaultValue slug
-        let idValue = tryGetString "id" metadata |> Option.defaultValue slug
-        let hasExplicitId = tryGetString "id" metadata |> Option.isSome
-        let hasExplicitName = tryGetString "name" metadata |> Option.isSome
-        let governance = parseGovernanceMetadata metadata
-        let archimate = None
-
-        let documentMetadata =
-            buildDocumentMetadata idValue hasExplicitId hasExplicitName metadata relationships governance archimate tags
-
-        {
-            id = idValue
-            slug = slug
-            title = title
-            filePath = filePath
-            kind = DocumentKind.Governance
-            metadata = documentMetadata
-            content = contentWithoutMetadata.Trim()
-            rawContent = content
-        }
+        parseDocument filePath content parseSpecific
 
     let private validateMissingField (filePath: string) (docId: string option) (label: string) : ValidationError =
         {
@@ -359,42 +287,50 @@ module DocumentRepositoryLoader =
             severity = Severity.Error
         }
 
-    let private validateSharedFields (doc: DocumentRecord) : ValidationError list =
+    let private validateSharedFields (doc: DocumentRecord) (hasExplicitName: bool) : ValidationError list =
         let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
         [
-            if doc.kind = DocumentKind.Architecture && not doc.metadata.hasExplicitName then
+            if (match doc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) && not hasExplicitName then
                 yield validateMissingField doc.filePath docId "name"
-            if doc.metadata.owner |> Option.forall String.IsNullOrWhiteSpace then
+            if doc.owner |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "owner"
-            if doc.metadata.status |> Option.forall String.IsNullOrWhiteSpace then
+            if doc.status |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "status"
-            if doc.metadata.version |> Option.forall String.IsNullOrWhiteSpace then
+            if doc.version |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "version"
-            if doc.metadata.lastUpdated |> Option.forall String.IsNullOrWhiteSpace then
+            if doc.lastUpdated |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "last_updated"
-            if doc.metadata.reviewCycle |> Option.forall String.IsNullOrWhiteSpace then
+            if doc.reviewCycle |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "review_cycle"
-            if doc.metadata.nextReview |> Option.forall String.IsNullOrWhiteSpace then
+            if doc.nextReview |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "next_review"
         ]
 
-    let private validateGovernanceMetadata (doc: DocumentRecord) : ValidationError list =
+    let private validateGovernanceMetadata
+        (doc: DocumentRecord)
+        (governance: GovernanceMetadata)
+        (hasGovernanceSection: bool)
+        : ValidationError list =
         let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
-        match doc.metadata.governance with
-        | Some governance ->
+        if not hasGovernanceSection then
+            [ validateMissingField doc.filePath docId "governance" ]
+        else
             [
                 if String.IsNullOrWhiteSpace governance.approvedBy then
                     yield validateMissingField doc.filePath docId "approved_by"
                 if String.IsNullOrWhiteSpace governance.effectiveDate then
                     yield validateMissingField doc.filePath docId "effective_date"
             ]
-        | None ->
-            [ validateMissingField doc.filePath docId "governance" ]
 
-    let private validateArchimateMetadata (doc: DocumentRecord) : ValidationError list =
+    let private validateArchimateMetadata
+        (doc: DocumentRecord)
+        (archimate: ArchimateMetadata)
+        (hasArchimateSection: bool)
+        : ValidationError list =
         let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
-        match doc.metadata.archimate with
-        | Some archimate ->
+        if not hasArchimateSection then
+            [ validateMissingField doc.filePath docId "archimate" ]
+        else
             let errors = ResizeArray<ValidationError>()
             if String.IsNullOrWhiteSpace archimate.elementType then
                 errors.Add(validateMissingField doc.filePath docId "type")
@@ -413,7 +349,7 @@ module DocumentRepositoryLoader =
                 })
 
             // Validate ArchiMate ID format against layer and type codes
-            if doc.metadata.hasExplicitId && not (String.IsNullOrWhiteSpace doc.id) then
+            if not (String.IsNullOrWhiteSpace doc.id) then
                 let idVal = doc.id
                 if not (Regex.IsMatch(idVal, "^[a-z0-9]+-[a-z0-9]+-\\d{3}-[a-z0-9]+(-[a-z0-9]+)*$")) then
                     errors.Add({
@@ -544,15 +480,14 @@ module DocumentRepositoryLoader =
                                 })
 
             List.ofSeq errors
-        | None ->
-            [ validateMissingField doc.filePath docId "archimate" ]
 
     let private validateRelationshipTargets (doc: DocumentRecord) (knownIds: Set<string>) : ValidationError list =
-        if doc.kind = DocumentKind.Architecture then
+        match doc with
+        | ArchitectureDoc _ ->
             []
-        else
+        | GovernanceDoc _ ->
             let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
-            doc.metadata.relationships
+            doc.relationships
             |> List.collect (fun rel ->
                 let errors = ResizeArray<ValidationError>()
                 match rel.relationType with
@@ -588,7 +523,7 @@ module DocumentRepositoryLoader =
 
     let private validateOwnerReference (doc: DocumentRecord) (archimateById: Map<string, ElementType>) : ValidationError list =
         let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
-        match doc.metadata.owner |> Option.map (fun value -> value.Trim()) with
+        match doc.owner |> Option.map (fun value -> value.Trim()) with
         | Some ownerId when ownerId <> "" ->
             match Map.tryFind ownerId archimateById with
             | Some (ElementType.Business BusinessElement.Role) -> []
@@ -614,15 +549,29 @@ module DocumentRepositoryLoader =
                 ]
         | _ -> []
 
+    let private getArchimateMetadata (doc: DocumentRecord) : ArchimateMetadata =
+        match doc.metadata with
+        | DocumentMetaData.ArchiMateMetaData metadata -> metadata
+        | _ -> { elementType = ""; layerValue = ""; criticality = None }
+
+    let private getGovernanceMetadata (doc: DocumentRecord) : GovernanceMetadata =
+        match doc.metadata with
+        | DocumentMetaData.GovernanceDocMetaData metadata -> metadata
+        | _ -> { approvedBy = ""; effectiveDate = "" }
+
     let private validateDocument
         (doc: DocumentRecord)
+        (hasExplicitId: bool)
+        (hasExplicitName: bool)
+        (hasArchimateSection: bool)
+        (hasGovernanceSection: bool)
         (knownIds: Set<string>)
         (archimateById: Map<string, ElementType>)
         : ValidationError list =
         let errors = ResizeArray<ValidationError>()
-        let docId = if doc.metadata.hasExplicitId && not (String.IsNullOrWhiteSpace doc.id) then Some doc.id else None
+        let docId = if hasExplicitId && not (String.IsNullOrWhiteSpace doc.id) then Some doc.id else None
 
-        if not doc.metadata.hasExplicitId then
+        if not hasExplicitId then
             errors.Add({
                 filePath = doc.filePath
                 elementId = None
@@ -631,11 +580,11 @@ module DocumentRepositoryLoader =
                 severity = Severity.Error
             })
 
-        errors.AddRange(validateSharedFields doc)
+        errors.AddRange(validateSharedFields doc hasExplicitName)
 
-        match doc.kind with
-        | DocumentKind.Governance ->
-            if doc.metadata.hasExplicitId && not (governanceIdPattern.IsMatch doc.id) then
+        match doc with
+        | GovernanceDoc _ ->
+            if hasExplicitId && not (governanceIdPattern.IsMatch doc.id) then
                 errors.Add({
                     filePath = doc.filePath
                     elementId = docId
@@ -643,10 +592,12 @@ module DocumentRepositoryLoader =
                     message = sprintf "ID '%s' should match pattern: ms-[policy|instruction|manual]-[###]-[descriptive-name]" doc.id
                     severity = Severity.Error
                 })
-            errors.AddRange(validateGovernanceMetadata doc)
+            let governanceMeta = getGovernanceMetadata doc
+            errors.AddRange(validateGovernanceMetadata doc governanceMeta hasGovernanceSection)
             errors.AddRange(validateOwnerReference doc archimateById)
-        | DocumentKind.Architecture ->
-            errors.AddRange(validateArchimateMetadata doc)
+        | ArchitectureDoc _ ->
+            let archimateMeta = getArchimateMetadata doc
+            errors.AddRange(validateArchimateMetadata doc archimateMeta hasArchimateSection)
 
         errors.AddRange(validateRelationshipTargets doc knownIds)
 
@@ -657,50 +608,43 @@ module DocumentRepositoryLoader =
         (managementSystemPath: string)
         (logger: ILogger)
         : DocumentRepository =
-        let archimateDocs =
-            if Directory.Exists(elementsPath) then
-                Directory.EnumerateFiles(elementsPath, "*.md", SearchOption.AllDirectories)
+        let loadDocumentsFromPath path parser =
+            if Directory.Exists(path) then
+                Directory.EnumerateFiles(path, "*.md", SearchOption.AllDirectories)
                 |> Seq.map (fun filePath ->
                     let content = File.ReadAllText(filePath)
-                    parseArchitectureDocument filePath content
+                    parser filePath content
                 )
                 |> Seq.toList
             else
                 []
 
-        let governanceDocs =
-            if Directory.Exists(managementSystemPath) then
-                Directory.EnumerateFiles(managementSystemPath, "*.md", SearchOption.AllDirectories)
-                |> Seq.map (fun filePath ->
-                    let content = File.ReadAllText(filePath)
-                    parseGovernanceDocument filePath content
-                )
-                |> Seq.toList
-            else
-                []
+        let archimateDocs = loadDocumentsFromPath elementsPath parseArchitectureDocument
+        let governanceDocs = loadDocumentsFromPath managementSystemPath parseGovernanceDocument
 
         let documents = archimateDocs @ governanceDocs
+        let documentRecords = documents |> List.map (fun doc -> doc.document)
         let documentsById =
-            documents
+            documentRecords
             |> List.fold (fun acc doc -> Map.add doc.id doc acc) Map.empty
 
         let duplicates =
-            documents
+            documentRecords
             |> List.groupBy (fun doc -> doc.id)
             |> List.choose (fun (docId, items) -> if items.Length > 1 then Some docId else None)
 
         let knownIds =
-            documents
+            documentRecords
             |> List.map (fun doc -> doc.id)
             |> Set.ofList
 
         let archimateById =
-            archimateDocs
+            documentRecords
             |> List.choose (fun doc ->
-                doc.metadata.archimate
-                |> Option.map (fun archimate ->
-                    doc.id, ElementType.parseElementType archimate.layerValue archimate.elementType
-                )
+                match doc.metadata with
+                | DocumentMetaData.ArchiMateMetaData archimate ->
+                    Some (doc.id, ElementType.parseElementType archimate.layerValue archimate.elementType)
+                | _ -> None
             )
             |> Map.ofList
 
@@ -708,7 +652,16 @@ module DocumentRepositoryLoader =
             let errors = ResizeArray<ValidationError>()
             errors.AddRange(
                 documents
-                |> List.collect (fun doc -> validateDocument doc knownIds archimateById)
+                |> List.collect (fun doc ->
+                    validateDocument
+                        doc.document
+                        doc.hasExplicitId
+                        doc.hasExplicitName
+                        doc.hasArchimateSection
+                        doc.hasGovernanceSection
+                        knownIds
+                        archimateById
+                )
             )
 
             for dupId in duplicates do
@@ -723,33 +676,34 @@ module DocumentRepositoryLoader =
             List.ofSeq errors
 
         let documentsByKind =
-            documents
-            |> List.groupBy (fun doc -> doc.kind)
+            documentRecords
+            |> List.groupBy getDocumentKind
             |> List.map (fun (kind, docs) -> kind, docs |> List.map (fun doc -> doc.id) |> List.sort)
             |> Map.ofList
 
         let documentsByElementType =
-            archimateDocs
+            documentRecords
             |> List.choose (fun doc ->
-                doc.metadata.archimate
-                |> Option.map (fun archimate ->
-                    ElementType.parseElementType archimate.layerValue archimate.elementType, doc.id
-                )
+                match doc.metadata with
+                | DocumentMetaData.ArchiMateMetaData archimate ->
+                    Some (ElementType.parseElementType archimate.layerValue archimate.elementType, doc.id)
+                | _ -> None
             )
             |> List.groupBy fst
             |> List.map (fun (elementType, items) -> elementType, items |> List.map snd |> List.sort)
             |> Map.ofList
 
         let documentsByGovernanceType =
-            governanceDocs
+            documentRecords
+            |> List.filter (fun doc -> match doc with | GovernanceDoc _ -> true | ArchitectureDoc _ -> false)
             |> List.groupBy (fun doc -> docTypeFromPath doc.filePath)
             |> List.map (fun (docType, docs) -> docType, docs |> List.map (fun doc -> doc.id) |> List.sort)
             |> Map.ofList
 
         let relations =
-            documents
+            documentRecords
             |> List.collect (fun doc ->
-                doc.metadata.relationships
+                doc.relationships
                 |> List.map (fun rel ->
                     {
                         sourceId = doc.id
