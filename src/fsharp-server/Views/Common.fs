@@ -28,7 +28,20 @@ module Common =
         let submenuRow =
             let submenuItems =
                 if currentPage = "architecture" then
-                    [ a [_href $"{baseUrl}architecture"; _class "submenu-link active"] [encodedText "Architecture Overview"] ]
+                    let overviewLink =
+                        a [_href $"{baseUrl}architecture"; _class "submenu-link active"] [encodedText "Architecture Overview"]
+
+                    let layerLinks =
+                        Config.layerOrder
+                        |> Map.toList
+                        |> List.sortBy (fun (_, info) -> info.order)
+                        |> List.map (fun (layerKey, info) ->
+                            a [_href $"{baseUrl}architecture/layer/{layerKey}"; _class "submenu-link"] [
+                                encodedText info.displayName
+                            ]
+                        )
+
+                    overviewLink :: layerLinks
                 elif currentPage = "governance" || currentPage = "index" then
                     [ a [_href $"{baseUrl}governance"; _class "submenu-link active"] [encodedText "Governance Overview"] ]
                 elif currentPage = "validation" then

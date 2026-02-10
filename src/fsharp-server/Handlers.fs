@@ -45,6 +45,27 @@ module Handlers =
             let html = Views.Architecture.indexPage webConfig elementTypeCounts "architecture"
             htmlView html next ctx
 
+    /// Architecture layer handler
+    let architectureLayerHandler (layerKey: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /architecture/layer/{layer} - Architecture layer requested", layerKey)
+            let normalizedLayer = layerKey.Trim().ToLowerInvariant()
+            let repo = repoService.Repository
+            let elementTypeCounts =
+                getArchimateDocuments repo
+                |> List.groupBy getArchimateElementType
+                |> List.map (fun (elementType, docs) -> elementType, docs.Length)
+                |> List.filter (fun (elementType, _) -> ElementType.getLayerKey elementType = normalizedLayer)
+
+            let layerDisplayName =
+                Config.layerOrder
+                |> Map.tryFind normalizedLayer
+                |> Option.map (fun info -> info.displayName)
+                |> Option.defaultValue layerKey
+
+            let html = Views.Architecture.layerPage webConfig layerDisplayName elementTypeCounts "architecture"
+            htmlView html next ctx
+
     /// Governance system index handler
     let governanceIndexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->

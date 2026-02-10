@@ -18,6 +18,7 @@ module Routes =
             route "/" >=> Handlers.indexHandler repoService webConfig logger
             route "/index.html" >=> Handlers.indexHandler repoService webConfig logger
             route "/architecture" >=> Handlers.architectureIndexHandler repoService webConfig logger
+            routef "/architecture/layer/%s" (fun layerKey -> Handlers.architectureLayerHandler layerKey repoService webConfig logger)
             route "/governance" >=> Handlers.governanceIndexHandler repoService webConfig logger
             routef "/governance/%s" (fun slug -> Handlers.governanceDocHandler slug repoService webConfig logger)
             route "/management-system" >=> Handlers.governanceIndexHandler repoService webConfig logger
