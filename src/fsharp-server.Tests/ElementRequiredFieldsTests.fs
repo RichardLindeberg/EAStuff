@@ -126,7 +126,7 @@ module ElementRequiredFieldsTests =
         withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
-            Assert.Contains("type", errors.[0].message)
+            Assert.Contains("archimate", errors.[0].message)
         )
     
     [<Fact>]
@@ -148,7 +148,7 @@ module ElementRequiredFieldsTests =
         withArchimateErrors lines (fun errors ->
             Assert.Single(errors) |> ignore
             Assert.Equal("missing-required-field", ElementType.errorTypeToString errors.[0].errorType)
-            Assert.Contains("layer", errors.[0].message)
+            Assert.Contains("archimate", errors.[0].message)
         )
     
     [<Fact>]

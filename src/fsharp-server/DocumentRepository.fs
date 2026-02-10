@@ -30,7 +30,7 @@ module DocumentRepositoryLoader =
             let endIndex startIdx =
                 match getSeparatorRow (startIdx + 1) with 
                 | Some idx -> Ok (startIdx, idx)
-                | None -> sprintf "No end --- found in \"%s\"" content |> failwith
+                | None -> Error (sprintf "No end --- found for frontmatter in \"%s\"" content)
             
             match startIndex with 
             | Ok startIdx ->
