@@ -11,41 +11,37 @@ open YamlDotNet.Serialization
 
 module DocumentRepositoryLoader =
     let getHeaderAndContent (content: string) : Result<string * string, string> =
-        if String.IsNullOrEmpty(content) then
-            Error "No frontmatter/header found"
-        else
-            let normalized =
-                if content.StartsWith("\uFEFF") then
-                    content.Substring(1)
-                else
-                    content
+            let getSeparatorRow fromIndex =
+                try
+                    let a = (content.IndexOf("---", fromIndex, StringComparison.Ordinal)) 
+                    if a >= 0 then Some a else None
+                with
+                | _ -> None
 
-            let lines =
-                normalized.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
+            let startIndex = 
+                match getSeparatorRow 0 with 
+                | Some idx -> 
+                    if idx > 2 then 
+                        Error (sprintf "Frontmatter start --- must be within first 3 lines in \"%A\"" content)
+                    else
+                        Ok idx
+                | None -> Error (sprintf "No start --- found in \"%s\"" content)
+            
+            let endIndex startIdx =
+                match getSeparatorRow (startIdx + 1) with 
+                | Some idx -> Ok (startIdx, idx)
+                | None -> sprintf "No end --- found in \"%s\"" content |> failwith
+            
+            match startIndex with 
+            | Ok startIdx ->
+                match endIndex startIdx with
+                | Ok (s, e) -> (content.Substring(s + 1, e - 1), content.Substring(e+1)) |> Ok
+                | Error e -> Error e
+            | Error e -> Error e
+            
+                
 
-            let startIndex =
-                if lines.Length > 0 && lines.[0].Trim() = "---" then
-                    Some 0
-                elif lines.Length > 1 && String.IsNullOrWhiteSpace(lines.[0]) && lines.[1].Trim() = "---" then
-                    Some 1
-                else
-                    None
-
-            match startIndex with
-            | Some start ->
-                let remaining = lines.[start + 1 ..]
-                match remaining |> Array.tryFindIndex (fun line -> line.Trim() = "---") with
-                | Some relativeEnd ->
-                    let endIndex = start + 1 + relativeEnd
-                    let frontmatter = String.concat "\n" lines.[start + 1 .. endIndex - 1]
-                    let body =
-                        if endIndex + 1 < lines.Length then
-                            String.concat "\n" lines.[endIndex + 1 ..]
-                        else
-                            ""
-                    Ok (frontmatter, body)
-                | None -> sprintf "No frontmatter/header (1) found in %s" content |> Error
-            | None -> sprintf "No frontmatter/header (2) found in %s" content |> Error
+            
             
     let private parseFrontmatter (content: string) =
         let ht = getHeaderAndContent content
