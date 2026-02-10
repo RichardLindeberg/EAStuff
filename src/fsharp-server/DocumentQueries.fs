@@ -3,25 +3,12 @@ namespace EAArchive
 open System
 open System.IO
 open DocumentRecordHelpers
+open DocumentTypeHelpers
 
 module DocumentQueries =
 
     let private docTypeFromPath (filePath: string) : GovernanceDocType =
-        let lower = filePath.ToLowerInvariant()
-        if lower.Contains("\\policies\\") || lower.Contains("/policies/") then
-            GovernanceDocType.Policy
-        elif lower.Contains("\\instructions\\") || lower.Contains("/instructions/") then
-            GovernanceDocType.Instruction
-        elif lower.Contains("\\manuals\\") || lower.Contains("/manuals/") then
-            GovernanceDocType.Manual
-        elif lower.Contains("ms-policy-") then
-            GovernanceDocType.Policy
-        elif lower.Contains("ms-instruction-") then
-            GovernanceDocType.Instruction
-        elif lower.Contains("ms-manual-") then
-            GovernanceDocType.Manual
-        else
-            GovernanceDocType.Unknown "unknown"
+        getGovernanceDocTypeFromPath filePath
 
     let getGovernanceDocType (doc: DocumentRecord) : GovernanceDocType =
         docTypeFromPath doc.filePath
@@ -175,17 +162,6 @@ module DocumentQueries =
 
             ownerMatch || relationMatch
         )
-
-    let buildTagIndex (docs: DocumentRecord list) : Map<string, string list> =
-        docs
-        |> List.fold (fun acc doc ->
-            doc.tags
-            |> List.fold (fun tagMap tag ->
-                match Map.tryFind tag tagMap with
-                | Some ids -> Map.add tag (doc.id :: ids) tagMap
-                | None -> Map.add tag [doc.id] tagMap
-            ) acc
-        ) Map.empty
 
     let createArchimateCard (repo: DocumentRepository) (doc: DocumentRecord) : ArchimateCard =
         let elementType = getArchimateElementType doc

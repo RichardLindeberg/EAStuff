@@ -4,6 +4,8 @@ open System
 open System.Collections.Generic
 open System.Globalization
 open System.Text.RegularExpressions
+open Microsoft.Extensions.Logging
+open Giraffe
 
 module HandlersHelpers =
 
@@ -92,79 +94,6 @@ module HandlersHelpers =
 
         $"---\n{yaml}\n---"
 
-    let layerCodes =
-        Map.ofList [
-            ("strategy", "str")
-            ("business", "bus")
-            ("application", "app")
-            ("technology", "tec")
-            ("physical", "phy")
-            ("motivation", "mot")
-            ("implementation", "imp")
-        ]
-
-    let typeCodes =
-        Map.ofList [
-            ("resource", "rsrc")
-            ("capability", "capa")
-            ("value-stream", "vstr")
-            ("course-of-action", "cact")
-            ("business-actor", "actr")
-            ("business-role", "role")
-            ("business-collaboration", "colab")
-            ("business-interface", "intf")
-            ("business-process", "proc")
-            ("business-function", "func")
-            ("business-interaction", "intr")
-            ("business-event", "evnt")
-            ("business-service", "srvc")
-            ("business-object", "objt")
-            ("contract", "cntr")
-            ("representation", "repr")
-            ("product", "prod")
-            ("application-component", "comp")
-            ("application-collaboration", "colab")
-            ("application-interface", "intf")
-            ("application-function", "func")
-            ("application-interaction", "intr")
-            ("application-process", "proc")
-            ("application-event", "evnt")
-            ("application-service", "srvc")
-            ("data-object", "data")
-            ("node", "node")
-            ("device", "devc")
-            ("system-software", "sysw")
-            ("technology-collaboration", "colab")
-            ("technology-interface", "intf")
-            ("path", "path")
-            ("communication-network", "netw")
-            ("technology-function", "func")
-            ("technology-process", "proc")
-            ("technology-interaction", "intr")
-            ("technology-event", "evnt")
-            ("technology-service", "srvc")
-            ("artifact", "artf")
-            ("equipment", "equi")
-            ("facility", "faci")
-            ("distribution-network", "dist")
-            ("material", "matr")
-            ("stakeholder", "stkh")
-            ("driver", "drvr")
-            ("assessment", "asmt")
-            ("goal", "goal")
-            ("outcome", "outc")
-            ("principle", "prin")
-            ("requirement", "reqt")
-            ("constraint", "cnst")
-            ("meaning", "mean")
-            ("value", "valu")
-            ("work-package", "work")
-            ("deliverable", "delv")
-            ("implementation-event", "evnt")
-            ("plateau", "plat")
-            ("gap", "gap")
-        ]
-
     let private sanitizeName (value: string) : string =
         let lower = value.Trim().ToLowerInvariant()
         let spaced = Regex.Replace(lower, "[\s_]+", "-")
@@ -197,8 +126,8 @@ module HandlersHelpers =
     let generateElementId (existingIds: string list) (layer: string) (typeValue: string) (name: string) : string =
         let layerKey = layer.Trim().ToLowerInvariant()
         let typeKey = typeValue.Trim().ToLowerInvariant()
-        let layerCode = layerCodes |> Map.tryFind layerKey |> Option.defaultValue "unk"
-        let typeCode = typeCodes |> Map.tryFind typeKey |> Option.defaultValue "type"
+        let layerCode = ElementIdCodes.layerNameToCode |> Map.tryFind layerKey |> Option.defaultValue "unk"
+        let typeCode = ElementIdCodes.typeNameToCode |> Map.tryFind typeKey |> Option.defaultValue "type"
         let namePart =
             let sanitized = sanitizeName name
             if sanitized = "" then "new-element" else sanitized
@@ -221,14 +150,6 @@ module HandlersHelpers =
         | 'f' -> Some "flow"
         | _ -> None
 
-    /// Build tag index from document list
-    let buildTagIndex (docs: DocumentRecord list) : Map<string, string list> =
-        docs
-        |> List.fold (fun acc doc ->
-            doc.tags
-            |> List.fold (fun tagMap tag ->
-                match Map.tryFind tag tagMap with
-                | Some ids -> Map.add tag (doc.id :: ids) tagMap
-                | None -> Map.add tag [doc.id] tagMap
-            ) acc
-        ) Map.empty
+    let respondNotFound (logger: ILogger) (logTemplate: string) (value: string) (message: string) : HttpHandler =
+        logger.LogWarning(logTemplate, value)
+        setStatusCode 404 >=> text message

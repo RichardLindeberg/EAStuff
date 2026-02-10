@@ -8,6 +8,10 @@
   <ItemGroup>
     <compile Include="SimpleYaml.fs" />
     <Compile Include="Domain.fs" />
+    <Compile Include="ElementIdCodes.fs" />
+    <Compile Include="DocumentTypeHelpers.fs" />
+    <Compile Include="TagIndex.fs" />
+    <Compile Include="HttpContextHelpers.fs" />
     
     <Compile Include="DocumentRepository.fs" />
     <Compile Include="DocumentRepositoryService.fs" />

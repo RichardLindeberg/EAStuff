@@ -5,6 +5,7 @@ open System.IO
 open System.Text.RegularExpressions
 open Microsoft.Extensions.Logging
 open DocumentRecordHelpers
+open DocumentTypeHelpers
 
 
 module DocumentRepositoryLoader =
@@ -91,21 +92,7 @@ module DocumentRepositoryLoader =
         |> Option.defaultValue []
 
     let private docTypeFromPath (filePath: string) : GovernanceDocType =
-        let lower = filePath.ToLowerInvariant()
-        if lower.Contains("\\policies\\") || lower.Contains("/policies/") then
-            GovernanceDocType.Policy
-        elif lower.Contains("\\instructions\\") || lower.Contains("/instructions/") then
-            GovernanceDocType.Instruction
-        elif lower.Contains("\\manuals\\") || lower.Contains("/manuals/") then
-            GovernanceDocType.Manual
-        elif lower.Contains("ms-policy-") then
-            GovernanceDocType.Policy
-        elif lower.Contains("ms-instruction-") then
-            GovernanceDocType.Instruction
-        elif lower.Contains("ms-manual-") then
-            GovernanceDocType.Manual
-        else
-            GovernanceDocType.Unknown "unknown"
+        getGovernanceDocTypeFromPath filePath
 
     let private governanceIdPattern = Regex("^ms-(policy|instruction|manual)-\\d{3}-[a-z0-9-]+$", RegexOptions.IgnoreCase)
 
@@ -268,6 +255,7 @@ module DocumentRepositoryLoader =
         (doc: DocumentRecord)
         (archimate: ArchimateMetadata)
         (hasArchimateSection: bool)
+        (hasExplicitId: bool)
         : ValidationError list =
         let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
         if not hasArchimateSection then
@@ -275,23 +263,24 @@ module DocumentRepositoryLoader =
         else
             let errors = ResizeArray<ValidationError>()
             if String.IsNullOrWhiteSpace archimate.elementType then
-                errors.Add(validateMissingField doc.filePath docId "type")
+                errors.Add(validateMissingField doc.filePath docId "archimate.type")
             if String.IsNullOrWhiteSpace archimate.layerValue then
-                errors.Add(validateMissingField doc.filePath docId "layer")
-            let normalizedLayer = archimate.layerValue.Trim().ToLowerInvariant()
-            if Config.layerOptions |> List.exists (fun value -> value = normalizedLayer) then
-                ()
+                errors.Add(validateMissingField doc.filePath docId "archimate.layer")
             else
-                errors.Add({
-                    filePath = doc.filePath
-                    elementId = docId
-                    errorType = ErrorType.InvalidLayer
-                    message = sprintf "Invalid layer '%s'. Must be one of: %s" archimate.layerValue (String.concat ", " Config.layerOptions)
-                    severity = Severity.Error
-                })
+                let normalizedLayer = archimate.layerValue.Trim().ToLowerInvariant()
+                if Config.layerOptions |> List.exists (fun value -> value = normalizedLayer) then
+                    ()
+                else
+                    errors.Add({
+                        filePath = doc.filePath
+                        elementId = docId
+                        errorType = ErrorType.InvalidLayer
+                        message = sprintf "Invalid layer '%s'. Must be one of: %s" archimate.layerValue (String.concat ", " Config.layerOptions)
+                        severity = Severity.Error
+                    })
 
             // Validate ArchiMate ID format against layer and type codes
-            if not (String.IsNullOrWhiteSpace doc.id) then
+            if hasExplicitId && not (String.IsNullOrWhiteSpace doc.id) then
                 let idVal = doc.id
                 if not (Regex.IsMatch(idVal, "^[a-z0-9]+-[a-z0-9]+-\\d{3}-[a-z0-9]+(-[a-z0-9]+)*$")) then
                     errors.Add({
@@ -303,26 +292,8 @@ module DocumentRepositoryLoader =
                     })
                 else
                     let parts = idVal.Split('-')
-                    let layerCodes =
-                        Map.ofList [
-                            ("str", "strategy")
-                            ("bus", "business")
-                            ("app", "application")
-                            ("tec", "technology")
-                            ("phy", "physical")
-                            ("mot", "motivation")
-                            ("imp", "implementation")
-                        ]
-                    let typeCodes =
-                        Map.ofList [
-                            ("str", ["rsrc"; "capa"; "vstr"; "cact"])
-                            ("bus", ["actr"; "role"; "colab"; "intf"; "proc"; "func"; "intr"; "evnt"; "srvc"; "objt"; "cntr"; "repr"; "prod"])
-                            ("app", ["comp"; "colab"; "intf"; "func"; "intr"; "proc"; "evnt"; "srvc"; "data"])
-                            ("tec", ["node"; "devc"; "sysw"; "colab"; "intf"; "path"; "netw"; "func"; "proc"; "intr"; "evnt"; "srvc"; "artf"])
-                            ("phy", ["equi"; "faci"; "dist"; "matr"])
-                            ("mot", ["stkh"; "drvr"; "asmt"; "goal"; "outc"; "prin"; "reqt"; "cnst"; "mean"; "valu"])
-                            ("imp", ["work"; "delv"; "evnt"; "plat"; "gap"])
-                        ]
+                    let layerCodes = ElementIdCodes.layerCodeToName
+                    let typeCodes = ElementIdCodes.typeCodesByLayerCode
 
                     if parts.Length >= 1 then
                         let layerCode = parts.[0]
@@ -539,7 +510,7 @@ module DocumentRepositoryLoader =
             errors.AddRange(validateOwnerReference doc archimateById)
         | ArchitectureDoc _ ->
             let archimateMeta = getArchimateMetadata doc
-            errors.AddRange(validateArchimateMetadata doc archimateMeta hasArchimateSection)
+            errors.AddRange(validateArchimateMetadata doc archimateMeta hasArchimateSection hasExplicitId)
 
         errors.AddRange(validateRelationshipTargets doc knownIds)
 

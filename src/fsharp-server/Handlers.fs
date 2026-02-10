@@ -14,6 +14,7 @@ module Handlers =
     open EAArchive.DiagramGenerators
     open EAArchive.ViewHelpers
     open HandlersHelpers
+    open HttpContextHelpers
     open DocumentQueries
     open DocumentRecordHelpers
     
@@ -48,20 +49,9 @@ module Handlers =
     let governanceIndexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
             logger.LogInformation("GET /governance - Governance index requested")
-            let filterValue =
-                match ctx.GetQueryStringValue "filter" with
-                | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
-                | _ -> None
-
-            let docTypeValue =
-                match ctx.GetQueryStringValue "docType" with
-                | Ok value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim().ToLowerInvariant())
-                | _ -> None
-
-            let reviewValue =
-                match ctx.GetQueryStringValue "review" with
-                | Ok value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim().ToLowerInvariant())
-                | _ -> None
+            let filterValue = tryGetQueryStringValue ctx "filter"
+            let docTypeValue = tryGetQueryStringValueLower ctx "docType"
+            let reviewValue = tryGetQueryStringValueLower ctx "review"
 
             let repo = repoService.Repository
             let documents = getGovernanceDocuments repo
@@ -158,8 +148,8 @@ module Handlers =
                 let html = Views.Governance.documentPage webConfig archimateLookup governanceById governanceBySlug detail
                 htmlView html next ctx
             | None ->
-                logger.LogWarning("Governance document not found: {slug}", slug)
-                setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Governance document not found: {slug}" slug "Governance document not found"
+                |> fun handler -> handler next ctx
     
     /// Element type page handler
     let elementTypeHandler (layer: string) (typeValue: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
@@ -171,8 +161,8 @@ module Handlers =
             let validType = Config.getTypeOptions normalizedLayer |> List.exists (fun value -> value = normalizedType)
 
             if not validLayer || not validType then
-                logger.LogWarning("Element type not found: layer={layer}, type={typeValue}", layer, typeValue)
-                setStatusCode 404 >=> text "Element type not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element type not found: {layerAndType}" (sprintf "%s/%s" layer typeValue) "Element type not found"
+                |> fun handler -> handler next ctx
             else
                 let repo = repoService.Repository
                 let elementType = ElementType.parseElementType normalizedLayer normalizedType
@@ -180,10 +170,7 @@ module Handlers =
                     getArchimateDocuments repo
                     |> List.filter (fun doc -> getArchimateElementType doc = elementType)
                     |> List.sortBy (fun doc -> doc.title)
-                let filterValue =
-                    match ctx.GetQueryStringValue "filter" with
-                    | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
-                    | _ -> None
+                let filterValue = tryGetQueryStringValue ctx "filter"
 
                 let filteredElements =
                     elements
@@ -216,11 +203,11 @@ module Handlers =
                 let html = Views.Elements.elementPage webConfig detail
                 htmlView html next ctx
             | Some _ ->
-                logger.LogWarning("Element not found: {elementId}", elemId)
-                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element not found: {elementId}" elemId "Element not found"
+                |> fun handler -> handler next ctx
             | None ->
-                logger.LogWarning("Element not found: {elementId}", elemId)
-                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element not found: {elementId}" elemId "Element not found"
+                |> fun handler -> handler next ctx
 
     /// Element edit form partial handler
     let elementEditHandler (elemId: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
@@ -237,23 +224,17 @@ module Handlers =
                 let html = Views.Elements.elementEditFormPartial webConfig editModel elementOptions
                 htmlView html next ctx
             | Some _ ->
-                logger.LogWarning("Element not found: {elementId}", elemId)
-                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element not found: {elementId}" elemId "Element not found"
+                |> fun handler -> handler next ctx
             | None ->
-                logger.LogWarning("Element not found: {elementId}", elemId)
-                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element not found: {elementId}" elemId "Element not found"
+                |> fun handler -> handler next ctx
 
     /// New element form handler
     let elementNewHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            let layerValue =
-                match ctx.GetQueryStringValue "layer" with
-                | Ok value -> value
-                | Error _ -> ""
-            let typeValue =
-                match ctx.GetQueryStringValue "type" with
-                | Ok value -> value
-                | Error _ -> ""
+            let layerValue = getQueryStringValueOrEmpty ctx "layer"
+            let typeValue = getQueryStringValueOrEmpty ctx "type"
             logger.LogInformation("GET /elements/new - layer={layer}, type={typeValue}", layerValue, typeValue)
             let repo = repoService.Repository
             let elementOptions =
@@ -277,14 +258,10 @@ module Handlers =
                 |> String.Concat
 
             let getValue (key: string) : string =
-                match ctx.GetQueryStringValue key with
-                | Ok value -> value
-                | Error _ -> ""
+                getQueryStringValueOrEmpty ctx key
 
             let index =
-                match Int32.TryParse(getValue "index") with
-                | true, value -> value
-                | _ -> 0
+                tryGetQueryStringValueInt ctx "index" |> Option.defaultValue 0
 
             let sourceId = getValue "sourceId"
             let sourceTypeOverride = getValue "sourceType"
@@ -359,18 +336,8 @@ module Handlers =
     /// Relation row partial handler (HTMX)
     let relationRowHandler (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            let index =
-                match ctx.GetQueryStringValue "index" with
-                | Ok value ->
-                    match Int32.TryParse(value) with
-                    | true, parsed -> parsed
-                    | _ -> 0
-                | Error _ -> 0
-
-            let sourceId =
-                match ctx.GetQueryStringValue "sourceId" with
-                | Ok value -> value
-                | Error _ -> ""
+            let index = tryGetQueryStringValueInt ctx "index" |> Option.defaultValue 0
+            let sourceId = getQueryStringValueOrEmpty ctx "sourceId"
 
             logger.LogInformation("GET /elements/relations/row - index={index}", index)
             let row = Views.Relations.relationRowPartial webConfig sourceId index "" "" ""
@@ -379,15 +346,8 @@ module Handlers =
     /// Element type options handler (HTMX)
     let elementTypeOptionsHandler (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            let layerValue =
-                match ctx.GetQueryStringValue "layer" with
-                | Ok value -> value
-                | Error _ -> ""
-
-            let currentValue =
-                match ctx.GetQueryStringValue "type" with
-                | Ok value -> value
-                | Error _ -> ""
+            let layerValue = getQueryStringValueOrEmpty ctx "layer"
+            let currentValue = getQueryStringValueOrEmpty ctx "type"
 
             logger.LogInformation("GET /elements/types - layer={layer}", layerValue)
             let selectNode = Views.Relations.elementTypeSelectPartial layerValue currentValue
@@ -485,8 +445,7 @@ module Handlers =
                             next
                             ctx
                 | _ ->
-                    logger.LogWarning("Element not found: {elementId}", elemId)
-                    return! (setStatusCode 404 >=> text "Element not found") next ctx
+                    return! (respondNotFound logger "Element not found: {elementId}" elemId "Element not found") next ctx
             }
 
     /// New element download handler
@@ -579,7 +538,7 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("GET /tags - Tags index page requested")
             let repo = repoService.Repository
-            let tagIndex = buildTagIndex (getArchimateDocuments repo)
+            let tagIndex = TagIndex.buildTagIndex (getArchimateDocuments repo)
             logger.LogInformation("Found {tagCount} tags", Map.count tagIndex)
             let html = Views.Tags.tagsIndexPage webConfig tagIndex
             htmlView html next ctx
@@ -593,8 +552,8 @@ module Handlers =
             let validLayer = Config.layerOptions |> List.exists (fun value -> value = normalizedLayer)
             let validType = Config.getTypeOptions normalizedLayer |> List.exists (fun value -> value = normalizedType)
             if not validLayer || not validType then
-                logger.LogWarning("Element type not found for Cytoscape diagram: layer={layer}, type={typeValue}", layer, typeValue)
-                setStatusCode 404 >=> text "Element type not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element type not found for Cytoscape diagram: {layerAndType}" (sprintf "%s/%s" layer typeValue) "Element type not found"
+                |> fun handler -> handler next ctx
             else
                 let repo = repoService.Repository
                 let elementType = ElementType.parseElementType normalizedLayer normalizedType
@@ -636,13 +595,10 @@ module Handlers =
             let repo = repoService.Repository
             match tryGetDocumentById repo elemId with
             | Some elem when isArchitecture elem ->
-                let depth = 
-                    match ctx.GetQueryStringValue "depth" with
-                    | Ok value -> 
-                        match System.Int32.TryParse(value) with
-                        | (true, d) when d > 0 && d <= 3 -> d
-                        | _ -> 1
-                    | Error _ -> 1
+                let depth =
+                    match tryGetQueryStringValueInt ctx "depth" with
+                    | Some value when value > 0 && value <= 3 -> value
+                    | _ -> 1
                 
                 logger.LogInformation(
                     "Found element: {elementId} ({elementName}), generating Cytoscape context diagram with depth={depth}",
@@ -699,11 +655,11 @@ module Handlers =
                 let view = Views.Diagrams.cytoscapeDiagramPage webConfig title data
                 htmlView view next ctx
             | Some _ ->
-                logger.LogWarning("Element not found for Cytoscape context diagram: {elementId}", elemId)
-                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element not found for Cytoscape context diagram: {elementId}" elemId "Element not found"
+                |> fun handler -> handler next ctx
             | None ->
-                logger.LogWarning("Element not found for Cytoscape context diagram: {elementId}", elemId)
-                setStatusCode 404 >=> text "Element not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Element not found for Cytoscape context diagram: {elementId}" elemId "Element not found"
+                |> fun handler -> handler next ctx
 
     /// Governance document Cytoscape diagram handler
     let governanceDiagramCytoscapeHandler (slug: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
@@ -776,8 +732,8 @@ module Handlers =
                 let view = Views.Diagrams.cytoscapeDiagramPage webConfig title data
                 htmlView view next ctx
             | None ->
-                logger.LogWarning("Governance document not found for Cytoscape diagram: {slug}", slug)
-                setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Governance document not found for Cytoscape diagram: {slug}" slug "Governance document not found"
+                |> fun handler -> handler next ctx
     
     /// Validation errors API handler - list all errors
     let validationErrorsHandler (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
@@ -907,7 +863,7 @@ module Handlers =
             logger.LogInformation("GET /tags/{tag} - Tag page requested", tag)
             let repo = repoService.Repository
             let archimateDocs = getArchimateDocuments repo
-            let tagIndex = buildTagIndex archimateDocs
+            let tagIndex = TagIndex.buildTagIndex archimateDocs
             match Map.tryFind tag tagIndex with
             | Some elemIds ->
                 logger.LogInformation("Found {elementCount} elements with tag '{tag}'", List.length elemIds, tag)
@@ -920,6 +876,6 @@ module Handlers =
                 let html = Views.Tags.tagPage webConfig tag elements
                 htmlView html next ctx
             | None ->
-                logger.LogWarning("Tag not found: {tag}", tag)
-                setStatusCode 404 >=> text "Tag not found" |> fun handler -> handler next ctx
+                respondNotFound logger "Tag not found: {tag}" tag "Tag not found"
+                |> fun handler -> handler next ctx
     
