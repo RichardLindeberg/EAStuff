@@ -2,6 +2,7 @@ namespace EAArchive
 
 open System
 open System.IO
+open DocumentRecordHelpers
 
 module DocumentQueries =
 

@@ -4,6 +4,7 @@ open System
 open System.IO
 open Xunit
 open EAArchive
+open DocumentRecordHelpers
 open TestHelpers
 
 module ElementLoadTests =

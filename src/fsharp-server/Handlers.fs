@@ -15,16 +15,7 @@ module Handlers =
     open EAArchive.ViewHelpers
     open HandlersHelpers
     open DocumentQueries
-
-    let private isArchitecture (doc: DocumentRecord) : bool =
-        match doc with
-        | ArchitectureDoc _ -> true
-        | GovernanceDoc _ -> false
-
-    let private isGovernance (doc: DocumentRecord) : bool =
-        match doc with
-        | GovernanceDoc _ -> true
-        | ArchitectureDoc _ -> false
+    open DocumentRecordHelpers
     
     /// Index/home page handler
     let indexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =

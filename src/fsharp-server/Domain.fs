@@ -221,15 +221,26 @@ type DocumentRecord = {
     rawContent: string
 }
 
-let (|ArchitectureDoc|GovernanceDoc|) (doc: DocumentRecord) =
-    match doc.metadata with
-    | DocumentMetaData.ArchiMateMetaData metadata -> ArchitectureDoc metadata
-    | DocumentMetaData.GovernanceDocMetaData metadata -> GovernanceDoc metadata
+module DocumentRecordHelpers =
+    let (|ArchitectureDoc|GovernanceDoc|) (doc: DocumentRecord) =
+        match doc.metadata with
+        | DocumentMetaData.ArchiMateMetaData metadata -> ArchitectureDoc metadata
+        | DocumentMetaData.GovernanceDocMetaData metadata -> GovernanceDoc metadata
 
-let getDocumentKind (doc: DocumentRecord) : DocumentKind =
-    match doc with
-    | ArchitectureDoc _ -> DocumentKind.Architecture
-    | GovernanceDoc _ -> DocumentKind.Governance
+    let getDocumentKind (doc: DocumentRecord) : DocumentKind =
+        match doc with
+        | ArchitectureDoc _ -> DocumentKind.Architecture
+        | GovernanceDoc _ -> DocumentKind.Governance
+
+    let isArchitecture (doc: DocumentRecord) : bool =
+        match doc with
+        | ArchitectureDoc _ -> true
+        | GovernanceDoc _ -> false
+
+    let isGovernance (doc: DocumentRecord) : bool =
+        match doc with
+        | GovernanceDoc _ -> true
+        | ArchitectureDoc _ -> false
 
 /// Unified document repository
 type DocumentRepository = {
