@@ -4,7 +4,6 @@ open System
 open System.Collections
 open System.Collections.Generic
 open System.IO
-open global.EAArchive.ViewHelpers
 
 module DocumentQueries =
 
@@ -86,15 +85,16 @@ module DocumentQueries =
         |> Option.map (fun archimate -> archimate.layerValue)
         |> Option.defaultValue "unknown"
 
-    let getArchimateLayer (doc: DocumentRecord) : Layer =
-        doc.metadata.archimate
-        |> Option.map (fun archimate -> archimate.layer)
-        |> Option.defaultValue (Layer.Unknown "unknown")
-
     let getArchimateElementType (doc: DocumentRecord) : ElementType =
         let layerValue = getArchimateLayerValue doc
         let typeValue = getArchimateTypeValue doc
         ElementType.parseElementType layerValue typeValue
+
+    let getArchimateElementTypeKey (doc: DocumentRecord) : string * string =
+        let elementType = getArchimateElementType doc
+        let layerKey = ElementType.getLayerKey elementType
+        let typeKey = ElementType.getTypeKey elementType
+        layerKey, typeKey
 
     let getArchimateProperties (doc: DocumentRecord) : Map<string, string> =
         let sharedValues =
@@ -233,7 +233,7 @@ module DocumentQueries =
         {
             id = doc.id
             name = doc.title
-            elementTypeLabel = elementTypeToString elementType
+            elementTypeLabel = global.EAArchive.ViewHelpers.elementTypeToString elementType
             description = description
             incomingCount = incomingCount
             outgoingCount = outgoingCount
@@ -305,7 +305,6 @@ module DocumentQueries =
             id = doc.id
             name = doc.title
             elementType = elementType
-            layer = getArchimateLayer doc
             content = doc.content
             tags = doc.metadata.tags
             properties = properties

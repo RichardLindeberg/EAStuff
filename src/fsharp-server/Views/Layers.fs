@@ -28,7 +28,7 @@ module Layers =
             ]
         )
 
-    let layerElementsPartial (webConfig: WebUiConfig) (elements: ArchimateCard list) : XmlNode =
+    let elementTypeElementsPartial (webConfig: WebUiConfig) (elements: ArchimateCard list) : XmlNode =
         let elementCards = buildElementCards webConfig elements
         let count = List.length elements
         let layerElemCountStr = sprintf "%d element%s" count (pluralize count "" "s")
@@ -40,15 +40,14 @@ module Layers =
             div [_class "element-grid"] elementCards
         ]
 
-    /// Layer page
-    let layerPage
+    /// Element type page
+    let elementTypePage
         (webConfig: WebUiConfig)
         (layerKey: string)
-        (layer: LayerInfo)
+        (typeKey: string)
+        (elementTypeLabel: string)
         (elements: ArchimateCard list)
-        (filterValue: string option)
-        (subtypeOptions: string list)
-        (subtypeValue: string option) =
+        (filterValue: string option) =
         let baseUrl = webConfig.BaseUrl
         let filterAttrs =
             [
@@ -58,10 +57,10 @@ module Layers =
                 _class "filter-input"
                 _placeholder "Filter elements by name"
                 attr "aria-label" "Filter elements by name"
-                _hxGet $"{baseUrl}{layerKey}"
+                _hxGet $"{baseUrl}elements/type/{layerKey}/{typeKey}"
                 _hxTarget "#layer-elements"
                 _hxTrigger "keyup changed delay:300ms"
-                attr "hx-include" "#layer-filter, #subtype-filter"
+                attr "hx-include" "#layer-filter"
                 _hxPushUrl "true"
             ]
             |> List.append (
@@ -70,32 +69,16 @@ module Layers =
                 | None -> []
             )
 
-        let subtypeSelect =
-            let placeholder = placeholderOptionNode "All types" (subtypeValue.IsNone)
-            let optionNodes =
-                subtypeOptions
-                |> List.map (fun value -> optionNode value (subtypeValue = Some value))
-
-            select [
-                _id "subtype-filter"
-                _name "subtype"
-                _class "filter-input"
-                _hxGet $"{baseUrl}{layerKey}"
-                _hxTarget "#layer-elements"
-                _hxTrigger "change"
-                attr "hx-include" "#layer-filter, #subtype-filter"
-                _hxPushUrl "true"
-                attr "aria-label" "Filter elements by subtype"
-            ] (placeholder :: optionNodes)
-
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
                     a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / "
-                    encodedText layer.displayName
+                    a [_href $"{baseUrl}architecture"] [encodedText "Architecture"]
+                    encodedText " / "
+                    encodedText elementTypeLabel
                 ]
-                h2 [_class "layer-title"] [encodedText layer.displayName]
+                h2 [_class "layer-title"] [encodedText elementTypeLabel]
                 div [_class "diagram-section"] [
                     div [_class "diagram-toolbar"] [
                         div [_class "filter-bar"] [
@@ -103,28 +86,24 @@ module Layers =
                                 encodedText "Filter:"
                             ]
                             input filterAttrs
-                            label [_class "filter-label"; _for "subtype-filter"] [
-                                encodedText "Subtype:"
-                            ]
-                            subtypeSelect
                         ]
                         button [
                             _type "button"
                             _class "diagram-link"
-                            _hxGet $"{baseUrl}elements/new?layer={layerKey}"
+                            _hxGet $"{baseUrl}elements/new?layer={layerKey}&type={typeKey}"
                             _hxTarget "#new-element-panel"
                             _hxSwap "innerHTML"
                         ] [
                             encodedText "New"
                         ]
-                        a [_class "diagram-link"; _href $"{baseUrl}diagrams/layer/{layerKey}"; _target "_blank"; _rel "noopener"] [
+                        a [_class "diagram-link"; _href $"{baseUrl}diagrams/type/{layerKey}/{typeKey}"; _target "_blank"; _rel "noopener"] [
                             encodedText "Open diagram"
                         ]
                     ]
                 ]
                 div [_id "new-element-panel"] []
-                layerElementsPartial webConfig elements
+                elementTypeElementsPartial webConfig elements
             ]
         ]
 
-        htmlPage webConfig layer.displayName layerKey content
+        htmlPage webConfig elementTypeLabel "architecture" content

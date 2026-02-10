@@ -8,20 +8,22 @@ open Common
 module Architecture =
 
     /// Architecture overview page
-    let indexPage (webConfig: WebUiConfig) (layerCards: (Layer * LayerInfo * int) list) (currentPage: string) =
+    let indexPage (webConfig: WebUiConfig) (elementTypeCards: (ElementType * int) list) (currentPage: string) =
         let baseUrl = webConfig.BaseUrl
         let cards =
-            layerCards
-            |> List.sortBy (fun (_, layerInfo, _) -> layerInfo.order)
-            |> List.choose (fun (layerKey, layerInfo, count) ->
+            elementTypeCards
+            |> List.sortBy (fun (elementType, _) -> ElementType.getLayerKey elementType)
+            |> List.choose (fun (elementType, count) ->
                 if count = 0 then None
                 else
-                    let layerKeyLower = Layer.toKey layerKey
+                    let layerKey = ElementType.getLayerKey elementType
+                    let typeKey = ElementType.getTypeKey elementType
+                    let label = elementTypeAndSubTypeToString elementType
                     Some (
                         div [_class "element-card"] [
                             h3 [] [
-                                a [_href $"{baseUrl}{layerKeyLower}"] [
-                                    encodedText layerInfo.displayName
+                                a [_href $"{baseUrl}elements/type/{layerKey}/{typeKey}"] [
+                                    encodedText label
                                 ]
                             ]
                             let elemCountStr = sprintf "%d element%s" count (pluralize count "" "s")
@@ -29,7 +31,7 @@ module Architecture =
                                 encodedText elemCountStr
                             ]
                             p [_class "element-description"] [
-                                encodedText $"View all {layerKeyLower} layer elements and their relationships."
+                                encodedText $"View all {label} elements and their relationships."
                             ]
                         ]
                     )
@@ -39,7 +41,7 @@ module Architecture =
             div [_class "container"] [
                 h2 [_class "layer-title"] [encodedText "Architecture"]
                 p [_class "layer-description"] [
-                    encodedText "Explore the enterprise architecture organized by ArchiMate layers, from strategic intent to technical implementation."
+                    encodedText "Explore the enterprise architecture organized by ArchiMate element types, from strategic intent to technical implementation."
                 ]
                 div [_class "element-grid"] cards
             ]

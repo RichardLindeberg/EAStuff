@@ -8,25 +8,8 @@ module Common =
     /// HTML header with navigation
     let htmlHeader (webConfig: WebUiConfig) (title: string) (currentPage: string) =
         let baseUrl = webConfig.BaseUrl
-        let layerLinks =
-            Config.layerOrder
-            |> Map.toList
-            |> List.sortBy (fun (_, layerInfo) -> layerInfo.order)
-            |> List.map (fun (layerKey, layerInfo) ->
-                let layerKeyLower = Layer.toKey layerKey
-                let isActive = currentPage = layerKeyLower
-                let activeClass = if isActive then "active" else ""
-                a [_href $"{baseUrl}{layerKeyLower}"; _class $"submenu-link {activeClass}"] [
-                    encodedText layerInfo.displayName
-                ]
-            )
-
-        let isArchitectureActive =
-            Config.layerOptions
-            |> List.exists (fun layerKey -> layerKey = currentPage)
-
         let governanceActive = if currentPage = "governance" || currentPage = "index" then "active" else ""
-        let architectureActive = if currentPage = "architecture" || isArchitectureActive then "active" else ""
+        let architectureActive = if currentPage = "architecture" then "active" else ""
         let validationActive = if currentPage = "validation" then "active" else ""
 
         let menuRow =
@@ -44,8 +27,8 @@ module Common =
 
         let submenuRow =
             let submenuItems =
-                if currentPage = "architecture" || isArchitectureActive then
-                    layerLinks
+                if currentPage = "architecture" then
+                    [ a [_href $"{baseUrl}architecture"; _class "submenu-link active"] [encodedText "Architecture Overview"] ]
                 elif currentPage = "governance" || currentPage = "index" then
                     [ a [_href $"{baseUrl}governance"; _class "submenu-link active"] [encodedText "Governance Overview"] ]
                 elif currentPage = "validation" then

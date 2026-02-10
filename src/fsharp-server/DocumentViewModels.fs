@@ -32,7 +32,6 @@ type ArchimateDetailView = {
     id: string
     name: string
     elementType: ElementType
-    layer: Layer
     content: string
     tags: string list
     properties: (string * string) list

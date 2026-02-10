@@ -21,12 +21,12 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("GET / - Home page requested")
             let repo = repoService.Repository
-            let layerCounts =
+            let elementTypeCounts =
                 getArchimateDocuments repo
-                |> List.groupBy getArchimateLayer
-                |> List.map (fun (layer, docs) -> layer, docs.Length)
+                |> List.groupBy getArchimateElementType
+                |> List.map (fun (elementType, docs) -> elementType, docs.Length)
                 |> Map.ofList
-            logger.LogDebug("Layer summary: {layerSummary}", layerCounts)
+            logger.LogDebug("Element type summary: {elementTypeSummary}", elementTypeCounts)
             let html = Views.Index.indexPage webConfig "index"
             htmlView html next ctx
 
@@ -35,21 +35,12 @@ module Handlers =
         fun next ctx ->
             logger.LogInformation("GET /architecture - Architecture overview requested")
             let repo = repoService.Repository
-            let layerCounts =
+            let elementTypeCounts =
                 getArchimateDocuments repo
-                |> List.groupBy getArchimateLayer
-                |> List.map (fun (layer, docs) -> layer, docs.Length)
-                |> Map.ofList
+                |> List.groupBy getArchimateElementType
+                |> List.map (fun (elementType, docs) -> elementType, docs.Length)
 
-            let layerCards =
-                Config.layerOrder
-                |> Map.toList
-                |> List.map (fun (layerKey, layerInfo) ->
-                    let count = Map.tryFind layerKey layerCounts |> Option.defaultValue 0
-                    layerKey, layerInfo, count
-                )
-
-            let html = Views.Architecture.indexPage webConfig layerCards "architecture"
+            let html = Views.Architecture.indexPage webConfig elementTypeCounts "architecture"
             htmlView html next ctx
 
     /// Governance system index handler
@@ -169,70 +160,48 @@ module Handlers =
                 logger.LogWarning("Governance document not found: {slug}", slug)
                 setStatusCode 404 >=> text "Governance document not found" |> fun handler -> handler next ctx
     
-    /// Layer page handler
-    let layerHandler (layer: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    /// Element type page handler
+    let elementTypeHandler (layer: string) (typeValue: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation("GET /{layer} - Layer page requested", layer)
-            match Layer.tryParse layer with
-            | Some layerValue ->
-                match Map.tryFind layerValue Config.layerOrder with
-                | Some layerInfo ->
-                    let repo = repoService.Repository
-                    let elements =
-                        getArchimateDocuments repo
-                        |> List.filter (fun doc -> getArchimateLayer doc = layerValue)
-                        |> List.sortBy (fun doc -> doc.title)
-                    let filterValue =
-                        match ctx.GetQueryStringValue "filter" with
-                        | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
-                        | _ -> None
+            logger.LogInformation("GET /elements/type/{layer}/{type} - Element type page requested", layer, typeValue)
+            let normalizedLayer = layer.Trim().ToLowerInvariant()
+            let normalizedType = typeValue.Trim().ToLowerInvariant()
+            let validLayer = Config.layerOptions |> List.exists (fun value -> value = normalizedLayer)
+            let validType = Config.getTypeOptions normalizedLayer |> List.exists (fun value -> value = normalizedType)
 
-                    let subtypeValue =
-                        match ctx.GetQueryStringValue "subtype" with
-                        | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
-                        | _ -> None
+            if not validLayer || not validType then
+                logger.LogWarning("Element type not found: layer={layer}, type={typeValue}", layer, typeValue)
+                setStatusCode 404 >=> text "Element type not found" |> fun handler -> handler next ctx
+            else
+                let repo = repoService.Repository
+                let elementType = ElementType.parseElementType normalizedLayer normalizedType
+                let elements =
+                    getArchimateDocuments repo
+                    |> List.filter (fun doc -> getArchimateElementType doc = elementType)
+                    |> List.sortBy (fun doc -> doc.title)
+                let filterValue =
+                    match ctx.GetQueryStringValue "filter" with
+                    | Ok value when not (String.IsNullOrWhiteSpace value) -> Some value
+                    | _ -> None
 
-                    let subtypeOptions =
-                        elements
-                        |> List.map getArchimateTypeValue
-                        |> List.distinct
-                        |> List.sort
-
-                    let filteredElements =
-                        elements
-                        |> List.filter (fun elem ->
-                            let nameMatches =
-                                match filterValue with
-                                | Some term -> elem.title.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
-                                | None -> true
-
-                            let subtypeMatches =
-                                match subtypeValue with
-                                | Some subtype -> getArchimateTypeValue elem = subtype
-                                | None -> true
-
-                            nameMatches && subtypeMatches
-                        )
-
-                    logger.LogInformation("Found {elementCount} elements in layer {layer}", List.length elements, layer)
-                    elements |> List.iter (fun elem ->
-                        logger.LogDebug("  - {elementId}: {elementName}", elem.id, elem.title)
+                let filteredElements =
+                    elements
+                    |> List.filter (fun elem ->
+                        match filterValue with
+                        | Some term -> elem.title.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0
+                        | None -> true
                     )
-                    let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
-                    let elementCards = filteredElements |> List.map (createArchimateCard repo)
-                    if isHxRequest then
-                        let partial = Views.Layers.layerElementsPartial webConfig elementCards
-                        htmlView partial next ctx
-                    else
-                        let layerKey = Layer.toKey layerValue
-                        let html = Views.Layers.layerPage webConfig layerKey layerInfo elementCards filterValue subtypeOptions subtypeValue
-                        htmlView html next ctx
-                | None -> 
-                    logger.LogWarning("Layer not found: {layer}", layer)
-                    setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
-            | None ->
-                logger.LogWarning("Layer not found: {layer}", layer)
-                setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
+
+                logger.LogInformation("Found {elementCount} elements for element type {elementType}", List.length elements, elementType)
+                let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
+                let elementCards = filteredElements |> List.map (createArchimateCard repo)
+                if isHxRequest then
+                    let partial = Views.Layers.elementTypeElementsPartial webConfig elementCards
+                    htmlView partial next ctx
+                else
+                    let elementTypeLabel = elementTypeAndSubTypeToString elementType
+                    let html = Views.Layers.elementTypePage webConfig normalizedLayer normalizedType elementTypeLabel elementCards filterValue
+                    htmlView html next ctx
     
     /// Element detail page handler
     let elementHandler (elemId: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
@@ -280,13 +249,17 @@ module Handlers =
                 match ctx.GetQueryStringValue "layer" with
                 | Ok value -> value
                 | Error _ -> ""
-            logger.LogInformation("GET /elements/new - layer={layer}", layerValue)
+            let typeValue =
+                match ctx.GetQueryStringValue "type" with
+                | Ok value -> value
+                | Error _ -> ""
+            logger.LogInformation("GET /elements/new - layer={layer}, type={typeValue}", layerValue, typeValue)
             let repo = repoService.Repository
             let elementOptions =
                 getArchimateDocuments repo
                 |> List.sortBy (fun d -> d.title)
                 |> List.map (fun d -> d.id, d.title)
-            let html = Views.Elements.elementNewFormPartial webConfig layerValue elementOptions
+            let html = Views.Elements.elementNewFormPartial webConfig layerValue typeValue elementOptions
             htmlView html next ctx
 
     /// Relation type options handler (HTMX)
@@ -610,50 +583,50 @@ module Handlers =
             let html = Views.Tags.tagsIndexPage webConfig tagIndex
             htmlView html next ctx
 
-    /// Layer Cytoscape diagram handler
-    let layerDiagramCytoscapeHandler (layer: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+    /// Element type Cytoscape diagram handler
+    let elementTypeDiagramCytoscapeHandler (layer: string) (typeValue: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
         fun next ctx ->
-            logger.LogInformation("GET /diagrams/layer/{layer} - Cytoscape layer diagram requested", layer)
-            match Layer.tryParse layer with
-            | Some layerValue ->
-                match Map.tryFind layerValue Config.layerOrder with
-                | Some layerInfo ->
-                    let repo = repoService.Repository
-                    let layerElements =
-                        getArchimateDocuments repo
-                        |> List.filter (fun doc -> getArchimateLayer doc = layerValue)
+            logger.LogInformation("GET /diagrams/type/{layer}/{type} - Cytoscape element type diagram requested", layer, typeValue)
+            let normalizedLayer = layer.Trim().ToLowerInvariant()
+            let normalizedType = typeValue.Trim().ToLowerInvariant()
+            let validLayer = Config.layerOptions |> List.exists (fun value -> value = normalizedLayer)
+            let validType = Config.getTypeOptions normalizedLayer |> List.exists (fun value -> value = normalizedType)
+            if not validLayer || not validType then
+                logger.LogWarning("Element type not found for Cytoscape diagram: layer={layer}, type={typeValue}", layer, typeValue)
+                setStatusCode 404 >=> text "Element type not found" |> fun handler -> handler next ctx
+            else
+                let repo = repoService.Repository
+                let elementType = ElementType.parseElementType normalizedLayer normalizedType
+                let layerElements =
+                    getArchimateDocuments repo
+                    |> List.filter (fun doc -> getArchimateElementType doc = elementType)
 
-                    let allRels =
-                        layerElements
-                        |> List.collect (fun doc ->
-                            doc.metadata.relationships
-                            |> List.map (fun rel -> (doc.id, rel))
-                        )
+                let allRels =
+                    layerElements
+                    |> List.collect (fun doc ->
+                        doc.metadata.relationships
+                        |> List.map (fun rel -> (doc.id, rel))
+                    )
 
-                    let relatedIds = allRels |> List.map (fun (_, rel) -> rel.target) |> Set.ofList
-                    let relatedElements =
-                        relatedIds
-                        |> Set.toList
-                        |> List.choose (fun id ->
-                            match Map.tryFind id repo.documents with
-                            | Some doc when doc.kind = DocumentKind.Architecture ->
-                                if layerElements |> List.exists (fun le -> le.id = id) then None else Some doc
-                            | _ -> None
-                        )
+                let relatedIds = allRels |> List.map (fun (_, rel) -> rel.target) |> Set.ofList
+                let relatedElements =
+                    relatedIds
+                    |> Set.toList
+                    |> List.choose (fun id ->
+                        match Map.tryFind id repo.documents with
+                        | Some doc when doc.kind = DocumentKind.Architecture ->
+                            if layerElements |> List.exists (fun le -> le.id = id) then None else Some doc
+                        | _ -> None
+                    )
 
-                    let allElements = layerElements @ relatedElements
-                    let elementIds = allElements |> List.map (fun e -> e.id) |> Set.ofList
-                    let governanceDocs = selectGovernanceDocs repo elementIds
+                let allElements = layerElements @ relatedElements
+                let elementIds = allElements |> List.map (fun e -> e.id) |> Set.ofList
+                let governanceDocs = selectGovernanceDocs repo elementIds
 
-                    let data = buildCytoscapeDiagram assets allElements allRels governanceDocs
-                    let view = Views.Diagrams.cytoscapeDiagramPage webConfig (sprintf "%s Layer" layerInfo.displayName) data
-                    htmlView view next ctx
-                | None ->
-                    logger.LogWarning("Layer not found for Cytoscape diagram: {layer}", layer)
-                    setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
-            | None ->
-                logger.LogWarning("Layer not found for Cytoscape diagram: {layer}", layer)
-                setStatusCode 404 >=> text "Layer not found" |> fun handler -> handler next ctx
+                let data = buildCytoscapeDiagram assets allElements allRels governanceDocs
+                let label = elementTypeAndSubTypeToString elementType
+                let view = Views.Diagrams.cytoscapeDiagramPage webConfig label data
+                htmlView view next ctx
     
     /// Element context Cytoscape diagram handler
     let contextDiagramCytoscapeHandler (elemId: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =

@@ -32,7 +32,7 @@ module Routes =
             routef "/elements/%s" (fun elemId -> Handlers.elementHandler elemId repoService webConfig logger)
 
             // Diagram routes
-            routef "/diagrams/layer/%s" (fun layer -> Handlers.layerDiagramCytoscapeHandler layer repoService assets webConfig logger)
+            routef "/diagrams/type/%s/%s" (fun (layer, typeValue) -> Handlers.elementTypeDiagramCytoscapeHandler layer typeValue repoService assets webConfig logger)
             routef "/diagrams/context/%s" (fun elemId -> Handlers.contextDiagramCytoscapeHandler elemId repoService assets webConfig logger)
             routef "/diagrams/governance/%s" (fun slug -> Handlers.governanceDiagramCytoscapeHandler slug repoService assets webConfig logger)
 
@@ -45,5 +45,5 @@ module Routes =
 
             route "/tags" >=> Handlers.tagsIndexHandler repoService webConfig logger
             routef "/tags/%s" (fun tag -> Handlers.tagHandler (Uri.UnescapeDataString tag) repoService webConfig logger)
-            routef "/%s" (fun layer -> Handlers.layerHandler layer repoService webConfig logger)
+            routef "/elements/type/%s/%s" (fun (layer, typeValue) -> Handlers.elementTypeHandler layer typeValue repoService webConfig logger)
         ]

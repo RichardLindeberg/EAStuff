@@ -113,17 +113,16 @@ module Elements =
                     ]
                 ]
 
-                let layerName = detail.layer
-                let layerNameLower = Layer.toKey layerName
+                let layerKey = ElementType.getLayerKey detail.elementType
+                let typeKey = ElementType.getTypeKey detail.elementType
+                let layerLabel = ElementType.getLayerDisplayName detail.elementType
+                let elementTypeLabel = elementTypeAndSubTypeToString detail.elementType
                 div [_class "breadcrumb"] [
                     a [_href $"{baseUrl}"] [encodedText "Home"]
                     encodedText " / "
-                    a [_href $"{baseUrl}{layerNameLower}"] [encodedText (
-                        Config.layerOrder
-                        |> Map.tryFind layerName
-                        |> Option.map (fun l -> l.displayName)
-                        |> Option.defaultValue (Layer.toString layerName)
-                    )]
+                    a [_href $"{baseUrl}architecture"] [encodedText "Architecture"]
+                    encodedText " / "
+                    a [_href $"{baseUrl}elements/type/{layerKey}/{typeKey}"] [encodedText elementTypeLabel]
                     encodedText " / "
                     encodedText detail.name
                 ]
@@ -136,16 +135,7 @@ module Elements =
 
                     div [_class "element-view"] [
                         h2 [] [encodedText detail.name]
-                        let elementTypeStr =
-                            match detail.elementType with
-                            | ElementType.Strategy st -> sprintf "Strategy - %A" st
-                            | ElementType.Motivation mt -> sprintf "Motivation - %A" mt
-                            | ElementType.Business bt -> sprintf "Business - %A" bt
-                            | ElementType.Application at -> sprintf "Application - %A" at
-                            | ElementType.Technology tt -> sprintf "Technology - %A" tt
-                            | ElementType.Physical pt -> sprintf "Physical - %A" pt
-                            | ElementType.Implementation it -> sprintf "Implementation - %A" it
-                            | ElementType.Unknown (layer, typeName) -> sprintf "%s - %s" layer typeName
+                        let elementTypeStr = elementTypeLabel
 
                         div [_class "metadata"] [
                             div [_class "metadata-item"] [
@@ -158,7 +148,7 @@ module Elements =
                             ]
                             div [_class "metadata-item"] [
                                 div [_class "metadata-label"] [encodedText "Layer"]
-                                div [_class "metadata-value"] [encodedText (Layer.toString layerName)]
+                                div [_class "metadata-value"] [encodedText layerLabel]
                             ]
                         ]
                         if not (List.isEmpty detail.properties) then
@@ -214,7 +204,7 @@ module Elements =
             ]
         ]
 
-        htmlPage webConfig detail.name "element" content
+        htmlPage webConfig detail.name "architecture" content
 
     let elementEditFormPartial (webConfig: WebUiConfig) (elem: ArchimateEditView) (elementOptions: (string * string) list) : XmlNode =
         let baseUrl = webConfig.BaseUrl
@@ -344,7 +334,7 @@ module Elements =
             ]
         ]
 
-    let elementNewFormPartial (webConfig: WebUiConfig) (layerValue: string) (elementOptions: (string * string) list) : XmlNode =
+    let elementNewFormPartial (webConfig: WebUiConfig) (layerValue: string) (typeValue: string) (elementOptions: (string * string) list) : XmlNode =
         let baseUrl = webConfig.BaseUrl
         let layerOptions = Config.layerOptions
         let typeOptions = Config.getTypeOptions layerValue
@@ -396,7 +386,7 @@ module Elements =
                     ]
                     div [_class "form-row"] [
                         label [_for "type"] [encodedText "Type"]
-                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" "" typeOptions)
+                        select [_id "type"; _name "type"; _class "edit-input"] (selectOptionsWithPlaceholder "Select type" typeValue typeOptions)
                     ]
                     div [_class "form-row"] [
                         label [_for "tags"] [encodedText "Tags (comma-separated)"]

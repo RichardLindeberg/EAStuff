@@ -149,63 +149,7 @@ type LayerInfo = {
     order: int
 }
 
-/// Layer names in the domain model
-[<RequireQualifiedAccess>]
-type Layer =
-    | Strategy
-    | Motivation
-    | Business
-    | Application
-    | Technology
-    | Physical
-    | Implementation
-    | Unknown of string
 
-/// Helper functions for Layer
-module Layer =
-    let toString (layer: Layer) : string =
-        match layer with
-        | Layer.Strategy -> "Strategy"
-        | Layer.Motivation -> "Motivation"
-        | Layer.Business -> "Business"
-        | Layer.Application -> "Application"
-        | Layer.Technology -> "Technology"
-        | Layer.Physical -> "Physical"
-        | Layer.Implementation -> "Implementation"
-        | Layer.Unknown value -> value
-
-    let toKey (layer: Layer) : string =
-        toString layer |> fun value -> value.ToLowerInvariant()
-
-    let tryParse (value: string) : Layer option =
-        match value.Trim().ToLowerInvariant() with
-        | "strategy" -> Some Layer.Strategy
-        | "motivation" -> Some Layer.Motivation
-        | "business" -> Some Layer.Business
-        | "application" -> Some Layer.Application
-        | "technology" -> Some Layer.Technology
-        | "physical" -> Some Layer.Physical
-        | "implementation" -> Some Layer.Implementation
-        | _ -> None
-
-    let parse (value: string) : Layer =
-        match tryParse value with
-        | Some layer -> layer
-        | None -> Layer.Unknown value
-
-/// Web UI configuration values
-type WebUiConfig = { 
-    BaseUrl: string
-    SiteCssUrl: string
-    DiagramCssUrl: string
-    ValidationScriptUrl: string
-    DiagramScriptUrl: string
-    HtmxScriptUrl: string
-    HtmxDebugScriptUrl: string
-    CytoscapeScriptUrl: string
-    DagreScriptUrl: string
-    CytoscapeDagreScriptUrl: string
-    LodashScriptUrl: string }
 
 /// Governance document types
 [<RequireQualifiedAccess>]
@@ -227,7 +171,7 @@ module GovernanceDocType =
 /// Unified document kinds for the repository
 [<RequireQualifiedAccess>]
 type DocumentKind =
-    | Architecture
+    | Architecture 
     | Governance
 
 /// Governance-specific metadata
@@ -239,7 +183,6 @@ type GovernanceMetadata = {
 /// ArchiMate-specific metadata
 type ArchimateMetadata = {
     elementType: string
-    layer: Layer
     layerValue: string
     criticality: string option
 }
@@ -288,37 +231,52 @@ type DocumentRecord = {
 type DocumentRepository = {
     documents: Map<string, DocumentRecord>
     documentsByKind: Map<DocumentKind, string list>
-    documentsByLayer: Map<Layer, string list>
+    documentsByElementType: Map<ElementType, string list>
     documentsByGovernanceType: Map<GovernanceDocType, string list>
     relations: DocumentRelation list
     validationErrors: ValidationError list
 }
 
+
+
+/// Web UI configuration values
+type WebUiConfig = { 
+    BaseUrl: string
+    SiteCssUrl: string
+    DiagramCssUrl: string
+    ValidationScriptUrl: string
+    DiagramScriptUrl: string
+    HtmxScriptUrl: string
+    HtmxDebugScriptUrl: string
+    CytoscapeScriptUrl: string
+    DagreScriptUrl: string
+    CytoscapeDagreScriptUrl: string
+    LodashScriptUrl: string }
+
 /// Application constants
 module Config =
     let layerOrder = 
         [
-            (Layer.Motivation, { displayName = "Motivation Layer"; order = 0 })
-            (Layer.Strategy, { displayName = "Strategy Layer"; order = 1 })
-            (Layer.Business, { displayName = "Business Layer"; order = 2 })
-            (Layer.Application, { displayName = "Application Layer"; order = 3 })
-            (Layer.Technology, { displayName = "Technology Layer"; order = 4 })
-            (Layer.Physical, { displayName = "Physical Layer"; order = 5 })
-            (Layer.Implementation, { displayName = "Implementation & Migration Layer"; order = 6 })
+            ("motivation", { displayName = "Motivation Layer"; order = 0 })
+            ("strategy", { displayName = "Strategy Layer"; order = 1 })
+            ("business", { displayName = "Business Layer"; order = 2 })
+            ("application", { displayName = "Application Layer"; order = 3 })
+            ("technology", { displayName = "Technology Layer"; order = 4 })
+            ("physical", { displayName = "Physical Layer"; order = 5 })
+            ("implementation", { displayName = "Implementation & Migration Layer"; order = 6 })
         ]
         |> Map.ofList
     
     let layerOptions =
         [
-            Layer.Strategy
-            Layer.Motivation
-            Layer.Business
-            Layer.Application
-            Layer.Technology
-            Layer.Physical
-            Layer.Implementation
+            "strategy"
+            "motivation"
+            "business"
+            "application"
+            "technology"
+            "physical"
+            "implementation"
         ]
-        |> List.map Layer.toKey
 
     let typeOptionsByLayer =
         Map.ofList [
@@ -361,16 +319,75 @@ module Config =
 
 /// Helper functions to work with ElementType and parsing
 module ElementType =
-    /// Extract layer name from ElementType
-    let getLayer = function
-        | ElementType.Strategy _ -> Layer.Strategy
-        | ElementType.Motivation _ -> Layer.Motivation
-        | ElementType.Business _ -> Layer.Business
-        | ElementType.Application _ -> Layer.Application
-        | ElementType.Technology _ -> Layer.Technology
-        | ElementType.Physical _ -> Layer.Physical
-        | ElementType.Implementation _ -> Layer.Implementation
-        | ElementType.Unknown (layer, _) -> Layer.Unknown layer
+    /// Extract layer key from ElementType
+    let getLayerKey = function
+        | ElementType.Strategy _ -> "strategy"
+        | ElementType.Motivation _ -> "motivation"
+        | ElementType.Business _ -> "business"
+        | ElementType.Application _ -> "application"
+        | ElementType.Technology _ -> "technology"
+        | ElementType.Physical _ -> "physical"
+        | ElementType.Implementation _ -> "implementation"
+        | ElementType.Unknown (layer, _) -> layer.Trim().ToLowerInvariant()
+
+    /// Extract display layer name from ElementType
+    let getLayerDisplayName (elementType: ElementType) : string =
+        let layerKey = getLayerKey elementType
+        Config.layerOrder
+        |> Map.tryFind layerKey
+        |> Option.map (fun info -> info.displayName)
+        |> Option.defaultValue layerKey
+
+    /// Extract canonical type key from ElementType
+    let getTypeKey (elementType: ElementType) : string =
+        let normalize (value: string) : string =
+            value.Trim().ToLowerInvariant().Replace(" ", "-")
+
+        match elementType with
+        | ElementType.Strategy StrategyElement.Resource -> "resource"
+        | ElementType.Strategy StrategyElement.Capability -> "capability"
+        | ElementType.Strategy StrategyElement.ValueStream -> "value-stream"
+        | ElementType.Strategy StrategyElement.CourseOfAction -> "course-of-action"
+        | ElementType.Motivation MotivationElement.Stakeholder -> "stakeholder"
+        | ElementType.Motivation MotivationElement.Driver -> "driver"
+        | ElementType.Motivation MotivationElement.Assessment -> "assessment"
+        | ElementType.Motivation MotivationElement.Goal -> "goal"
+        | ElementType.Motivation MotivationElement.Outcome -> "outcome"
+        | ElementType.Motivation MotivationElement.Principle -> "principle"
+        | ElementType.Motivation MotivationElement.Requirement -> "requirement"
+        | ElementType.Motivation MotivationElement.Constraint -> "constraint"
+        | ElementType.Motivation MotivationElement.Meaning -> "meaning"
+        | ElementType.Motivation MotivationElement.Value -> "value"
+        | ElementType.Business BusinessElement.Actor -> "business-actor"
+        | ElementType.Business BusinessElement.Role -> "business-role"
+        | ElementType.Business BusinessElement.Process -> "business-process"
+        | ElementType.Business BusinessElement.Function -> "business-function"
+        | ElementType.Business BusinessElement.Service -> "business-service"
+        | ElementType.Business BusinessElement.Object -> "business-object"
+        | ElementType.Business BusinessElement.Event -> "business-event"
+        | ElementType.Business BusinessElement.Product -> "product"
+        | ElementType.Application ApplicationElement.Component -> "application-component"
+        | ElementType.Application ApplicationElement.Function -> "application-function"
+        | ElementType.Application ApplicationElement.Service -> "application-service"
+        | ElementType.Application ApplicationElement.Interface -> "application-interface"
+        | ElementType.Application ApplicationElement.DataObject -> "data-object"
+        | ElementType.Technology TechnologyElement.Technology -> "technology"
+        | ElementType.Technology TechnologyElement.Device -> "device"
+        | ElementType.Technology TechnologyElement.SystemSoftware -> "system-software"
+        | ElementType.Technology TechnologyElement.Service -> "technology-service"
+        | ElementType.Technology TechnologyElement.Interface -> "technology-interface"
+        | ElementType.Technology TechnologyElement.Artifact -> "artifact"
+        | ElementType.Technology TechnologyElement.Node -> "node"
+        | ElementType.Technology TechnologyElement.CommunicationNetwork -> "communication-network"
+        | ElementType.Physical PhysicalElement.Equipment -> "equipment"
+        | ElementType.Physical PhysicalElement.Facility -> "facility"
+        | ElementType.Physical PhysicalElement.DistributionNetwork -> "distribution-network"
+        | ElementType.Implementation ImplementationElement.WorkPackage -> "work-package"
+        | ElementType.Implementation ImplementationElement.Deliverable -> "deliverable"
+        | ElementType.Implementation ImplementationElement.ImplementationEvent -> "implementation-event"
+        | ElementType.Implementation ImplementationElement.Plateau -> "plateau"
+        | ElementType.Implementation ImplementationElement.Gap -> "gap"
+        | ElementType.Unknown (_, typeName) -> normalize typeName
     
     /// Parse relationship type from string
     let parseRelationType (relTypeStr: string) : RelationType =

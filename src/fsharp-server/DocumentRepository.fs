@@ -8,244 +8,165 @@ open System.Text.RegularExpressions
 open Microsoft.Extensions.Logging
 open YamlDotNet.Serialization
 
+
 module DocumentRepositoryLoader =
-
-    let private parseFrontmatterFallback (yamlContent: string) : Map<string, obj> =
-        let lines = yamlContent.Split('\n')
-        let top = Dictionary<string, obj>()
-        let relationships = List<obj>()
-        let mutable currentSection: string option = None
-        let mutable currentRel: Dictionary<string, obj> option = None
-
-        let setTop (key: string) (value: obj) : unit =
-            if top.ContainsKey key then
-                top.[key] <- value
-            else
-                top.Add(key, value)
-
-        let tryParseKeyValue (text: string) : (string * string) option =
-            let idx = text.IndexOf(':')
-            if idx <= 0 then None
-            else
-                let key = text.Substring(0, idx).Trim()
-                let value = text.Substring(idx + 1).Trim().Trim('"', '\'')
-                Some (key, value)
-
-        for line in lines do
-            let trimmed = line.Trim()
-            if trimmed = "" then
-                ()
-            elif trimmed.StartsWith("#") then
-                ()
-            elif trimmed.EndsWith(":") then
-                let section = trimmed.TrimEnd(':').Trim()
-                match section with
-                | "relationships" ->
-                    currentSection <- Some "relationships"
-                    currentRel <- None
-                    if not (top.ContainsKey "relationships") then
-                        setTop "relationships" (relationships :> obj)
-                | "archimate"
-                | "governance" ->
-                    let nested = Dictionary<string, obj>()
-                    setTop section (nested :> obj)
-                    currentSection <- Some section
-                    currentRel <- None
-                | _ ->
-                    currentSection <- None
-                    currentRel <- None
-            elif trimmed.StartsWith("relationships:") then
-                currentSection <- Some "relationships"
-                currentRel <- None
-                if trimmed.EndsWith("[]") then
-                    setTop "relationships" (List<obj>() :> obj)
-                elif not (top.ContainsKey "relationships") then
-                    setTop "relationships" (relationships :> obj)
-            elif trimmed.StartsWith("-") then
-                match currentSection with
-                | Some "relationships" ->
-                    let rel = Dictionary<string, obj>()
-                    relationships.Add(rel :> obj)
-                    currentRel <- Some rel
-                    let remainder = trimmed.TrimStart('-').Trim()
-                    match tryParseKeyValue remainder with
-                    | Some (key, value) -> rel.[key] <- value :> obj
-                    | None -> ()
-                | _ -> ()
-            else
-                let isIndented = line.StartsWith(" ") || line.StartsWith("\t")
-                match tryParseKeyValue trimmed with
-                | Some (key, value) ->
-                    match currentSection with
-                    | Some section when section = "archimate" || section = "governance" ->
-                        match Map.tryFind section (top |> Seq.map (fun kvp -> kvp.Key, kvp.Value) |> Map.ofSeq) with
-                        | Some (:? Dictionary<string, obj> as nested) -> nested.[key] <- value :> obj
-                        | _ ->
-                            let nested = Dictionary<string, obj>()
-                            nested.[key] <- value :> obj
-                            setTop section (nested :> obj)
-                    | Some "relationships" when isIndented ->
-                        match currentRel with
-                        | Some rel -> rel.[key] <- value :> obj
-                        | None -> ()
-                    | _ ->
-                        currentSection <- None
-                        currentRel <- None
-                        setTop key (value :> obj)
-                | None -> ()
-
-        top
-        |> Seq.map (fun kvp -> kvp.Key, kvp.Value)
-        |> Map.ofSeq
-
-    let private parseFrontmatter (content: string) : (Map<string, obj> * string) =
-        let normalizedContent =
-            if content.StartsWith("\uFEFF") then
-                content.Substring(1)
-            else
-                content
-
-        let lines = normalizedContent.Split('\n')
-        if lines.Length > 0 && lines.[0].Trim() = "---" then
-            let mutable endIdx = -1
-            for i in 1 .. lines.Length - 1 do
-                if lines.[i].Trim() = "---" then
-                    endIdx <- i
-
-            if endIdx > 1 then
-                let yamlContent = String.concat "\n" lines.[1 .. endIdx - 1]
-                let markdownContent =
-                    if endIdx + 1 < lines.Length then
-                        String.concat "\n" lines.[endIdx + 1 ..]
-                    else
-                        ""
-
-                try
-                    let deserializer = DeserializerBuilder().Build()
-                    let data = deserializer.Deserialize<Dictionary<string, obj>>(yamlContent)
-                    let parsed =
-                        if isNull data then
-                            Map.empty
-                        else
-                            data |> Seq.map (fun kvp -> kvp.Key, kvp.Value) |> Map.ofSeq
-
-                    let fallback = parseFrontmatterFallback yamlContent
-                    let merged =
-                        fallback
-                        |> Map.fold (fun acc key value ->
-                            if Map.containsKey key acc then acc else Map.add key value acc
-                        ) parsed
-
-                    if merged.Count = 0 && not (String.IsNullOrWhiteSpace yamlContent) then
-                        (fallback, markdownContent)
-                    else
-                        (merged, markdownContent)
-                with
-                | _ -> (parseFrontmatterFallback yamlContent, markdownContent)
-            else
-                (Map.empty, content)
+    let getHeaderAndContent (content: string) : Result<string * string, string> =
+        if String.IsNullOrEmpty(content) then
+            Error "No frontmatter/header found"
         else
-            (Map.empty, content)
+            let normalized =
+                if content.StartsWith("\uFEFF") then
+                    content.Substring(1)
+                else
+                    content
+
+            let lines =
+                normalized.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
+
+            let startIndex =
+                if lines.Length > 0 && lines.[0].Trim() = "---" then
+                    Some 0
+                elif lines.Length > 1 && String.IsNullOrWhiteSpace(lines.[0]) && lines.[1].Trim() = "---" then
+                    Some 1
+                else
+                    None
+
+            match startIndex with
+            | Some start ->
+                let remaining = lines.[start + 1 ..]
+                match remaining |> Array.tryFindIndex (fun line -> line.Trim() = "---") with
+                | Some relativeEnd ->
+                    let endIndex = start + 1 + relativeEnd
+                    let frontmatter = String.concat "\n" lines.[start + 1 .. endIndex - 1]
+                    let body =
+                        if endIndex + 1 < lines.Length then
+                            String.concat "\n" lines.[endIndex + 1 ..]
+                        else
+                            ""
+                    Ok (frontmatter, body)
+                | None -> sprintf "No frontmatter/header (1) found in %s" content |> Error
+            | None -> sprintf "No frontmatter/header (2) found in %s" content |> Error
+            
+    let private parseFrontmatter (content: string) =
+        let ht = getHeaderAndContent content
+        ht
+        |> Result.map (fun (header, body) ->
+            (SimpleYaml.parse header), body
+            )
+
+                     
+                    
+        
+       
+           
+
+
 
     let private normalizeKey (value: string) : string =
         value.Trim().ToLowerInvariant().Replace(" ", "_").Replace("-", "_")
 
-    let private toStringOption (value: obj) : string option =
-        if isNull value then None
-        else
-            let text = value.ToString().Trim()
-            if text = "" then None else Some text
+    let rec private normalizeYaml (value: SimpleYaml) : SimpleYaml =
+        match value with
+        | SimpleYaml.Value s -> SimpleYaml.Value s
+        | SimpleYaml.Map map ->
+            map
+            |> Map.fold (fun acc key item -> Map.add (normalizeKey key) (normalizeYaml item) acc) Map.empty
+            |> SimpleYaml.Map
+        | SimpleYaml.List items ->
+            items |> List.map normalizeYaml |> SimpleYaml.List
 
-    let private toString (value: obj) : string =
-        toStringOption value |> Option.defaultValue ""
-
-    let private normalizeMetadata (metadata: Map<string, obj>) : Map<string, obj> =
+    let private normalizeMetadata (metadata: Map<string, SimpleYaml>) : Map<string, SimpleYaml> =
         metadata
-        |> Map.fold (fun acc key value ->
-            let normalized = normalizeKey key
-            Map.add normalized value acc
-        ) Map.empty
+        |> Map.fold (fun acc key value -> Map.add (normalizeKey key) (normalizeYaml value) acc) Map.empty
 
-    let private tryGetValue (key: string) (metadata: Map<string, obj>) : obj option =
+    let private toStringOption (value: string) : string option =
+        let text = value.Trim()
+        if text = "" then None else Some text
+
+    let rec private toObj (value: SimpleYaml) : obj =
+        match value with
+        | SimpleYaml.Value s -> box s
+        | SimpleYaml.Map map -> map |> Map.map (fun _ item -> toObj item) |> box
+        | SimpleYaml.List items -> items |> List.map toObj |> box
+
+    let private tryGetValue (key: string) (metadata: Map<string, SimpleYaml>) : SimpleYaml option =
         metadata |> Map.tryFind (normalizeKey key)
 
-    let private tryGetString (key: string) (metadata: Map<string, obj>) : string option =
-        tryGetValue key metadata |> Option.bind toStringOption
-
-    let private tryGetStringFromMap (key: string) (metadata: Map<string, obj>) : string option =
-        metadata |> Map.tryFind (normalizeKey key) |> Option.bind toStringOption
-
-    let private tryGetDict (key: string) (metadata: Map<string, obj>) : Map<string, obj> option =
-        tryGetValue key metadata
+    let private tryGetString (key: string) (metadata: Map<string, SimpleYaml>) : string option =
+        metadata
+        |> Map.tryFind (normalizeKey key)
         |> Option.bind (fun value ->
             match value with
-            | :? IDictionary as dict ->
-                dict
-                |> Seq.cast<obj>
-                |> Seq.choose (fun entry ->
-                    match entry with
-                    | :? DictionaryEntry as de ->
-                        match de.Key with
-                        | :? string as key -> Some (key, de.Value)
-                        | _ -> None
-                    | :? KeyValuePair<obj, obj> as kvp ->
-                        match kvp.Key with
-                        | :? string as key -> Some (key, kvp.Value)
-                        | _ -> None
-                    | _ -> None
-                )
-                |> Map.ofSeq
-                |> Some
+            | SimpleYaml.Value s -> toStringOption s
+            | _ -> None
+        )   
+
+    let private tryGetMap (key: string) (metadata: Map<string, SimpleYaml>) : Map<string, SimpleYaml> option =
+        metadata
+        |> Map.tryFind (normalizeKey key)
+        |> Option.bind (function
+            | SimpleYaml.Map map -> Some map
             | _ -> None
         )
 
-    let private parseTags (metadata: Map<string, obj>) : string list =
-        tryGetValue "tags" metadata
-        |> Option.map (fun value ->
-            match value with
-            | :? string as s ->
-                s.Split(',')
-                |> Array.map (fun t -> t.Trim())
-                |> Array.filter (fun t -> t <> "")
-                |> Array.toList
-            | :? List<obj> as list ->
-                list
-                |> Seq.choose toStringOption
-                |> Seq.toList
-            | :? List<string> as list ->
-                list
-                |> Seq.map (fun t -> t.Trim())
-                |> Seq.filter (fun t -> t <> "")
-                |> Seq.toList
-            | _ -> []
+    let private tryGetList (key: string) (metadata: Map<string, SimpleYaml>) : SimpleYaml list option =
+        metadata
+        |> Map.tryFind (normalizeKey key)
+        |> Option.bind (function
+            | SimpleYaml.List items -> Some items
+            | _ -> None
         )
-        |> Option.defaultValue []
 
-    let private parseRelationships (metadata: Map<string, obj>) : Relationship list =
-        tryGetValue "relationships" metadata
+    let private tryGetStringFromMap (key: string) (metadata: Map<string, SimpleYaml>) : string option =
+        metadata
+        |> Map.tryFind (normalizeKey key)
+        |> Option.bind (function
+            | SimpleYaml.Value s -> toStringOption s
+            | _ -> None
+        )
+
+    let private parseTags (metadata: Map<string, SimpleYaml>) : string list =
+        match Map.tryFind (normalizeKey "tags") metadata with
+        | Some (SimpleYaml.Value s) ->
+            s.Split(',')
+            |> Array.map (fun t -> t.Trim())
+            |> Array.filter (fun t -> t <> "")
+            |> Array.toList
+        | Some (SimpleYaml.List items) ->
+            items
+            |> List.choose (function
+                | SimpleYaml.Value s ->
+                    let trimmed = s.Trim()
+                    if trimmed = "" then None else Some trimmed
+                | _ -> None
+            )
+        | _ -> []
+
+    let private parseRelationships (metadata: Map<string, SimpleYaml>) : Relationship list =
+        let parseListItem (section: Map<string, SimpleYaml>) : Relationship option =
+            let relType = tryGetString "type" section
+            let relTarget = tryGetString "target" section
+            let relDescription = tryGetString "description" section
+
+            match relType, relTarget with
+            | Some sType, Some target ->
+                Some {
+                    target = target
+                    relationType = ElementType.parseRelationType sType
+                    description = relDescription |> Option.defaultValue ""
+                }
+            | _ -> None
+
+        Map.tryFind "relationships" metadata
         |> Option.bind (fun value ->
             match value with
-            | :? List<obj> as list ->
-                list
-                |> Seq.choose (fun item ->
+            | SimpleYaml.List items ->
+                items
+                |> List.choose (fun item ->
                     match item with
-                    | :? IDictionary as dict ->
-                        let relType = if dict.Contains("type") then toStringOption dict.["type"] else None
-                        let target = if dict.Contains("target") then toStringOption dict.["target"] else None
-                        let description = if dict.Contains("description") then toStringOption dict.["description"] else None
-                        match relType, target with
-                        | None, None -> None
-                        | _ ->
-                            let relTypeValue = relType |> Option.defaultValue ""
-                            let targetValue = target |> Option.defaultValue ""
-                            Some {
-                                target = targetValue
-                                relationType = ElementType.parseRelationType relTypeValue
-                                description = description |> Option.defaultValue ""
-                            }
+                    | SimpleYaml.Map section -> parseListItem section
                     | _ -> None
                 )
-                |> Seq.toList
                 |> Some
             | _ -> None
         )
@@ -287,24 +208,27 @@ module DocumentRepositoryLoader =
             "extensions"
         ]
 
-    let private buildExtensions (metadata: Map<string, obj>) : Map<string, obj> =
+    let private buildExtensions (metadata: Map<string, SimpleYaml>) : Map<string, obj> =
         let normalized = normalizeMetadata metadata
         let extensionsSection =
-            tryGetDict "extensions" metadata
+            tryGetMap "extensions" normalized
             |> Option.defaultValue Map.empty
 
         let extras =
             normalized
             |> Map.filter (fun key _ -> not (Set.contains key knownExtensionKeys))
 
-        extras
+        let baseMap = extensionsSection |> Map.map (fun _ value -> toObj value)
+        let extrasMap = extras |> Map.map (fun _ value -> toObj value)
+
+        extrasMap
         |> Map.fold (fun acc key value ->
             if Map.containsKey key acc then acc else Map.add key value acc
-        ) extensionsSection
+        ) baseMap
 
-    let private parseArchimateMetadata (metadata: Map<string, obj>) : ArchimateMetadata option =
+    let private parseArchimateMetadata (metadata: Map<string, SimpleYaml>) : ArchimateMetadata option =
         let archimateSection =
-            tryGetDict "archimate" metadata
+            tryGetMap "archimate" metadata
             |> Option.map normalizeMetadata
             |> Option.defaultValue Map.empty
 
@@ -316,15 +240,14 @@ module DocumentRepositoryLoader =
             let criticality = tryGetStringFromMap "criticality" archimateSection
             Some {
                 elementType = typeValue
-                layer = Layer.parse layerValue
                 layerValue = layerValue
                 criticality = criticality
             }
         | _ -> None
 
-    let private parseGovernanceMetadata (metadata: Map<string, obj>) : GovernanceMetadata option =
+    let private parseGovernanceMetadata (metadata: Map<string, SimpleYaml>) : GovernanceMetadata option =
         let governanceSection =
-            tryGetDict "governance" metadata
+            tryGetMap "governance" metadata
             |> Option.map normalizeMetadata
             |> Option.defaultValue Map.empty
 
@@ -343,7 +266,7 @@ module DocumentRepositoryLoader =
         (idValue: string)
         (hasExplicitId: bool)
         (hasExplicitName: bool)
-        (metadata: Map<string, obj>)
+        (metadata: Map<string, SimpleYaml>)
         (relationships: Relationship list)
         (governance: GovernanceMetadata option)
         (archimate: ArchimateMetadata option)
@@ -368,20 +291,26 @@ module DocumentRepositoryLoader =
 
     let private parseArchitectureDocument (filePath: string) (content: string) : DocumentRecord =
         let slug = Path.GetFileNameWithoutExtension(filePath)
-        let metadataRaw, contentWithoutMetadata = parseFrontmatter content
+
+        
+
+        let metadataRaw, contentWithoutMetadata = 
+            match parseFrontmatter content with
+            | Error e -> failwithf "Error parsing frontmatter in file %s: %s" filePath e
+            | Ok (metadataRaw, contentWithoutMetadata) -> metadataRaw, contentWithoutMetadata
         let metadata = normalizeMetadata metadataRaw
-        let relationships = parseRelationships metadataRaw
-        let tags = parseTags metadataRaw
+        let relationships = parseRelationships metadata
+        let tags = parseTags metadata
 
         let name = tryGetString "name" metadata |> Option.defaultValue slug
         let idValue = tryGetString "id" metadata |> Option.defaultValue slug
         let hasExplicitId = tryGetString "id" metadata |> Option.isSome
         let hasExplicitName = tryGetString "name" metadata |> Option.isSome
         let governance = None
-        let archimate = parseArchimateMetadata metadataRaw
+        let archimate = parseArchimateMetadata metadata
 
         let documentMetadata =
-            buildDocumentMetadata idValue hasExplicitId hasExplicitName metadataRaw relationships governance archimate tags
+            buildDocumentMetadata idValue hasExplicitId hasExplicitName metadata relationships governance archimate tags
 
         {
             id = idValue
@@ -396,20 +325,23 @@ module DocumentRepositoryLoader =
 
     let private parseGovernanceDocument (filePath: string) (content: string) : DocumentRecord =
         let slug = Path.GetFileNameWithoutExtension(filePath)
-        let metadataRaw, contentWithoutMetadata = parseFrontmatter content
+        let metadataRaw, contentWithoutMetadata = 
+            match parseFrontmatter content with
+            | Error e -> failwithf "Error parsing frontmatter in file %s: %s" filePath e
+            | Ok (metadataRaw, contentWithoutMetadata) -> metadataRaw, contentWithoutMetadata
         let metadata = normalizeMetadata metadataRaw
-        let relationships = parseRelationships metadataRaw
-        let tags = parseTags metadataRaw
+        let relationships = parseRelationships metadata
+        let tags = parseTags metadata
 
         let title = tryGetString "name" metadata |> Option.defaultValue slug
         let idValue = tryGetString "id" metadata |> Option.defaultValue slug
         let hasExplicitId = tryGetString "id" metadata |> Option.isSome
         let hasExplicitName = tryGetString "name" metadata |> Option.isSome
-        let governance = parseGovernanceMetadata metadataRaw
+        let governance = parseGovernanceMetadata metadata
         let archimate = None
 
         let documentMetadata =
-            buildDocumentMetadata idValue hasExplicitId hasExplicitName metadataRaw relationships governance archimate tags
+            buildDocumentMetadata idValue hasExplicitId hasExplicitName metadata relationships governance archimate tags
 
         {
             id = idValue
@@ -472,9 +404,10 @@ module DocumentRepositoryLoader =
                 errors.Add(validateMissingField doc.filePath docId "type")
             if String.IsNullOrWhiteSpace archimate.layerValue then
                 errors.Add(validateMissingField doc.filePath docId "layer")
-            match Layer.tryParse archimate.layerValue with
-            | Some _ -> ()
-            | None ->
+            let normalizedLayer = archimate.layerValue.Trim().ToLowerInvariant()
+            if Config.layerOptions |> List.exists (fun value -> value = normalizedLayer) then
+                ()
+            else
                 errors.Add({
                     filePath = doc.filePath
                     elementId = docId
@@ -799,14 +732,16 @@ module DocumentRepositoryLoader =
             |> List.map (fun (kind, docs) -> kind, docs |> List.map (fun doc -> doc.id) |> List.sort)
             |> Map.ofList
 
-        let documentsByLayer =
+        let documentsByElementType =
             archimateDocs
             |> List.choose (fun doc ->
                 doc.metadata.archimate
-                |> Option.map (fun archimate -> archimate.layer, doc.id)
+                |> Option.map (fun archimate ->
+                    ElementType.parseElementType archimate.layerValue archimate.elementType, doc.id
+                )
             )
             |> List.groupBy fst
-            |> List.map (fun (layer, items) -> layer, items |> List.map snd |> List.sort)
+            |> List.map (fun (elementType, items) -> elementType, items |> List.map snd |> List.sort)
             |> Map.ofList
 
         let documentsByGovernanceType =
@@ -835,7 +770,7 @@ module DocumentRepositoryLoader =
         {
             documents = documentsById
             documentsByKind = documentsByKind
-            documentsByLayer = documentsByLayer
+            documentsByElementType = documentsByElementType
             documentsByGovernanceType = documentsByGovernanceType
             relations = relations
             validationErrors = validationErrors
