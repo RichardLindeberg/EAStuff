@@ -310,23 +310,55 @@ module Governance =
                 div [_class "element-detail"] [
                     div [_class "element-view"] [
                         h2 [] [encodedText detail.title]
-                        div [_class "metadata"] [
-                            div [_class "metadata-item"] [
-                                div [_class "metadata-label"] [encodedText "Type"]
-                                div [_class "metadata-value"] [encodedText (docTypeLabel detail.docType)]
+                        details [_class "metadata-details"] [
+                            summary [_class "metadata-summary"] [
+                                encodedText "Metadata"
                             ]
-                            div [_class "metadata-item"] [
-                                div [_class "metadata-label"] [encodedText "Slug"]
-                                div [_class "metadata-value"] [encodedText detail.slug]
-                            ]
-                        ]
-                        if not (List.isEmpty metadataItems) then
-                            div [_class "properties-section"] [
-                                h3 [] [encodedText "Metadata"]
-                                div [_class "metadata"] [
+                            div [_class "metadata"] [
+                                div [_class "metadata-item"] [
+                                    div [_class "metadata-label"] [encodedText "Type"]
+                                    div [_class "metadata-value"] [encodedText (docTypeLabel detail.docType)]
+                                ]
+                                div [_class "metadata-item"] [
+                                    div [_class "metadata-label"] [encodedText "Slug"]
+                                    div [_class "metadata-value"] [encodedText detail.slug]
+                                ]
+                                if not (List.isEmpty metadataItems) then
                                     yield! metadataNodes
+                            ]
+                                
+                        ]
+
+                        details [_class "metadata-details"] [
+                            summary [_class "metadata-summary"] [
+                                encodedText "Diagram"
+                            ]
+                            div [_class "diagram-section"] [
+                                div [_class "diagram-links"] [
+                                    p [] [encodedText "View related architecture and governance links for this document:"]
+                                    a [_href $"{baseUrl}diagrams/governance/{detail.slug}"; _class "diagram-link"; _target "_blank"; _rel "noopener"] [
+                                        encodedText "Open governance diagram"
+                                    ]
                                 ]
                             ]
+                        ]
+
+                        details [_class "metadata-details"] [
+                            summary [_class "metadata-summary"] [
+                                encodedText "Relations"
+                            ]
+                            if not (List.isEmpty governanceRelationItems) then
+                                div [_class "relations-section"] [
+                                    h3 [] [encodedText "Governance Relations"]
+                                    ul [_class "relation-list"] governanceRelationItems
+                                ]
+
+                            if not (List.isEmpty archimateRelationItems) then
+                                div [_class "relations-section"] [
+                                    h3 [] [encodedText "Architecture Relations"]
+                                    ul [_class "relation-list"] archimateRelationItems
+                                ]
+                        ]
 
                         if not (String.IsNullOrWhiteSpace detail.content) then
                             let htmlContent =
@@ -336,30 +368,6 @@ module Governance =
                                 |> markdownToHtml
                             div [_class "content-section"] [
                                 rawText htmlContent
-                            ]
-
-                        div [_class "diagram-section"] [
-                            div [_class "diagram-header"] [
-                                h3 [] [encodedText "Diagram"]
-                            ]
-                            div [_class "diagram-links"] [
-                                p [] [encodedText "View related architecture and governance links for this document:"]
-                                a [_href $"{baseUrl}diagrams/governance/{detail.slug}"; _class "diagram-link"; _target "_blank"; _rel "noopener"] [
-                                    encodedText "Open governance diagram"
-                                ]
-                            ]
-                        ]
-
-                        if not (List.isEmpty governanceRelationItems) then
-                            div [_class "relations-section"] [
-                                h3 [] [encodedText "Governance Relations"]
-                                ul [_class "relation-list"] governanceRelationItems
-                            ]
-
-                        if not (List.isEmpty archimateRelationItems) then
-                            div [_class "relations-section"] [
-                                h3 [] [encodedText "Architecture Relations"]
-                                ul [_class "relation-list"] archimateRelationItems
                             ]
                     ]
                 ]

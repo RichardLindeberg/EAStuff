@@ -127,66 +127,66 @@ module Elements =
                     encodedText detail.name
                 ]
 
-                div [
-                    _class "element-detail"
-                    _id "swapthis"
-                ] [
+                div [ _id "swapthis"; _class "element-detail"; ] [
                     div [_id "edit-panel"; _class "edit-panel"] []
 
                     div [_class "element-view"] [
                         h2 [] [encodedText detail.name]
                         let elementTypeStr = elementTypeLabel
 
-                        div [_class "metadata"] [
-                            div [_class "metadata-item"] [
-                                div [_class "metadata-label"] [encodedText "ID"]
-                                div [_class "metadata-value"] [encodedText detail.id]
+                        details [_class "metadata-details"] [
+                            summary [_class "metadata-summary"] [
+                                encodedText "Properties"
                             ]
-                            div [_class "metadata-item"] [
-                                div [_class "metadata-label"] [encodedText "Type"]
-                                div [_class "metadata-value"] [encodedText elementTypeStr]
-                            ]
-                            div [_class "metadata-item"] [
-                                div [_class "metadata-label"] [encodedText "Layer"]
-                                div [_class "metadata-value"] [encodedText layerLabel]
-                            ]
-                        ]
-                        if not (List.isEmpty detail.properties) then
-                            div [_class "properties-section"] [
-                                h3 [] [encodedText "Properties"]
-                                div [_class "metadata"] [
-                                    for (label, value) in detail.properties do
+                            div [_class "metadata"] [
+                                div [_class "metadata-item"] [
+                                    div [_class "metadata-label"] [encodedText "ID"]
+                                    div [_class "metadata-value"] [encodedText detail.id]
+                                ]
+                                div [_class "metadata-item"] [
+                                    div [_class "metadata-label"] [encodedText "Type"]
+                                    div [_class "metadata-value"] [encodedText elementTypeStr]
+                                ]
+                                div [_class "metadata-item"] [
+                                    div [_class "metadata-label"] [encodedText "Layer"]
+                                    div [_class "metadata-value"] [encodedText layerLabel]
+                                ]
+                                for (label, value) in detail.properties do
                                         div [_class "metadata-item"] [
                                             div [_class "metadata-label"] [encodedText label]
                                             div [_class "metadata-value"] [encodedText value]
                                         ]
-                                ]
                             ]
+                        ]
 
-                        if not (List.isEmpty detail.tags) then
-                            div [_class "tags"] [
-                                for tag in detail.tags do
-                                    a [_href $"{baseUrl}tags/{tag}"; _class "tag"] [
-                                        encodedText tag
+                        details [_class "metadata-details"] [
+                            summary [_class "metadata-summary"] [
+                                encodedText "Context diagram"
+                            ]
+                            div [_class "diagram-section"] [
+                                div [_class "diagram-links"] [
+                                    p [] [encodedText "View this element's relationships in different depths:"]
+                                    a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=1"; _class "diagram-link"] [
+                                        encodedText "Direct relationships (1 level)"
                                     ]
+                                    a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=2"; _class "diagram-link"] [
+                                        encodedText "Extended relationships (2 levels)"
+                                    ]
+                                    a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=3"; _class "diagram-link"] [
+                                        encodedText "Full relationships (3 levels)"
+                                    ]
+                                ]
                             ]
+                        ]
 
-                        div [_class "diagram-section"] [
-                            div [_class "diagram-header"] [
-                                h3 [] [encodedText "Context Diagram"]
+                        details [_class "metadata-details"] [
+                            summary [_class "metadata-summary"] [
+                                encodedText "Relations"
                             ]
-                            div [_class "diagram-links"] [
-                                p [] [encodedText "View this element's relationships in different depths:"]
-                                a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=1"; _class "diagram-link"] [
-                                    encodedText "Direct relationships (1 level)"
-                                ]
-                                a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=2"; _class "diagram-link"] [
-                                    encodedText "Extended relationships (2 levels)"
-                                ]
-                                a [_href $"{baseUrl}diagrams/context/{detail.id}?depth=3"; _class "diagram-link"] [
-                                    encodedText "Full relationships (3 levels)"
-                                ]
-                            ]
+                            yield! incomingSection
+                            yield! outgoingSection
+                            yield! governanceOwnerSection
+                            yield! governanceIncomingSection
                         ]
 
                         if detail.content <> "" then
@@ -194,11 +194,6 @@ module Elements =
                             div [_class "content-section"] [
                                 rawText htmlContent
                             ]
-
-                        yield! incomingSection
-                        yield! outgoingSection
-                        yield! governanceOwnerSection
-                        yield! governanceIncomingSection
                     ]
                 ]
             ]

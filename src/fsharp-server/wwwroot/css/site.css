@@ -285,6 +285,20 @@ nav a.active {
     border-radius: 6px;
 }
 
+.metadata-details {
+    margin: 0 0 1.5rem;
+}
+
+.metadata-summary {
+    cursor: pointer;
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.metadata-summary:hover {
+    color: #4c51bf;
+}
+
 .metadata-item {
     display: flex;
     flex-direction: column;
