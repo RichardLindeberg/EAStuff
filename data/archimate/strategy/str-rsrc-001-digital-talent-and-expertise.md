@@ -2,7 +2,7 @@
 id: str-rsrc-001-digital-talent-and-expertise
 owner: Chief Human Resources Officer
 status: developing
-version: ''
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

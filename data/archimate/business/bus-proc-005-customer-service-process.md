@@ -2,7 +2,7 @@
 id: bus-proc-005-customer-service-process
 owner: Customer Service Department
 status: active
-version: ''
+version: '1.0'
 last_updated: '2025-12-01'
 review_cycle: annual
 next_review: '2026-12-01'

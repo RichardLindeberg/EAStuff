@@ -2,7 +2,7 @@
 id: mot-goal-001-digital-transformation-initiative
 owner: Chief Digital Officer
 status: in-progress
-version: ''
+version: '1.0'
 last_updated: '2025-11-15'
 review_cycle: annual
 next_review: '2026-11-15'

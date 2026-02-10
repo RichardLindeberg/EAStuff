@@ -2,7 +2,7 @@
 id: bus-role-019-corporate-governance-office
 owner: Corporate Affairs
 status: active
-version: ''
+version: '1.0'
 last_updated: '2026-02-07'
 review_cycle: annual
 next_review: '2027-02-07'

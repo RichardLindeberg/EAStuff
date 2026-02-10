@@ -1,8 +1,8 @@
 ---
 id: mot-drvr-005-dora-digital-operational-resilience
-owner: ''
-status: ''
-version: ''
+owner: Chief Strategy Officer
+status: active
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

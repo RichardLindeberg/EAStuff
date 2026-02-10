@@ -2,7 +2,7 @@
 id: mot-goal-002-regulatory-compliance
 owner: Chief Compliance Officer
 status: in-progress
-version: ''
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

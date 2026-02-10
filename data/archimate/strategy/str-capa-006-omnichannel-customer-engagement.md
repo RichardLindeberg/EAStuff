@@ -2,7 +2,7 @@
 id: str-capa-006-omnichannel-customer-engagement
 owner: Customer Experience Team
 status: developing
-version: ''
+version: '1.0'
 last_updated: '2025-10-20'
 review_cycle: annual
 next_review: '2026-10-20'

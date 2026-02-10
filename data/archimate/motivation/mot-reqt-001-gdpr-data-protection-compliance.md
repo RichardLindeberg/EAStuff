@@ -2,7 +2,7 @@
 id: mot-reqt-001-gdpr-data-protection-compliance
 owner: Chief Data Officer
 status: compliant
-version: ''
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

@@ -2,7 +2,7 @@
 id: bus-objt-003-customer-account
 owner: Retail Banking Division
 status: active
-version: ''
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

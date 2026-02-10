@@ -2,7 +2,7 @@
 id: mot-prin-005-data-driven-decision-making
 owner: Chief Data Officer
 status: in-progress
-version: ''
+version: '1.0'
 last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'

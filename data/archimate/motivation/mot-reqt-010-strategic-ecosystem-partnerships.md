@@ -2,7 +2,7 @@
 id: mot-reqt-010-strategic-ecosystem-partnerships
 owner: Chief Business Officer
 status: planning
-version: ''
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

@@ -2,7 +2,7 @@
 id: mot-reqt-015-suspicious-activity-reporting-sar
 owner: Chief Compliance Officer / MLRO
 status: active
-version: ''
+version: '1.0'
 last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'

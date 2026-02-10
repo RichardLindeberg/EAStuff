@@ -2,7 +2,7 @@
 id: mot-outc-001-improved-customer-experience
 owner: Chief Experience Officer
 status: target
-version: ''
+version: '1.0'
 last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'

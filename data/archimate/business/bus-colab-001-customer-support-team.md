@@ -2,7 +2,7 @@
 id: bus-colab-001-customer-support-team
 owner: Head of Customer Service
 status: active
-version: ''
+version: '1.0'
 last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'

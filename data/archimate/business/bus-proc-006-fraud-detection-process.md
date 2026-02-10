@@ -2,7 +2,7 @@
 id: bus-proc-006-fraud-detection-process
 owner: Fraud Prevention Department
 status: active
-version: ''
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

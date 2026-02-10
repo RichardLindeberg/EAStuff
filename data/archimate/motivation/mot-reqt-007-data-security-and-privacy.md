@@ -2,7 +2,7 @@
 id: mot-reqt-007-data-security-and-privacy
 owner: Chief Information Security Officer
 status: ongoing
-version: ''
+version: '1.0'
 last_updated: '2026-02-02'
 review_cycle: annual
 next_review: '2027-02-02'

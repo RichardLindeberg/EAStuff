@@ -2,7 +2,7 @@
 id: str-capa-010-online-services
 owner: Head of Digital Banking
 status: active
-version: ''
+version: '1.0'
 last_updated: '2026-02-03'
 review_cycle: annual
 next_review: '2027-02-03'
