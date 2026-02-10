@@ -8,6 +8,7 @@ type DocumentRepositoryService
     (
         elementsPath: string,
         managementSystemPath: string,
+        glossaryPath: string,
         relationsPath: string,
         loggerFactory: ILoggerFactory
     ) =
@@ -27,7 +28,7 @@ type DocumentRepositoryService
             logger.LogWarning("Relationship rules file not found: {rulesPath}", relationsPath)
             Map.empty
 
-    let mutable repository = DocumentRepositoryLoader.loadRepository elementsPath managementSystemPath logger
+    let mutable repository = DocumentRepositoryLoader.loadRepository elementsPath managementSystemPath glossaryPath logger
 
     member _.Repository = repository
 
@@ -37,7 +38,9 @@ type DocumentRepositoryService
 
     member _.ManagementSystemPath = managementSystemPath
 
-    member _.BasePaths = [ elementsPath; managementSystemPath ]
+    member _.GlossaryPath = glossaryPath
+
+    member _.BasePaths = [ elementsPath; managementSystemPath; glossaryPath ]
 
     member _.Reload() : unit =
-        repository <- DocumentRepositoryLoader.loadRepository elementsPath managementSystemPath logger
+        repository <- DocumentRepositoryLoader.loadRepository elementsPath managementSystemPath glossaryPath logger

@@ -24,6 +24,7 @@
     <Compile Include="Views\Index.fs" />
     <Compile Include="Views\Architecture.fs" />
     <Compile Include="Views\Governance.fs" />
+    <Compile Include="Views\Glossary.fs" />
     <Compile Include="Views\Layers.fs" />
     <Compile Include="Views\Relations.fs" />
     <Compile Include="Views\Elements.fs" />

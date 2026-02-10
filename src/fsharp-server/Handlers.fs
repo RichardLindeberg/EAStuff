@@ -171,6 +171,42 @@ module Handlers =
             | None ->
                 respondNotFound logger "Governance document not found: {slug}" slug "Governance document not found"
                 |> fun handler -> handler next ctx
+
+    /// Glossary list handler
+    let glossaryIndexHandler (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /glossary - Glossary index requested")
+            let searchQuery = tryGetQueryStringValue ctx "q"
+            let repo = repoService.Repository
+            let documents = getGlossaryDocuments repo
+
+            let isHxRequest = ctx.Request.Headers.ContainsKey "HX-Request"
+            if isHxRequest then
+                let searchValue = searchQuery |> Option.defaultValue ""
+                let partial = Views.Glossary.termsPartial webConfig.BaseUrl searchValue documents
+                htmlView partial next ctx
+            else
+                let html = Views.Glossary.listPage webConfig searchQuery documents
+                htmlView html next ctx
+
+    /// Glossary term detail handler
+    let glossaryTermHandler (termId: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /glossary/{termId} - Glossary term requested", termId)
+            let repo = repoService.Repository
+            match tryGetDocumentById repo termId with
+            | Some doc when isGlossary doc ->
+                logger.LogInformation("Found glossary term: {termId} ({termName})", termId, doc.title)
+                let detail = createGlossaryDetail repo doc
+                let html = Views.Glossary.detailPage webConfig detail
+                htmlView html next ctx
+            | Some doc ->
+                logger.LogWarning("Document {termId} is not a glossary term", termId)
+                respondNotFound logger "Glossary term not found: {termId}" termId "Glossary term not found"
+                |> fun handler -> handler next ctx
+            | None ->
+                respondNotFound logger "Glossary term not found: {termId}" termId "Glossary term not found"
+                |> fun handler -> handler next ctx
     
     /// Element type page handler
     let elementTypeHandler (layer: string) (typeValue: string) (repoService: DocumentRepositoryService) (webConfig: WebUiConfig) (logger: ILogger) : HttpHandler =
@@ -315,6 +351,8 @@ module Handlers =
                     |> ElementType.elementTypeToConceptName
                 | GovernanceDoc _ ->
                     getGovernanceDocType doc |> GovernanceDocType.toConceptName
+                | GlossaryDoc _ ->
+                    "glossary"
 
             let allowedTypes =
                 match Map.tryFind sourceId repo.documents, Map.tryFind targetId repo.documents with

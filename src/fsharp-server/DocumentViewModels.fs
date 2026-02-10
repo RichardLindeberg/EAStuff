@@ -74,3 +74,22 @@ type GovernanceDetailView = {
     archimateIncomingRelations: ArchimateRelationView list
     content: string
 }
+/// Glossary term relation view model.
+type GlossaryRelationView = {
+    targetId: string
+    targetName: string
+    description: string option
+}
+
+/// Detail view model for glossary terms.
+type GlossaryDetailView = {
+    id: string
+    name: string
+    definition: string
+    aliases: string list option
+    owner: string option
+    status: string option
+    tags: string list
+    relatedTerms: GlossaryRelationView list
+    content: string
+}

@@ -101,10 +101,12 @@ let main args =
                         let configuredElementsPath = getRequired config "EAArchive:ElementsPath"
                         let configuredRelationsPath = getRequired config "EAArchive:RelationsPath"
                         let configuredManagementPath = getRequired config "EAArchive:ManagementSystemPath"
+                        let configuredGlossaryPath = getRequired config "EAArchive:GlossaryPath"
 
                         let elementsPath = resolvePath configuredElementsPath
                         let relationsPath = resolvePath configuredRelationsPath
                         let managementSystemPath = resolvePath configuredManagementPath
+                        let glossaryPath = resolvePath configuredGlossaryPath
 
                         logger.LogInformation("Loading elements from: {elementsPath}", elementsPath)
                         logger.LogInformation("Elements path exists: {pathExists}", Directory.Exists(elementsPath))
@@ -112,8 +114,10 @@ let main args =
                         logger.LogInformation("Relations file exists: {pathExists}", File.Exists(relationsPath))
                         logger.LogInformation("Loading governance documents from: {managementSystemPath}", managementSystemPath)
                         logger.LogInformation("Management system path exists: {pathExists}", Directory.Exists(managementSystemPath))
+                        logger.LogInformation("Loading glossary terms from: {glossaryPath}", glossaryPath)
+                        logger.LogInformation("Glossary path exists: {pathExists}", Directory.Exists(glossaryPath))
 
-                        DocumentRepositoryService(elementsPath, managementSystemPath, relationsPath, sp.GetRequiredService<ILoggerFactory>())
+                        DocumentRepositoryService(elementsPath, managementSystemPath, glossaryPath, relationsPath, sp.GetRequiredService<ILoggerFactory>())
                     )
                     |> ignore
                 )

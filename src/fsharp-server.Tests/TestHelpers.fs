@@ -24,9 +24,11 @@ module TestHelpers =
         let rootDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
         let archimatePath = Path.Combine(rootDir, "archimate")
         let managementPath = Path.Combine(rootDir, "management-system")
+        let glossaryPath = Path.Combine(rootDir, "glossary")
 
         Directory.CreateDirectory(archimatePath) |> ignore
         Directory.CreateDirectory(managementPath) |> ignore
+        Directory.CreateDirectory(glossaryPath) |> ignore
 
         let writeFile (basePath: string) (fileName: string, content: string) : unit =
             let filePath = Path.Combine(basePath, fileName)
@@ -40,7 +42,7 @@ module TestHelpers =
 
         let loggerFactory = LoggerFactory.Create(fun _ -> ())
         let logger = loggerFactory.CreateLogger("Test")
-        let repo = DocumentRepositoryLoader.loadRepository archimatePath managementPath logger
+        let repo = DocumentRepositoryLoader.loadRepository archimatePath managementPath glossaryPath logger
 
         repo, rootDir
 

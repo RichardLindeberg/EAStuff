@@ -16,6 +16,9 @@ relationships:
   - type: association
     target: str-capa-010-online-services
     description: Realizes online services capability
+  - type: association
+    target: glossary-customer
+    description: terminology
 name: Customer Portal
 tags:
   - customer-facing

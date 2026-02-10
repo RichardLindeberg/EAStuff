@@ -17,13 +17,19 @@ module DocumentQueries =
         repo.documents
         |> Map.toList
         |> List.map snd
-        |> List.filter (fun doc -> match doc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false)
+        |> List.filter (fun doc -> match doc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false | GlossaryDoc _ -> false)
 
     let getGovernanceDocuments (repo: DocumentRepository) : DocumentRecord list =
         repo.documents
         |> Map.toList
         |> List.map snd
-        |> List.filter (fun doc -> match doc with | GovernanceDoc _ -> true | ArchitectureDoc _ -> false)
+        |> List.filter (fun doc -> match doc with | GovernanceDoc _ -> true | ArchitectureDoc _ -> false | GlossaryDoc _ -> false)
+
+    let getGlossaryDocuments (repo: DocumentRepository) : DocumentRecord list =
+        repo.documents
+        |> Map.toList
+        |> List.map snd
+        |> List.filter (fun doc -> match doc with | GlossaryDoc _ -> true | ArchitectureDoc _ -> false | GovernanceDoc _ -> false)
 
     let tryGetDocumentById (repo: DocumentRepository) (docId: string) : DocumentRecord option =
         Map.tryFind docId repo.documents
@@ -35,7 +41,8 @@ module DocumentQueries =
         |> List.tryFind (fun doc ->
             match doc with
             | GovernanceDoc _ -> doc.slug = slug
-            | ArchitectureDoc _ -> false)
+            | ArchitectureDoc _ -> false
+            | GlossaryDoc _ -> false)
 
     let private tryGetArchimateMetadata (doc: DocumentRecord) : ArchimateMetadata option =
         match doc.metadata with
@@ -118,7 +125,7 @@ module DocumentQueries =
             if rel.targetId <> docId then None
             else
                 match Map.tryFind rel.sourceId repo.documents with
-                | Some sourceDoc when (match sourceDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) ->
+                | Some sourceDoc when (match sourceDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false | GlossaryDoc _ -> false) ->
                     Some (sourceDoc, { target = rel.targetId; relationType = ElementType.parseRelationType rel.relationType; description = rel.description })
                 | _ -> None
         )
@@ -127,7 +134,7 @@ module DocumentQueries =
         doc.relationships
         |> List.choose (fun rel ->
             match Map.tryFind rel.target repo.documents with
-            | Some targetDoc when (match targetDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) ->
+            | Some targetDoc when (match targetDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false | GlossaryDoc _ -> false) ->
                 Some (targetDoc, rel)
             | _ -> None
         )
@@ -180,7 +187,7 @@ module DocumentQueries =
             doc.relationships
             |> List.filter (fun rel ->
                 match Map.tryFind rel.target repo.documents with
-                | Some targetDoc when (match targetDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) -> true
+                | Some targetDoc when (match targetDoc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false | GlossaryDoc _ -> false) -> true
                 | _ -> false
             )
             |> List.length
@@ -349,7 +356,7 @@ module DocumentQueries =
             doc.relationships
             |> List.choose (fun rel ->
                 match Map.tryFind rel.target repo.documents with
-                | Some target when (match target with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) ->
+                | Some target when (match target with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false | GlossaryDoc _ -> false) ->
                     Some {
                         relatedId = target.id
                         relatedName = target.title
@@ -393,5 +400,50 @@ module DocumentQueries =
             governanceRelations = governanceRelations
             archimateRelations = archimateRelations
             archimateIncomingRelations = archimateIncomingRelations
+            content = doc.content
+        }
+    let createGlossaryDetail (repo: DocumentRepository) (doc: DocumentRecord) : GlossaryDetailView =
+        let glossaryMeta = 
+            match doc.metadata with
+            | DocumentMetaData.GlossaryMetaData meta -> meta
+            | _ -> { definition = ""; aliases = None }
+
+        // Extract definition from content - first paragraph after the title
+        let definition =
+            let lines = doc.content.Split('\n')
+            lines
+            |> Array.skipWhile (fun line -> line.Trim().StartsWith("#") || String.IsNullOrWhiteSpace(line.Trim()))
+            |> Array.takeWhile (fun line -> not (line.Trim().StartsWith("#")) && not (String.IsNullOrWhiteSpace(line.Trim())))
+            |> String.concat " "
+            |> fun s -> s.Trim()
+            |> fun s -> if String.IsNullOrWhiteSpace(s) then glossaryMeta.definition else s
+
+        let glossaryLookup =
+            getGlossaryDocuments repo
+            |> List.map (fun d -> d.id, d)
+            |> Map.ofList
+
+        let relatedTerms =
+            doc.relationships
+            |> List.choose (fun rel ->
+                match Map.tryFind rel.target glossaryLookup with
+                | Some target ->
+                    Some {
+                        targetId = target.id
+                        targetName = target.title
+                        description = if String.IsNullOrWhiteSpace rel.description then None else Some rel.description
+                    }
+                | None -> None
+            )
+
+        {
+            id = doc.id
+            name = doc.title
+            definition = definition
+            aliases = glossaryMeta.aliases
+            owner = doc.owner
+            status = doc.status
+            tags = doc.tags
+            relatedTerms = relatedTerms
             content = doc.content
         }

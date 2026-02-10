@@ -11,6 +11,7 @@ module Common =
         let governanceActive = if currentPage = "governance" || currentPage = "index" then "active" else ""
         let architectureActive = if currentPage = "architecture" then "active" else ""
         let validationActive = if currentPage = "validation" then "active" else ""
+        let glossaryActive = if currentPage = "glossary" then "active" else ""
 
         let menuRow =
             div [_class "menu-row"] [
@@ -19,6 +20,9 @@ module Common =
                 ]
                 a [_href $"{baseUrl}architecture"; _class $"menu-link {architectureActive}"] [
                     encodedText "Architecture"
+                ]
+                a [_href $"{baseUrl}glossary"; _class $"menu-link {glossaryActive}"] [
+                    encodedText "Glossary"
                 ]
                 a [_href $"{baseUrl}validation"; _class $"menu-link {validationActive}"] [
                     encodedText "Validation"

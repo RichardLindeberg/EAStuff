@@ -23,6 +23,8 @@ module Routes =
             routef "/governance/%s" (fun slug -> Handlers.governanceDocHandler slug repoService webConfig logger)
             route "/management-system" >=> Handlers.governanceIndexHandler repoService webConfig logger
             routef "/management-system/%s" (fun slug -> Handlers.governanceDocHandler slug repoService webConfig logger)
+            route "/glossary" >=> Handlers.glossaryIndexHandler repoService webConfig logger
+            routef "/glossary/%s" (fun termId -> Handlers.glossaryTermHandler termId repoService webConfig logger)
             route "/elements/types" >=> Handlers.elementTypeOptionsHandler logger
             route "/elements/new" >=> Handlers.elementNewHandler repoService webConfig logger
             route "/elements/new/download" >=> Handlers.elementNewDownloadHandler repoService logger

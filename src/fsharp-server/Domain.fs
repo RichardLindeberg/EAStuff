@@ -171,6 +171,7 @@ module GovernanceDocType =
 type DocumentKind =
     | Architecture 
     | Governance
+    | Glossary
 
 /// Governance-specific metadata
 type GovernanceMetadata = {
@@ -185,13 +186,17 @@ type ArchimateMetadata = {
     criticality: string option
 }
 
-
-
+/// Glossary term metadata
+type GlossaryMetadata = {
+    definition: string
+    aliases: string list option
+}
 
 [<RequireQualifiedAccess>]
 type DocumentMetaData = 
     | ArchiMateMetaData of  ArchimateMetadata
     | GovernanceDocMetaData of  GovernanceMetadata
+    | GlossaryMetaData of  GlossaryMetadata
 
 
 /// Unified relation entry between documents
@@ -222,25 +227,35 @@ type DocumentRecord = {
 }
 
 module DocumentRecordHelpers =
-    let (|ArchitectureDoc|GovernanceDoc|) (doc: DocumentRecord) =
+    let (|ArchitectureDoc|GovernanceDoc|GlossaryDoc|) (doc: DocumentRecord) =
         match doc.metadata with
         | DocumentMetaData.ArchiMateMetaData metadata -> ArchitectureDoc metadata
         | DocumentMetaData.GovernanceDocMetaData metadata -> GovernanceDoc metadata
+        | DocumentMetaData.GlossaryMetaData metadata -> GlossaryDoc metadata
 
     let getDocumentKind (doc: DocumentRecord) : DocumentKind =
         match doc with
         | ArchitectureDoc _ -> DocumentKind.Architecture
         | GovernanceDoc _ -> DocumentKind.Governance
+        | GlossaryDoc _ -> DocumentKind.Glossary
 
     let isArchitecture (doc: DocumentRecord) : bool =
         match doc with
         | ArchitectureDoc _ -> true
         | GovernanceDoc _ -> false
+        | GlossaryDoc _ -> false
 
     let isGovernance (doc: DocumentRecord) : bool =
         match doc with
         | GovernanceDoc _ -> true
         | ArchitectureDoc _ -> false
+        | GlossaryDoc _ -> false
+
+    let isGlossary (doc: DocumentRecord) : bool =
+        match doc with
+        | GlossaryDoc _ -> true
+        | ArchitectureDoc _ -> false
+        | GovernanceDoc _ -> false
 
 /// Unified document repository
 type DocumentRepository = {

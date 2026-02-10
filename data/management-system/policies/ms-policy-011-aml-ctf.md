@@ -59,7 +59,7 @@ governance:
 Define the bank's AML/CTF obligations, risk appetite, and control expectations under EU AMLR to detect, prevent, and report financial crime.
 
 ## Scope
-- All customer segments, products, channels, and jurisdictions.
+- All [customer](glossary-account) segments, products, channels, and jurisdictions.
 - Customer due diligence, enhanced due diligence, sanctions screening, and transaction monitoring.
 - All employees, contractors, and outsourced service providers.
 

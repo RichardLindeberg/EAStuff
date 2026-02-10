@@ -97,14 +97,16 @@ module DocumentRepositoryLoader =
 
     let private governanceIdPattern = Regex("^ms-(policy|instruction|manual)-\\d{3}-[a-z0-9-]+$", RegexOptions.IgnoreCase)
     let private archimateIdPattern = Regex("^[a-z0-9]+-[a-z0-9]+-\\d{3}-[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.IgnoreCase)
+    let private glossaryIdPattern = Regex("^glossary-[a-z0-9-]+$", RegexOptions.IgnoreCase)
     let private contentLinkPattern = Regex("\\[([^\]]+)\\]\\(([^\)\s]+)\\)", RegexOptions.IgnoreCase)
 
     let private resolveDocumentLink (doc: DocumentRecord) : string =
         match doc with
         | ArchitectureDoc _ -> $"/elements/{doc.id}"
         | GovernanceDoc _ -> $"/governance/{doc.slug}"
+        | GlossaryDoc _ -> $"/glossary/{doc.id}"
 
-    let private applyContentLinks (documentsById: Map<string, DocumentRecord>) (doc: DocumentRecord) : DocumentRecord =
+    let private applyContentLinks (documentsById: Map<string, DocumentRecord>) (aliasToGlossaryId: Map<string, string>) (doc: DocumentRecord) : DocumentRecord =
         let existingTargets =
             doc.relationships
             |> List.map (fun rel -> rel.target)
@@ -120,8 +122,10 @@ module DocumentRepositoryLoader =
                 let isKnownIdFormat =
                     archimateIdPattern.IsMatch rawHref
                     || governanceIdPattern.IsMatch rawHref
+                    || glossaryIdPattern.IsMatch rawHref
 
                 if isKnownIdFormat then
+                    // Try exact ID match first
                     match Map.tryFind rawHref documentsById with
                     | Some target ->
                         if not (Set.contains target.id existingTargets) && referencedTargets.Add(target.id) then
@@ -137,7 +141,25 @@ module DocumentRepositoryLoader =
                         else
                             $"[{linkText}]({linkUrl})"
                     | None ->
-                        m.Value
+                        // Try alias lookup (case-insensitive)
+                        let lowerHref = rawHref.ToLowerInvariant()
+                        match Map.tryFind lowerHref aliasToGlossaryId with
+                        | Some targetId ->
+                            match Map.tryFind targetId documentsById with
+                            | Some target ->
+                                if not (Set.contains target.id existingTargets) && referencedTargets.Add(target.id) then
+                                    newRelationships.Add({
+                                        target = target.id
+                                        relationType = RelationType.Association
+                                        description = linkText
+                                    })
+                                let linkUrl = resolveDocumentLink target
+                                if String.IsNullOrWhiteSpace linkText then
+                                    m.Value
+                                else
+                                    $"[{linkText}]({linkUrl})"
+                            | None -> m.Value
+                        | None -> m.Value
                 elif rawHref.StartsWith("www.", StringComparison.OrdinalIgnoreCase) then
                     if String.IsNullOrWhiteSpace linkText then
                         m.Value
@@ -195,6 +217,32 @@ module DocumentRepositoryLoader =
                 approvedBy = ""
                 effectiveDate = ""
             }, false
+
+    let private parseGlossaryMetadata (metadata: Map<string, SimpleYaml>) : GlossaryMetadata * bool =
+        let definition = SimpleYaml.tryGetString "definition" metadata |> Option.defaultValue ""
+        let aliases = 
+            match SimpleYaml.tryGetValue "aliases" metadata with
+            | Some (SimpleYaml.Value s) ->
+                let parsed = 
+                    s.Split(',')
+                    |> Array.map (fun t -> t.Trim())
+                    |> Array.filter (fun t -> t <> "")
+                    |> Array.toList
+                if List.isEmpty parsed then None else Some parsed
+            | Some (SimpleYaml.List items) ->
+                let parsed = 
+                    items
+                    |> List.choose (function
+                        | SimpleYaml.Value s ->
+                            SimpleYaml.toStringOption s
+                        | _ -> None
+                    )
+                if List.isEmpty parsed then None else Some parsed
+            | _ -> None
+        {
+            definition = definition
+            aliases = aliases
+        }, true
 
     type ParsedDocument = {
         document: DocumentRecord
@@ -265,6 +313,13 @@ module DocumentRepositoryLoader =
 
         parseDocument filePath content parseSpecific
 
+    let private parseGlossaryDocument (filePath: string) (content: string) : ParsedDocument =
+        let parseSpecific metadata =
+            let glossary, hasGlossarySection = parseGlossaryMetadata metadata
+            DocumentMetaData.GlossaryMetaData glossary, false, hasGlossarySection
+
+        parseDocument filePath content parseSpecific
+
     let private validateMissingField (filePath: string) (docId: string option) (label: string) : ValidationError =
         {
             filePath = filePath
@@ -277,19 +332,21 @@ module DocumentRepositoryLoader =
     let private validateSharedFields (doc: DocumentRecord) (hasExplicitName: bool) : ValidationError list =
         let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
         [
-            if (match doc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false) && not hasExplicitName then
+            if (match doc with | ArchitectureDoc _ -> true | GovernanceDoc _ -> false | GlossaryDoc _ -> false) && not hasExplicitName then
+                yield validateMissingField doc.filePath docId "name"
+            if (match doc with | GlossaryDoc _ -> true | _ -> false) && not hasExplicitName then
                 yield validateMissingField doc.filePath docId "name"
             if doc.owner |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "owner"
             if doc.status |> Option.forall String.IsNullOrWhiteSpace then
                 yield validateMissingField doc.filePath docId "status"
-            if doc.version |> Option.forall String.IsNullOrWhiteSpace then
+            if (match doc with | GlossaryDoc _ -> false | _ -> true) && (doc.version |> Option.forall String.IsNullOrWhiteSpace) then
                 yield validateMissingField doc.filePath docId "version"
-            if doc.lastUpdated |> Option.forall String.IsNullOrWhiteSpace then
+            if (match doc with | GlossaryDoc _ -> false | _ -> true) && (doc.lastUpdated |> Option.forall String.IsNullOrWhiteSpace) then
                 yield validateMissingField doc.filePath docId "last_updated"
-            if doc.reviewCycle |> Option.forall String.IsNullOrWhiteSpace then
+            if (match doc with | GlossaryDoc _ -> false | _ -> true) && (doc.reviewCycle |> Option.forall String.IsNullOrWhiteSpace) then
                 yield validateMissingField doc.filePath docId "review_cycle"
-            if doc.nextReview |> Option.forall String.IsNullOrWhiteSpace then
+            if (match doc with | GlossaryDoc _ -> false | _ -> true) && (doc.nextReview |> Option.forall String.IsNullOrWhiteSpace) then
                 yield validateMissingField doc.filePath docId "next_review"
         ]
 
@@ -486,7 +543,42 @@ module DocumentRepositoryLoader =
                         elementId = docId
                         errorType = ErrorType.RelationshipTargetNotFound (doc.id, rel.target)
                         message = sprintf "Relationship target '%s' was not found in repository documents" rel.target
+                        severity = Severity.Warning
+                    })
+
+                List.ofSeq errors
+            )
+        | GlossaryDoc _ ->
+            let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
+            doc.relationships
+            |> List.collect (fun rel ->
+                let errors = ResizeArray<ValidationError>()
+                match rel.relationType with
+                | RelationType.Unknown value when String.IsNullOrWhiteSpace value ->
+                    errors.Add({
+                        filePath = doc.filePath
+                        elementId = docId
+                        errorType = ErrorType.InvalidRelationshipType value
+                        message = "Relationship type is required"
                         severity = Severity.Error
+                    })
+                | _ -> ()
+
+                if String.IsNullOrWhiteSpace rel.target then
+                    errors.Add({
+                        filePath = doc.filePath
+                        elementId = docId
+                        errorType = ErrorType.MissingRequiredField
+                        message = "Relationship target is required"
+                        severity = Severity.Error
+                    })
+                elif not (Set.contains rel.target knownIds) then
+                    errors.Add({
+                        filePath = doc.filePath
+                        elementId = docId
+                        errorType = ErrorType.RelationshipTargetNotFound (doc.id, rel.target)
+                        message = sprintf "Relationship target '%s' was not found in repository documents" rel.target
+                        severity = Severity.Warning
                     })
 
                 List.ofSeq errors
@@ -530,6 +622,19 @@ module DocumentRepositoryLoader =
         | DocumentMetaData.GovernanceDocMetaData metadata -> metadata
         | _ -> { approvedBy = ""; effectiveDate = "" }
 
+    let private getGlossaryMetadata (doc: DocumentRecord) : GlossaryMetadata =
+        match doc.metadata with
+        | DocumentMetaData.GlossaryMetaData metadata -> metadata
+        | _ -> { definition = ""; aliases = None }
+
+    let private validateGlossaryMetadata
+        (doc: DocumentRecord)
+        (glossary: GlossaryMetadata)
+        : ValidationError list =
+        let docId = if String.IsNullOrWhiteSpace doc.id then None else Some doc.id
+        // Definition is now part of the markdown content, not metadata
+        []
+
     let private validateDocument
         (doc: DocumentRecord)
         (hasExplicitId: bool)
@@ -569,6 +674,17 @@ module DocumentRepositoryLoader =
         | ArchitectureDoc _ ->
             let archimateMeta = getArchimateMetadata doc
             errors.AddRange(validateArchimateMetadata doc archimateMeta hasArchimateSection hasExplicitId)
+        | GlossaryDoc _ ->
+            if hasExplicitId && not (glossaryIdPattern.IsMatch doc.id) then
+                errors.Add({
+                    filePath = doc.filePath
+                    elementId = docId
+                    errorType = ErrorType.Unknown "invalid-glossary-id-format"
+                    message = sprintf "ID '%s' should match pattern: glossary-[descriptive-name]" doc.id
+                    severity = Severity.Error
+                })
+            let glossaryMeta = getGlossaryMetadata doc
+            errors.AddRange(validateGlossaryMetadata doc glossaryMeta)
 
         errors.AddRange(validateRelationshipTargets doc knownIds)
 
@@ -577,6 +693,7 @@ module DocumentRepositoryLoader =
     let loadRepository
         (elementsPath: string)
         (managementSystemPath: string)
+        (glossaryPath: string)
         (logger: ILogger)
         : DocumentRepository =
         let loadDocumentsFromPath path parser =
@@ -592,17 +709,34 @@ module DocumentRepositoryLoader =
 
         let archimateDocs = loadDocumentsFromPath elementsPath parseArchitectureDocument
         let governanceDocs = loadDocumentsFromPath managementSystemPath parseGovernanceDocument
+        let glossaryDocs = loadDocumentsFromPath glossaryPath parseGlossaryDocument
 
-        let documents = archimateDocs @ governanceDocs
+        let documents = archimateDocs @ governanceDocs @ glossaryDocs
         let documentsById =
             documents
             |> List.map (fun doc -> doc.document.id, doc.document)
             |> Map.ofList
 
+        // Build alias map for glossary terms (case-insensitive)
+        let aliasToGlossaryId =
+            documents
+            |> List.choose (fun doc ->
+                match doc.document.metadata with
+                | DocumentMetaData.GlossaryMetaData glossary ->
+                    let aliases = glossary.aliases |> Option.defaultValue []
+                    let aliasMap =
+                        aliases
+                        |> List.map (fun alias -> alias.ToLowerInvariant(), doc.document.id)
+                    if List.isEmpty aliasMap then None else Some aliasMap
+                | _ -> None
+            )
+            |> List.concat
+            |> Map.ofList
+
         let documentsWithContentLinks =
             documents
             |> List.map (fun parsed ->
-                let updatedDoc = applyContentLinks documentsById parsed.document
+                let updatedDoc = applyContentLinks documentsById aliasToGlossaryId parsed.document
                 { parsed with document = updatedDoc }
             )
 
@@ -678,7 +812,7 @@ module DocumentRepositoryLoader =
 
         let documentsByGovernanceType =
             documentRecords
-            |> List.filter (fun doc -> match doc with | GovernanceDoc _ -> true | ArchitectureDoc _ -> false)
+            |> List.filter (fun doc -> match doc with | GovernanceDoc _ -> true | ArchitectureDoc _ -> false | GlossaryDoc _ -> false)
             |> List.groupBy (fun doc -> docTypeFromPath doc.filePath)
             |> List.map (fun (docType, docs) -> docType, docs |> List.map (fun doc -> doc.id) |> List.sort)
             |> Map.ofList
