@@ -1,6 +1,11 @@
-# Using ArchiMate Exchange Files
+# ArchiMate Exchange Support
 
-This repository does not currently generate ArchiMate exchange files. If you already have an exchange file from another tool, you can still import it into common ArchiMate platforms.
+Exchange file generation is not currently available in this repository. The previous generator scripts have been removed.
+
+## What You Can Do Now
+
+- Run the F# server to browse and validate the model
+- Use external tools to create and export ArchiMate exchange files if needed
 
 ## Importing into Tools
 

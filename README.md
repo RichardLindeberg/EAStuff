@@ -132,13 +132,7 @@ The server validates relationships using ArchiMate rules from [schemas/relations
 
 ## Documentation
 
-- [docs/quick-start.md](docs/quick-start.md)
-- [docs/best-practices.md](docs/best-practices.md)
-- [docs/element-types-reference.md](docs/element-types-reference.md)
-- [docs/id-naming-standard.md](docs/id-naming-standard.md)
-- [docs/mermaid-guide.md](docs/mermaid-guide.md)
-- [docs/deployment-guide.md](docs/deployment-guide.md)
-- [docs/repository-structure.md](docs/repository-structure.md)
+- [docs/index.md](docs/index.md)
 - [docs/management-system/index.md](docs/management-system/index.md)
 
 ## Getting Started
