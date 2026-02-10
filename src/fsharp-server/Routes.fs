@@ -36,6 +36,8 @@ module Routes =
             routef "/diagrams/context/%s" (fun elemId -> Handlers.contextDiagramCytoscapeHandler elemId repoService assets webConfig logger)
             routef "/diagrams/governance/%s" (fun slug -> Handlers.governanceDiagramCytoscapeHandler slug repoService assets webConfig logger)
 
+            routef "/api/diagrams/expand/%s" (fun elementId -> Handlers.diagramExpandHandler elementId repoService assets logger)
+
             // Validation page and API endpoints
             route "/validation" >=> Handlers.validationPageHandler repoService webConfig logger
             route "/api/validation/errors" >=> Handlers.validationErrorsHandler repoService logger

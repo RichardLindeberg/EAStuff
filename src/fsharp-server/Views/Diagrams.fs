@@ -19,6 +19,10 @@ module Diagrams =
             ]
             body [] [
                 div [_id "cy"] []
+                div [_id "cy-context-menu"; _class "context-menu"; _style "display: none;"] [
+                    button [_type "button"; _data "action" "expand"] [encodedText "Add linked elements"]
+                    button [_type "button"; _data "action" "remove"] [encodedText "Remove element"]
+                ]
                 div [_class "controls"] [
                     button [_id "fitView"] [encodedText "Fit to View"]
                     button [_id "zoomIn"] [encodedText "Zoom In"]

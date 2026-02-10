@@ -95,6 +95,104 @@ document.addEventListener('DOMContentLoaded', () => {
         wheelSensitivity: 0.2
     });
 
+    const menu = document.getElementById('cy-context-menu');
+    const menuContainer = cy.container();
+    let contextNode = null;
+
+    const hideMenu = () => {
+        if (menu) {
+            menu.style.display = 'none';
+        }
+        contextNode = null;
+    };
+
+    const getGroupVisibility = (node) => {
+        if (node.hasClass('arch-node') || node.hasClass('arch-edge')) {
+            return document.getElementById('toggle-architecture')?.checked ?? true;
+        }
+        if (node.hasClass('governance-node') || node.hasClass('governance-edge')) {
+            return document.getElementById('toggle-governance')?.checked ?? true;
+        }
+        return true;
+    };
+
+    const hideElement = (element) => {
+        element.addClass('hidden-by-user');
+        element.style('display', 'none');
+    };
+
+    const showElement = (element) => {
+        if (!getGroupVisibility(element)) {
+            return;
+        }
+        element.removeClass('hidden-by-user');
+        element.style('display', 'element');
+    };
+
+    const showContextMenu = (evt) => {
+        if (!menu || !menuContainer) {
+            return;
+        }
+
+        const rendered = evt.renderedPosition || evt.position;
+        const containerRect = menuContainer.getBoundingClientRect();
+
+        menu.style.display = 'block';
+        menu.style.visibility = 'hidden';
+
+        const menuWidth = menu.offsetWidth;
+        const menuHeight = menu.offsetHeight;
+        const maxLeft = containerRect.width - menuWidth - 8;
+        const maxTop = containerRect.height - menuHeight - 8;
+        const left = Math.max(8, Math.min(rendered.x, maxLeft));
+        const top = Math.max(8, Math.min(rendered.y, maxTop));
+
+        menu.style.left = `${containerRect.left + left}px`;
+        menu.style.top = `${containerRect.top + top}px`;
+        menu.style.visibility = 'visible';
+    };
+
+    const applyGroupVisibility = (element) => {
+        if (element.hasClass('hidden-by-user')) {
+            element.style('display', 'none');
+            return;
+        }
+        element.style('display', getGroupVisibility(element) ? 'element' : 'none');
+    };
+
+    const mergeGraphData = (graph) => {
+        if (!graph || !graph.nodes || !graph.edges) {
+            return;
+        }
+
+        const added = [];
+
+        graph.nodes.forEach(node => {
+            if (cy.getElementById(node.data.id).length === 0) {
+                added.push(node);
+            }
+        });
+
+        graph.edges.forEach(edge => {
+            if (cy.getElementById(edge.data.id).length === 0) {
+                added.push(edge);
+            }
+        });
+
+        if (added.length > 0) {
+            cy.add(added);
+            added.forEach(item => {
+                const element = cy.getElementById(item.data.id);
+                if (element.isNode && element.isNode()) {
+                    applyGroupVisibility(element);
+                }
+                if (element.isEdge && element.isEdge()) {
+                    applyGroupVisibility(element);
+                }
+            });
+        }
+    };
+
     cy.on('tap', 'node', function (evt) {
         const nodeId = evt.target.id();
         const kind = evt.target.data('kind');
@@ -105,6 +203,80 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = '/elements/' + nodeId;
         }
     });
+
+    cy.on('cxttap', 'node', function (evt) {
+        contextNode = evt.target;
+        showContextMenu(evt);
+    });
+
+    cy.on('cxttap', function (evt) {
+        if (evt.target === cy) {
+            hideMenu();
+        }
+    });
+
+    cy.on('tap', function () {
+        hideMenu();
+    });
+
+    cy.on('pan zoom', function () {
+        hideMenu();
+    });
+
+    if (menuContainer) {
+        menuContainer.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
+    }
+
+    if (menu) {
+        menu.addEventListener('click', (event) => {
+            const action = event.target?.dataset?.action;
+            if (!action || !contextNode) {
+                return;
+            }
+
+            if (action === 'remove') {
+                hideElement(contextNode);
+                contextNode.connectedEdges().forEach(edge => hideElement(edge));
+                hideMenu();
+                return;
+            }
+
+            if (action === 'expand') {
+                const nodeId = contextNode.id();
+                fetch(`/api/diagrams/expand/${encodeURIComponent(nodeId)}`)
+                    .then(response => response.ok ? response.json() : null)
+                    .then(data => {
+                        if (data) {
+                            mergeGraphData(data);
+                        }
+                        const neighbors = contextNode.neighborhood('node');
+                        neighbors.forEach(node => {
+                            if (node.hasClass('hidden-by-user')) {
+                                showElement(node);
+                            }
+                        });
+
+                        const edges = contextNode.connectedEdges();
+                        edges.forEach(edge => {
+                            if (!edge.hasClass('hidden-by-user')) {
+                                return;
+                            }
+
+                            const source = edge.source();
+                            const target = edge.target();
+                            if (source.style('display') !== 'none' && target.style('display') !== 'none') {
+                                showElement(edge);
+                            }
+                        });
+                    })
+                    .finally(() => {
+                        hideMenu();
+                    });
+            }
+        });
+    }
 
     document.getElementById('fitView')?.addEventListener('click', () => {
         cy.fit(null, 50);
@@ -170,7 +342,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const toggleElements = (selector, isVisible) => {
-        cy.elements(selector).style('display', isVisible ? 'element' : 'none');
+        const elements = cy.elements(selector);
+        if (!isVisible) {
+            elements.style('display', 'none');
+            return;
+        }
+
+        elements
+            .filter(element => !element.hasClass('hidden-by-user'))
+            .style('display', 'element');
     };
 
     const archToggle = document.getElementById('toggle-architecture');

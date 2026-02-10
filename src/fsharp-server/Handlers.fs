@@ -734,6 +734,126 @@ module Handlers =
             | None ->
                 respondNotFound logger "Governance document not found for Cytoscape diagram: {slug}" slug "Governance document not found"
                 |> fun handler -> handler next ctx
+
+    /// Diagram expansion API handler - returns related nodes and edges
+    let diagramExpandHandler (elementId: string) (repoService: DocumentRepositoryService) (assets: DiagramAssetConfig) (logger: ILogger) : HttpHandler =
+        fun next ctx ->
+            logger.LogInformation("GET /api/diagrams/expand/{elementId} - Diagram expansion requested", elementId)
+            let repo = repoService.Repository
+
+            let respondWithGraph (elements: DocumentRecord list) (rels: (string * Relationship) list) (governanceDocs: DocumentRecord list) =
+                let data = buildCytoscapeDiagram assets elements rels governanceDocs
+                (setHttpHeader "Content-Type" "application/json" >=> text data) next ctx
+
+            if elementId.StartsWith("gov-", StringComparison.OrdinalIgnoreCase) then
+                let slug = elementId.Substring(4)
+                match tryGetGovernanceBySlug repo slug with
+                | Some doc ->
+                    let ownerId =
+                        match doc.owner with
+                        | Some value when not (String.IsNullOrWhiteSpace value) -> Some (value.Trim())
+                        | _ -> None
+
+                    let relationTargets =
+                        doc.relationships
+                        |> List.map (fun rel -> rel.target.Trim())
+                        |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+
+                    let elementIds =
+                        match ownerId with
+                        | Some owner -> owner :: relationTargets
+                        | None -> relationTargets
+                        |> Set.ofList
+
+                    let governanceDocs =
+                        doc :: selectGovernanceDocs repo elementIds
+                        |> List.distinctBy (fun d -> d.slug)
+
+                    let relatedElementIds =
+                        governanceDocs
+                        |> List.collect (fun governanceDoc ->
+                            let ownerId =
+                                match governanceDoc.owner with
+                                | Some value when not (String.IsNullOrWhiteSpace value) -> [ value.Trim() ]
+                                | _ -> []
+
+                            let relationTargets =
+                                governanceDoc.relationships
+                                |> List.map (fun rel -> rel.target.Trim())
+                                |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+
+                            ownerId @ relationTargets
+                        )
+                        |> Set.ofList
+
+                    let allElementIds = Set.union elementIds relatedElementIds
+
+                    let elements =
+                        allElementIds
+                        |> Set.toList
+                        |> List.choose (fun id ->
+                            match Map.tryFind id repo.documents with
+                            | Some elem when isArchitecture elem -> Some elem
+                            | _ -> None)
+
+                    let validElementIds =
+                        elements
+                        |> List.map (fun elem -> elem.id)
+                        |> Set.ofList
+
+                    let rels =
+                        elements
+                        |> List.collect (fun elem ->
+                            elem.relationships
+                            |> List.filter (fun rel -> Set.contains rel.target validElementIds)
+                            |> List.map (fun rel -> (elem.id, rel)))
+
+                    respondWithGraph elements rels governanceDocs
+                | None ->
+                    respondNotFound logger "Governance document not found for diagram expansion: {slug}" slug "Governance document not found"
+                    |> fun handler -> handler next ctx
+            else
+                match tryGetDocumentById repo elementId with
+                | Some elem when isArchitecture elem ->
+                    let outgoing = elem.relationships |> List.map (fun rel -> rel.target)
+                    let incoming =
+                        repo.relations
+                        |> List.choose (fun rel -> if rel.targetId = elementId then Some rel.sourceId else None)
+
+                    let relatedIds =
+                        (elementId :: (outgoing @ incoming))
+                        |> List.filter (fun value -> not (String.IsNullOrWhiteSpace value))
+                        |> Set.ofList
+
+                    let elements =
+                        relatedIds
+                        |> Set.toList
+                        |> List.choose (fun id ->
+                            match Map.tryFind id repo.documents with
+                            | Some doc when isArchitecture doc -> Some doc
+                            | _ -> None)
+
+                    let elementIds =
+                        elements
+                        |> List.map (fun doc -> doc.id)
+                        |> Set.ofList
+
+                    let rels =
+                        elements
+                        |> List.collect (fun doc ->
+                            doc.relationships
+                            |> List.filter (fun rel -> Set.contains rel.target elementIds)
+                            |> List.map (fun rel -> (doc.id, rel)))
+
+                    let governanceDocs = selectGovernanceDocs repo elementIds
+
+                    respondWithGraph elements rels governanceDocs
+                | Some _ ->
+                    respondNotFound logger "Element not found for diagram expansion: {elementId}" elementId "Element not found"
+                    |> fun handler -> handler next ctx
+                | None ->
+                    respondNotFound logger "Element not found for diagram expansion: {elementId}" elementId "Element not found"
+                    |> fun handler -> handler next ctx
     
     /// Validation errors API handler - list all errors
     let validationErrorsHandler (repoService: DocumentRepositoryService) (logger: ILogger) : HttpHandler =
