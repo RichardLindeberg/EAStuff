@@ -44,66 +44,8 @@ module DocumentRepositoryLoader =
             (SimpleYaml.parse header), body
             )
 
-    let private normalizeKey (value: string) : string =
-        value.Trim().ToLowerInvariant().Replace(" ", "_").Replace("-", "_")
-
-    let rec private normalizeYaml (value: SimpleYaml) : SimpleYaml =
-        match value with
-        | SimpleYaml.Value s -> SimpleYaml.Value s
-        | SimpleYaml.Map map ->
-            map
-            |> Map.fold (fun acc key item -> Map.add (normalizeKey key) (normalizeYaml item) acc) Map.empty
-            |> SimpleYaml.Map
-        | SimpleYaml.List items ->
-            items |> List.map normalizeYaml |> SimpleYaml.List
-
-    let private normalizeMetadata (metadata: Map<string, SimpleYaml>) : Map<string, SimpleYaml> =
-        metadata
-        |> Map.fold (fun acc key value -> Map.add (normalizeKey key) (normalizeYaml value) acc) Map.empty
-
-    let private toStringOption (value: string) : string option =
-        let text = value.Trim()
-        if text = "" then None else Some text
-
-
-    let private tryGetValue (key: string) (metadata: Map<string, SimpleYaml>) : SimpleYaml option =
-        metadata |> Map.tryFind (normalizeKey key)
-
-    let private tryGetString (key: string) (metadata: Map<string, SimpleYaml>) : string option =
-        metadata
-        |> Map.tryFind (normalizeKey key)
-        |> Option.bind (fun value ->
-            match value with
-            | SimpleYaml.Value s -> toStringOption s
-            | _ -> None
-        )   
-
-    let private tryGetMap (key: string) (metadata: Map<string, SimpleYaml>) : Map<string, SimpleYaml> option =
-        metadata
-        |> Map.tryFind (normalizeKey key)
-        |> Option.bind (function
-            | SimpleYaml.Map map -> Some map
-            | _ -> None
-        )
-
-    let private tryGetList (key: string) (metadata: Map<string, SimpleYaml>) : SimpleYaml list option =
-        metadata
-        |> Map.tryFind (normalizeKey key)
-        |> Option.bind (function
-            | SimpleYaml.List items -> Some items
-            | _ -> None
-        )
-
-    let private tryGetStringFromMap (key: string) (metadata: Map<string, SimpleYaml>) : string option =
-        metadata
-        |> Map.tryFind (normalizeKey key)
-        |> Option.bind (function
-            | SimpleYaml.Value s -> toStringOption s
-            | _ -> None
-        )
-
     let private parseTags (metadata: Map<string, SimpleYaml>) : string list =
-        match Map.tryFind (normalizeKey "tags") metadata with
+        match SimpleYaml.tryGetValue "tags" metadata with
         | Some (SimpleYaml.Value s) ->
             s.Split(',')
             |> Array.map (fun t -> t.Trim())
@@ -113,17 +55,16 @@ module DocumentRepositoryLoader =
             items
             |> List.choose (function
                 | SimpleYaml.Value s ->
-                    let trimmed = s.Trim()
-                    if trimmed = "" then None else Some trimmed
+                    SimpleYaml.toStringOption s
                 | _ -> None
             )
         | _ -> []
 
     let private parseRelationships (metadata: Map<string, SimpleYaml>) : Relationship list =
         let parseListItem (section: Map<string, SimpleYaml>) : Relationship option =
-            let relType = tryGetString "type" section
-            let relTarget = tryGetString "target" section
-            let relDescription = tryGetString "description" section
+            let relType = SimpleYaml.tryGetString "type" section
+            let relTarget = SimpleYaml.tryGetString "target" section
+            let relDescription = SimpleYaml.tryGetString "description" section
 
             match relType, relTarget with
             | Some sType, Some target ->
@@ -171,14 +112,14 @@ module DocumentRepositoryLoader =
 
     let private parseArchimateMetadata (metadata: Map<string, SimpleYaml>) : ArchimateMetadata * bool =
         let archimateSection =
-            tryGetMap "archimate" metadata
-            |> Option.map normalizeMetadata
+            SimpleYaml.tryGetMap "archimate" metadata
+            |> Option.map SimpleYaml.normalizeMap
 
         match archimateSection with
         | Some section ->
-            let typeValue = tryGetStringFromMap "type" section |> Option.defaultValue ""
-            let layerValue = tryGetStringFromMap "layer" section |> Option.defaultValue ""
-            let criticality = tryGetStringFromMap "criticality" section
+            let typeValue = SimpleYaml.tryGetString "type" section |> Option.defaultValue ""
+            let layerValue = SimpleYaml.tryGetString "layer" section |> Option.defaultValue ""
+            let criticality = SimpleYaml.tryGetString "criticality" section
             {
                 elementType = typeValue
                 layerValue = layerValue
@@ -193,13 +134,13 @@ module DocumentRepositoryLoader =
 
     let private parseGovernanceMetadata (metadata: Map<string, SimpleYaml>) : GovernanceMetadata * bool =
         let governanceSection =
-            tryGetMap "governance" metadata
-            |> Option.map normalizeMetadata
+            SimpleYaml.tryGetMap "governance" metadata
+            |> Option.map SimpleYaml.normalizeMap
 
         match governanceSection with
         | Some section ->
-            let approvedBy = tryGetStringFromMap "approved_by" section |> Option.defaultValue ""
-            let effectiveDate = tryGetStringFromMap "effective_date" section |> Option.defaultValue ""
+            let approvedBy = SimpleYaml.tryGetString "approved_by" section |> Option.defaultValue ""
+            let effectiveDate = SimpleYaml.tryGetString "effective_date" section |> Option.defaultValue ""
             {
                 approvedBy = approvedBy
                 effectiveDate = effectiveDate
@@ -228,12 +169,12 @@ module DocumentRepositoryLoader =
             match parseFrontmatter content with
             | Error e -> failwithf "Error parsing frontmatter in file %s: %s" filePath e
             | Ok (metadataRaw, contentWithoutMetadata) -> metadataRaw, contentWithoutMetadata
-        let metadata = normalizeMetadata metadataRaw
+        let metadata = SimpleYaml.normalizeMap metadataRaw
         let relationships = parseRelationships metadata
         let tags = parseTags metadata
 
-        let nameValue = tryGetString "name" metadata
-        let idValue = tryGetString "id" metadata
+        let nameValue = SimpleYaml.tryGetString "name" metadata
+        let idValue = SimpleYaml.tryGetString "id" metadata
         let hasExplicitId = idValue |> Option.isSome
         let hasExplicitName = nameValue |> Option.isSome
         let docMetadata, hasArchimateSection, hasGovernanceSection = parseMetadata metadata
@@ -243,12 +184,12 @@ module DocumentRepositoryLoader =
                 id = idValue |> Option.defaultValue slug
                 slug = slug
                 title = nameValue |> Option.defaultValue slug
-                owner = tryGetString "owner" metadata
-                status = tryGetString "status" metadata
-                version = tryGetString "version" metadata
-                lastUpdated = tryGetString "last_updated" metadata
-                reviewCycle = tryGetString "review_cycle" metadata
-                nextReview = tryGetString "next_review" metadata
+                owner = SimpleYaml.tryGetString "owner" metadata
+                status = SimpleYaml.tryGetString "status" metadata
+                version = SimpleYaml.tryGetString "version" metadata
+                lastUpdated = SimpleYaml.tryGetString "last_updated" metadata
+                reviewCycle = SimpleYaml.tryGetString "review_cycle" metadata
+                nextReview = SimpleYaml.tryGetString "next_review" metadata
                 relationships = relationships
                 tags = tags
                 filePath = filePath

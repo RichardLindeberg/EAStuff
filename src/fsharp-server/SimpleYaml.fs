@@ -12,7 +12,7 @@ type SimpleYaml =
 
 module SimpleYaml =
 
-    let private normalizeKey (value: string) : string =
+    let normalizeKey (value: string) : string =
         value.Trim().ToLowerInvariant().Replace(" ", "_").Replace("-", "_")
 
     let private tryParseKeyValue (text: string) : (string * string) option =
@@ -126,3 +126,92 @@ module SimpleYaml =
 
         let parsed, _ = parseMap 0 lines
         parsed
+
+    let toStringOption (value: string) : string option =
+        let text = value.Trim()
+        if text = "" then None else Some text
+
+    let tryGetValue (key: string) (map: Map<string, SimpleYaml>) : SimpleYaml option =
+        map |> Map.tryFind (normalizeKey key)
+
+    let tryGetString (key: string) (map: Map<string, SimpleYaml>) : string option =
+        map
+        |> Map.tryFind (normalizeKey key)
+        |> Option.bind (function
+            | SimpleYaml.Value s -> toStringOption s
+            | _ -> None
+        )
+
+    let tryGetMap (key: string) (map: Map<string, SimpleYaml>) : Map<string, SimpleYaml> option =
+        map
+        |> Map.tryFind (normalizeKey key)
+        |> Option.bind (function
+            | SimpleYaml.Map items -> Some items
+            | _ -> None
+        )
+
+    let tryGetList (key: string) (map: Map<string, SimpleYaml>) : SimpleYaml list option =
+        map
+        |> Map.tryFind (normalizeKey key)
+        |> Option.bind (function
+            | SimpleYaml.List items -> Some items
+            | _ -> None
+        )
+
+    let rec normalizeValue (value: SimpleYaml) : SimpleYaml =
+        match value with
+        | SimpleYaml.Value s -> SimpleYaml.Value s
+        | SimpleYaml.Map map ->
+            map
+            |> Map.fold (fun acc key item -> Map.add (normalizeKey key) (normalizeValue item) acc) Map.empty
+            |> SimpleYaml.Map
+        | SimpleYaml.List items ->
+            items |> List.map normalizeValue |> SimpleYaml.List
+
+    let normalizeMap (map: Map<string, SimpleYaml>) : Map<string, SimpleYaml> =
+        map
+        |> Map.fold (fun acc key value -> Map.add (normalizeKey key) (normalizeValue value) acc) Map.empty
+
+    let private renderScalar (value: string) : string =
+        let trimmed = value.Trim()
+        let needsQuotes =
+            trimmed = "" ||
+            trimmed.StartsWith("-") ||
+            trimmed.Contains(":") ||
+            trimmed.Contains("#") ||
+            trimmed.StartsWith("[") ||
+            trimmed.StartsWith("{") ||
+            trimmed.EndsWith(" ")
+
+        if needsQuotes then
+            let escaped = trimmed.Replace("\"", "\\\"")
+            sprintf "\"%s\"" escaped
+        else
+            trimmed
+
+    let rec private renderYaml (indent: int) (value: SimpleYaml) : string list =
+        let indentText = String.replicate indent "  "
+        match value with
+        | SimpleYaml.Value text -> [ indentText + renderScalar text ]
+        | SimpleYaml.Map entries ->
+            entries
+            |> Map.toList
+            |> List.collect (fun (key, entryValue) ->
+                match entryValue with
+                | SimpleYaml.Value text -> [ sprintf "%s%s: %s" indentText key (renderScalar text) ]
+                | _ ->
+                    let header = sprintf "%s%s:" indentText key
+                    header :: renderYaml (indent + 1) entryValue
+            )
+        | SimpleYaml.List items ->
+            items
+            |> List.collect (fun item ->
+                match item with
+                | SimpleYaml.Value text -> [ sprintf "%s- %s" indentText (renderScalar text) ]
+                | _ ->
+                    let header = sprintf "%s-" indentText
+                    header :: renderYaml (indent + 1) item
+            )
+
+    let render (value: SimpleYaml) : string =
+        renderYaml 0 value |> String.concat "\n"

@@ -4,7 +4,6 @@ open System
 open System.Collections.Generic
 open System.Globalization
 open System.Text.RegularExpressions
-open YamlDotNet.Serialization
 
 module HandlersHelpers =
 
@@ -17,27 +16,24 @@ module HandlersHelpers =
         (properties: (string * string) list)
         (tags: string list)
         : string =
-        let data = Dictionary<string, obj>()
-        data.Add("id", id)
-        data.Add("name", name)
-
-        let normalizeKey (value: string) =
-            value.Trim().ToLowerInvariant().Replace(" ", "_").Replace("-", "_")
+        let baseEntries = ResizeArray<string * SimpleYaml>()
+        baseEntries.Add("id", SimpleYaml.Value id)
+        baseEntries.Add("name", SimpleYaml.Value name)
 
         let propertyMap =
             properties
-            |> List.fold (fun acc (key, value) -> Map.add (normalizeKey key) value acc) Map.empty
+            |> List.fold (fun acc (key, value) -> Map.add (SimpleYaml.normalizeKey key) value acc) Map.empty
 
         let tryGetProperty key =
             propertyMap
-            |> Map.tryFind (normalizeKey key)
+            |> Map.tryFind (SimpleYaml.normalizeKey key)
             |> Option.filter (fun value -> not (String.IsNullOrWhiteSpace value))
 
         let sharedKeys = set [ "owner"; "status"; "version"; "last_updated"; "review_cycle"; "next_review" ]
 
         let addSharedField key =
             match tryGetProperty key with
-            | Some value -> data.Add(key, value)
+            | Some value -> baseEntries.Add(key, SimpleYaml.Value value)
             | None -> ()
 
         addSharedField "owner"
@@ -47,29 +43,31 @@ module HandlersHelpers =
         addSharedField "review_cycle"
         addSharedField "next_review"
 
-        let archimate = Dictionary<string, obj>()
-        archimate.Add("type", elementType)
-        archimate.Add("layer", layer)
+        let archimateEntries = ResizeArray<string * SimpleYaml>()
+        archimateEntries.Add("type", SimpleYaml.Value elementType)
+        archimateEntries.Add("layer", SimpleYaml.Value layer)
         match tryGetProperty "criticality" with
-        | Some value -> archimate.Add("criticality", value)
+        | Some value -> archimateEntries.Add("criticality", SimpleYaml.Value value)
         | None -> ()
-        data.Add("archimate", archimate)
+        baseEntries.Add("archimate", SimpleYaml.Map (Map.ofList (List.ofSeq archimateEntries)))
 
         if not (List.isEmpty relationships) then
-            let relList = ResizeArray<obj>()
-            for (relType, target, desc) in relationships do
-                let rel = Dictionary<string, obj>()
-                rel.Add("type", relType)
-                rel.Add("target", target)
-                if not (String.IsNullOrWhiteSpace desc) then
-                    rel.Add("description", desc)
-                relList.Add(rel :> obj)
-            data.Add("relationships", relList)
+            let relItems =
+                relationships
+                |> List.map (fun (relType, target, desc) ->
+                    let relEntries = ResizeArray<string * SimpleYaml>()
+                    relEntries.Add("type", SimpleYaml.Value relType)
+                    relEntries.Add("target", SimpleYaml.Value target)
+                    if not (String.IsNullOrWhiteSpace desc) then
+                        relEntries.Add("description", SimpleYaml.Value desc)
+                    SimpleYaml.Map (Map.ofList (List.ofSeq relEntries))
+                )
+            baseEntries.Add("relationships", SimpleYaml.List relItems)
 
         let extensionProps =
             properties
             |> List.choose (fun (key, value) ->
-                let normalized = normalizeKey key
+                let normalized = SimpleYaml.normalizeKey key
                 if normalized = "criticality" || Set.contains normalized sharedKeys then
                     None
                 elif String.IsNullOrWhiteSpace value then
@@ -79,19 +77,19 @@ module HandlersHelpers =
             )
 
         if not (List.isEmpty extensionProps) then
-            let props = Dictionary<string, obj>()
-            for (key, value) in extensionProps do
-                props.Add(key, value)
-            data.Add("properties", props)
+            let props =
+                extensionProps
+                |> List.map (fun (key, value) -> key, SimpleYaml.Value value)
+                |> Map.ofList
+            baseEntries.Add("properties", SimpleYaml.Map props)
 
         if not (List.isEmpty tags) then
-            let tagList = ResizeArray<obj>()
-            for tag in tags do
-                tagList.Add(tag)
-            data.Add("tags", tagList)
+            baseEntries.Add("tags", SimpleYaml.List (tags |> List.map SimpleYaml.Value))
 
-        let serializer = SerializerBuilder().Build()
-        let yaml = serializer.Serialize(data).TrimEnd()
+        let yaml =
+            SimpleYaml.Map (Map.ofList (List.ofSeq baseEntries))
+            |> SimpleYaml.render
+
         $"---\n{yaml}\n---"
 
     let layerCodes =
