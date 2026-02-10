@@ -96,6 +96,26 @@ module Elements =
             else
                 []
 
+        let governanceOutgoingSection =
+            if not (List.isEmpty detail.governanceOutgoing) then
+                [
+                    div [_class "relations-section"] [
+                        h3 [] [encodedText "Governance References"]
+                        ul [_class "relation-list"] [
+                            for doc in detail.governanceOutgoing |> List.sortBy (fun d -> d.title) do
+                                li [_class "relation-item"] [
+                                    span [_class "relation-type governance-relation-type"] [encodedText (formatGovernanceRelationType doc.relationType)]
+                                    span [_class "governance-relation-label"] [encodedText (docTypeToString doc.docType)]
+                                    a [_href $"{baseUrl}governance/{doc.slug}"] [
+                                        encodedText doc.title
+                                    ]
+                                ]
+                        ]
+                    ]
+                ]
+            else
+                []
+
         let content = [
             div [_class "container"] [
                 div [_class "edit-toolbar"] [
@@ -185,6 +205,7 @@ module Elements =
                             ]
                             yield! incomingSection
                             yield! outgoingSection
+                            yield! governanceOutgoingSection
                             yield! governanceOwnerSection
                             yield! governanceIncomingSection
                         ]

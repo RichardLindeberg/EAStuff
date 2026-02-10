@@ -298,6 +298,15 @@ module Governance =
                 buildRelationItem relationLabel targetType rel.relatedName targetLink
             )
 
+        let archimateIncomingItems =
+            detail.archimateIncomingRelations
+            |> List.map (fun rel ->
+                let relationLabel = formatRelationType rel.relationType
+                let targetType = "Architecture"
+                let targetLink = Some $"{baseUrl}elements/{rel.relatedId}"
+                buildRelationItem relationLabel targetType rel.relatedName targetLink
+            )
+
         let content = [
             div [_class "container"] [
                 div [_class "breadcrumb"] [
@@ -357,6 +366,12 @@ module Governance =
                                 div [_class "relations-section"] [
                                     h3 [] [encodedText "Architecture Relations"]
                                     ul [_class "relation-list"] archimateRelationItems
+                                ]
+
+                            if not (List.isEmpty archimateIncomingItems) then
+                                div [_class "relations-section"] [
+                                    h3 [] [encodedText "Referenced By Architecture"]
+                                    ul [_class "relation-list"] archimateIncomingItems
                                 ]
                         ]
 

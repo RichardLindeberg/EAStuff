@@ -242,6 +242,26 @@ module DocumentQueries =
                 }
             )
 
+        let governanceLookup =
+            getGovernanceDocuments repo
+            |> List.map (fun governanceDoc -> governanceDoc.id, governanceDoc)
+            |> Map.ofList
+
+        let governanceOutgoing =
+            doc.relationships
+            |> List.choose (fun rel ->
+                match Map.tryFind rel.target governanceLookup with
+                | Some target ->
+                    Some {
+                        docId = target.id
+                        slug = target.slug
+                        title = target.title
+                        docType = getGovernanceDocType target
+                        relationType = rel.relationType
+                    }
+                | None -> None
+            )
+
         let properties =
             [
                 "owner", "Owner"
@@ -267,6 +287,7 @@ module DocumentQueries =
             outgoingRelations = outgoing
             governanceOwners = governanceOwners
             governanceIncoming = governanceIncoming
+            governanceOutgoing = governanceOutgoing
         }
 
     let createArchimateEdit (doc: DocumentRecord) : ArchimateEditView =
@@ -353,6 +374,17 @@ module DocumentQueries =
                 | None -> None
             )
 
+        let archimateIncomingRelations =
+            getIncomingArchimateRelations repo doc.id
+            |> List.map (fun (source, rel) ->
+                {
+                    relatedId = source.id
+                    relatedName = source.title
+                    relationType = rel.relationType
+                    description = rel.description
+                }
+            )
+
         {
             slug = doc.slug
             title = doc.title
@@ -360,5 +392,6 @@ module DocumentQueries =
             metadataItems = metadataItems
             governanceRelations = governanceRelations
             archimateRelations = archimateRelations
+            archimateIncomingRelations = archimateIncomingRelations
             content = doc.content
         }

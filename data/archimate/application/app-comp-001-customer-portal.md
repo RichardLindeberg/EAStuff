@@ -39,7 +39,9 @@ The Customer Portal is the primary web-based application through which customers
 This application component serves as the main digital touchpoint for customers, providing self-service capabilities and access to various business services. It is a critical component in our customer engagement strategy.
 
 ## Key Features
-
+For more details see [cloud strategy](str-capa-001-cloud-infrastructure-and-modern)
+This is an external link [google](www.google.com) that should still go to google. 
+understand that [kredit risk is important](ms-policy-015-credit-risk)
 - User authentication and authorization
 - Self-service account management
 - Service request submission

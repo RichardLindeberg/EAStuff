@@ -39,6 +39,7 @@ type ArchimateDetailView = {
     outgoingRelations: ArchimateRelationView list
     governanceOwners: GovernanceRelationView list
     governanceIncoming: GovernanceRelationView list
+    governanceOutgoing: GovernanceRelationView list
 }
 
 /// Edit form model for an ArchiMate element.
@@ -70,5 +71,6 @@ type GovernanceDetailView = {
     metadataItems: (string * string) list
     governanceRelations: GovernanceRelationView list
     archimateRelations: ArchimateRelationView list
+    archimateIncomingRelations: ArchimateRelationView list
     content: string
 }

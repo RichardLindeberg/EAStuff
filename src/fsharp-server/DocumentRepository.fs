@@ -3,6 +3,7 @@ namespace EAArchive
 open System
 open System.IO
 open System.Text.RegularExpressions
+open System.Collections.Generic
 open Microsoft.Extensions.Logging
 open DocumentRecordHelpers
 open DocumentTypeHelpers
@@ -95,6 +96,63 @@ module DocumentRepositoryLoader =
         getGovernanceDocTypeFromPath filePath
 
     let private governanceIdPattern = Regex("^ms-(policy|instruction|manual)-\\d{3}-[a-z0-9-]+$", RegexOptions.IgnoreCase)
+    let private archimateIdPattern = Regex("^[a-z0-9]+-[a-z0-9]+-\\d{3}-[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.IgnoreCase)
+    let private contentLinkPattern = Regex("\\[([^\]]+)\\]\\(([^\)\s]+)\\)", RegexOptions.IgnoreCase)
+
+    let private resolveDocumentLink (doc: DocumentRecord) : string =
+        match doc with
+        | ArchitectureDoc _ -> $"/elements/{doc.id}"
+        | GovernanceDoc _ -> $"/governance/{doc.slug}"
+
+    let private applyContentLinks (documentsById: Map<string, DocumentRecord>) (doc: DocumentRecord) : DocumentRecord =
+        let existingTargets =
+            doc.relationships
+            |> List.map (fun rel -> rel.target)
+            |> Set.ofList
+
+        let newRelationships = ResizeArray<Relationship>()
+        let referencedTargets = HashSet<string>(StringComparer.OrdinalIgnoreCase)
+
+        let updatedContent =
+            contentLinkPattern.Replace(doc.content, fun (m: Match) ->
+                let linkText = m.Groups.[1].Value.Trim()
+                let rawHref = m.Groups.[2].Value.Trim()
+                let isKnownIdFormat =
+                    archimateIdPattern.IsMatch rawHref
+                    || governanceIdPattern.IsMatch rawHref
+
+                if isKnownIdFormat then
+                    match Map.tryFind rawHref documentsById with
+                    | Some target ->
+                        if not (Set.contains target.id existingTargets) && referencedTargets.Add(target.id) then
+                            newRelationships.Add({
+                                target = target.id
+                                relationType = RelationType.Association
+                                description = linkText
+                            })
+
+                        let linkUrl = resolveDocumentLink target
+                        if String.IsNullOrWhiteSpace linkText then
+                            m.Value
+                        else
+                            $"[{linkText}]({linkUrl})"
+                    | None ->
+                        m.Value
+                elif rawHref.StartsWith("www.", StringComparison.OrdinalIgnoreCase) then
+                    if String.IsNullOrWhiteSpace linkText then
+                        m.Value
+                    else
+                        $"[{linkText}](https://{rawHref})"
+                else
+                    m.Value
+            )
+
+        if newRelationships.Count = 0 && updatedContent = doc.content then
+            doc
+        else
+            { doc with
+                content = updatedContent
+                relationships = doc.relationships @ List.ofSeq newRelationships }
 
 
     let private parseArchimateMetadata (metadata: Map<string, SimpleYaml>) : ArchimateMetadata * bool =
@@ -536,7 +594,19 @@ module DocumentRepositoryLoader =
         let governanceDocs = loadDocumentsFromPath managementSystemPath parseGovernanceDocument
 
         let documents = archimateDocs @ governanceDocs
-        let documentRecords = documents |> List.map (fun doc -> doc.document)
+        let documentsById =
+            documents
+            |> List.map (fun doc -> doc.document.id, doc.document)
+            |> Map.ofList
+
+        let documentsWithContentLinks =
+            documents
+            |> List.map (fun parsed ->
+                let updatedDoc = applyContentLinks documentsById parsed.document
+                { parsed with document = updatedDoc }
+            )
+
+        let documentRecords = documentsWithContentLinks |> List.map (fun doc -> doc.document)
         let documentsById =
             documentRecords
             |> List.fold (fun acc doc -> Map.add doc.id doc acc) Map.empty
@@ -564,7 +634,7 @@ module DocumentRepositoryLoader =
         let validationErrors =
             let errors = ResizeArray<ValidationError>()
             errors.AddRange(
-                documents
+                documentsWithContentLinks
                 |> List.collect (fun doc ->
                     validateDocument
                         doc.document
